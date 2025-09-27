@@ -1,0 +1,511 @@
+import SwiftUI
+import CoreLocation
+
+struct DropCardView: View {
+    let drop: Drop
+    @EnvironmentObject var subscriptionManager: SubscriptionManager
+    @State private var address: String?
+    @State private var showingShareSheet = false
+    @State private var showingReportSheet = false
+    
+    private var timeAgo: String {
+        let formatter = RelativeDateTimeFormatter()
+        formatter.unitsStyle = .abbreviated
+        return formatter.localizedString(for: drop.createdAt, relativeTo: Date())
+    }
+    
+    private var poopEmoji: String {
+        if let skinId = drop.skinId {
+            return skinId
+        }
+        return "💩"
+    }
+    
+    private var isSponsored: Bool {
+        drop.isSponsored
+    }
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            // Header
+            HStack(spacing: 12) {
+                // Profile picture placeholder
+                Circle()
+                    .fill(
+                        LinearGradient(
+                            colors: [Color.brown.opacity(0.7), Color.brown],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .frame(width: 40, height: 40)
+                    .overlay(
+                        Text(String(drop.creatorName.prefix(1)).uppercased())
+                            .font(.headline)
+                            .fontWeight(.bold)
+                            .foregroundColor(.white)
+                    )
+                
+                VStack(alignment: .leading, spacing: 2) {
+                    HStack(spacing: 8) {
+                        Text(drop.creatorName)
+                            .font(.headline)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.white)
+                        
+                        if isSponsored {
+                            SponsoredBadge()
+                        }
+                        
+                        if subscriptionManager.isProSubscriber && !isSponsored {
+                            ProBadge()
+                        }
+                    }
+                    
+                    HStack(spacing: 4) {
+                        Image(systemName: "location.fill")
+                            .font(.caption)
+                            .foregroundColor(.white.opacity(0.6))
+                        
+                        Text(address ?? "Loading location...")
+                            .font(.caption)
+                            .foregroundColor(.white.opacity(0.6))
+                        
+                        Text("•")
+                            .font(.caption)
+                            .foregroundColor(.white.opacity(0.6))
+                        
+                        Text(timeAgo)
+                            .font(.caption)
+                            .foregroundColor(.white.opacity(0.6))
+                    }
+                }
+                
+                Spacer()
+                
+                // More options menu
+                Menu {
+                    Button(action: {
+                        showingShareSheet = true
+                    }) {
+                        Label("Share", systemImage: "square.and.arrow.up")
+                    }
+                    
+                    if !isSponsored {
+                        Button(role: .destructive, action: {
+                            showingReportSheet = true
+                        }) {
+                            Label("Report", systemImage: "flag")
+                        }
+                    }
+                } label: {
+                    Image(systemName: "ellipsis")
+                        .foregroundColor(.white.opacity(0.6))
+                        .font(.title3)
+                }
+            }
+            
+            // Main content
+            VStack(alignment: .leading, spacing: 12) {
+                // Poop emoji with animation
+                HStack {
+                    Text(poopEmoji)
+                        .font(.system(size: 48))
+                        .scaleEffect(1.0)
+                        .animation(.bouncy(duration: 0.6), value: poopEmoji)
+                    
+                    Spacer()
+                }
+                
+                // Caption
+                if let caption = drop.caption, !caption.isEmpty {
+                    Text(caption)
+                        .font(.body)
+                        .foregroundColor(.white)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                
+                // Sponsored content
+                if isSponsored {
+                    SponsoredContentView(drop: drop)
+                }
+            }
+            
+            // Reactions
+            ReactionBarView(drop: drop)
+            
+            // Share sheet
+            if showingShareSheet {
+                ShareSheetView(drop: drop, isPresented: $showingShareSheet)
+            }
+        }
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(
+                    isSponsored 
+                    ? LinearGradient(
+                        colors: [Color.purple.opacity(0.1), Color.blue.opacity(0.1)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                    : LinearGradient(
+                        colors: [Color.white.opacity(0.05), Color.white.opacity(0.02)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(
+                            isSponsored ? Color.purple.opacity(0.3) : Color.white.opacity(0.1),
+                            lineWidth: 1
+                        )
+                )
+        )
+        .onAppear {
+            loadAddress()
+        }
+        .sheet(isPresented: $showingReportSheet) {
+            ReportView(drop: drop)
+        }
+    }
+    
+    private func loadAddress() {
+        Task {
+            let location = CLLocation(latitude: drop.coordinate.latitude, longitude: drop.coordinate.longitude)
+            address = await LocationManager().getAddressFromLocation(location)
+        }
+    }
+}
+
+struct SponsoredBadge: View {
+    var body: some View {
+        Text("SPONSORED")
+            .font(.caption2)
+            .fontWeight(.bold)
+            .foregroundColor(.white)
+            .padding(.horizontal, 6)
+            .padding(.vertical, 2)
+            .background(
+                LinearGradient(
+                    colors: [Color.purple, Color.blue],
+                    startPoint: .leading,
+                    endPoint: .trailing
+                )
+            )
+            .cornerRadius(4)
+    }
+}
+
+struct ProBadge: View {
+    var body: some View {
+        Text("PRO")
+            .font(.caption2)
+            .fontWeight(.bold)
+            .foregroundColor(.black)
+            .padding(.horizontal, 6)
+            .padding(.vertical, 2)
+            .background(Color.yellow)
+            .cornerRadius(4)
+    }
+}
+
+struct SponsoredContentView: View {
+    let drop: Drop
+    @EnvironmentObject var cloudKitManager: CloudKitManager
+    @State private var campaign: SponsorCampaign?
+    
+    var body: some View {
+        if let campaign = campaign {
+            VStack(alignment: .leading, spacing: 8) {
+                HStack {
+                    Text("🎯")
+                        .font(.title3)
+                    
+                    Text("Special Offer from \(campaign.brandName)")
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.white)
+                    
+                    Spacer()
+                }
+                
+                if let discount = campaign.actionPayload["discount"] {
+                    Text(discount)
+                        .font(.body)
+                        .foregroundColor(.white.opacity(0.9))
+                }
+                
+                if let code = campaign.actionPayload["code"] {
+                    HStack {
+                        Text("Code: \(code)")
+                            .font(.caption)
+                            .fontWeight(.bold)
+                            .foregroundColor(.black)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(Color.yellow)
+                            .cornerRadius(6)
+                        
+                        Button("Copy") {
+                            UIPasteboard.general.string = code
+                        }
+                        .font(.caption)
+                        .foregroundColor(.yellow)
+                        
+                        Spacer()
+                    }
+                }
+            }
+            .padding(12)
+            .background(
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(Color.white.opacity(0.1))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(Color.purple.opacity(0.3), lineWidth: 1)
+                    )
+            )
+        }
+    }
+    
+    private func loadCampaign() {
+        guard let campaignId = drop.sponsorCampaignId else { return }
+        
+        // Find campaign in CloudKit manager's campaigns
+        campaign = cloudKitManager.sponsorCampaigns.first { $0.id == campaignId }
+    }
+}
+
+struct ShareSheetView: View {
+    let drop: Drop
+    @Binding var isPresented: Bool
+    
+    var shareText: String {
+        var text = "Check out this poop drop on Poop Drop! 💩"
+        
+        if let caption = drop.caption, !caption.isEmpty {
+            text += "\n\n\"\(caption)\""
+        }
+        
+        text += "\n\nDrop by \(drop.creatorName)"
+        text += "\n\nDownload Poop Drop: [App Store Link]"
+        
+        return text
+    }
+    
+    var body: some View {
+        VStack(spacing: 20) {
+            Text("Share this Drop")
+                .font(.headline)
+                .foregroundColor(.white)
+            
+            VStack(spacing: 12) {
+                ShareButton(
+                    title: "Share to TikTok",
+                    icon: "music.note",
+                    color: .black,
+                    action: shareToTikTok
+                )
+                
+                ShareButton(
+                    title: "Share to Instagram",
+                    icon: "camera",
+                    color: .purple,
+                    action: shareToInstagram
+                )
+                
+                ShareButton(
+                    title: "Copy Link",
+                    icon: "link",
+                    color: .blue,
+                    action: copyLink
+                )
+                
+                ShareButton(
+                    title: "More Options",
+                    icon: "square.and.arrow.up",
+                    color: .gray,
+                    action: shareMore
+                )
+            }
+            
+            Button("Cancel") {
+                isPresented = false
+            }
+            .foregroundColor(.white.opacity(0.7))
+            .padding(.top, 8)
+        }
+        .padding(20)
+        .background(Color.black)
+        .cornerRadius(16)
+        .padding(.horizontal, 20)
+    }
+    
+    private func shareToTikTok() {
+        // Implement TikTok sharing
+        isPresented = false
+    }
+    
+    private func shareToInstagram() {
+        // Implement Instagram sharing
+        isPresented = false
+    }
+    
+    private func copyLink() {
+        UIPasteboard.general.string = "https://poopdrop.app/drop/\(drop.id)"
+        isPresented = false
+    }
+    
+    private func shareMore() {
+        // Present system share sheet
+        let activityVC = UIActivityViewController(activityItems: [shareText], applicationActivities: nil)
+        
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let window = windowScene.windows.first {
+            window.rootViewController?.present(activityVC, animated: true)
+        }
+        
+        isPresented = false
+    }
+}
+
+struct ShareButton: View {
+    let title: String
+    let icon: String
+    let color: Color
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            HStack {
+                Image(systemName: icon)
+                    .foregroundColor(color)
+                    .font(.title3)
+                    .frame(width: 24)
+                
+                Text(title)
+                    .foregroundColor(.white)
+                    .fontWeight(.medium)
+                
+                Spacer()
+            }
+            .padding()
+            .background(Color.white.opacity(0.1))
+            .cornerRadius(12)
+        }
+    }
+}
+
+struct ReportView: View {
+    let drop: Drop
+    @Environment(\.dismiss) private var dismiss
+    @State private var selectedReason = ""
+    @State private var customReason = ""
+    @State private var isSubmitting = false
+    
+    private let reportReasons = [
+        "Inappropriate content",
+        "Spam",
+        "Harassment",
+        "False information",
+        "Copyright violation",
+        "Other"
+    ]
+    
+    var body: some View {
+        NavigationView {
+            VStack(alignment: .leading, spacing: 20) {
+                Text("Why are you reporting this drop?")
+                    .font(.headline)
+                    .foregroundColor(.white)
+                
+                VStack(spacing: 12) {
+                    ForEach(reportReasons, id: \.self) { reason in
+                        Button(action: {
+                            selectedReason = reason
+                        }) {
+                            HStack {
+                                Image(systemName: selectedReason == reason ? "checkmark.circle.fill" : "circle")
+                                    .foregroundColor(selectedReason == reason ? .blue : .white.opacity(0.6))
+                                
+                                Text(reason)
+                                    .foregroundColor(.white)
+                                
+                                Spacer()
+                            }
+                            .padding()
+                            .background(Color.white.opacity(0.05))
+                            .cornerRadius(8)
+                        }
+                    }
+                }
+                
+                if selectedReason == "Other" {
+                    TextField("Please specify...", text: $customReason, axis: .vertical)
+                        .lineLimit(3)
+                        .padding()
+                        .background(Color.white.opacity(0.1))
+                        .cornerRadius(8)
+                        .foregroundColor(.white)
+                }
+                
+                Spacer()
+                
+                Button(action: submitReport) {
+                    HStack {
+                        if isSubmitting {
+                            ProgressView()
+                                .scaleEffect(0.8)
+                        }
+                        Text(isSubmitting ? "Submitting..." : "Submit Report")
+                            .fontWeight(.semibold)
+                    }
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(selectedReason.isEmpty ? Color.gray : Color.red)
+                    .cornerRadius(12)
+                }
+                .disabled(selectedReason.isEmpty || isSubmitting)
+            }
+            .padding(20)
+            .background(Color.black)
+            .navigationTitle("Report Drop")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Cancel") {
+                        dismiss()
+                    }
+                    .foregroundColor(.white)
+                }
+            }
+        }
+        .preferredColorScheme(.dark)
+    }
+    
+    private func submitReport() {
+        isSubmitting = true
+        
+        // Simulate report submission
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            isSubmitting = false
+            dismiss()
+        }
+    }
+}
+
+#Preview {
+    ScrollView {
+        VStack(spacing: 16) {
+            DropCardView(drop: Drop.sampleDrop)
+            DropCardView(drop: Drop.sponsoredDrop)
+        }
+        .padding()
+    }
+    .background(Color.black)
+    .environmentObject(SubscriptionManager())
+    .environmentObject(CloudKitManager())
+}
