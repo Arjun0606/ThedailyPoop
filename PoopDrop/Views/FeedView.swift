@@ -5,6 +5,7 @@ struct FeedView: View {
     @EnvironmentObject var authManager: AuthenticationManager
     @EnvironmentObject var subscriptionManager: SubscriptionManager
     @StateObject private var friendsManager = FriendsManager()
+    @StateObject private var adManager = AdManager.shared
     @State private var friendDrops: [Drop] = []
     @State private var isRefreshing = false
     @State private var showingProUpsell = false
@@ -25,8 +26,8 @@ struct FeedView: View {
                                 ProWelcomeCard()
                             }
                             
-                            // Friends' drops feed
-                            ForEach(friendDrops) { drop in
+                            // Friends' drops feed with native ads
+                            ForEach(Array(friendDrops.enumerated()), id: \.element.id) { index, drop in
                                 DropCardView(drop: drop)
                                     .onAppear {
                                         // Load more drops when approaching end
@@ -34,6 +35,18 @@ struct FeedView: View {
                                             loadMoreFriendDrops()
                                         }
                                     }
+                                
+                                // Insert native ad every 5th drop (free users only)
+                                if !subscriptionManager.isProSubscriber && 
+                                   (index + 1) % 5 == 0 && 
+                                   let nativeAd = adManager.nativeAd {
+                                    NativeAdCardView(adViewModel: nativeAd)
+                                        .transition(.opacity)
+                                        .onAppear {
+                                            // Load a new ad for the next placement
+                                            adManager.loadAd()
+                                        }
+                                }
                             }
                             
                             // Loading indicator
@@ -97,6 +110,11 @@ struct FeedView: View {
         }
         .onAppear {
             loadInitialFriendDrops()
+            
+            // Load initial ad for free users
+            if !subscriptionManager.isProSubscriber {
+                adManager.loadAd()
+            }
         }
         .sheet(isPresented: $showingProUpsell) {
             ProUpsellView()

@@ -316,15 +316,25 @@ struct ProPricingCard: View {
                 .fontWeight(.bold)
                 .foregroundColor(.white)
             
-            HStack(alignment: .bottom, spacing: 4) {
-                Text("$4.99")
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
-                    .foregroundColor(.yellow)
+            VStack(spacing: 12) {
+                HStack(alignment: .bottom, spacing: 4) {
+                    Text("$6.99")
+                        .font(.largeTitle)
+                        .fontWeight(.bold)
+                        .foregroundColor(.yellow)
+                    
+                    Text("/month")
+                        .font(.subheadline)
+                        .foregroundColor(.white.opacity(0.8))
+                }
                 
-                Text("/month")
-                    .font(.subheadline)
-                    .foregroundColor(.white.opacity(0.8))
+                // Pricing options
+                VStack(spacing: 8) {
+                    PricingOptionRow(duration: "3 months", price: "$16.99", savings: "Save 19%")
+                    PricingOptionRow(duration: "6 months", price: "$29.99", savings: "Save 28%")
+                    PricingOptionRow(duration: "1 year", price: "$59.99", savings: "Save 28% + Best Value!", isRecommended: true)
+                }
+                .padding(.top, 8)
             }
             
             VStack(spacing: 8) {
@@ -452,6 +462,59 @@ struct FeatureRow: View {
                 .foregroundColor(.white.opacity(0.8))
             Spacer()
         }
+    }
+}
+
+struct PricingOptionRow: View {
+    let duration: String
+    let price: String
+    let savings: String
+    let isRecommended: Bool
+    
+    init(duration: String, price: String, savings: String, isRecommended: Bool = false) {
+        self.duration = duration
+        self.price = price
+        self.savings = savings
+        self.isRecommended = isRecommended
+    }
+    
+    var body: some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(duration)
+                    .font(.subheadline)
+                    .fontWeight(.medium)
+                    .foregroundColor(.white)
+                
+                Text(savings)
+                    .font(.caption)
+                    .foregroundColor(isRecommended ? .yellow : .green)
+            }
+            
+            Spacer()
+            
+            HStack(spacing: 4) {
+                Text(price)
+                    .font(.headline)
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+                
+                if isRecommended {
+                    Text("👑")
+                        .font(.caption)
+                }
+            }
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
+        .background(
+            RoundedRectangle(cornerRadius: 8)
+                .fill(isRecommended ? Color.yellow.opacity(0.2) : Color.white.opacity(0.05))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(isRecommended ? Color.yellow.opacity(0.5) : Color.white.opacity(0.1), lineWidth: 1)
+                )
+        )
     }
 }
 
