@@ -1,0 +1,563 @@
+import SwiftUI
+import MapKit
+import CoreLocation
+
+struct SnapchatStyleMapView: View {
+    @EnvironmentObject var cloudKitManager: CloudKitManager
+    @EnvironmentObject var locationManager: LocationManager
+    @EnvironmentObject var subscriptionManager: SubscriptionManager
+    @State private var region = MKCoordinateRegion(
+        center: CLLocationCoordinate2D(latitude: 37.7749, longitude: -122.4194),
+        span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
+    )
+    @State private var selectedDrop: Drop?
+    @State private var showingDropDetail = false
+    @State private var mapTheme: CartoonMapTheme = .snapchatStyle
+    @State private var clusteredDrops: [ClusteredDrop] = []
+    
+    enum CartoonMapTheme: String, CaseIterable {
+        case snapchatStyle = "Snapchat Style"
+        case darkLuxury = "Dark Luxury" // Pro only
+        case cosmicGalaxy = "Cosmic Galaxy" // Pro only
+        case toiletPaper = "Toilet Paper Grid" // Pro only
+        
+        var isPro: Bool {
+            switch self {
+            case .snapchatStyle:
+                return false
+            case .darkLuxury, .cosmicGalaxy, .toiletPaper:
+                return true
+            }
+        }
+        
+        var mapStyle: MapStyle {
+            switch self {
+            case .snapchatStyle:
+                return .standard(elevation: .realistic, pointsOfInterest: .excludingAll)
+            case .darkLuxury:
+                return .standard(elevation: .realistic, pointsOfInterest: .excludingAll)
+            case .cosmicGalaxy:
+                return .imagery(elevation: .realistic)
+            case .toiletPaper:
+                return .hybrid(elevation: .realistic)
+            }
+        }
+        
+        var backgroundColor: Color {
+            switch self {
+            case .snapchatStyle: return Color(red: 0.95, green: 0.95, blue: 0.97) // Light Snapchat-like
+            case .darkLuxury: return Color.black
+            case .cosmicGalaxy: return Color.purple.opacity(0.3)
+            case .toiletPaper: return Color.brown.opacity(0.1)
+            }
+        }
+    }
+    
+    var availableThemes: [CartoonMapTheme] {
+        subscriptionManager.isProSubscriber ? CartoonMapTheme.allCases : [.snapchatStyle]
+    }
+    
+    var body: some View {
+        ZStack {
+            // Custom map background
+            mapTheme.backgroundColor.ignoresSafeArea()
+            
+            // Map with custom styling
+            Map(coordinateRegion: $region) {
+                // User location
+                if let userLocation = locationManager.location {
+                    MapAnnotation(coordinate: userLocation.coordinate) {
+                        UserLocationPin()
+                    }
+                }
+                
+                // Clustered poop drops
+                ForEach(clusteredDrops) { cluster in
+                    MapAnnotation(coordinate: cluster.coordinate) {
+                        ClusteredPoopPin(cluster: cluster) {
+                            if cluster.drops.count == 1 {
+                                selectedDrop = cluster.drops.first
+                                showingDropDetail = true
+                            } else {
+                                // Show cluster detail
+                            }
+                        }
+                    }
+                }
+            }
+            .mapStyle(mapTheme.mapStyle)
+            .onAppear {
+                centerOnUserLocation()
+                loadAndClusterDrops()
+            }
+            .onChange(of: region) { _ in
+                loadAndClusterDrops()
+            }
+            
+            // Snapchat-style overlay elements
+            VStack {
+                // Top controls
+                HStack {
+                    // Weather widget (Snapchat-style)
+                    WeatherWidget()
+                    
+                    Spacer()
+                    
+                    // Theme selector (Pro feature)
+                    if subscriptionManager.isProSubscriber {
+                        ThemeButton(currentTheme: $mapTheme, availableThemes: availableThemes)
+                    }
+                }
+                .padding(.horizontal, 16)
+                .padding(.top, 16)
+                
+                Spacer()
+                
+                // Bottom controls
+                HStack {
+                    // Map stats
+                    MapStatsCard(dropsCount: clusteredDrops.reduce(0) { $0 + $1.drops.count })
+                    
+                    Spacer()
+                    
+                    // Center on user button
+                    Button(action: centerOnUserLocation) {
+                        Image(systemName: "location.fill")
+                            .foregroundColor(.white)
+                            .font(.title3)
+                            .frame(width: 44, height: 44)
+                            .background(
+                                Circle()
+                                    .fill(Color.black.opacity(0.7))
+                                    .shadow(color: .black.opacity(0.3), radius: 4, x: 0, y: 2)
+                            )
+                    }
+                }
+                .padding(.horizontal, 16)
+                .padding(.bottom, 100) // Above tab bar
+            }
+        }
+        .sheet(isPresented: $showingDropDetail) {
+            if let drop = selectedDrop {
+                DropDetailView(drop: drop)
+            }
+        }
+    }
+    
+    private func centerOnUserLocation() {
+        guard let location = locationManager.location else {
+            locationManager.requestLocationPermission()
+            return
+        }
+        
+        withAnimation(.easeInOut(duration: 1.0)) {
+            region = MKCoordinateRegion(
+                center: location.coordinate,
+                span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
+            )
+        }
+    }
+    
+    private func loadAndClusterDrops() {
+        Task {
+            do {
+                // Get visible drops only (not expired)
+                let allDrops = try await cloudKitManager.fetchNearbyDrops(
+                    coordinate: region.center,
+                    radius: 10000 // 10km radius
+                )
+                
+                let visibleDrops = allDrops.filter { $0.isVisible }
+                
+                // Cluster drops by location
+                let clusters = clusterDrops(visibleDrops)
+                
+                await MainActor.run {
+                    self.clusteredDrops = clusters
+                }
+            } catch {
+                print("Failed to load drops: \(error)")
+            }
+        }
+    }
+    
+    private func clusterDrops(_ drops: [Drop]) -> [ClusteredDrop] {
+        var clusters: [String: [Drop]] = [:]
+        
+        // Group drops by cluster key
+        for drop in drops {
+            guard let clusterKey = drop.clusterKey else { continue }
+            clusters[clusterKey, default: []].append(drop)
+        }
+        
+        // Convert to ClusteredDrop objects
+        return clusters.compactMap { (key, drops) in
+            guard let firstDrop = drops.first,
+                  let coordinate = firstDrop.coordinate else { return nil }
+            
+            return ClusteredDrop(
+                id: key,
+                coordinate: coordinate,
+                drops: drops.sorted { $0.createdAt > $1.createdAt } // Most recent first
+            )
+        }
+    }
+}
+
+// MARK: - Clustered Drop Model
+struct ClusteredDrop: Identifiable {
+    let id: String
+    let coordinate: CLLocationCoordinate2D
+    let drops: [Drop]
+    
+    var count: Int { drops.count }
+    var mostRecentDrop: Drop? { drops.first }
+    var hasProDrops: Bool { drops.contains { $0.isProUser } }
+}
+
+// MARK: - Custom Map Pins
+struct ClusteredPoopPin: View {
+    let cluster: ClusteredDrop
+    let onTap: () -> Void
+    @State private var isAnimating = false
+    
+    private var displayEmoji: String {
+        cluster.mostRecentDrop?.displayEmoji ?? "💩"
+    }
+    
+    private var pinColor: Color {
+        if cluster.hasProDrops {
+            return .yellow // Pro users get gold pins
+        } else {
+            return .brown // Free users get brown pins
+        }
+    }
+    
+    var body: some View {
+        Button(action: onTap) {
+            ZStack {
+                // Pin background
+                Circle()
+                    .fill(
+                        RadialGradient(
+                            colors: [pinColor.opacity(0.9), pinColor],
+                            center: .center,
+                            startRadius: 5,
+                            endRadius: 25
+                        )
+                    )
+                    .frame(width: 50, height: 50)
+                    .overlay(
+                        Circle()
+                            .stroke(Color.white, lineWidth: 3)
+                    )
+                    .shadow(color: .black.opacity(0.3), radius: 6, x: 0, y: 3)
+                
+                // Poop emoji or animation
+                if cluster.hasProDrops {
+                    LottieAnimationView(
+                        "poop_pin_animated",
+                        loopMode: .loop,
+                        size: CGSize(width: 30, height: 30)
+                    )
+                } else {
+                    Text(displayEmoji)
+                        .font(.title2)
+                }
+                
+                // Cluster count badge
+                if cluster.count > 1 {
+                    VStack {
+                        HStack {
+                            Spacer()
+                            
+                            Text("\(cluster.count)")
+                                .font(.caption2)
+                                .fontWeight(.bold)
+                                .foregroundColor(.white)
+                                .frame(width: 18, height: 18)
+                                .background(
+                                    Circle()
+                                        .fill(Color.red)
+                                        .overlay(
+                                            Circle()
+                                                .stroke(Color.white, lineWidth: 1)
+                                        )
+                                )
+                                .offset(x: 8, y: -8)
+                        }
+                        Spacer()
+                    }
+                }
+            }
+        }
+        .scaleEffect(isAnimating ? 1.2 : 1.0)
+        .animation(.bouncy(duration: 0.6), value: isAnimating)
+        .onAppear {
+            // Animate pins when they appear
+            DispatchQueue.main.asyncAfter(deadline: .now() + Double.random(in: 0...1)) {
+                isAnimating = true
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+                    isAnimating = false
+                }
+            }
+        }
+    }
+}
+
+struct UserLocationPin: View {
+    @State private var isPulsing = false
+    
+    var body: some View {
+        ZStack {
+            // Pulsing outer ring
+            Circle()
+                .fill(Color.blue.opacity(0.3))
+                .frame(width: isPulsing ? 60 : 30, height: isPulsing ? 60 : 30)
+                .animation(.easeInOut(duration: 2).repeatForever(autoreverses: true), value: isPulsing)
+            
+            // Inner dot
+            Circle()
+                .fill(Color.blue)
+                .frame(width: 16, height: 16)
+                .overlay(
+                    Circle()
+                        .stroke(Color.white, lineWidth: 3)
+                )
+        }
+        .onAppear {
+            isPulsing = true
+        }
+    }
+}
+
+// MARK: - Snapchat-Style Widgets
+struct WeatherWidget: View {
+    @State private var temperature = "72°"
+    @State private var condition = "☀️"
+    
+    var body: some View {
+        HStack(spacing: 8) {
+            Text(condition)
+                .font(.title3)
+            
+            Text(temperature)
+                .font(.subheadline)
+                .fontWeight(.semibold)
+                .foregroundColor(.white)
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
+        .background(
+            Capsule()
+                .fill(Color.black.opacity(0.7))
+                .shadow(color: .black.opacity(0.3), radius: 4, x: 0, y: 2)
+        )
+    }
+}
+
+struct ThemeButton: View {
+    @Binding var currentTheme: SnapchatStyleMapView.CartoonMapTheme
+    let availableThemes: [SnapchatStyleMapView.CartoonMapTheme]
+    @State private var showingThemeSelector = false
+    
+    var body: some View {
+        Button(action: {
+            showingThemeSelector = true
+        }) {
+            Image(systemName: "paintbrush.fill")
+                .foregroundColor(.white)
+                .font(.title3)
+                .frame(width: 44, height: 44)
+                .background(
+                    Circle()
+                        .fill(Color.black.opacity(0.7))
+                        .shadow(color: .black.opacity(0.3), radius: 4, x: 0, y: 2)
+                )
+        }
+        .sheet(isPresented: $showingThemeSelector) {
+            CartoonMapThemeSelectorView(
+                selectedTheme: $currentTheme,
+                availableThemes: availableThemes
+            )
+        }
+    }
+}
+
+struct MapStatsCard: View {
+    let dropsCount: Int
+    
+    var body: some View {
+        HStack(spacing: 12) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text("\(dropsCount)")
+                    .font(.headline)
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+                
+                Text("Drops Nearby")
+                    .font(.caption2)
+                    .foregroundColor(.white.opacity(0.8))
+            }
+            
+            Text("💩")
+                .font(.title3)
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.black.opacity(0.7))
+                .shadow(color: .black.opacity(0.3), radius: 4, x: 0, y: 2)
+        )
+    }
+}
+
+struct CartoonMapThemeSelectorView: View {
+    @Binding var selectedTheme: SnapchatStyleMapView.CartoonMapTheme
+    let availableThemes: [SnapchatStyleMapView.CartoonMapTheme]
+    @Environment(\.dismiss) private var dismiss
+    
+    var body: some View {
+        NavigationView {
+            ZStack {
+                Color.black.ignoresSafeArea()
+                
+                VStack(spacing: 20) {
+                    Text("Choose your map vibe")
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .padding(.top)
+                    
+                    LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 2), spacing: 16) {
+                        ForEach(availableThemes, id: \.self) { theme in
+                            CartoonThemeCard(
+                                theme: theme,
+                                isSelected: selectedTheme == theme
+                            ) {
+                                selectedTheme = theme
+                                dismiss()
+                            }
+                        }
+                    }
+                    .padding(.horizontal)
+                    
+                    Spacer()
+                }
+            }
+            .navigationTitle("Map Themes")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Done") {
+                        dismiss()
+                    }
+                    .foregroundColor(.white)
+                }
+            }
+        }
+        .preferredColorScheme(.dark)
+    }
+}
+
+struct CartoonThemeCard: View {
+    let theme: SnapchatStyleMapView.CartoonMapTheme
+    let isSelected: Bool
+    let onSelect: () -> Void
+    
+    private var themePreview: String {
+        switch theme {
+        case .snapchatStyle: return "📱"
+        case .darkLuxury: return "🌃"
+        case .cosmicGalaxy: return "🌌"
+        case .toiletPaper: return "🧻"
+        }
+    }
+    
+    private var themeDescription: String {
+        switch theme {
+        case .snapchatStyle: return "Clean & friendly"
+        case .darkLuxury: return "Sleek & premium"
+        case .cosmicGalaxy: return "Out of this world"
+        case .toiletPaper: return "Playful & fun"
+        }
+    }
+    
+    var body: some View {
+        Button(action: onSelect) {
+            VStack(spacing: 12) {
+                Text(themePreview)
+                    .font(.system(size: 50))
+                
+                VStack(spacing: 4) {
+                    Text(theme.rawValue)
+                        .font(.headline)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.white)
+                    
+                    Text(themeDescription)
+                        .font(.caption)
+                        .foregroundColor(.white.opacity(0.7))
+                        .multilineTextAlignment(.center)
+                }
+                
+                if theme.isPro {
+                    Text("PRO")
+                        .font(.caption2)
+                        .fontWeight(.bold)
+                        .foregroundColor(.black)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 2)
+                        .background(Color.yellow)
+                        .cornerRadius(4)
+                }
+            }
+            .frame(maxWidth: .infinity)
+            .padding()
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(isSelected ? Color.white.opacity(0.2) : Color.white.opacity(0.05))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(isSelected ? Color.white.opacity(0.5) : Color.clear, lineWidth: 2)
+                    )
+            )
+        }
+    }
+}
+
+/*
+ RECOMMENDED MAP ASSETS TO PURCHASE:
+ 
+ 1. Mapbox Studio (Free tier available):
+    - Custom Snapchat-style map themes
+    - Cartoon-style map rendering
+    - Custom color schemes and styling
+    - https://studio.mapbox.com/
+ 
+ 2. Apple MapKit Customization (Free):
+    - Custom annotations and overlays
+    - Styled map configurations
+    - Built-in iOS integration
+ 
+ 3. IconScout Map Assets:
+    - Custom map pin designs
+    - Location markers
+    - Navigation icons
+    - Map overlay elements
+ 
+ 4. Alternative: Google Maps Platform
+    - Custom map styling (paid)
+    - Advanced clustering
+    - Street View integration
+ 
+ Note: Apple MapKit is recommended for iOS-only apps as it's free,
+ well-integrated, and provides good customization options.
+ */
+
+#Preview {
+    SnapchatStyleMapView()
+        .environmentObject(CloudKitManager())
+        .environmentObject(LocationManager())
+        .environmentObject(SubscriptionManager())
+}

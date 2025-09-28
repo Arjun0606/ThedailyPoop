@@ -296,4 +296,59 @@ class CloudKitManager: ObservableObject {
             print("Failed to set up sponsor campaign subscription: \(error)")
         }
     }
+    
+    func fetchUserDrops(for user: User) async throws -> [Drop] {
+        let predicate = NSPredicate(format: "creatorId == %@", user.id)
+        let query = CKQuery(recordType: Drop.recordType, predicate: predicate)
+        query.sortDescriptors = [NSSortDescriptor(key: "createdAt", ascending: false)]
+        
+        let (matchResults, _) = try await privateDatabase.records(matching: query)
+        
+        var drops: [Drop] = []
+        for (_, result) in matchResults {
+            switch result {
+            case .success(let record):
+                if let drop = Drop(from: record) {
+                    drops.append(drop)
+                }
+            case .failure(let error):
+                print("Failed to fetch drop: \(error)")
+            }
+        }
+        
+        return drops
+    }
+    
+    func fetchNearbyDrops(coordinate: CLLocationCoordinate2D, radius: Double) async throws -> [Drop] {
+        // For now, fetch all visible drops and filter by distance
+        // In production, you'd use CloudKit's location-based queries
+        let predicate = NSPredicate(format: "expiresAt > %@", Date() as NSDate)
+        let query = CKQuery(recordType: Drop.recordType, predicate: predicate)
+        query.sortDescriptors = [NSSortDescriptor(key: "createdAt", ascending: false)]
+        
+        let (matchResults, _) = try await privateDatabase.records(matching: query)
+        
+        var drops: [Drop] = []
+        for (_, result) in matchResults {
+            switch result {
+            case .success(let record):
+                if let drop = Drop(from: record) {
+                    // Filter by distance
+                    if let dropCoord = drop.coordinate {
+                        let dropLocation = CLLocation(latitude: dropCoord.latitude, longitude: dropCoord.longitude)
+                        let centerLocation = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
+                        let distance = dropLocation.distance(from: centerLocation)
+                        
+                        if distance <= radius {
+                            drops.append(drop)
+                        }
+                    }
+                }
+            case .failure(let error):
+                print("Failed to fetch drop: \(error)")
+            }
+        }
+        
+        return drops
+    }
 }

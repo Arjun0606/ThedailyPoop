@@ -34,7 +34,7 @@ struct MainTabView: View {
                     .tag(2)
                 
                 // Map Tab
-                MapView()
+                SnapchatStyleMapView()
                     .tabItem {
                         Image(systemName: selectedTab == 3 ? "map.fill" : "map")
                         Text("Map")

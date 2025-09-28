@@ -194,12 +194,24 @@ struct DropComposerView: View {
             coordinate: isNoPoop ? nil : currentLocation?.coordinate,
             skinId: isNoPoop ? nil : selectedSkinId,
             caption: finalCaption.isEmpty ? nil : finalCaption,
-            isNoPoop: isNoPoop
+            isNoPoop: isNoPoop,
+            isProUser: subscriptionManager.isProSubscriber
         )
         
         Task {
             do {
                 try await cloudKitManager.saveDrop(drop)
+                
+                // Notify friends about the drop
+                await friendsManager.notifyFriendsOfDrop(drop, from: user)
+                
+                // Schedule next poop reminder (12 hours from now)
+                await NotificationManager.shared.schedulePoopReminder(for: user)
+                
+                // Check for badge eligibility
+                let badgeManager = BadgeManager()
+                let userDrops = try await cloudKitManager.fetchUserDrops(for: user)
+                await badgeManager.checkBadgeEligibility(for: user, drops: userDrops)
                 
                 await MainActor.run {
                     isDropping = false
