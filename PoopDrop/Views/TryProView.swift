@@ -332,7 +332,7 @@ struct ProPricingCard: View {
                 VStack(spacing: 8) {
                     PricingOptionRow(duration: "3 months", price: "$16.99", savings: "Save 19%")
                     PricingOptionRow(duration: "6 months", price: "$29.99", savings: "Save 28%")
-                    PricingOptionRow(duration: "1 year", price: "$59.99", savings: "Save 28% + Best Value!", isRecommended: true)
+                    PricingOptionRow(duration: "1 year", price: "$56.99", savings: "Save 32% + Best Value!", isRecommended: true)
                 }
                 .padding(.top, 8)
             }
