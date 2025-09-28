@@ -236,10 +236,30 @@ struct DropComposerView: View {
         // Update total drops
         user.totalDrops += 1
         
-        // Update streak
+        // Calculate drops today for max tracking
         let calendar = Calendar.current
         let today = Date()
+        let startOfDay = calendar.startOfDay(for: today)
         
+        do {
+            let userDrops = try await cloudKitManager.fetchUserDrops(for: user)
+            let todayDrops = userDrops.filter { 
+                calendar.isDate($0.createdAt, inSameDayAs: today) && !$0.isNoPoop
+            }.count + 1 // +1 for current drop
+            
+            // Update max drops in day
+            if todayDrops > user.maxDropsInDay {
+                user.maxDropsInDay = todayDrops
+            }
+            
+            // Calculate longest no-poop streak
+            calculateLongestNoPoopStreak(userDrops: userDrops, user: &user)
+            
+        } catch {
+            print("Failed to fetch user drops for stats: \(error)")
+        }
+        
+        // Update streak
         if let lastDropDate = user.lastDropDate {
             if calendar.isDate(lastDropDate, inSameDayAs: today) {
                 // Same day, don't change streak
@@ -265,6 +285,42 @@ struct DropComposerView: View {
         } catch {
             print("Failed to update user stats: \(error)")
         }
+    }
+    
+    private func calculateLongestNoPoopStreak(userDrops: [Drop], user: inout User) {
+        let calendar = Calendar.current
+        let sortedDrops = userDrops.sorted { $0.createdAt < $1.createdAt }
+        
+        var longestStreak = 0
+        var currentStreak = 0
+        var lastDate: Date?
+        
+        for drop in sortedDrops {
+            let dropDate = drop.createdAt
+            
+            if let last = lastDate {
+                let daysDifference = calendar.dateComponents([.day], from: last, to: dropDate).day ?? 0
+                
+                if daysDifference > 1 && !drop.isNoPoop {
+                    // Gap found and it's a real poop (not no-poop)
+                    currentStreak = daysDifference - 1
+                    longestStreak = max(longestStreak, currentStreak)
+                    currentStreak = 0
+                }
+            }
+            
+            lastDate = dropDate
+        }
+        
+        // Check current gap from last drop to today
+        if let lastDate = lastDate {
+            let daysSinceLastDrop = calendar.dateComponents([.day], from: lastDate, to: Date()).day ?? 0
+            if daysSinceLastDrop > 0 {
+                longestStreak = max(longestStreak, daysSinceLastDrop)
+            }
+        }
+        
+        user.longestNoPoopStreak = max(user.longestNoPoopStreak, longestStreak)
     }
 }
 

@@ -5,7 +5,7 @@ struct ProfileView: View {
     @EnvironmentObject var subscriptionManager: SubscriptionManager
     @EnvironmentObject var cloudKitManager: CloudKitManager
     @State private var showingSettings = false
-    @State private var showingProUpsell = false
+    @State private var showingTryPro = false
     @State private var showingSubscriptionManagement = false
     
     var user: User? {
@@ -31,7 +31,7 @@ struct ProfileView: View {
                                 ProStatusSection()
                             } else {
                                 ProUpsellSection {
-                                    showingProUpsell = true
+                                    showingTryPro = true
                                 }
                             }
                             
@@ -77,6 +77,9 @@ struct ProfileView: View {
         }
         .sheet(isPresented: $showingSettings) {
             SettingsView()
+        }
+        .sheet(isPresented: $showingTryPro) {
+            TryProView()
         }
         .sheet(isPresented: $showingProUpsell) {
             ProUpsellView()
@@ -179,6 +182,7 @@ struct StatsSection: View {
                 .fontWeight(.bold)
                 .foregroundColor(.white)
             
+            // Top row stats
             HStack(spacing: 16) {
                 StatCard(
                     icon: "💩",
@@ -192,6 +196,23 @@ struct StatsSection: View {
                     title: "Current Streak",
                     value: "\(user.streak)",
                     color: .orange
+                )
+            }
+            
+            // Second row stats
+            HStack(spacing: 16) {
+                StatCard(
+                    icon: "📈",
+                    title: "Max Dumps/Day",
+                    value: "\(user.maxDropsInDay)",
+                    color: .green
+                )
+                
+                StatCard(
+                    icon: "😵‍💫",
+                    title: "Longest No-Poop",
+                    value: "\(user.longestNoPoopStreak) days",
+                    color: .purple
                 )
             }
             

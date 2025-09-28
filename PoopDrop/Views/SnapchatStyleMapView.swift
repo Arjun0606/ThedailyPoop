@@ -103,10 +103,7 @@ struct SnapchatStyleMapView: View {
                     
                     Spacer()
                     
-                    // Theme selector (Pro feature)
-                    if subscriptionManager.isProSubscriber {
-                        ThemeButton(currentTheme: $mapTheme, availableThemes: availableThemes)
-                    }
+                    // Removed theme selector - using single map theme
                 }
                 .padding(.horizontal, 16)
                 .padding(.top, 16)
