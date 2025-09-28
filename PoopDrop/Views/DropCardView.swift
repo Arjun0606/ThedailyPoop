@@ -15,10 +15,7 @@ struct DropCardView: View {
     }
     
     private var poopEmoji: String {
-        if let skinId = drop.skinId {
-            return skinId
-        }
-        return "💩"
+        return drop.displayEmoji
     }
     
     private var isSponsored: Bool {
@@ -63,17 +60,27 @@ struct DropCardView: View {
                     }
                     
                     HStack(spacing: 4) {
-                        Image(systemName: "location.fill")
-                            .font(.caption)
-                            .foregroundColor(.white.opacity(0.6))
-                        
-                        Text(address ?? "Loading location...")
-                            .font(.caption)
-                            .foregroundColor(.white.opacity(0.6))
-                        
-                        Text("•")
-                            .font(.caption)
-                            .foregroundColor(.white.opacity(0.6))
+                        if !drop.isNoPoop {
+                            Image(systemName: "location.fill")
+                                .font(.caption)
+                                .foregroundColor(.white.opacity(0.6))
+                            
+                            Text(address ?? "Loading location...")
+                                .font(.caption)
+                                .foregroundColor(.white.opacity(0.6))
+                            
+                            Text("•")
+                                .font(.caption)
+                                .foregroundColor(.white.opacity(0.6))
+                        } else {
+                            Text("No location (no poop)")
+                                .font(.caption)
+                                .foregroundColor(.white.opacity(0.6))
+                            
+                            Text("•")
+                                .font(.caption)
+                                .foregroundColor(.white.opacity(0.6))
+                        }
                         
                         Text(timeAgo)
                             .font(.caption)
@@ -172,8 +179,11 @@ struct DropCardView: View {
     }
     
     private func loadAddress() {
+        // Only load address for drops with actual locations
+        guard let coordinate = drop.coordinate else { return }
+        
         Task {
-            let location = CLLocation(latitude: drop.coordinate.latitude, longitude: drop.coordinate.longitude)
+            let location = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
             address = await LocationManager().getAddressFromLocation(location)
         }
     }

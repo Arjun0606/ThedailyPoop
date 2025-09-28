@@ -92,6 +92,28 @@ class CloudKitManager: ObservableObject {
         return users
     }
     
+    func searchUsers(displayName: String) async throws -> [User] {
+        let predicate = NSPredicate(format: "displayName CONTAINS[c] %@", displayName)
+        let query = CKQuery(recordType: User.recordType, predicate: predicate)
+        query.sortDescriptors = [NSSortDescriptor(key: "displayName", ascending: true)]
+        
+        let (matchResults, _) = try await publicDatabase.records(matching: query, desiredKeys: nil, resultsLimit: 20)
+        
+        var users: [User] = []
+        for (_, result) in matchResults {
+            switch result {
+            case .success(let record):
+                if let user = User(from: record) {
+                    users.append(user)
+                }
+            case .failure(let error):
+                print("Failed to search user: \(error)")
+            }
+        }
+        
+        return users
+    }
+    
     // MARK: - Drop Operations
     func saveDrop(_ drop: Drop) async throws {
         let record = drop.toCKRecord()

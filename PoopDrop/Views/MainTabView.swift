@@ -9,7 +9,7 @@ struct MainTabView: View {
     var body: some View {
         ZStack {
             TabView(selection: $selectedTab) {
-                // Feed Tab
+                // Feed Tab (Friends only)
                 FeedView()
                     .tabItem {
                         Image(systemName: selectedTab == 0 ? "house.fill" : "house")
@@ -17,11 +17,11 @@ struct MainTabView: View {
                     }
                     .tag(0)
                 
-                // Map Tab
-                MapView()
+                // Friends Tab
+                FriendsView()
                     .tabItem {
-                        Image(systemName: selectedTab == 1 ? "map.fill" : "map")
-                        Text("Map")
+                        Image(systemName: selectedTab == 1 ? "person.2.fill" : "person.2")
+                        Text("Friends")
                     }
                     .tag(1)
                 
@@ -33,11 +33,11 @@ struct MainTabView: View {
                     }
                     .tag(2)
                 
-                // Leaderboard Tab
-                LeaderboardView()
+                // Map Tab
+                MapView()
                     .tabItem {
-                        Image(systemName: selectedTab == 3 ? "trophy.fill" : "trophy")
-                        Text("Ranks")
+                        Image(systemName: selectedTab == 3 ? "map.fill" : "map")
+                        Text("Map")
                     }
                     .tag(3)
                 

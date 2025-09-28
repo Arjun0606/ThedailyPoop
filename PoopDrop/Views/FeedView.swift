@@ -4,6 +4,8 @@ struct FeedView: View {
     @EnvironmentObject var cloudKitManager: CloudKitManager
     @EnvironmentObject var authManager: AuthenticationManager
     @EnvironmentObject var subscriptionManager: SubscriptionManager
+    @StateObject private var friendsManager = FriendsManager()
+    @State private var friendDrops: [Drop] = []
     @State private var isRefreshing = false
     @State private var showingProUpsell = false
     
@@ -13,8 +15,8 @@ struct FeedView: View {
                 // Dark background
                 Color.black.ignoresSafeArea()
                 
-                if cloudKitManager.drops.isEmpty && !cloudKitManager.isLoading {
-                    EmptyFeedView()
+                if friendDrops.isEmpty && !friendsManager.isLoading {
+                    EmptyFriendsDropsView()
                 } else {
                     ScrollView {
                         LazyVStack(spacing: 16) {
@@ -23,26 +25,26 @@ struct FeedView: View {
                                 ProWelcomeCard()
                             }
                             
-                            // Drops feed
-                            ForEach(cloudKitManager.drops) { drop in
+                            // Friends' drops feed
+                            ForEach(friendDrops) { drop in
                                 DropCardView(drop: drop)
                                     .onAppear {
                                         // Load more drops when approaching end
-                                        if drop.id == cloudKitManager.drops.last?.id {
-                                            loadMoreDrops()
+                                        if drop.id == friendDrops.last?.id {
+                                            loadMoreFriendDrops()
                                         }
                                     }
                             }
                             
                             // Loading indicator
-                            if cloudKitManager.isLoading {
+                            if friendsManager.isLoading {
                                 ProgressView()
                                     .scaleEffect(1.2)
                                     .padding()
                             }
                             
                             // Pro upsell card for free users
-                            if !subscriptionManager.isProSubscriber && !cloudKitManager.drops.isEmpty {
+                            if !subscriptionManager.isProSubscriber && !friendDrops.isEmpty {
                                 ProUpsellCard {
                                     showingProUpsell = true
                                 }
@@ -57,7 +59,7 @@ struct FeedView: View {
                     }
                 }
             }
-            .navigationTitle("💩 Feed")
+            .navigationTitle("💩 Friends Feed")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -94,47 +96,99 @@ struct FeedView: View {
             }
         }
         .onAppear {
-            loadInitialDrops()
+            loadInitialFriendDrops()
         }
         .sheet(isPresented: $showingProUpsell) {
             ProUpsellView()
         }
     }
     
-    private func loadInitialDrops() {
-        guard cloudKitManager.drops.isEmpty else { return }
+    private func loadInitialFriendDrops() {
+        guard let user = authManager.currentUser else { return }
         
         Task {
             do {
-                try await cloudKitManager.fetchDrops()
+                let drops = try await friendsManager.getFriendDrops(for: user)
+                await MainActor.run {
+                    self.friendDrops = drops
+                }
             } catch {
-                print("Failed to load drops: \(error)")
+                print("Failed to load friend drops: \(error)")
             }
         }
     }
     
-    private func loadMoreDrops() {
+    private func loadMoreFriendDrops() {
         // Implement pagination if needed
+        guard let user = authManager.currentUser else { return }
+        
         Task {
             do {
-                try await cloudKitManager.fetchDrops(limit: 20)
+                let drops = try await friendsManager.getFriendDrops(for: user)
+                await MainActor.run {
+                    self.friendDrops = drops
+                }
             } catch {
-                print("Failed to load more drops: \(error)")
+                print("Failed to load more friend drops: \(error)")
             }
         }
     }
     
     @MainActor
     private func refreshFeed() async {
+        guard let user = authManager.currentUser else { return }
+        
         isRefreshing = true
         
         do {
-            try await cloudKitManager.fetchDrops()
+            let drops = try await friendsManager.getFriendDrops(for: user)
+            friendDrops = drops
         } catch {
-            print("Failed to refresh feed: \(error)")
+            print("Failed to refresh friend feed: \(error)")
         }
         
         isRefreshing = false
+    }
+}
+
+struct EmptyFriendsDropsView: View {
+    var body: some View {
+        VStack(spacing: 24) {
+            Text("👥")
+                .font(.system(size: 80))
+                .scaleEffect(1.0)
+                .animation(.easeInOut(duration: 2).repeatForever(autoreverses: true), value: true)
+            
+            VStack(spacing: 12) {
+                Text("No Friend Drops Yet!")
+                    .font(.title2)
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+                
+                Text("Add friends to see their poop drops! When your friends drop poops (or have no poop days), they'll appear here.")
+                    .font(.body)
+                    .foregroundColor(.white.opacity(0.8))
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 32)
+            }
+            
+            VStack(spacing: 16) {
+                Text("Get started:")
+                    .font(.headline)
+                    .foregroundColor(.white)
+                
+                VStack(alignment: .leading, spacing: 8) {
+                    TipRow(icon: "👥", text: "Go to Friends tab to add friends")
+                    TipRow(icon: "💩", text: "Drop your own poop to get started")
+                    TipRow(icon: "📱", text: "Friends get notified when you drop")
+                    TipRow(icon: "🔥", text: "Keep streaks alive with 'No Poop' option")
+                }
+            }
+            .padding()
+            .background(Color.white.opacity(0.05))
+            .cornerRadius(16)
+            .padding(.horizontal, 32)
+        }
     }
 }
 

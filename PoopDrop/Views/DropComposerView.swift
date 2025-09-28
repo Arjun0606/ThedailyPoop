@@ -14,6 +14,7 @@ struct DropComposerView: View {
     @State private var showingProUpsell = false
     @State private var showingLocationError = false
     @State private var currentLocation: CLLocation?
+    @State private var isNoPoop = false // Toggle for "no poop" option
     
     private let freeCharLimit = 50
     private let proWordLimit = 200
@@ -47,7 +48,12 @@ struct DropComposerView: View {
     }
     
     var canDrop: Bool {
-        currentLocation != nil && !isDropping && !caption.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        // For "no poop", don't require location or caption
+        if isNoPoop {
+            return !isDropping
+        }
+        // For regular poop, require location and caption
+        return currentLocation != nil && !isDropping && !caption.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
     
     var body: some View {
@@ -58,22 +64,29 @@ struct DropComposerView: View {
                 
                 ScrollView {
                     VStack(spacing: 24) {
-                        // Location info
-                        if let location = currentLocation {
-                            LocationInfoView(location: location)
-                        } else {
-                            LocationLoadingView()
+                        // Poop type selector
+                        PoopTypeSelector(isNoPoop: $isNoPoop)
+                        
+                        // Location info (only for regular poops)
+                        if !isNoPoop {
+                            if let location = currentLocation {
+                                LocationInfoView(location: location)
+                            } else {
+                                LocationLoadingView()
+                            }
                         }
                         
-                        // Skin selector
-                        SkinSelectorView(
-                            selectedSkinId: $selectedSkinId,
-                            availableSkins: availableSkins,
-                            userIsPro: userIsPro,
-                            onProSkinTapped: {
-                                showingProUpsell = true
-                            }
-                        )
+                        // Skin selector (only for regular poops)
+                        if !isNoPoop {
+                            SkinSelectorView(
+                                selectedSkinId: $selectedSkinId,
+                                availableSkins: availableSkins,
+                                userIsPro: userIsPro,
+                                onProSkinTapped: {
+                                    showingProUpsell = true
+                                }
+                            )
+                        }
                         
                         // Caption input
                         CaptionInputView(
@@ -109,6 +122,7 @@ struct DropComposerView: View {
                     DropButton(
                         canDrop: canDrop,
                         isDropping: isDropping,
+                        isNoPoop: isNoPoop,
                         action: createDrop
                     )
                     .padding(.bottom, 40)
@@ -147,6 +161,9 @@ struct DropComposerView: View {
     }
     
     private func getCurrentLocation() {
+        // Only get location for regular poops
+        guard !isNoPoop else { return }
+        
         Task {
             do {
                 currentLocation = try await locationManager.getCurrentLocation()
@@ -157,8 +174,13 @@ struct DropComposerView: View {
     }
     
     private func createDrop() {
-        guard let location = currentLocation,
-              let user = authManager.currentUser else { return }
+        guard let user = authManager.currentUser else { return }
+        
+        // For regular poops, require location
+        if !isNoPoop && currentLocation == nil {
+            showingLocationError = true
+            return
+        }
         
         isDropping = true
         
@@ -169,9 +191,10 @@ struct DropComposerView: View {
         let drop = Drop(
             creatorId: user.id,
             creatorName: user.displayName,
-            coordinate: location.coordinate,
-            skinId: selectedSkinId,
-            caption: finalCaption.isEmpty ? nil : finalCaption
+            coordinate: isNoPoop ? nil : currentLocation?.coordinate,
+            skinId: isNoPoop ? nil : selectedSkinId,
+            caption: finalCaption.isEmpty ? nil : finalCaption,
+            isNoPoop: isNoPoop
         )
         
         Task {
@@ -451,10 +474,98 @@ struct ProFeaturesTeaser: View {
     }
 }
 
+struct PoopTypeSelector: View {
+    @Binding var isNoPoop: Bool
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("What's happening?")
+                .font(.headline)
+                .fontWeight(.bold)
+                .foregroundColor(.white)
+            
+            HStack(spacing: 16) {
+                // Regular poop option
+                Button(action: {
+                    isNoPoop = false
+                }) {
+                    VStack(spacing: 8) {
+                        Text("💩")
+                            .font(.system(size: 40))
+                        
+                        Text("I Pooped!")
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                            .foregroundColor(.white)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(!isNoPoop ? Color.white.opacity(0.2) : Color.white.opacity(0.05))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(!isNoPoop ? Color.white.opacity(0.5) : Color.clear, lineWidth: 2)
+                            )
+                    )
+                }
+                
+                // No poop option
+                Button(action: {
+                    isNoPoop = true
+                }) {
+                    VStack(spacing: 8) {
+                        Text("😵‍💫")
+                            .font(.system(size: 40))
+                        
+                        Text("No Poop")
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                            .foregroundColor(.white)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(isNoPoop ? Color.white.opacity(0.2) : Color.white.opacity(0.05))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(isNoPoop ? Color.white.opacity(0.5) : Color.clear, lineWidth: 2)
+                            )
+                    )
+                }
+            }
+            
+            if isNoPoop {
+                Text("Keep your streak alive even when nature doesn't call! 🔥")
+                    .font(.caption)
+                    .foregroundColor(.white.opacity(0.7))
+                    .padding(.top, 4)
+            }
+        }
+        .padding()
+        .background(Color.white.opacity(0.05))
+        .cornerRadius(12)
+    }
+}
+
 struct DropButton: View {
     let canDrop: Bool
     let isDropping: Bool
+    let isNoPoop: Bool
     let action: () -> Void
+    
+    var buttonText: String {
+        if isDropping {
+            return isNoPoop ? "Recording..." : "Dropping..."
+        } else {
+            return isNoPoop ? "Record No Poop" : "Drop It!"
+        }
+    }
+    
+    var buttonEmoji: String {
+        return isNoPoop ? "😵‍💫" : "💩"
+    }
     
     var body: some View {
         Button(action: action) {
@@ -463,11 +574,11 @@ struct DropButton: View {
                     ProgressView()
                         .scaleEffect(0.8)
                         .foregroundColor(.black)
-                    Text("Dropping...")
+                    Text(buttonText)
                 } else {
-                    Text("💩")
+                    Text(buttonEmoji)
                         .font(.title2)
-                    Text("Drop It!")
+                    Text(buttonText)
                         .fontWeight(.semibold)
                 }
             }
