@@ -255,6 +255,6 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 **Ready to drop it like it's hot?** 💩🔥
 
-For questions, support, or business inquiries, contact us at [your-email@domain.com]
+For questions, support, or business inquiries, contact us at karjunvarma2001@gmail.com
 
 [Download on the App Store](https://apps.apple.com/app/poop-drop) (Coming Soon!)
