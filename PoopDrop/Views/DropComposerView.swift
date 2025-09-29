@@ -86,12 +86,7 @@ struct DropComposerView: View {
                             onLimitReached: {}
                         )
                         
-                        // Pro features teaser for free users
-                        if !userIsPro {
-                            ProFeaturesTeaser {
-                                showingProUpsell = true
-                            }
-                        }
+                        // Pro removed
                         
                         Spacer(minLength: 100)
                     }
