@@ -87,7 +87,8 @@ class AdManager: NSObject, ObservableObject {
         self.adLoader?.delegate = self
         self.adLoader?.load(request)
         #else
-        // Mock fallback
+        // Mock fallback when SDK is not linked
+        print("[AdMob] SDK not linked. Using mock native ad.")
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
             self.nativeAd = NativeAdViewModel()
             self.isLoading = false
@@ -105,6 +106,7 @@ class AdManager: NSObject, ObservableObject {
             self?.interstitialReady = ad != nil
         }
         #else
+        print("[AdMob] SDK not linked. Mock interstitial ready.")
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             self.interstitialReady = true
         }

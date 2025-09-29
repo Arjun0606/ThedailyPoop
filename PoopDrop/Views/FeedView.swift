@@ -33,7 +33,7 @@ struct FeedView: View {
                                         }
                                     }
                                 
-                                // Insert native ad every 5th drop (simplified - no Pro users)
+                                // Insert native ad every 2 drops
                                 if (index + 1) % 2 == 0,
                                    let nativeAd = adManager.nativeAd {
                                     NativeAdCardView(adViewModel: nativeAd)

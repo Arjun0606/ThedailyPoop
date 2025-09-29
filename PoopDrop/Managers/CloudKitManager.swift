@@ -69,6 +69,7 @@ class CloudKitManager: ObservableObject {
             existing["dateOfBirth"] = user.dateOfBirth
             existing["gender"] = user.gender.rawValue
             existing["appleUserID"] = user.appleUserID
+            existing["customGender"] = user.customGender
             // Store avatar as CKAsset if we have a local file URL
             if let localURL = user.avatarURL, FileManager.default.fileExists(atPath: localURL.path) {
                 existing["avatar"] = CKAsset(fileURL: localURL)
@@ -398,9 +399,11 @@ class CloudKitManager: ObservableObject {
     func fetchUserDrops(for user: User) async throws -> [Drop] {
         let predicate = NSPredicate(format: "userID == %@", user.id)
         let query = CKQuery(recordType: Drop.recordType, predicate: predicate)
-        query.sortDescriptors = [NSSortDescriptor(key: "timestamp", ascending: false)]
+        // Sort by system field to avoid index requirement
+        query.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
         
-        let (matchResults, _) = try await privateDatabase.records(matching: query)
+        // Drops live in the public database
+        let (matchResults, _) = try await publicDatabase.records(matching: query)
         
         var drops: [Drop] = []
         for (_, result) in matchResults {

@@ -84,24 +84,34 @@ struct ProfileHeaderView: View {
     
     var body: some View {
         VStack(spacing: 16) {
-            // Profile picture
-            ZStack {
-                Circle()
-                    .fill(
-                        LinearGradient(
-                            colors: [Color.brown.opacity(0.7), Color.brown],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
+            // Profile picture (avatar if available; otherwise initial)
+            if let url = user.avatarURL, let data = try? Data(contentsOf: url), let image = UIImage(data: data) {
+                Image(uiImage: image)
+                    .resizable()
+                    .scaledToFill()
                     .frame(width: 100, height: 100)
-                
-                Text(String(user.username.prefix(1)).uppercased())
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
-                    .foregroundColor(.white)
-                
-                // Pro removed
+                    .clipShape(Circle())
+                    .overlay(Circle().stroke(Color.white.opacity(0.3), lineWidth: 2))
+                    .onTapGesture {
+                        // Full-screen preview
+                        presentImageFullScreen(image)
+                    }
+            } else {
+                ZStack {
+                    Circle()
+                        .fill(
+                            LinearGradient(
+                                colors: [Color.brown.opacity(0.7), Color.brown],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                        .frame(width: 100, height: 100)
+                    Text(String(user.username.prefix(1)).uppercased())
+                        .font(.largeTitle)
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                }
             }
             
             // User info
@@ -138,6 +148,24 @@ struct ProfileHeaderView: View {
         let formatter = DateFormatter()
         formatter.dateStyle = .medium
         return formatter.string(from: date)
+    }
+    
+    private func presentImageFullScreen(_ image: UIImage) {
+        guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+              let root = scene.windows.first?.rootViewController else { return }
+        let vc = UIViewController()
+        vc.view.backgroundColor = .black
+        let imageView = UIImageView(image: image)
+        imageView.contentMode = .scaleAspectFit
+        imageView.frame = vc.view.bounds
+        imageView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        vc.view.addSubview(imageView)
+        let close = UIButton(type: .close)
+        close.tintColor = .white
+        close.frame = CGRect(x: 20, y: 50, width: 44, height: 44)
+        close.addAction(UIAction { _ in vc.dismiss(animated: true) }, for: .touchUpInside)
+        vc.view.addSubview(close)
+        root.present(vc, animated: true)
     }
 }
 
@@ -493,6 +521,7 @@ struct SettingsRow: View {
 struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var authManager: AuthenticationManager
+    @State private var confirmingDelete = false
     
     var body: some View {
         NavigationView {
@@ -523,7 +552,7 @@ struct SettingsView: View {
                     }
                     Section {
                         Button(role: .destructive) {
-                            confirmDeleteAccount()
+                            confirmingDelete = true
                         } label: {
                             Text("Delete Account")
                         }
@@ -543,24 +572,21 @@ struct SettingsView: View {
             }
         }
         .preferredColorScheme(.dark)
-    }
-
-    private func confirmDeleteAccount() {
-        guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-              let root = scene.windows.first?.rootViewController,
-              let user = authManager.currentUser else { return }
-        let alert = UIAlertController(title: "Delete Account?", message: "This will permanently delete your account and data.", preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
-        alert.addAction(UIAlertAction(title: "Delete", style: .destructive, handler: { _ in
-            Task {
-                try? await CloudKitManager.shared.deleteAccount(for: user)
-                await MainActor.run {
-                    authManager.signOut()
-                    dismiss()
+        .alert("Delete Account?", isPresented: $confirmingDelete) {
+            Button("Cancel", role: .cancel) {}
+            Button("Delete", role: .destructive) {
+                Task {
+                    guard let user = authManager.currentUser else { return }
+                    try? await CloudKitManager.shared.deleteAccount(for: user)
+                    await MainActor.run {
+                        authManager.signOut()
+                        dismiss()
+                    }
                 }
             }
-        }))
-        root.present(alert, animated: true)
+        } message: {
+            Text("This will permanently delete your account and data.")
+        }
     }
 }
 
