@@ -26,7 +26,7 @@ struct NativeAdViewModel: Identifiable {
     let advertiser: String?
     
     #if canImport(GoogleMobileAds)
-    init(from nativeAd: GADNativeAd) {
+    init(from nativeAd: NativeAd) {
         self.headline = nativeAd.headline
         self.body = nativeAd.body
         self.callToAction = nativeAd.callToAction
@@ -67,8 +67,8 @@ class AdManager: NSObject, ObservableObject {
     @Published var isLoading = false
     @Published var interstitialReady = false
     #if canImport(GoogleMobileAds)
-    private var adLoader: GADAdLoader?
-    private var interstitial: GADInterstitialAd?
+    private var adLoader: AdLoader?
+    private var interstitial: InterstitialAd?
     #endif
     
     override init() {
@@ -79,11 +79,11 @@ class AdManager: NSObject, ObservableObject {
     func loadNativeAd() {
         isLoading = true
         #if canImport(GoogleMobileAds)
-        let request = GADRequest()
-        self.adLoader = GADAdLoader(adUnitID: AdMobConfig.nativeFeedAdUnitID,
-                                    rootViewController: AdManager.topViewController(),
-                                    adTypes: [.native],
-                                    options: nil)
+        let request = Request()
+        self.adLoader = AdLoader(adUnitID: AdMobConfig.nativeFeedAdUnitID,
+                                 rootViewController: AdManager.topViewController(),
+                                 adTypes: [.native],
+                                 options: nil)
         self.adLoader?.delegate = self
         self.adLoader?.load(request)
         #else
@@ -98,8 +98,8 @@ class AdManager: NSObject, ObservableObject {
     
     func loadInterstitialAd() {
         #if canImport(GoogleMobileAds)
-        let request = GADRequest()
-        GADInterstitialAd.load(withAdUnitID: AdMobConfig.interstitialAdUnitID, request: request) { [weak self] ad, error in
+        let request = Request()
+        InterstitialAd.load(with: AdMobConfig.interstitialAdUnitID, request: request) { [weak self] ad, error in
             if let _ = error { self?.interstitialReady = false; return }
             self?.interstitial = ad
             self?.interstitial?.fullScreenContentDelegate = self
@@ -120,7 +120,7 @@ class AdManager: NSObject, ObservableObject {
         }
         #if canImport(GoogleMobileAds)
         if let vc = AdManager.topViewController(), let ad = interstitial {
-            ad.present(fromRootViewController: vc)
+            ad.present(from: vc)
             interstitial = nil
             interstitialReady = false
             loadInterstitialAd()
@@ -167,19 +167,19 @@ extension AdManager {
 
 #if canImport(GoogleMobileAds)
 // MARK: - GAD Delegates
-extension AdManager: GADNativeAdLoaderDelegate {
-    func adLoader(_ adLoader: GADAdLoader, didFailToReceiveAdWithError error: Error) {
+extension AdManager: NativeAdLoaderDelegate {
+    func adLoader(_ adLoader: AdLoader, didFailToReceiveAdWithError error: Error) {
         isLoading = false
         print("❌ Native ad failed: \(error)")
     }
-    func adLoader(_ adLoader: GADAdLoader, didReceive nativeAd: GADNativeAd) {
+    func adLoader(_ adLoader: AdLoader, didReceive nativeAd: NativeAd) {
         isLoading = false
         self.nativeAd = NativeAdViewModel(from: nativeAd)
     }
 }
 
-extension AdManager: GADFullScreenContentDelegate {
-    func adDidDismissFullScreenContent(_ ad: GADFullScreenPresentingAd) {
+extension AdManager: FullScreenContentDelegate {
+    func adDidDismissFullScreenContent(_ ad: FullScreenPresentingAd) {
         interstitialReady = false
         loadInterstitialAd()
     }
