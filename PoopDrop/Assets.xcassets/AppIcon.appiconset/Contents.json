@@ -1,110 +1,23 @@
 {
   "images" : [
-    {
-      "filename" : "ChatGPT Image Sep 28, 2025, 09_14_18 PM.png",
-      "idiom" : "iphone",
-      "scale" : "2x",
-      "size" : "20x20"
-    },
-    {
-      "filename" : "ChatGPT Image Sep 28, 2025, 09_14_18 PM 1.png",
-      "idiom" : "iphone",
-      "scale" : "3x",
-      "size" : "20x20"
-    },
-    {
-      "filename" : "ChatGPT Image Sep 28, 2025, 09_14_18 PM 3.png",
-      "idiom" : "iphone",
-      "scale" : "2x",
-      "size" : "29x29"
-    },
-    {
-      "filename" : "ChatGPT Image Sep 28, 2025, 09_14_18 PM 4.png",
-      "idiom" : "iphone",
-      "scale" : "3x",
-      "size" : "29x29"
-    },
-    {
-      "filename" : "ChatGPT Image Sep 28, 2025, 09_14_18 PM 5.png",
-      "idiom" : "iphone",
-      "scale" : "2x",
-      "size" : "40x40"
-    },
-    {
-      "filename" : "ChatGPT Image Sep 28, 2025, 09_14_18 PM 6.png",
-      "idiom" : "iphone",
-      "scale" : "3x",
-      "size" : "40x40"
-    },
-    {
-      "filename" : "ChatGPT Image Sep 28, 2025, 09_14_18 PM 7.png",
-      "idiom" : "iphone",
-      "scale" : "2x",
-      "size" : "60x60"
-    },
-    {
-      "filename" : "ChatGPT Image Sep 28, 2025, 09_14_18 PM 8.png",
-      "idiom" : "iphone",
-      "scale" : "3x",
-      "size" : "60x60"
-    },
-    {
-      "filename" : "ChatGPT Image Sep 28, 2025, 09_14_18 PM 9.png",
-      "idiom" : "ipad",
-      "scale" : "1x",
-      "size" : "20x20"
-    },
-    {
-      "filename" : "ChatGPT Image Sep 28, 2025, 09_14_18 PM 10.png",
-      "idiom" : "ipad",
-      "scale" : "2x",
-      "size" : "20x20"
-    },
-    {
-      "filename" : "ChatGPT Image Sep 28, 2025, 09_14_18 PM 11.png",
-      "idiom" : "ipad",
-      "scale" : "1x",
-      "size" : "29x29"
-    },
-    {
-      "filename" : "ChatGPT Image Sep 28, 2025, 09_14_18 PM 12.png",
-      "idiom" : "ipad",
-      "scale" : "2x",
-      "size" : "29x29"
-    },
-    {
-      "filename" : "ChatGPT Image Sep 28, 2025, 09_14_18 PM 13.png",
-      "idiom" : "ipad",
-      "scale" : "1x",
-      "size" : "40x40"
-    },
-    {
-      "filename" : "ChatGPT Image Sep 28, 2025, 09_14_18 PM 14.png",
-      "idiom" : "ipad",
-      "scale" : "2x",
-      "size" : "40x40"
-    },
-    {
-      "filename" : "ChatGPT Image Sep 28, 2025, 09_14_18 PM 15.png",
-      "idiom" : "ipad",
-      "scale" : "2x",
-      "size" : "76x76"
-    },
-    {
-      "filename" : "ChatGPT Image Sep 28, 2025, 09_14_18 PM 16.png",
-      "idiom" : "ipad",
-      "scale" : "2x",
-      "size" : "83.5x83.5"
-    },
-    {
-      "filename" : "ChatGPT Image Sep 28, 2025, 09_14_18 PM 2.png",
-      "idiom" : "ios-marketing",
-      "scale" : "1x",
-      "size" : "1024x1024"
-    }
+    {"idiom":"iphone","size":"20x20","scale":"2x","filename":"icon-20@2x.png"},
+    {"idiom":"iphone","size":"20x20","scale":"3x","filename":"icon-20@3x.png"},
+    {"idiom":"iphone","size":"29x29","scale":"2x","filename":"icon-29@2x.png"},
+    {"idiom":"iphone","size":"29x29","scale":"3x","filename":"icon-29@3x.png"},
+    {"idiom":"iphone","size":"40x40","scale":"2x","filename":"icon-40@2x.png"},
+    {"idiom":"iphone","size":"40x40","scale":"3x","filename":"icon-40@3x.png"},
+    {"idiom":"iphone","size":"60x60","scale":"2x","filename":"icon-60@2x.png"},
+    {"idiom":"iphone","size":"60x60","scale":"3x","filename":"icon-60@3x.png"},
+    {"idiom":"ipad","size":"20x20","scale":"1x","filename":"icon-20~ipad.png"},
+    {"idiom":"ipad","size":"20x20","scale":"2x","filename":"icon-20@2x~ipad.png"},
+    {"idiom":"ipad","size":"29x29","scale":"1x","filename":"icon-29~ipad.png"},
+    {"idiom":"ipad","size":"29x29","scale":"2x","filename":"icon-29@2x~ipad.png"},
+    {"idiom":"ipad","size":"40x40","scale":"1x","filename":"icon-40~ipad.png"},
+    {"idiom":"ipad","size":"40x40","scale":"2x","filename":"icon-40@2x~ipad.png"},
+    {"idiom":"ipad","size":"76x76","scale":"1x","filename":"icon-76~ipad.png"},
+    {"idiom":"ipad","size":"76x76","scale":"2x","filename":"icon-76@2x~ipad.png"},
+    {"idiom":"ipad","size":"83.5x83.5","scale":"2x","filename":"icon-83_5@2x~ipad.png"},
+    {"idiom":"ios-marketing","size":"1024x1024","scale":"1x","filename":"icon-1024.png"}
   ],
-  "info" : {
-    "author" : "xcode",
-    "version" : 1
-  }
+  "info" : {"version": 1, "author": "xcode"}
 }
