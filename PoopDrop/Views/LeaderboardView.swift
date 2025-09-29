@@ -467,14 +467,7 @@ struct EmptyLeaderboardView: View {
     }
     
     private var emptyMessage: String {
-        switch scope {
-        case .global:
-            return "Be the first to make it to the global leaderboard!"
-        case .city:
-            return "No one in your city has started dropping yet. Be the first!"
-        case .friends:
-            return "Add friends to see who's the ultimate poop dropper!"
-        }
+        return "Add friends to see who's the ultimate poop dropper!"
     }
 }
 

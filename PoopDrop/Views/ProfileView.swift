@@ -2,7 +2,7 @@ import SwiftUI
 
 struct ProfileView: View {
     @EnvironmentObject var authManager: AuthenticationManager
-    @EnvironmentObject var subscriptionManager: SubscriptionManager
+    // Subscription removed
     @EnvironmentObject var cloudKitManager: CloudKitManager
     @State private var showingSettings = false
     // Pro removed
@@ -36,9 +36,7 @@ struct ProfileView: View {
                                 onSettingsTap: {
                                     showingSettings = true
                                 },
-                                onSubscriptionTap: {
-                                    showingSubscriptionManagement = true
-                                },
+                                onSubscriptionTap: {},
                                 onSignOut: {
                                     authManager.signOut()
                                 }
@@ -76,15 +74,13 @@ struct ProfileView: View {
         // .sheet(isPresented: $showingProUpsell) {
         //     ProUpsellView()
         // }
-        .sheet(isPresented: $showingSubscriptionManagement) {
-            SubscriptionManagementView()
-        }
+        // Subscription removed
     }
 }
 
 struct ProfileHeaderView: View {
     let user: User
-    @EnvironmentObject var subscriptionManager: SubscriptionManager
+    // Subscription removed
     
     var body: some View {
         VStack(spacing: 16) {
@@ -105,15 +101,7 @@ struct ProfileHeaderView: View {
                     .fontWeight(.bold)
                     .foregroundColor(.white)
                 
-                // Pro crown overlay
-                if subscriptionManager.isProSubscriber {
-                    VStack {
-                        Text("👑")
-                            .font(.title2)
-                            .offset(y: -45)
-                        Spacer()
-                    }
-                }
+                // Pro removed
             }
             
             // User info
@@ -470,11 +458,7 @@ struct SettingsSection: View {
             Divider()
                 .background(Color.white.opacity(0.1))
             
-            SettingsRow(
-                icon: "creditcard.fill",
-                title: "Subscription",
-                action: onSubscriptionTap
-            )
+            // Subscription removed
             
             Divider()
                 .background(Color.white.opacity(0.1))

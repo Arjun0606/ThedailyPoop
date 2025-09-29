@@ -3,12 +3,12 @@ import SwiftUI
 struct FeedView: View {
     @EnvironmentObject var cloudKitManager: CloudKitManager
     @EnvironmentObject var authManager: AuthenticationManager
-    @EnvironmentObject var subscriptionManager: SubscriptionManager
+    // Subscription removed
     @StateObject private var friendsManager = FriendsManager()
     @StateObject private var adManager = AdManager.shared
     @State private var friendDrops: [Drop] = []
     @State private var isRefreshing = false
-    // Pro removed
+                        // Pro removed
     
     var body: some View {
         NavigationView {
@@ -21,7 +21,7 @@ struct FeedView: View {
                 } else {
                     ScrollView {
                         LazyVStack(spacing: 16) {
-                            // Pro removed
+                        // Pro removed
                             
                             // Friends' drops feed with native ads
                             ForEach(Array(friendDrops.enumerated()), id: \.element.id) { index, drop in
