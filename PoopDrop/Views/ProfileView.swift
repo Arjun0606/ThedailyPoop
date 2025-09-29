@@ -112,16 +112,7 @@ struct ProfileHeaderView: View {
                         .fontWeight(.bold)
                         .foregroundColor(.white)
                     
-                    if subscriptionManager.isProSubscriber {
-                        Text("PRO")
-                            .font(.caption)
-                            .fontWeight(.bold)
-                            .foregroundColor(.black)
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 2)
-                            .background(Color.yellow)
-                            .cornerRadius(6)
-                    }
+                    // Pro removed
                 }
                 
                 HStack(spacing: 4) {

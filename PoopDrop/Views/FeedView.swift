@@ -77,17 +77,7 @@ struct FeedView: View {
                             .cornerRadius(12)
                         }
                         
-                        // Pro badge
-                        if subscriptionManager.isProSubscriber {
-                            Text("PRO")
-                                .font(.caption2)
-                                .fontWeight(.bold)
-                                .foregroundColor(.black)
-                                .padding(.horizontal, 6)
-                                .padding(.vertical, 2)
-                                .background(Color.yellow)
-                                .cornerRadius(4)
-                        }
+                        // Pro removed
                     }
                 }
             }
@@ -95,11 +85,8 @@ struct FeedView: View {
         .onAppear {
             loadInitialFriendDrops()
             
-            // Load initial ad for free users
-            if !subscriptionManager.isProSubscriber {
-                adManager.loadNativeAd()
-                adManager.loadInterstitialAd() // Preload interstitial
-            }
+            adManager.loadNativeAd()
+            adManager.loadInterstitialAd() // Preload interstitial
         }
         // Pro removed
     }
