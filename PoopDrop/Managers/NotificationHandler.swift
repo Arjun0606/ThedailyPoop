@@ -273,23 +273,5 @@ extension NotificationHandler {
         center.setNotificationCategories([poopDropCategory, friendRequestCategory, streakReminderCategory])
     }
     
-    func setupDeleteAccountListener() {
-        NotificationCenter.default.addObserver(forName: Notification.Name("DELETE_ACCOUNT_TAPPED"), object: nil, queue: .main) { _ in
-            Task {
-                guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-                      let root = windowScene.windows.first?.rootViewController else { return }
-                let alert = UIAlertController(title: "Delete Account?", message: "This will permanently delete your account and data.", preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
-                alert.addAction(UIAlertAction(title: "Delete", style: .destructive, handler: { _ in
-                    Task {
-                        if let user = AuthenticationManager().currentUser {
-                            try? await CloudKitManager.shared.deleteAccount(for: user)
-                            AuthenticationManager().signOut()
-                        }
-                    }
-                }))
-                root.present(alert, animated: true)
-            }
-        }
-    }
+    // Delete account logic handled inside SettingsView via CloudKitManager, no global observer to avoid accidental triggers
 }

@@ -515,6 +515,7 @@ struct SettingsRow: View {
 
 struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject var authManager: AuthenticationManager
     
     var body: some View {
         NavigationView {
@@ -539,7 +540,7 @@ struct SettingsView: View {
                     }
                     Section {
                         Button(role: .destructive) {
-                            NotificationCenter.default.post(name: Notification.Name("DELETE_ACCOUNT_TAPPED"), object: nil)
+                            confirmDeleteAccount()
                         } label: {
                             Text("Delete Account")
                         }
@@ -559,6 +560,24 @@ struct SettingsView: View {
             }
         }
         .preferredColorScheme(.dark)
+    }
+
+    private func confirmDeleteAccount() {
+        guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+              let root = scene.windows.first?.rootViewController,
+              let user = authManager.currentUser else { return }
+        let alert = UIAlertController(title: "Delete Account?", message: "This will permanently delete your account and data.", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        alert.addAction(UIAlertAction(title: "Delete", style: .destructive, handler: { _ in
+            Task {
+                try? await CloudKitManager.shared.deleteAccount(for: user)
+                await MainActor.run {
+                    authManager.signOut()
+                    dismiss()
+                }
+            }
+        }))
+        root.present(alert, animated: true)
     }
 }
 

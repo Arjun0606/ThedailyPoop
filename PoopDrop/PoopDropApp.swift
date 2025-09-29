@@ -1,7 +1,9 @@
 import SwiftUI
 import CloudKit
 import UserNotifications
-// import GoogleMobileAds // TODO: Add as Swift Package when ready
+#if canImport(GoogleMobileAds)
+import GoogleMobileAds
+#endif
 
 @main
 struct PoopDropApp: App {
@@ -27,12 +29,12 @@ struct PoopDropApp: App {
     
     private func setupApp() {
         // Initialize Google Mobile Ads if SDK is linked
-        // If GoogleMobileAds is added via SPM, uncomment the import at the top and this line:
-        // GADMobileAds.sharedInstance().start(completionHandler: nil)
+#if canImport(GoogleMobileAds)
+        GADMobileAds.sharedInstance().start(completionHandler: nil)
+#endif
         
         // Setup notification handler
         notificationHandler.setup()
-        notificationHandler.setupDeleteAccountListener()
         
         // Initialize CloudKit container
         cloudKitManager.initialize()

@@ -4,7 +4,7 @@ import CoreLocation
 struct DropComposerView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var authManager: AuthenticationManager
-    @EnvironmentObject var subscriptionManager: SubscriptionManager
+    // Subscription removed
     @EnvironmentObject var cloudKitManager: CloudKitManager
     @EnvironmentObject var locationManager: LocationManager
     @EnvironmentObject var friendsManager: FriendsManager
@@ -12,7 +12,7 @@ struct DropComposerView: View {
     @State private var caption: String = ""
     @State private var selectedSkinId: String? = nil
     @State private var isDropping = false
-    @State private var showingProUpsell = false
+    // Pro removed
     @State private var showingLocationError = false
     @State private var currentLocation: CLLocation?
     @State private var isNoPoop = false // Toggle for "no poop" option
@@ -22,30 +22,18 @@ struct DropComposerView: View {
     
     // Available skins
     private let freeSkins = ["💩"] // Default poop
-    private let proSkins = ["🌈💩", "✨💩", "👑💩", "🔥💩", "❄️💩", "🎃💩", "🌮💩"]
-    
-    var userIsPro: Bool {
-        subscriptionManager.isProSubscriber
-    }
+    private let proSkins: [String] = []
     
     var availableSkins: [String] {
-        userIsPro ? freeSkins + proSkins : freeSkins
+        freeSkins
     }
     
     var captionLimitText: String {
-        if userIsPro {
-            return "\(caption.wordCount)/\(proWordLimit) words"
-        } else {
-            return "\(caption.count)/\(freeCharLimit) chars"
-        }
+        return "\(caption.wordCount)/\(proWordLimit) words"
     }
     
     var isAtLimit: Bool {
-        if userIsPro {
-            return caption.wordCount >= proWordLimit
-        } else {
-            return caption.count >= freeCharLimit
-        }
+        return caption.wordCount >= proWordLimit
     }
     
     var canDrop: Bool {
@@ -82,26 +70,20 @@ struct DropComposerView: View {
                             SkinSelectorView(
                                 selectedSkinId: $selectedSkinId,
                                 availableSkins: availableSkins,
-                                userIsPro: userIsPro,
-                                onProSkinTapped: {
-                                    showingProUpsell = true
-                                }
+                                userIsPro: false,
+                                onProSkinTapped: {}
                             )
                         }
                         
                         // Caption input
                         CaptionInputView(
                             caption: $caption,
-                            userIsPro: userIsPro,
+                            userIsPro: true,
                             freeCharLimit: freeCharLimit,
                             proWordLimit: proWordLimit,
                             limitText: captionLimitText,
                             isAtLimit: isAtLimit,
-                            onLimitReached: {
-                                if !userIsPro {
-                                    showingProUpsell = true
-                                }
-                            }
+                            onLimitReached: {}
                         )
                         
                         // Pro features teaser for free users
@@ -144,9 +126,7 @@ struct DropComposerView: View {
         .onAppear {
             getCurrentLocation()
         }
-        .sheet(isPresented: $showingProUpsell) {
-            ProUpsellView()
-        }
+        // Pro removed
         .alert("Location Required", isPresented: $showingLocationError) {
             Button("Settings") {
                 if let settingsUrl = URL(string: UIApplication.openSettingsURLString) {
