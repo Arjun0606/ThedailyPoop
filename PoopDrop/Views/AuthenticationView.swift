@@ -83,7 +83,9 @@ struct AuthenticationView: View {
                     
                     HStack(spacing: 16) {
                         Button("Terms of Service") {
-                            // Open terms
+                            if let url = URL(string: "https://poopdrop.app/terms") {
+                                UIApplication.shared.open(url)
+                            }
                         }
                         .font(.caption)
                         .foregroundColor(.white.opacity(0.8))
@@ -92,7 +94,9 @@ struct AuthenticationView: View {
                             .foregroundColor(.white.opacity(0.6))
                         
                         Button("Privacy Policy") {
-                            // Open privacy policy
+                            if let url = URL(string: "https://poopdrop.app/privacy") {
+                                UIApplication.shared.open(url)
+                            }
                         }
                         .font(.caption)
                         .foregroundColor(.white.opacity(0.8))

@@ -32,6 +32,7 @@ struct PoopDropApp: App {
         
         // Setup notification handler
         notificationHandler.setup()
+        notificationHandler.setupDeleteAccountListener()
         
         // Initialize CloudKit container
         cloudKitManager.initialize()

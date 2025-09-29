@@ -5,12 +5,15 @@ struct ProfileSetupView: View {
     @State private var username = ""
     @State private var dateOfBirth = Date()
     @State private var selectedGender: Gender = .male
+    @State private var customGenderText: String = ""
     @State private var isLoading = false
     @State private var errorMessage: String?
     @State private var showingDatePicker = false
     @State private var showingError = false
     @State private var usernameAvailable = true
     @State private var checkingUsername = false
+    @State private var showingPhotoEditor = false
+    @State private var selectedImage: UIImage? = nil
     
     let onComplete: () -> Void
     
@@ -42,6 +45,27 @@ struct ProfileSetupView: View {
                             .multilineTextAlignment(.center)
                     }
                     .padding(.top, 40)
+                    
+                    // Profile photo
+                    VStack(spacing: 12) {
+                        ZStack {
+                            if let image = selectedImage {
+                                Image(uiImage: image)
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                                    .frame(width: 120, height: 120)
+                                    .clipShape(Circle())
+                                    .overlay(Circle().stroke(Color.white.opacity(0.3), lineWidth: 2))
+                                    .onTapGesture { showingPhotoEditor = true }
+                            } else {
+                                Circle()
+                                    .fill(Color.white.opacity(0.1))
+                                    .frame(width: 120, height: 120)
+                                    .overlay(Text("Tap to add\nphoto").font(.caption).foregroundColor(.white.opacity(0.7)))
+                                    .onTapGesture { showingPhotoEditor = true }
+                            }
+                        }
+                    }
                     
                     // Form fields
                     VStack(spacing: 24) {
@@ -133,6 +157,14 @@ struct ProfileSetupView: View {
                                     }
                                 }
                             }
+                            if selectedGender == .custom {
+                                TextField("Enter your gender", text: $customGenderText)
+                                    .textFieldStyle(PlainTextFieldStyle())
+                                    .foregroundColor(.white)
+                                    .padding()
+                                    .background(Color.white.opacity(0.1))
+                                    .cornerRadius(12)
+                            }
                         }
                     }
                     .padding(.horizontal, 32)
@@ -158,16 +190,15 @@ struct ProfileSetupView: View {
                         }
                         .disabled(!canContinue || isLoading)
                         
-                        Button("Skip for now") {
-                            onComplete()
-                        }
-                        .foregroundColor(.white.opacity(0.7))
-                        .padding(.vertical, 8)
+                        // Removed skip – profile is mandatory
                     }
                     .padding(.horizontal, 32)
                     .padding(.bottom, 40)
                 }
             }
+        }
+        .sheet(isPresented: $showingPhotoEditor) {
+            ProfilePictureEditor(selectedImage: $selectedImage, isPresented: $showingPhotoEditor) { _ in }
         }
         .sheet(isPresented: $showingDatePicker) {
             DatePickerSheet(selectedDate: $dateOfBirth, isPresented: $showingDatePicker)
@@ -241,6 +272,11 @@ struct ProfileSetupView: View {
         currentUser.username = username
         currentUser.dateOfBirth = dateOfBirth
         currentUser.gender = selectedGender
+        if let img = selectedImage, let data = img.pngData() {
+            let tmp = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("avatar_\(UUID().uuidString).png")
+            try? data.write(to: tmp)
+            currentUser.avatarURL = tmp
+        }
         
         Task {
             do {

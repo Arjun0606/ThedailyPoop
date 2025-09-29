@@ -12,6 +12,7 @@ struct User: Identifiable, Codable {
     var username: String // Unique username - serves as both display name and username
     var dateOfBirth: Date // Required for age verification
     var gender: Gender // Required for personalization
+    var customGender: String? // Freeform text when gender == .custom
     var avatarURL: URL?
     var streak: Int
     var createdAt: Date
@@ -31,6 +32,7 @@ struct User: Identifiable, Codable {
          dateOfBirth: Date,
          gender: Gender,
          appleUserID: String,
+         customGender: String? = nil,
          avatarURL: URL? = nil, 
          streak: Int = 0) {
         self.id = id
@@ -38,6 +40,7 @@ struct User: Identifiable, Codable {
         self.dateOfBirth = dateOfBirth
         self.gender = gender
         self.appleUserID = appleUserID
+        self.customGender = customGender
         self.avatarURL = avatarURL
         self.streak = streak
         self.createdAt = Date()
@@ -69,7 +72,10 @@ extension User {
         self.dateOfBirth = dateOfBirth
         self.gender = gender
         self.appleUserID = appleUserID
-        if let avatarURLString = record["avatarURL"] as? String {
+        if let custom = record["customGender"] as? String { self.customGender = custom } else { self.customGender = nil }
+        if let asset = record["avatar"] as? CKAsset, let url = asset.fileURL {
+            self.avatarURL = url
+        } else if let avatarURLString = record["avatarURL"] as? String {
             self.avatarURL = URL(string: avatarURLString)
         } else {
             self.avatarURL = nil
@@ -106,7 +112,12 @@ extension User {
         record["dateOfBirth"] = dateOfBirth
         record["gender"] = gender.rawValue
         record["appleUserID"] = appleUserID
-        record["avatarURL"] = avatarURL?.absoluteString
+        record["customGender"] = customGender
+        // Store avatar as CKAsset when available
+        if let localURL = avatarURL, FileManager.default.fileExists(atPath: localURL.path) {
+            let asset = CKAsset(fileURL: localURL)
+            record["avatar"] = asset
+        }
         record["streak"] = streak
         record["createdAt"] = createdAt
         record["lastDropDate"] = lastDropDate

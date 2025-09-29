@@ -60,8 +60,42 @@ class CloudKitManager: ObservableObject {
     
     // MARK: - User Operations
     func saveUser(_ user: User) async throws {
-        let record = user.toCKRecord()
-        _ = try await privateDatabase.save(record)
+        // Upsert semantics: fetch existing, update; else create
+        let recordID = CKRecord.ID(recordName: user.id)
+        do {
+            let existing = try await privateDatabase.record(for: recordID)
+            // Update fields on existing record
+            existing["username"] = user.username
+            existing["dateOfBirth"] = user.dateOfBirth
+            existing["gender"] = user.gender.rawValue
+            existing["appleUserID"] = user.appleUserID
+            existing["avatarURL"] = user.avatarURL?.absoluteString
+            existing["streak"] = user.streak
+            existing["createdAt"] = user.createdAt
+            existing["lastDropDate"] = user.lastDropDate
+            existing["totalDrops"] = user.totalDrops
+            existing["maxDropsInDay"] = user.maxDropsInDay
+            existing["longestNoPoopStreak"] = user.longestNoPoopStreak
+            existing["isActive"] = user.isActive ? 1 : 0
+            existing["lastSeen"] = user.lastSeen
+            existing["lastStreakDate"] = user.lastStreakDate
+            if let friendsData = try? JSONEncoder().encode(user.friends) {
+                existing["friends"] = friendsData
+            }
+            if let requestsData = try? JSONEncoder().encode(user.friendRequests) {
+                existing["friendRequests"] = requestsData
+            }
+            _ = try await privateDatabase.save(existing)
+        } catch {
+            // If not found, create
+            let nsError = error as NSError
+            if nsError.domain == CKError.errorDomain, CKError.Code(rawValue: nsError.code) == .unknownItem {
+                let record = user.toCKRecord()
+                _ = try await privateDatabase.save(record)
+            } else {
+                throw error
+            }
+        }
     }
     
     func fetchUser(id: String) async throws -> User? {
@@ -265,7 +299,9 @@ class CloudKitManager: ObservableObject {
         if let drop = Drop(from: record) {
             await MainActor.run {
                 if let index = self.drops.firstIndex(where: { $0.id == dropId }) {
-                    self.drops[index] = drop
+                    var updated = drop
+                    updated.reactionCount = reactions.values.reduce(0, +)
+                    self.drops[index] = updated
                 }
             }
         }
@@ -383,5 +419,52 @@ class CloudKitManager: ObservableObject {
         // In the simplified model, badges are stored locally or in user preferences
         // For now, we'll just print success
         print("Badge '\(badge.name)' unlocked for user \(user.username)")
+    }
+
+    // MARK: - Account Deletion
+    func deleteAccount(for user: User) async throws {
+        // Delete public drops by this user
+        let dropPredicate = NSPredicate(format: "userID == %@", user.id)
+        let dropQuery = CKQuery(recordType: Drop.recordType, predicate: dropPredicate)
+        let dropResult = try await publicDatabase.records(matching: dropQuery)
+        for (_, res) in dropResult.matchResults {
+            if case let .success(record) = res {
+                try? await publicDatabase.deleteRecord(withID: record.recordID)
+            }
+        }
+
+        // Delete public reactions by this user
+        let reactionPredicate = NSPredicate(format: "userID == %@", user.id)
+        let reactionQuery = CKQuery(recordType: "Reaction", predicate: reactionPredicate)
+        let reactionResult = try await publicDatabase.records(matching: reactionQuery)
+        for (_, res) in reactionResult.matchResults {
+            if case let .success(record) = res { try? await publicDatabase.deleteRecord(withID: record.recordID) }
+        }
+
+        // Delete private friendships involving this user
+        let fr1 = NSPredicate(format: "requesterID == %@", user.id)
+        let fr2 = NSPredicate(format: "recipientID == %@", user.id)
+        for predicate in [fr1, fr2] {
+            let q = CKQuery(recordType: "Friendship", predicate: predicate)
+            let r = try await privateDatabase.records(matching: q)
+            for (_, res) in r.matchResults {
+                if case let .success(record) = res { try? await privateDatabase.deleteRecord(withID: record.recordID) }
+            }
+        }
+
+        // Delete private notifications for this user
+        let notif1 = NSPredicate(format: "recipientID == %@", user.id)
+        let notif2 = NSPredicate(format: "senderID == %@", user.id)
+        for predicate in [notif1, notif2] {
+            let q = CKQuery(recordType: "Notification", predicate: predicate)
+            let r = try await privateDatabase.records(matching: q)
+            for (_, res) in r.matchResults {
+                if case let .success(record) = res { try? await privateDatabase.deleteRecord(withID: record.recordID) }
+            }
+        }
+
+        // Finally delete the user record in private DB
+        let userID = CKRecord.ID(recordName: user.id)
+        try? await privateDatabase.deleteRecord(withID: userID)
     }
 }

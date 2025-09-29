@@ -4,26 +4,15 @@ struct LeaderboardView: View {
     @EnvironmentObject var cloudKitManager: CloudKitManager
     @EnvironmentObject var authManager: AuthenticationManager
     @EnvironmentObject var subscriptionManager: SubscriptionManager
-    @State private var selectedScope: LeaderboardScope = .global
+    @State private var selectedScope: LeaderboardScope = .friends
     @State private var leaderboardData: [LeaderboardEntry] = []
     @State private var isLoading = false
     @State private var userRank: Int?
     
     enum LeaderboardScope: String, CaseIterable {
-        case global = "Global"
-        case city = "City"
         case friends = "Friends"
         
-        var icon: String {
-            switch self {
-            case .global:
-                return "globe"
-            case .city:
-                return "building.2"
-            case .friends:
-                return "person.2"
-            }
-        }
+        var icon: String { return "person.2" }
     }
     
     var body: some View {
@@ -32,7 +21,7 @@ struct LeaderboardView: View {
                 Color.black.ignoresSafeArea()
                 
                 VStack(spacing: 0) {
-                    // Scope selector
+                    // Friends-only leaderboard
                     ScopeSelectorView(selectedScope: $selectedScope)
                         .padding(.horizontal)
                         .padding(.top, 8)

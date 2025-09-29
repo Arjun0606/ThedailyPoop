@@ -5,7 +5,7 @@ struct ProfileView: View {
     @EnvironmentObject var subscriptionManager: SubscriptionManager
     @EnvironmentObject var cloudKitManager: CloudKitManager
     @State private var showingSettings = false
-    @State private var showingTryPro = false
+    // Pro removed
     @State private var showingSubscriptionManagement = false
     
     var user: User? {
@@ -26,14 +26,7 @@ struct ProfileView: View {
                             // Stats section
                             StatsSection(user: user)
                             
-                            // Pro status section
-                            if subscriptionManager.isProSubscriber {
-                                ProStatusSection()
-                            } else {
-                                ProUpsellSection {
-                                    showingTryPro = true
-                                }
-                            }
+                            // Pro removed
                             
                             // Achievements section
                             AchievementsSection(user: user)
@@ -78,9 +71,7 @@ struct ProfileView: View {
         .sheet(isPresented: $showingSettings) {
             SettingsView()
         }
-        .sheet(isPresented: $showingTryPro) {
-            TryProView()
-        }
+        // Pro removed
         // Pro upsell removed - simplified ad-supported model
         // .sheet(isPresented: $showingProUpsell) {
         //     ProUpsellView()
@@ -546,20 +537,31 @@ struct SettingsView: View {
             ZStack {
                 Color.black.ignoresSafeArea()
                 
-                ScrollView {
-                    VStack(spacing: 20) {
-                        Text("Settings coming soon!")
-                            .font(.headline)
-                            .foregroundColor(.white)
-                        
-                        Text("Notification preferences, privacy settings, and more will be available here.")
-                            .font(.body)
-                            .foregroundColor(.white.opacity(0.8))
-                            .multilineTextAlignment(.center)
-                            .padding(.horizontal)
+                List {
+                    Section(header: Text("Notifications").foregroundColor(.white)) {
+                        Button("Open System Settings") {
+                            if let url = URL(string: UIApplication.openSettingsURLString) {
+                                UIApplication.shared.open(url)
+                            }
+                        }.foregroundColor(.white)
                     }
-                    .padding()
+                    Section(header: Text("Legal").foregroundColor(.white)) {
+                        Button("Terms of Service") {
+                            if let url = URL(string: "https://poopdrop.app/terms") { UIApplication.shared.open(url) }
+                        }.foregroundColor(.white)
+                        Button("Privacy Policy") {
+                            if let url = URL(string: "https://poopdrop.app/privacy") { UIApplication.shared.open(url) }
+                        }.foregroundColor(.white)
+                    }
+                    Section {
+                        Button(role: .destructive) {
+                            NotificationCenter.default.post(name: Notification.Name("DELETE_ACCOUNT_TAPPED"), object: nil)
+                        } label: {
+                            Text("Delete Account")
+                        }
+                    }
                 }
+                .scrollContentBackground(.hidden)
             }
             .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.inline)

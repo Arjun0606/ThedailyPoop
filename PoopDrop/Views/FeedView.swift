@@ -8,7 +8,7 @@ struct FeedView: View {
     @StateObject private var adManager = AdManager.shared
     @State private var friendDrops: [Drop] = []
     @State private var isRefreshing = false
-    @State private var showingProUpsell = false
+    // Pro removed
     
     var body: some View {
         NavigationView {
@@ -21,10 +21,7 @@ struct FeedView: View {
                 } else {
                     ScrollView {
                         LazyVStack(spacing: 16) {
-                            // Pro user welcome message
-                            if subscriptionManager.isProSubscriber {
-                                ProWelcomeCard()
-                            }
+                            // Pro removed
                             
                             // Friends' drops feed with native ads
                             ForEach(Array(friendDrops.enumerated()), id: \.element.id) { index, drop in
@@ -55,12 +52,7 @@ struct FeedView: View {
                                     .padding()
                             }
                             
-                            // Pro upsell card for free users
-                            if !subscriptionManager.isProSubscriber && !friendDrops.isEmpty {
-                                ProUpsellCard {
-                                    showingProUpsell = true
-                                }
-                            }
+                            // Pro removed
                         }
                         .padding(.horizontal, 16)
                         .padding(.top, 8)
@@ -109,9 +101,7 @@ struct FeedView: View {
                 adManager.loadInterstitialAd() // Preload interstitial
             }
         }
-        .sheet(isPresented: $showingProUpsell) {
-            ProUpsellView()
-        }
+        // Pro removed
     }
     
     private func loadInitialFriendDrops() {
