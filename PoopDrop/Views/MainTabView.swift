@@ -1,4 +1,5 @@
 import SwiftUI
+import CoreLocation
 
 struct MainTabView: View {
     @EnvironmentObject var authManager: AuthenticationManager
