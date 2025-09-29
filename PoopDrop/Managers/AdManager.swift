@@ -1,7 +1,9 @@
 import Foundation
 import SwiftUI
 import UIKit
-// import GoogleMobileAds // TODO: Add as Swift Package when ready
+#if canImport(GoogleMobileAds)
+import GoogleMobileAds
+#endif
 
 // MARK: - AdMob Configuration
 struct AdMobConfig {
@@ -23,17 +25,18 @@ struct NativeAdViewModel: Identifiable {
     let price: String?
     let advertiser: String?
     
-    // TODO: Initialize from GADNativeAd when SDK is added
-    // init(from nativeAd: GADNativeAd) {
-    //     self.headline = nativeAd.headline
-    //     self.body = nativeAd.body
-    //     self.callToAction = nativeAd.callToAction
-    //     self.icon = nativeAd.icon?.image
-    //     self.starRating = nativeAd.starRating?.doubleValue
-    //     self.store = nativeAd.store
-    //     self.price = nativeAd.price
-    //     self.advertiser = nativeAd.advertiser
-    // }
+    #if canImport(GoogleMobileAds)
+    init(from nativeAd: GADNativeAd) {
+        self.headline = nativeAd.headline
+        self.body = nativeAd.body
+        self.callToAction = nativeAd.callToAction
+        self.icon = nativeAd.icon?.image
+        self.starRating = nativeAd.starRating?.doubleValue
+        self.store = nativeAd.store
+        self.price = nativeAd.price
+        self.advertiser = nativeAd.advertiser
+    }
+    #endif
     
     // Production-ready mock for testing
     init(headline: String? = "Spicy Tuesday Special!",
@@ -55,7 +58,7 @@ struct NativeAdViewModel: Identifiable {
     }
 }
 
-// MARK: - Production-Ready Ad Manager (Mock Implementation)
+// MARK: - Production-Ready Ad Manager
 @MainActor
 class AdManager: NSObject, ObservableObject {
     static let shared = AdManager()
@@ -63,79 +66,49 @@ class AdManager: NSObject, ObservableObject {
     @Published var nativeAd: NativeAdViewModel?
     @Published var isLoading = false
     @Published var interstitialReady = false
+    #if canImport(GoogleMobileAds)
+    private var adLoader: GADAdLoader?
+    private var interstitial: GADInterstitialAd?
+    #endif
     
     override init() {
         super.init()
-        // TODO: GADMobileAds.sharedInstance().start(completionHandler: nil)
-        print("📱 AdManager initialized - Ready for GoogleMobileAds integration")
+        print("📱 AdManager initialized")
     }
 
     func loadNativeAd() {
-        print("📱 Loading native ad (mock mode)")
         isLoading = true
-        
-        // TODO: Replace with real AdMob implementation
-        // let request = GADRequest()
-        // adLoader = GADAdLoader(...)
-        
-        // Mock implementation with realistic delay
+        #if canImport(GoogleMobileAds)
+        let request = GADRequest()
+        self.adLoader = GADAdLoader(adUnitID: AdMobConfig.nativeFeedAdUnitID,
+                                    rootViewController: AdManager.topViewController(),
+                                    adTypes: [.native],
+                                    options: nil)
+        self.adLoader?.delegate = self
+        self.adLoader?.load(request)
+        #else
+        // Mock fallback
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            let bathromAds = [
-                NativeAdViewModel(
-                    headline: "Taco Bell Fire Sauce Challenge",
-                    body: "Turn your bathroom into a volcanic eruption! 🌋💩 New Fire Sauce hits different!",
-                    callToAction: "Get Spicy",
-                    starRating: 4.5,
-                    store: "Taco Bell",
-                    price: "$5.99",
-                    advertiser: "Taco Bell"
-                ),
-                NativeAdViewModel(
-                    headline: "White Castle Sliders Special",
-                    body: "Tiny burgers, BIG bathroom adventures! The original gut-buster is back! 🍔💩",
-                    callToAction: "Order Now",
-                    starRating: 3.8,
-                    store: "White Castle", 
-                    price: "$6.99",
-                    advertiser: "White Castle"
-                ),
-                NativeAdViewModel(
-                    headline: "Chipotle Bowl Challenge",
-                    body: "Double beans, double the bathroom drama! Your toilet will remember this. 🌶️💩",
-                    callToAction: "Order Bowl",
-                    starRating: 4.2,
-                    store: "Chipotle",
-                    price: "$12.99",
-                    advertiser: "Chipotle"
-                ),
-                NativeAdViewModel(
-                    headline: "Fiber One Bars",
-                    body: "90 calories, 100% bathroom guarantee! Get ready for the cleanest poop of your life! ✨💩",
-                    callToAction: "Buy Now",
-                    starRating: 4.0,
-                    store: "Target",
-                    price: "$3.99",
-                    advertiser: "Fiber One"
-                )
-            ]
-            
-            self.nativeAd = bathromAds.randomElement()
+            self.nativeAd = NativeAdViewModel()
             self.isLoading = false
-            print("✅ Native ad loaded (mock)")
         }
+        #endif
     }
     
     func loadInterstitialAd() {
-        print("📱 Loading interstitial ad (mock mode)")
-        
-        // TODO: Replace with real AdMob implementation
-        // GADInterstitialAd.load(withAdUnitID: AdMobConfig.interstitialAdUnitID, ...)
-        
-        // Mock implementation
+        #if canImport(GoogleMobileAds)
+        let request = GADRequest()
+        GADInterstitialAd.load(withAdUnitID: AdMobConfig.interstitialAdUnitID, request: request) { [weak self] ad, error in
+            if let _ = error { self?.interstitialReady = false; return }
+            self?.interstitial = ad
+            self?.interstitial?.fullScreenContentDelegate = self
+            self?.interstitialReady = ad != nil
+        }
+        #else
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             self.interstitialReady = true
-            print("✅ Interstitial ad loaded (mock)")
         }
+        #endif
     }
     
     func showInterstitialAd() -> Bool {
@@ -143,14 +116,20 @@ class AdManager: NSObject, ObservableObject {
             print("❌ Interstitial ad not ready")
             return false
         }
-        
-        // TODO: Replace with real AdMob presentation
-        // interstitialAd.present(fromRootViewController: rootViewController)
-        
-        print("🎯 Showing interstitial ad (mock) - $0.05 revenue!")
+        #if canImport(GoogleMobileAds)
+        if let vc = AdManager.topViewController(), let ad = interstitial {
+            ad.present(fromRootViewController: vc)
+            interstitial = nil
+            interstitialReady = false
+            loadInterstitialAd()
+            return true
+        }
+        return false
+        #else
         interstitialReady = false
-        loadInterstitialAd() // Preload next
+        loadInterstitialAd()
         return true
+        #endif
     }
 }
 
@@ -167,4 +146,40 @@ extension AdManager {
     func trackInterstitialImpression() {
         print("💰 Interstitial impression - $0.05 revenue!")
     }
+
+    static func topViewController(base: UIViewController? = UIApplication.shared.connectedScenes
+        .compactMap { ($0 as? UIWindowScene)?.windows.first { $0.isKeyWindow }?.rootViewController }
+        .first) -> UIViewController? {
+        if let nav = base as? UINavigationController {
+            return topViewController(base: nav.visibleViewController)
+        }
+        if let tab = base as? UITabBarController, let selected = tab.selectedViewController {
+            return topViewController(base: selected)
+        }
+        if let presented = base?.presentedViewController {
+            return topViewController(base: presented)
+        }
+        return base
+    }
 }
+
+#if canImport(GoogleMobileAds)
+// MARK: - GAD Delegates
+extension AdManager: GADNativeAdLoaderDelegate {
+    func adLoader(_ adLoader: GADAdLoader, didFailToReceiveAdWithError error: Error) {
+        isLoading = false
+        print("❌ Native ad failed: \(error)")
+    }
+    func adLoader(_ adLoader: GADAdLoader, didReceive nativeAd: GADNativeAd) {
+        isLoading = false
+        self.nativeAd = NativeAdViewModel(from: nativeAd)
+    }
+}
+
+extension AdManager: GADFullScreenContentDelegate {
+    func adDidDismissFullScreenContent(_ ad: GADFullScreenPresentingAd) {
+        interstitialReady = false
+        loadInterstitialAd()
+    }
+}
+#endif
