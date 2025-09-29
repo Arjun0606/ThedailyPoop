@@ -171,6 +171,14 @@ struct DropComposerView: View {
                 try await cloudKitManager.saveDrop(drop)
                 print("✅ Drop saved successfully to CloudKit")
                 
+                // Update user's streak and total drops FIRST (before other operations)
+                await updateUserStats()
+                
+                // Check for badge eligibility with updated stats
+                let badgeManager = BadgeManager()
+                let userDrops = try await cloudKitManager.fetchUserDrops(for: user)
+                await badgeManager.checkBadgeEligibility(for: user, drops: userDrops)
+                
                 // Notify friends about the drop
                 do {
                     let friends = try await CloudKitManager.shared.fetchFriends(for: user)
@@ -186,30 +194,30 @@ struct DropComposerView: View {
                 // Schedule next poop reminder (12 hours from now)
                 await NotificationManager.shared.schedulePoopReminder(for: user)
                 
-                // Check for badge eligibility
-                let badgeManager = BadgeManager()
-                let userDrops = try await cloudKitManager.fetchUserDrops(for: user)
-                await badgeManager.checkBadgeEligibility(for: user, drops: userDrops)
-                
                 await MainActor.run {
                     isDropping = false
                     dismiss()
                     print("🗺️ Posting DID_CREATE_DROP notification to switch to map")
                     // Post notification so MainTabView can switch to Map and center on this drop
                     NotificationCenter.default.post(name: Notification.Name("DID_CREATE_DROP"), object: nil, userInfo: ["drop": drop])
+                    // Post notification to refresh profile stats
+                    NotificationCenter.default.post(name: Notification.Name("USER_STATS_UPDATED"), object: nil)
                 }
-                
-                // Update user's streak and total drops
-                await updateUserStats()
                 
             } catch {
                 print("❌ ERROR creating drop: \(error)")
+                
+                // Even if CloudKit fails, update user stats locally
+                await updateUserStats()
+                
                 await MainActor.run {
                     isDropping = false
                     // Even if CloudKit fails, post the drop locally so map shows it
                     print("🗺️ CloudKit failed, but posting drop locally to show on map")
                     dismiss()
                     NotificationCenter.default.post(name: Notification.Name("DID_CREATE_DROP"), object: nil, userInfo: ["drop": drop])
+                    // Post notification to refresh profile stats
+                    NotificationCenter.default.post(name: Notification.Name("USER_STATS_UPDATED"), object: nil)
                 }
             }
         }
@@ -217,6 +225,8 @@ struct DropComposerView: View {
     
     private func updateUserStats() async {
         guard var user = authManager.currentUser else { return }
+        
+        print("📊 Updating user stats: totalDrops was \(user.totalDrops), streak was \(user.streak)")
         
         // Update total drops
         user.totalDrops += 1
@@ -262,13 +272,19 @@ struct DropComposerView: View {
         
         user.lastDropDate = today
         
+        print("📊 Updated user stats: totalDrops now \(user.totalDrops), streak now \(user.streak), maxDropsInDay: \(user.maxDropsInDay)")
+        
         do {
             try await cloudKitManager.saveUser(user)
             await MainActor.run {
                 authManager.currentUser = user
+                print("✅ User stats saved to CloudKit and updated in authManager")
             }
         } catch {
-            print("Failed to update user stats: \(error)")
+            print("❌ Failed to save user stats to CloudKit: \(error), but updating locally")
+            await MainActor.run {
+                authManager.currentUser = user
+            }
         }
     }
     

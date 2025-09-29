@@ -7,6 +7,7 @@ struct ProfileView: View {
     @State private var showingSettings = false
     // Pro removed
     @State private var showingSubscriptionManagement = false
+    @State private var refreshTrigger = false
     
     var user: User? {
         authManager.currentUser
@@ -24,12 +25,12 @@ struct ProfileView: View {
                             ProfileHeaderView(user: user)
                             
                             // Stats section (friends-only; remove global/city ranks)
-                            StatsSection(user: user)
+                            StatsSection(user: user, refreshTrigger: refreshTrigger)
                             
                             // Pro removed
                             
                             // Achievements section
-                            AchievementsSection(user: user)
+                            AchievementsSection(user: user, refreshTrigger: refreshTrigger)
                             
                             // Settings section
                             SettingsSection(
@@ -68,6 +69,11 @@ struct ProfileView: View {
         }
         .sheet(isPresented: $showingSettings) {
             SettingsView()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: Notification.Name("USER_STATS_UPDATED"))) { _ in
+            print("📊 Profile refreshing stats after drop")
+            // Force refresh by toggling a state variable
+            refreshTrigger.toggle()
         }
         // Pro removed
         // Pro upsell removed - simplified ad-supported model
@@ -171,6 +177,7 @@ struct ProfileHeaderView: View {
 
 struct StatsSection: View {
     let user: User
+    let refreshTrigger: Bool
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -382,6 +389,7 @@ struct ProUpsellSection: View {
 
 struct AchievementsSection: View {
     let user: User
+    let refreshTrigger: Bool
     
     private var achievements: [Achievement] {
         // Compute from real user stats; no dummy unlocks
