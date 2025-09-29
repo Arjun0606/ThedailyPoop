@@ -80,6 +80,18 @@ struct SnapchatStyleMapView: View {
                 centerOnUserLocation()
                 loadAndClusterDrops()
             }
+            .onReceive(NotificationCenter.default.publisher(for: Notification.Name("CENTER_MAP"))) { notification in
+                if let coord = notification.userInfo?["coordinate"] as? CLLocationCoordinate2D {
+                    withAnimation(.easeInOut(duration: 0.6)) {
+                        region = MKCoordinateRegion(
+                            center: coord,
+                            span: MKCoordinateSpan(latitudeDelta: 0.02, longitudeDelta: 0.02)
+                        )
+                    }
+                    // Reload drops so the new one appears quickly
+                    loadAndClusterDrops()
+                }
+            }
             // Note: onChange removed due to MKCoordinateRegion not conforming to Equatable
             // Can be re-added with custom Equatable implementation if needed
             

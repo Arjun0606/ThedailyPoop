@@ -5,6 +5,7 @@ struct MainTabView: View {
     @EnvironmentObject var subscriptionManager: SubscriptionManager
     @State private var selectedTab = 0
     @State private var showingDropComposer = false
+    @State private var pendingCenterCoordinate: CLLocationCoordinate2D? = nil
     
     var body: some View {
         ZStack {
@@ -72,6 +73,13 @@ struct MainTabView: View {
                 UITabBar.appearance().standardAppearance = appearance
                 UITabBar.appearance().scrollEdgeAppearance = appearance
             }
+            .onReceive(NotificationCenter.default.publisher(for: Notification.Name("DID_CREATE_DROP"))) { notification in
+                if let drop = notification.userInfo?["drop"] as? Drop, let coord = drop.location {
+                    // Switch to Map tab and remember coordinate
+                    pendingCenterCoordinate = coord
+                    selectedTab = 3
+                }
+            }
             
             // Floating Action Button for Drop
             VStack {
@@ -113,6 +121,11 @@ struct MainTabView: View {
                 // Reset to previous tab and show composer
                 selectedTab = 0
                 showingDropComposer = true
+            }
+            if newTab == 3, let coord = pendingCenterCoordinate {
+                // Notify map view to center on coordinate
+                NotificationCenter.default.post(name: Notification.Name("CENTER_MAP"), object: nil, userInfo: ["coordinate": coord])
+                pendingCenterCoordinate = nil
             }
         }
     }

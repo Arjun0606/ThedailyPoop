@@ -192,6 +192,8 @@ struct DropComposerView: View {
                 await MainActor.run {
                     isDropping = false
                     dismiss()
+                    // Post notification so MainTabView can switch to Map and center on this drop
+                    NotificationCenter.default.post(name: Notification.Name("DID_CREATE_DROP"), object: nil, userInfo: ["drop": drop])
                 }
                 
                 // Update user's streak and total drops

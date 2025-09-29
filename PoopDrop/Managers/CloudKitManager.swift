@@ -250,26 +250,15 @@ class CloudKitManager: ObservableObject {
     }
     
     func fetchNearbyDrops(coordinate: CLLocationCoordinate2D, radius: Double = 1000) async throws -> [Drop] {
-        // For now, fetch all visible drops and filter by distance
-        // In production, you'd use CloudKit's location-based queries
-        let predicate = NSPredicate(format: "expiresAt > %@", Date() as NSDate)
-        let query = CKQuery(recordType: Drop.recordType, predicate: predicate)
-        query.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
-        let (matchResults, _) = try await publicDatabase.records(matching: query)
-        
-        var drops: [Drop] = []
-        for (_, result) in matchResults {
-            switch result {
-            case .success(let record):
-                if let drop = Drop(from: record) {
-                    drops.append(drop)
-                }
-            case .failure(let error):
-                print("Failed to fetch nearby drop: \(error)")
-            }
+        // Fetch recent drops first to avoid CloudKit indexing requirements, then filter client-side
+        let recent = try await fetchDrops(limit: 200)
+        let centerLocation = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
+        let filtered = recent.filter { drop in
+            guard drop.isCurrentlyVisible, let loc = drop.location else { return false }
+            let dropLocation = CLLocation(latitude: loc.latitude, longitude: loc.longitude)
+            return centerLocation.distance(from: dropLocation) <= radius
         }
-        
-        return drops
+        return filtered
     }
     
     func updateDropReaction(_ dropId: String, emoji: String, increment: Bool) async throws {
