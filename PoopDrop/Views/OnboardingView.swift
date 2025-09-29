@@ -16,9 +16,9 @@ struct OnboardingView: View {
             description: "Drop poops at your current location and see what your friends are up to on the map!"
         ),
         OnboardingPage(
-            emoji: "👑",
-            title: "Go Pro for More Fun",
-            description: "Unlock premium skins, longer captions, custom reactions, and exclusive map themes!"
+            emoji: "🌍",
+            title: "Explore the World",
+            description: "Browse the global map to see your friends' drops around the world, even while your own drops are geo-locked!"
         )
     ]
     
@@ -112,9 +112,9 @@ struct OnboardingView: View {
         .gesture(
             DragGesture()
                 .onEnded { value in
-                    if value.translation.x < -50 && currentPage < pages.count - 1 {
+                    if value.translation.width < -50 && currentPage < pages.count - 1 {
                         nextPage()
-                    } else if value.translation.x > 50 && currentPage > 0 {
+                    } else if value.translation.width > 50 && currentPage > 0 {
                         previousPage()
                     }
                 }

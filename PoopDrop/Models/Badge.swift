@@ -1,6 +1,7 @@
 import Foundation
 import CoreLocation
 import CloudKit
+import UserNotifications
 
 struct Badge: Identifiable, Codable {
     let id: String
@@ -239,7 +240,7 @@ class BadgeManager: ObservableObject {
     }
     
     func checkBadgeEligibility(for user: User, drops: [Drop]) async {
-        guard user.isPro else { return } // Only Pro users get badges
+        // Badges now available to all users (simplified text + emoji)
         
         for badge in availableBadges {
             if !userBadges.contains(where: { $0.id == badge.id }) {
@@ -253,16 +254,18 @@ class BadgeManager: ObservableObject {
     private func shouldUnlockBadge(_ badge: Badge, for user: User, drops: [Drop]) async -> Bool {
         switch badge.requirement.type {
         case .citiesVisited:
-            let cities = Set(drops.compactMap { drop in
+            let cities = Set<String>(drops.compactMap { drop in
                 // This would need reverse geocoding in real implementation
-                return drop.coordinate != nil ? "City_\(Int(drop.coordinate!.latitude))" : nil
+                guard let coordinate = drop.location else { return nil }
+                return "City_\(Int(coordinate.latitude))"
             })
             return cities.count >= badge.requirement.value
             
         case .countriesVisited:
-            let countries = Set(drops.compactMap { drop in
+            let countries = Set<String>(drops.compactMap { drop in
                 // This would need reverse geocoding in real implementation
-                return drop.coordinate != nil ? "Country_\(Int(drop.coordinate!.latitude / 10))" : nil
+                guard let coordinate = drop.location else { return nil }
+                return "Country_\(Int(coordinate.latitude / 10))"
             })
             return countries.count >= badge.requirement.value
             
@@ -278,12 +281,12 @@ class BadgeManager: ObservableObject {
         case .dropsInOneDay:
             let today = Calendar.current.startOfDay(for: Date())
             let todayDrops = drops.filter { 
-                Calendar.current.isDate($0.createdAt, inSameDayAs: today)
+                Calendar.current.isDate($0.timestamp, inSameDayAs: today)
             }
             return todayDrops.count >= badge.requirement.value
             
         case .uniqueLocations:
-            let uniqueLocations = Set(drops.compactMap { drop in
+            let uniqueLocations = Set<String>(drops.compactMap { drop in
                 guard let coord = drop.coordinate else { return nil }
                 // Round to ~100m precision
                 return "\(Int(coord.latitude * 1000))_\(Int(coord.longitude * 1000))"
@@ -329,35 +332,8 @@ class BadgeManager: ObservableObject {
     }
 }
 
-// MARK: - CloudKit Extensions for BadgeManager
-extension CloudKitManager {
-    func saveBadge(_ badge: Badge, for user: User) async throws {
-        let record = badge.toCKRecord()
-        record["userId"] = user.id
-        _ = try await privateDatabase.save(record)
-    }
-    
-    func fetchUserBadges(for user: User) async throws -> [Badge] {
-        let predicate = NSPredicate(format: "userId == %@", user.id)
-        let query = CKQuery(recordType: Badge.recordType, predicate: predicate)
-        
-        let (matchResults, _) = try await privateDatabase.records(matching: query)
-        
-        var badges: [Badge] = []
-        for (_, result) in matchResults {
-            switch result {
-            case .success(let record):
-                if let badge = Badge(from: record) {
-                    badges.append(badge)
-                }
-            case .failure(let error):
-                print("Failed to fetch badge: \(error)")
-            }
-        }
-        
-        return badges
-    }
-}
+// MARK: - Badge operations moved to CloudKitManager
+// Badge CloudKit operations are now implemented in CloudKitManager.swift
 
 // MARK: - Notification Extension
 extension NotificationManager {

@@ -3,6 +3,7 @@ import SwiftUI
 struct ContentView: View {
     @EnvironmentObject var authManager: AuthenticationManager
     @State private var showOnboarding = !UserDefaults.standard.bool(forKey: "hasSeenOnboarding")
+    @State private var showProfileSetup = false
     
     var body: some View {
         Group {
@@ -11,6 +12,10 @@ struct ContentView: View {
                     showOnboarding = false
                     UserDefaults.standard.set(true, forKey: "hasSeenOnboarding")
                 }
+            } else if showProfileSetup {
+                ProfileSetupView {
+                    showProfileSetup = false
+                }
             } else if authManager.isAuthenticated {
                 MainTabView()
             } else {
@@ -18,6 +23,13 @@ struct ContentView: View {
             }
         }
         .animation(.easeInOut(duration: 0.3), value: showOnboarding)
+        .animation(.easeInOut(duration: 0.3), value: showProfileSetup)
         .animation(.easeInOut(duration: 0.3), value: authManager.isAuthenticated)
+        .onChange(of: authManager.isAuthenticated) { _, isAuthenticated in
+            if isAuthenticated, let user = authManager.currentUser {
+                // Check if user needs to complete profile setup
+                showProfileSetup = user.username.isEmpty
+            }
+        }
     }
 }

@@ -137,66 +137,72 @@ class LocationManager: NSObject, ObservableObject {
 
 // MARK: - CLLocationManagerDelegate
 extension LocationManager: CLLocationManagerDelegate {
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+    nonisolated func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let newLocation = locations.last else { return }
         
-        // Only update if the new location is more accurate or significantly different
-        if let currentLocation = location {
-            let distance = newLocation.distance(from: currentLocation)
-            if distance < 10 && newLocation.horizontalAccuracy >= currentLocation.horizontalAccuracy {
-                return
+        Task { @MainActor in
+            // Only update if the new location is more accurate or significantly different
+            if let currentLocation = location {
+                let distance = newLocation.distance(from: currentLocation)
+                if distance < 10 && newLocation.horizontalAccuracy >= currentLocation.horizontalAccuracy {
+                    return
+                }
             }
+            
+            location = newLocation
+            errorMessage = nil
         }
-        
-        location = newLocation
-        errorMessage = nil
     }
     
-    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+    nonisolated func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
         if let clError = error as? CLError {
             switch clError.code {
             case .locationUnknown:
-                errorMessage = "Unable to determine location"
+                Task { @MainActor in errorMessage = "Unable to determine location" }
             case .denied:
-                errorMessage = "Location access denied. Please enable location access in Settings."
+                Task { @MainActor in errorMessage = "Location access denied. Please enable location access in Settings." }
             case .network:
-                errorMessage = "Network error while getting location"
+                Task { @MainActor in errorMessage = "Network error while getting location" }
             case .headingFailure:
-                errorMessage = "Unable to determine heading"
+                Task { @MainActor in errorMessage = "Unable to determine heading" }
             case .regionMonitoringDenied:
-                errorMessage = "Region monitoring denied"
+                Task { @MainActor in errorMessage = "Region monitoring denied" }
             case .regionMonitoringFailure:
-                errorMessage = "Region monitoring failed"
+                Task { @MainActor in errorMessage = "Region monitoring failed" }
             case .regionMonitoringSetupDelayed:
-                errorMessage = "Region monitoring setup delayed"
+                Task { @MainActor in errorMessage = "Region monitoring setup delayed" }
             case .regionMonitoringResponseDelayed:
-                errorMessage = "Region monitoring response delayed"
+                Task { @MainActor in errorMessage = "Region monitoring response delayed" }
             case .geocodeFoundNoResult:
-                errorMessage = "No location found"
+                Task { @MainActor in errorMessage = "No location found" }
             case .geocodeFoundPartialResult:
-                errorMessage = "Partial location found"
+                Task { @MainActor in errorMessage = "Partial location found" }
             case .geocodeCanceled:
-                errorMessage = "Location request canceled"
+                Task { @MainActor in errorMessage = "Location request canceled" }
             @unknown default:
-                errorMessage = "Unknown location error: \(error.localizedDescription)"
+                Task { @MainActor in errorMessage = "Unknown location error: \(error.localizedDescription)" }
             }
         } else {
-            errorMessage = "Location error: \(error.localizedDescription)"
+            Task { @MainActor in errorMessage = "Location error: \(error.localizedDescription)" }
         }
     }
     
-    func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
-        authorizationStatus = status
+    nonisolated func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
+        Task { @MainActor in authorizationStatus = status }
         
         switch status {
         case .notDetermined:
             break
         case .restricted, .denied:
-            isLocationAvailable = false
-            errorMessage = "Location access is required to drop poops. Please enable location access in Settings."
+            Task { @MainActor in
+                isLocationAvailable = false
+                errorMessage = "Location access is required to drop poops. Please enable location access in Settings."
+            }
         case .authorizedWhenInUse, .authorizedAlways:
-            startLocationUpdates()
-            errorMessage = nil
+            Task { @MainActor in
+                startLocationUpdates()
+                errorMessage = nil
+            }
         @unknown default:
             break
         }

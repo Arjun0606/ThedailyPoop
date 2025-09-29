@@ -2,7 +2,6 @@ import SwiftUI
 
 struct ReactionBarView: View {
     let drop: Drop
-    @EnvironmentObject var subscriptionManager: SubscriptionManager
     @EnvironmentObject var cloudKitManager: CloudKitManager
     @State private var localReactions: [String: Int]
     @State private var showingEmojiPicker = false
@@ -11,37 +10,21 @@ struct ReactionBarView: View {
     
     private let freeReactions = ["😂", "🤢", "🔥", "👏"]
     
-    var userIsPro: Bool {
-        subscriptionManager.isProSubscriber
-    }
-    
     init(drop: Drop) {
         self.drop = drop
-        self._localReactions = State(initialValue: drop.reactions)
+        self._localReactions = State(initialValue: [:])
     }
     
     var body: some View {
         HStack(spacing: 12) {
-            if userIsPro {
-                // Pro users get full emoji picker
-                ProReactionView(
-                    reactions: localReactions,
-                    onReactionTap: handleReaction,
-                    onAddReaction: {
-                        showingEmojiPicker = true
-                    }
-                )
-            } else {
-                // Free users get 4 fixed reactions
-                FreeReactionView(
-                    reactions: localReactions,
-                    freeReactions: freeReactions,
-                    onReactionTap: handleReaction,
-                    onProReactionTap: {
-                        showingProUpsell = true
-                    }
-                )
-            }
+            // All users: show top reactions + add button
+            ProReactionView(
+                reactions: localReactions,
+                onReactionTap: handleReaction,
+                onAddReaction: {
+                    showingEmojiPicker = true
+                }
+            )
         }
         .sheet(isPresented: $showingEmojiPicker) {
             EmojiPickerView { emoji in
@@ -55,7 +38,8 @@ struct ReactionBarView: View {
         .onReceive(cloudKitManager.$drops) { drops in
             // Update local reactions when CloudKit data changes
             if let updatedDrop = drops.first(where: { $0.id == drop.id }) {
-                localReactions = updatedDrop.reactions
+                // TODO: Fetch reactions from CloudKit for this drop
+                // localReactions = updatedDrop.reactions
             }
         }
     }

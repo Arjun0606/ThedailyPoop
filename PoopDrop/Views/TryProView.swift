@@ -146,7 +146,9 @@ struct TryProView: View {
         
         Task {
             do {
-                let success = try await subscriptionManager.purchaseProSubscription()
+                // Pro subscriptions removed - simplified ad-supported model
+                // let success = try await subscriptionManager.purchaseProSubscription()
+                let success = false // Always fail since no Pro version
                 
                 await MainActor.run {
                     isPurchasing = false

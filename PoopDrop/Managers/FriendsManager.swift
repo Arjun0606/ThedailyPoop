@@ -80,7 +80,7 @@ class FriendsManager: ObservableObject {
         isLoading = true
         
         do {
-            let users = try await cloudKitManager.searchUsers(displayName: query)
+            let users = try await cloudKitManager.searchUsers(username: query)
             
             await MainActor.run {
                 self.searchResults = users
@@ -114,9 +114,9 @@ class FriendsManager: ObservableObject {
         try await cloudKitManager.saveUser(targetUser)
         
         // Send push notification to target user
-        await NotificationManager.shared.sendFriendRequestNotification(
-            to: targetUser,
-            from: currentUser
+        await NotificationManager.shared.notifyFriendRequestReceived(
+            from: currentUser,
+            to: targetUser
         )
     }
     
@@ -139,10 +139,10 @@ class FriendsManager: ObservableObject {
         try await cloudKitManager.saveUser(currentUser)
         try await cloudKitManager.saveUser(updatedRequestUser)
         
-        // Send acceptance notification
-        await NotificationManager.shared.sendFriendAcceptedNotification(
-            to: updatedRequestUser,
-            from: currentUser
+        // Send acceptance notification  
+        await NotificationManager.shared.notifyFriendRequestAccepted(
+            from: currentUser,
+            to: updatedRequestUser
         )
         
         // Reload friends list
@@ -183,34 +183,13 @@ class FriendsManager: ObservableObject {
         
         // Filter to only show drops from friends
         let friendDrops = allDrops.filter { drop in
-            user.friends.contains(drop.creatorId) || drop.creatorId == user.id
+            user.friends.contains(drop.userID) || drop.userID == user.id
         }
         
-        return friendDrops.sorted { $0.createdAt > $1.createdAt }
+        return friendDrops.sorted { $0.timestamp > $1.timestamp }
     }
 }
 
-// MARK: - Notification Manager
-class NotificationManager {
-    static let shared = NotificationManager()
-    
-    func sendFriendRequestNotification(to user: User, from sender: User) async {
-        // Implementation for push notifications
-        print("📱 Sending friend request notification to \(user.displayName) from \(sender.displayName)")
-    }
-    
-    func sendFriendAcceptedNotification(to user: User, from accepter: User) async {
-        print("📱 Sending friend accepted notification to \(user.displayName) from \(accepter.displayName)")
-    }
-    
-    func sendPoopDropNotification(to friends: [User], from dropper: User, drop: Drop) async {
-        let message = drop.isNoPoop 
-            ? "\(dropper.displayName) had no poop today 😵‍💫"
-            : "\(dropper.displayName) just dropped a poop! 💩"
-        
-        print("📱 Sending poop notification to \(friends.count) friends: \(message)")
-    }
-}
 
 // MARK: - Friends Errors
 enum FriendsError: LocalizedError {
@@ -229,6 +208,24 @@ enum FriendsError: LocalizedError {
             return "Friend request already sent"
         case .cannotAddSelf:
             return "You cannot add yourself as a friend"
+        }
+    }
+    
+    // MARK: - Notification Helper
+    
+    func notifyFriendsOfDrop(_ drop: Drop, from user: User) async {
+        do {
+            // Get user's friends
+            let friends = try await CloudKitManager.shared.fetchFriends(for: user)
+            
+            // Send notifications to all friends
+            await NotificationManager.shared.notifyFriendPooped(
+                friend: user,
+                drop: drop,
+                recipients: friends
+            )
+        } catch {
+            print("Failed to notify friends of drop: \(error)")
         }
     }
 }

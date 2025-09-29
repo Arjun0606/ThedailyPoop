@@ -7,6 +7,7 @@ struct DropComposerView: View {
     @EnvironmentObject var subscriptionManager: SubscriptionManager
     @EnvironmentObject var cloudKitManager: CloudKitManager
     @EnvironmentObject var locationManager: LocationManager
+    @EnvironmentObject var friendsManager: FriendsManager
     
     @State private var caption: String = ""
     @State private var selectedSkinId: String? = nil
@@ -184,18 +185,17 @@ struct DropComposerView: View {
         
         isDropping = true
         
-        let finalCaption = userIsPro
-            ? caption.truncatedToWordLimit(proWordLimit)
-            : caption.truncatedToCharacterLimit(freeCharLimit)
+        // Simplified - no Pro features, use word limit for all users
+        let finalCaption = caption.truncatedToWordLimit(200)
         
         let drop = Drop(
-            creatorId: user.id,
-            creatorName: user.displayName,
-            coordinate: isNoPoop ? nil : currentLocation?.coordinate,
+            userID: user.id,
+            username: user.username,
+            location: isNoPoop ? nil : currentLocation?.coordinate,
             skinId: isNoPoop ? nil : selectedSkinId,
             caption: finalCaption.isEmpty ? nil : finalCaption,
             isNoPoop: isNoPoop,
-            isProUser: subscriptionManager.isProSubscriber
+            isSponsored: false
         )
         
         Task {
@@ -203,7 +203,16 @@ struct DropComposerView: View {
                 try await cloudKitManager.saveDrop(drop)
                 
                 // Notify friends about the drop
-                await friendsManager.notifyFriendsOfDrop(drop, from: user)
+                do {
+                    let friends = try await CloudKitManager.shared.fetchFriends(for: user)
+                    await NotificationManager.shared.notifyFriendPooped(
+                        friend: user,
+                        drop: drop,
+                        recipients: friends
+                    )
+                } catch {
+                    print("Failed to notify friends of drop: \(error)")
+                }
                 
                 // Schedule next poop reminder (12 hours from now)
                 await NotificationManager.shared.schedulePoopReminder(for: user)
@@ -244,7 +253,7 @@ struct DropComposerView: View {
         do {
             let userDrops = try await cloudKitManager.fetchUserDrops(for: user)
             let todayDrops = userDrops.filter { 
-                calendar.isDate($0.createdAt, inSameDayAs: today) && !$0.isNoPoop
+                calendar.isDate($0.timestamp, inSameDayAs: today) && !$0.isNoPoop
             }.count + 1 // +1 for current drop
             
             // Update max drops in day
@@ -289,14 +298,14 @@ struct DropComposerView: View {
     
     private func calculateLongestNoPoopStreak(userDrops: [Drop], user: inout User) {
         let calendar = Calendar.current
-        let sortedDrops = userDrops.sorted { $0.createdAt < $1.createdAt }
+        let sortedDrops = userDrops.sorted { $0.timestamp < $1.timestamp }
         
         var longestStreak = 0
         var currentStreak = 0
         var lastDate: Date?
         
         for drop in sortedDrops {
-            let dropDate = drop.createdAt
+            let dropDate = drop.timestamp
             
             if let last = lastDate {
                 let daysDifference = calendar.dateComponents([.day], from: last, to: dropDate).day ?? 0
@@ -784,6 +793,9 @@ struct ProFeatureRow: View {
         .background(Color.white.opacity(0.05))
         .cornerRadius(12)
     }
+    
+    // MARK: - Helper Methods
+    
 }
 
 #Preview {

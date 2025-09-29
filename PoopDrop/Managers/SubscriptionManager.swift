@@ -30,7 +30,7 @@ class SubscriptionManager: ObservableObject {
         return Task.detached {
             for await result in Transaction.updates {
                 do {
-                    let transaction = try self.checkVerified(result)
+                    let transaction = try await self.checkVerified(result)
                     await self.updateCustomerProductStatus()
                     await transaction.finish()
                 } catch {
@@ -127,16 +127,17 @@ class SubscriptionManager: ObservableObject {
         }
         
         // Update user's Pro status in CloudKit
-        if let currentUser = await AuthenticationManager().currentUser {
-            var updatedUser = currentUser
-            updatedUser.isPro = isProSubscriber
-            
-            do {
-                try await CloudKitManager.shared.saveUser(updatedUser)
-            } catch {
-                print("Failed to update user Pro status: \(error)")
-            }
-        }
+        // Pro features removed - simplified ad-supported model
+        // if let currentUser = await AuthenticationManager().currentUser {
+        //     var updatedUser = currentUser
+        //     updatedUser.isPro = isProSubscriber
+        //     
+        //     do {
+        //         try await CloudKitManager.shared.saveUser(updatedUser)
+        //     } catch {
+        //         print("Failed to update user Pro status: \(error)")
+        //     }
+        // }
     }
     
     func checkVerified<T>(_ result: VerificationResult<T>) throws -> T {
@@ -169,7 +170,7 @@ enum StoreError: Error {
 // MARK: - Product Extensions
 extension Product {
     var displayPrice: String {
-        return displayPrice
+        return self.displayName
     }
     
     var localizedTitle: String {

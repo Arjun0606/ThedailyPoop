@@ -52,8 +52,11 @@ struct MapView: View {
         NavigationView {
             ZStack {
                 // Map
-                Map(coordinateRegion: $region, annotationItems: cloudKitManager.drops) { drop in
-                    MapAnnotation(coordinate: drop.coordinate) {
+                Map(coordinateRegion: $region, annotationItems: cloudKitManager.drops.compactMap { (drop: Drop) -> Drop? in
+                    guard let location = drop.location else { return nil }
+                    return drop
+                }) { (drop: Drop) in
+                    MapAnnotation(coordinate: drop.location ?? CLLocationCoordinate2D(latitude: 0, longitude: 0)) {
                         PoopPinView(drop: drop) {
                             selectedDrop = drop
                             showingDropDetail = true
@@ -61,13 +64,25 @@ struct MapView: View {
                     }
                 }
                 .mapStyle(mapTheme.mapStyle)
+                
+                // Seamless Map Banner Ad Overlay
+                VStack {
+                    HStack {
+                        Spacer()
+                        MapBannerAdView()
+                            .padding(.top, 10)
+                            .padding(.trailing, 16)
+                        Spacer()
+                            .frame(width: 60) // Space for map controls
+                    }
+                    Spacer()
+                }
                 .onAppear {
                     centerOnUserLocation()
                     loadNearbyDrops()
                 }
-                .onChange(of: region) { _ in
-                    loadNearbyDrops()
-                }
+                // Note: onChange removed due to MKCoordinateRegion not conforming to Equatable
+                // Can be re-added with custom Equatable implementation if needed
                 
                 // Controls overlay
                 VStack {
@@ -170,9 +185,11 @@ struct PoopPinView: View {
     var body: some View {
         Button(action: onTap) {
             VStack(spacing: 0) {
-                // Poop emoji
-                Text(poopEmoji)
-                    .font(.title2)
+                // Custom poop pin image
+                Image("PoopPin")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 30, height: 30)
                     .scaleEffect(isAnimating ? 1.2 : 1.0)
                     .animation(.bouncy(duration: 0.6), value: isAnimating)
                     .background(
@@ -266,6 +283,14 @@ struct DropDetailView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var address: String?
     
+    private var coordinatesText: String {
+        if let location = drop.location {
+            return String(format: "%.4f, %.4f", location.latitude, location.longitude)
+        } else {
+            return "No location"
+        }
+    }
+    
     var body: some View {
         NavigationView {
             ScrollView {
@@ -289,13 +314,13 @@ struct DropDetailView: View {
                             LocationDetailRow(
                                 icon: "globe",
                                 title: "Coordinates",
-                                value: String(format: "%.4f, %.4f", drop.coordinate.latitude, drop.coordinate.longitude)
+                                value: coordinatesText
                             )
                             
                             LocationDetailRow(
                                 icon: "clock",
                                 title: "Dropped",
-                                value: formatDate(drop.createdAt)
+                                value: formatDate(drop.timestamp)
                             )
                         }
                     }
@@ -327,7 +352,8 @@ struct DropDetailView: View {
     
     private func loadAddress() {
         Task {
-            let location = CLLocation(latitude: drop.coordinate.latitude, longitude: drop.coordinate.longitude)
+            guard let coordinate = drop.coordinate else { return }
+            let location = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
             address = await LocationManager().getAddressFromLocation(location)
         }
     }

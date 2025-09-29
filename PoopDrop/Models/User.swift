@@ -1,13 +1,19 @@
 import Foundation
 import CloudKit
 
+enum Gender: String, Codable, CaseIterable {
+    case male = "Male"
+    case female = "Female"
+    case custom = "Custom"
+}
+
 struct User: Identifiable, Codable {
     let id: String
-    var displayName: String
+    var username: String // Unique username - serves as both display name and username
+    var dateOfBirth: Date // Required for age verification
+    var gender: Gender // Required for personalization
     var avatarURL: URL?
-    var isPro: Bool
     var streak: Int
-    var city: String?
     var createdAt: Date
     var lastDropDate: Date?
     var totalDrops: Int
@@ -16,19 +22,24 @@ struct User: Identifiable, Codable {
     var friends: [String] // Array of friend user IDs
     var friendRequests: [String] // Pending friend request IDs
     var lastStreakDate: Date? // Track when streak was last maintained
+    var appleUserID: String // Link to Apple ID authentication
+    var isActive: Bool // Account status
+    var lastSeen: Date? // Last app activity
     
     init(id: String = UUID().uuidString, 
-         displayName: String, 
+         username: String,
+         dateOfBirth: Date,
+         gender: Gender,
+         appleUserID: String,
          avatarURL: URL? = nil, 
-         isPro: Bool = false, 
-         streak: Int = 0, 
-         city: String? = nil) {
+         streak: Int = 0) {
         self.id = id
-        self.displayName = displayName
+        self.username = username
+        self.dateOfBirth = dateOfBirth
+        self.gender = gender
+        self.appleUserID = appleUserID
         self.avatarURL = avatarURL
-        self.isPro = isPro
         self.streak = streak
-        self.city = city
         self.createdAt = Date()
         self.lastDropDate = nil
         self.totalDrops = 0
@@ -37,6 +48,8 @@ struct User: Identifiable, Codable {
         self.friends = []
         self.friendRequests = []
         self.lastStreakDate = nil
+        self.isActive = true
+        self.lastSeen = Date()
     }
 }
 
@@ -45,19 +58,30 @@ extension User {
     static let recordType = "User"
     
     init?(from record: CKRecord) {
-        guard let displayName = record["displayName"] as? String else { return nil }
+        guard let username = record["username"] as? String,
+              let dateOfBirth = record["dateOfBirth"] as? Date,
+              let genderString = record["gender"] as? String,
+              let gender = Gender(rawValue: genderString),
+              let appleUserID = record["appleUserID"] as? String else { return nil }
         
         self.id = record.recordID.recordName
-        self.displayName = displayName
-        self.avatarURL = record["avatarURL"] as? URL
-        self.isPro = record["isPro"] as? Bool ?? false
+        self.username = username
+        self.dateOfBirth = dateOfBirth
+        self.gender = gender
+        self.appleUserID = appleUserID
+        if let avatarURLString = record["avatarURL"] as? String {
+            self.avatarURL = URL(string: avatarURLString)
+        } else {
+            self.avatarURL = nil
+        }
         self.streak = record["streak"] as? Int ?? 0
-        self.city = record["city"] as? String
         self.createdAt = record["createdAt"] as? Date ?? Date()
         self.lastDropDate = record["lastDropDate"] as? Date
         self.totalDrops = record["totalDrops"] as? Int ?? 0
         self.maxDropsInDay = record["maxDropsInDay"] as? Int ?? 0
         self.longestNoPoopStreak = record["longestNoPoopStreak"] as? Int ?? 0
+        self.isActive = (record["isActive"] as? Int) == 1
+        self.lastSeen = record["lastSeen"] as? Date
         
         // Decode friends array from CloudKit
         if let friendsData = record["friends"] as? Data {
@@ -78,16 +102,19 @@ extension User {
     
     func toCKRecord() -> CKRecord {
         let record = CKRecord(recordType: User.recordType, recordID: CKRecord.ID(recordName: id))
-        record["displayName"] = displayName
-        record["avatarURL"] = avatarURL
-        record["isPro"] = isPro
+        record["username"] = username
+        record["dateOfBirth"] = dateOfBirth
+        record["gender"] = gender.rawValue
+        record["appleUserID"] = appleUserID
+        record["avatarURL"] = avatarURL?.absoluteString
         record["streak"] = streak
-        record["city"] = city
         record["createdAt"] = createdAt
         record["lastDropDate"] = lastDropDate
         record["totalDrops"] = totalDrops
         record["maxDropsInDay"] = maxDropsInDay
         record["longestNoPoopStreak"] = longestNoPoopStreak
+        record["isActive"] = isActive ? 1 : 0
+        record["lastSeen"] = lastSeen
         record["lastStreakDate"] = lastStreakDate
         
         // Encode friends array for CloudKit
@@ -107,122 +134,11 @@ extension User {
 // MARK: - Sample Data
 extension User {
     static let sampleUser = User(
-        displayName: "Poop Master",
-        isPro: true,
-        streak: 7,
-        city: "San Francisco"
+        username: "poopmaster",
+        dateOfBirth: Calendar.current.date(byAdding: .year, value: -25, to: Date()) ?? Date(),
+        gender: .male,
+        appleUserID: "sample_apple_id",
+        streak: 7
     )
 }
-        
-        self.lastStreakDate = record["lastStreakDate"] as? Date
-    }
-    
-    func toCKRecord() -> CKRecord {
-        let record = CKRecord(recordType: User.recordType, recordID: CKRecord.ID(recordName: id))
-        record["displayName"] = displayName
-        record["avatarURL"] = avatarURL
-        record["isPro"] = isPro
-        record["streak"] = streak
-        record["city"] = city
-        record["createdAt"] = createdAt
-        record["lastDropDate"] = lastDropDate
-        record["totalDrops"] = totalDrops
-        record["maxDropsInDay"] = maxDropsInDay
-        record["longestNoPoopStreak"] = longestNoPoopStreak
-        record["lastStreakDate"] = lastStreakDate
-        
-        // Encode friends array for CloudKit
-        if let friendsData = try? JSONEncoder().encode(friends) {
-            record["friends"] = friendsData
-        }
-        
-        // Encode friend requests array for CloudKit
-        if let requestsData = try? JSONEncoder().encode(friendRequests) {
-            record["friendRequests"] = requestsData
-        }
-        
-        return record
-    }
-}
 
-// MARK: - Sample Data
-extension User {
-    static let sampleUser = User(
-        displayName: "Poop Master",
-        isPro: true,
-        streak: 7,
-        city: "San Francisco"
-    )
-}
-import CloudKit
-
-struct User: Identifiable, Codable {
-    let id: String
-    var displayName: String
-    var avatarURL: URL?
-    var isPro: Bool
-    var streak: Int
-    var city: String?
-    var createdAt: Date
-    var lastDropDate: Date?
-    var totalDrops: Int
-    
-    init(id: String = UUID().uuidString, 
-         displayName: String, 
-         avatarURL: URL? = nil, 
-         isPro: Bool = false, 
-         streak: Int = 0, 
-         city: String? = nil) {
-        self.id = id
-        self.displayName = displayName
-        self.avatarURL = avatarURL
-        self.isPro = isPro
-        self.streak = streak
-        self.city = city
-        self.createdAt = Date()
-        self.lastDropDate = nil
-        self.totalDrops = 0
-    }
-}
-
-// MARK: - CloudKit Extensions
-extension User {
-    static let recordType = "User"
-    
-    init?(from record: CKRecord) {
-        guard let displayName = record["displayName"] as? String else { return nil }
-        
-        self.id = record.recordID.recordName
-        self.displayName = displayName
-        self.avatarURL = record["avatarURL"] as? URL
-        self.isPro = record["isPro"] as? Bool ?? false
-        self.streak = record["streak"] as? Int ?? 0
-        self.city = record["city"] as? String
-        self.createdAt = record["createdAt"] as? Date ?? Date()
-        self.lastDropDate = record["lastDropDate"] as? Date
-        self.totalDrops = record["totalDrops"] as? Int ?? 0
-    }
-    
-    func toCKRecord() -> CKRecord {
-        let record = CKRecord(recordType: User.recordType, recordID: CKRecord.ID(recordName: id))
-        record["displayName"] = displayName
-        record["avatarURL"] = avatarURL
-        record["isPro"] = isPro
-        record["streak"] = streak
-        record["city"] = city
-        record["createdAt"] = createdAt
-        record["lastDropDate"] = lastDropDate
-        record["totalDrops"] = totalDrops
-        return record
-    }
-}
-
-// MARK: - Sample Data
-extension User {
-    static let sampleUser = User(
-        displayName: "Poop Master",
-        isPro: true,
-        streak: 7,
-        city: "San Francisco"
-    )
-}

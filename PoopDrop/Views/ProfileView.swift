@@ -81,9 +81,10 @@ struct ProfileView: View {
         .sheet(isPresented: $showingTryPro) {
             TryProView()
         }
-        .sheet(isPresented: $showingProUpsell) {
-            ProUpsellView()
-        }
+        // Pro upsell removed - simplified ad-supported model
+        // .sheet(isPresented: $showingProUpsell) {
+        //     ProUpsellView()
+        // }
         .sheet(isPresented: $showingSubscriptionManagement) {
             SubscriptionManagementView()
         }
@@ -108,7 +109,7 @@ struct ProfileHeaderView: View {
                     )
                     .frame(width: 100, height: 100)
                 
-                Text(String(user.displayName.prefix(1)).uppercased())
+                Text(String(user.username.prefix(1)).uppercased())
                     .font(.largeTitle)
                     .fontWeight(.bold)
                     .foregroundColor(.white)
@@ -127,7 +128,7 @@ struct ProfileHeaderView: View {
             // User info
             VStack(spacing: 8) {
                 HStack(spacing: 8) {
-                    Text(user.displayName)
+                    Text(user.username)
                         .font(.title2)
                         .fontWeight(.bold)
                         .foregroundColor(.white)
@@ -144,15 +145,13 @@ struct ProfileHeaderView: View {
                     }
                 }
                 
-                if let city = user.city {
-                    HStack(spacing: 4) {
-                        Image(systemName: "location.fill")
-                            .font(.caption)
-                            .foregroundColor(.white.opacity(0.6))
-                        Text(city)
-                            .font(.subheadline)
-                            .foregroundColor(.white.opacity(0.8))
-                    }
+                HStack(spacing: 4) {
+                    Image(systemName: "location.fill")
+                        .font(.caption)
+                        .foregroundColor(.white.opacity(0.6))
+                    Text("Location Private")
+                        .font(.subheadline)
+                        .foregroundColor(.white.opacity(0.8))
                 }
                 
                 Text("Member since \(formatDate(user.createdAt))")

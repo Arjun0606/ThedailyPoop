@@ -29,6 +29,24 @@
 		A1000027294A0000000000001 /* StringExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000028294A0000000000001 /* StringExtensions.swift */; };
 		A1000029294A0000000000001 /* AuthenticationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100002A294A0000000000001 /* AuthenticationView.swift */; };
 		A100002B294A0000000000001 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100002C294A0000000000001 /* OnboardingView.swift */; };
+		A100002D294A0000000000002 /* Badge.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100002E294A0000000000002 /* Badge.swift */; };
+		A100002F294A0000000000002 /* Friendship.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000030294A0000000000002 /* Friendship.swift */; };
+		A1000031294A0000000000002 /* Notification.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000032294A0000000000002 /* Notification.swift */; };
+		A1000033294A0000000000002 /* Reaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000034294A0000000000002 /* Reaction.swift */; };
+		A1000035294A0000000000002 /* UserSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000036294A0000000000002 /* UserSession.swift */; };
+		A1000037294A0000000000002 /* AdManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000038294A0000000000002 /* AdManager.swift */; };
+		A1000039294A0000000000002 /* AnimationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100003A294A0000000000002 /* AnimationManager.swift */; };
+		A100003B294A0000000000002 /* FriendsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100003C294A0000000000002 /* FriendsManager.swift */; };
+		A100003D294A0000000000002 /* NotificationHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100003E294A0000000000002 /* NotificationHandler.swift */; };
+		A100003F294A0000000000002 /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000040294A0000000000002 /* NotificationManager.swift */; };
+		A1000041294A0000000000002 /* FriendsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000042294A0000000000002 /* FriendsView.swift */; };
+		A1000043294A0000000000002 /* MapBannerAdView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000044294A0000000000002 /* MapBannerAdView.swift */; };
+		A1000045294A0000000000002 /* NativeAdCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000046294A0000000000002 /* NativeAdCardView.swift */; };
+		A1000047294A0000000000002 /* ProfilePictureEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000048294A0000000000002 /* ProfilePictureEditor.swift */; };
+		A1000049294A0000000000002 /* ProfileSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100004A294A0000000000002 /* ProfileSetupView.swift */; };
+		A100004B294A0000000000002 /* SnapchatStyleMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100004C294A0000000000002 /* SnapchatStyleMapView.swift */; };
+		A100004D294A0000000000002 /* StreakView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100004E294A0000000000002 /* StreakView.swift */; };
+		A100004F294A0000000000002 /* TryProView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000050294A0000000000002 /* TryProView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -57,10 +75,28 @@
 		A100002C294A0000000000001 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		A100002D294A0000000000001 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A100002E294A0000000000001 /* PoopDrop.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PoopDrop.entitlements; sourceTree = "<group>"; };
+		A100002E294A0000000000002 /* Badge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Badge.swift; sourceTree = "<group>"; };
+		A1000030294A0000000000002 /* Friendship.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Friendship.swift; sourceTree = "<group>"; };
+		A1000032294A0000000000002 /* Notification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notification.swift; sourceTree = "<group>"; };
+		A1000034294A0000000000002 /* Reaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Reaction.swift; sourceTree = "<group>"; };
+		A1000036294A0000000000002 /* UserSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSession.swift; sourceTree = "<group>"; };
+		A1000038294A0000000000002 /* AdManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdManager.swift; sourceTree = "<group>"; };
+		A100003A294A0000000000002 /* AnimationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimationManager.swift; sourceTree = "<group>"; };
+		A100003C294A0000000000002 /* FriendsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsManager.swift; sourceTree = "<group>"; };
+		A100003E294A0000000000002 /* NotificationHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationHandler.swift; sourceTree = "<group>"; };
+		A1000040294A0000000000002 /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
+		A1000042294A0000000000002 /* FriendsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsView.swift; sourceTree = "<group>"; };
+		A1000044294A0000000000002 /* MapBannerAdView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapBannerAdView.swift; sourceTree = "<group>"; };
+		A1000046294A0000000000002 /* NativeAdCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeAdCardView.swift; sourceTree = "<group>"; };
+		A1000048294A0000000000002 /* ProfilePictureEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilePictureEditor.swift; sourceTree = "<group>"; };
+		A100004A294A0000000000002 /* ProfileSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSetupView.swift; sourceTree = "<group>"; };
+		A100004C294A0000000000002 /* SnapchatStyleMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapchatStyleMapView.swift; sourceTree = "<group>"; };
+		A100004E294A0000000000002 /* StreakView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreakView.swift; sourceTree = "<group>"; };
+		A1000050294A0000000000002 /* TryProView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TryProView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		A1000000294A0000000000000 /* Frameworks */ = {
+		A0FFFFFF294A0000000000999 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -70,15 +106,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		A0FFFFFF294A0000000000000 = {
+		A0FFFFFF294A0000000000888 = {
 			isa = PBXGroup;
 			children = (
-				A1000003294A0000000000000 /* PoopDrop */,
-				A1000002294A0000000000000 /* Products */,
+				A1000003294A0000000000888 /* PoopDrop */,
+				A1000002294A0000000000888 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
-		A1000002294A0000000000000 /* Products */ = {
+		A1000002294A0000000000888 /* Products */ = {
 			isa = PBXGroup;
 			children = (
 				A1000001294A0000000000000 /* PoopDrop.app */,
@@ -86,24 +122,24 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		A1000003294A0000000000000 /* PoopDrop */ = {
+		A1000003294A0000000000888 /* PoopDrop */ = {
 			isa = PBXGroup;
 			children = (
 				A1000002294A0000000000001 /* PoopDropApp.swift */,
 				A1000004294A0000000000001 /* ContentView.swift */,
 				A100002D294A0000000000001 /* Info.plist */,
 				A100002E294A0000000000001 /* PoopDrop.entitlements */,
-				A1000030294A0000000000001 /* Models */,
-				A1000031294A0000000000001 /* Managers */,
-				A1000032294A0000000000001 /* Views */,
-				A1000033294A0000000000001 /* Extensions */,
+				A1000030294A0000000000888 /* Models */,
+				A1000031294A0000000000888 /* Managers */,
+				A1000032294A0000000000888 /* Views */,
+				A1000033294A0000000000888 /* Extensions */,
 				A1000006294A0000000000001 /* Assets.xcassets */,
-				A1000009294A0000000000001 /* Preview Content */,
+				A1000009294A0000000000888 /* Preview Content */,
 			);
 			path = PoopDrop;
 			sourceTree = "<group>";
 		};
-		A1000009294A0000000000001 /* Preview Content */ = {
+		A1000009294A0000000000888 /* Preview Content */ = {
 			isa = PBXGroup;
 			children = (
 				A1000008294A0000000000001 /* Preview Assets.xcassets */,
@@ -111,28 +147,38 @@
 			path = "Preview Content";
 			sourceTree = "<group>";
 		};
-		A1000030294A0000000000001 /* Models */ = {
+		A1000030294A0000000000888 /* Models */ = {
 			isa = PBXGroup;
 			children = (
 				A100000A294A0000000000001 /* User.swift */,
 				A100000C294A0000000000001 /* Drop.swift */,
 				A100000E294A0000000000001 /* SponsorCampaign.swift */,
+				A100002E294A0000000000002 /* Badge.swift */,
+				A1000030294A0000000000002 /* Friendship.swift */,
+				A1000032294A0000000000002 /* Notification.swift */,
+				A1000034294A0000000000002 /* Reaction.swift */,
+				A1000036294A0000000000002 /* UserSession.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
 		};
-		A1000031294A0000000000001 /* Managers */ = {
+		A1000031294A0000000000888 /* Managers */ = {
 			isa = PBXGroup;
 			children = (
 				A1000010294A0000000000001 /* AuthenticationManager.swift */,
 				A1000012294A0000000000001 /* SubscriptionManager.swift */,
 				A1000014294A0000000000001 /* CloudKitManager.swift */,
 				A1000016294A0000000000001 /* LocationManager.swift */,
+				A1000038294A0000000000002 /* AdManager.swift */,
+				A100003A294A0000000000002 /* AnimationManager.swift */,
+				A100003C294A0000000000002 /* FriendsManager.swift */,
+				A100003E294A0000000000002 /* NotificationHandler.swift */,
+				A1000040294A0000000000002 /* NotificationManager.swift */,
 			);
 			path = Managers;
 			sourceTree = "<group>";
 		};
-		A1000032294A0000000000001 /* Views */ = {
+		A1000032294A0000000000888 /* Views */ = {
 			isa = PBXGroup;
 			children = (
 				A1000018294A0000000000001 /* MainTabView.swift */,
@@ -145,11 +191,19 @@
 				A1000026294A0000000000001 /* DropCardView.swift */,
 				A100002A294A0000000000001 /* AuthenticationView.swift */,
 				A100002C294A0000000000001 /* OnboardingView.swift */,
+				A1000042294A0000000000002 /* FriendsView.swift */,
+				A1000044294A0000000000002 /* MapBannerAdView.swift */,
+				A1000046294A0000000000002 /* NativeAdCardView.swift */,
+				A1000048294A0000000000002 /* ProfilePictureEditor.swift */,
+				A100004A294A0000000000002 /* ProfileSetupView.swift */,
+				A100004C294A0000000000002 /* SnapchatStyleMapView.swift */,
+				A100004E294A0000000000002 /* StreakView.swift */,
+				A1000050294A0000000000002 /* TryProView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
 		};
-		A1000033294A0000000000001 /* Extensions */ = {
+		A1000033294A0000000000888 /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
 				A1000028294A0000000000001 /* StringExtensions.swift */,
@@ -162,11 +216,11 @@
 /* Begin PBXNativeTarget section */
 		A1000000294A0000000000000 /* PoopDrop */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = A100000F294A0000000000000 /* Build configuration list for PBXNativeTarget "PoopDrop" */;
+			buildConfigurationList = A1000002294A0000000000777 /* Build configuration list for PBXNativeTarget "PoopDrop" */;
 			buildPhases = (
-				A0FFFFFD294A0000000000000 /* Sources */,
-				A1000000294A0000000000000 /* Frameworks */,
-				A1000001294A0000000000000 /* Resources */,
+				A0FFFFFF294A0000000000998 /* Sources */,
+				A0FFFFFF294A0000000000999 /* Frameworks */,
+				A1000001294A0000000000777 /* Resources */,
 			);
 			buildRules = (
 			);
@@ -180,7 +234,7 @@
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		A0FFFFFF294A0000000000000 /* Project object */ = {
+		A0FFFFFF294A0000000000777 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
@@ -192,7 +246,7 @@
 					};
 				};
 			};
-			buildConfigurationList = A1000002294A0000000000000 /* Build configuration list for PBXProject "PoopDrop" */;
+			buildConfigurationList = A1000002294A0000000000666 /* Build configuration list for PBXProject "PoopDrop" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -200,8 +254,8 @@
 				en,
 				Base,
 			);
-			mainGroup = A0FFFFFF294A0000000000000;
-			productRefGroup = A1000002294A0000000000000 /* Products */;
+			mainGroup = A0FFFFFF294A0000000000888;
+			productRefGroup = A1000002294A0000000000888 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -211,7 +265,7 @@
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		A1000001294A0000000000000 /* Resources */ = {
+		A1000001294A0000000000777 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -223,7 +277,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		A0FFFFFD294A0000000000000 /* Sources */ = {
+		A0FFFFFF294A0000000000998 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -247,13 +301,31 @@
 				A1000027294A0000000000001 /* StringExtensions.swift in Sources */,
 				A1000029294A0000000000001 /* AuthenticationView.swift in Sources */,
 				A100002B294A0000000000001 /* OnboardingView.swift in Sources */,
+				A100002D294A0000000000002 /* Badge.swift in Sources */,
+				A100002F294A0000000000002 /* Friendship.swift in Sources */,
+				A1000031294A0000000000002 /* Notification.swift in Sources */,
+				A1000033294A0000000000002 /* Reaction.swift in Sources */,
+				A1000035294A0000000000002 /* UserSession.swift in Sources */,
+				A1000037294A0000000000002 /* AdManager.swift in Sources */,
+				A1000039294A0000000000002 /* AnimationManager.swift in Sources */,
+				A100003B294A0000000000002 /* FriendsManager.swift in Sources */,
+				A100003D294A0000000000002 /* NotificationHandler.swift in Sources */,
+				A100003F294A0000000000002 /* NotificationManager.swift in Sources */,
+				A1000041294A0000000000002 /* FriendsView.swift in Sources */,
+				A1000043294A0000000000002 /* MapBannerAdView.swift in Sources */,
+				A1000045294A0000000000002 /* NativeAdCardView.swift in Sources */,
+				A1000047294A0000000000002 /* ProfilePictureEditor.swift in Sources */,
+				A1000049294A0000000000002 /* ProfileSetupView.swift in Sources */,
+				A100004B294A0000000000002 /* SnapchatStyleMapView.swift in Sources */,
+				A100004D294A0000000000002 /* StreakView.swift in Sources */,
+				A100004F294A0000000000002 /* TryProView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		A1000003294A0000000000000 /* Debug */ = {
+		A1000002294A0000000000555 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -305,7 +377,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -316,7 +388,7 @@
 			};
 			name = Debug;
 		};
-		A1000004294A0000000000000 /* Release */ = {
+		A1000003294A0000000000555 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -362,7 +434,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -372,7 +444,7 @@
 			};
 			name = Release;
 		};
-		A1000010294A0000000000000 /* Debug */ = {
+		A1000004294A0000000000555 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -381,19 +453,15 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"PoopDrop/Preview Content\"";
-				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = NO;
+				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = PoopDrop/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Poop Drop";
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.social-networking";
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Poop Drop needs location access to drop poops at your current location and show nearby drops on the map.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -401,16 +469,13 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.poopdrop.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-				SUPPORTS_MACCATALYST = NO;
-				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
-		A1000011294A0000000000000 /* Release */ = {
+		A1000005294A0000000000555 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -419,19 +484,15 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"PoopDrop/Preview Content\"";
-				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = NO;
+				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = PoopDrop/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Poop Drop";
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.social-networking";
-				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Poop Drop needs location access to drop poops at your current location and show nearby drops on the map.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -439,37 +500,34 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.poopdrop.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-				SUPPORTS_MACCATALYST = NO;
-				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		A1000002294A0000000000000 /* Build configuration list for PBXProject "PoopDrop" */ = {
+		A1000002294A0000000000666 /* Build configuration list for PBXProject "PoopDrop" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				A1000003294A0000000000000 /* Debug */,
-				A1000004294A0000000000000 /* Release */,
+				A1000002294A0000000000555 /* Debug */,
+				A1000003294A0000000000555 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		A100000F294A0000000000000 /* Build configuration list for PBXNativeTarget "PoopDrop" */ = {
+		A1000002294A0000000000777 /* Build configuration list for PBXNativeTarget "PoopDrop" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				A1000010294A0000000000000 /* Debug */,
-				A1000011294A0000000000000 /* Release */,
+				A1000004294A0000000000555 /* Debug */,
+				A1000005294A0000000000555 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
-	rootObject = A0FFFFFF294A0000000000000 /* Project object */;
+	rootObject = A0FFFFFF294A0000000000777 /* Project object */;
 }

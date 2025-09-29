@@ -53,16 +53,13 @@ struct AuthenticationView: View {
                             request.requestedScopes = [.fullName, .email]
                         },
                         onCompletion: { result in
-                            // Handle completion in AuthenticationManager
+                            authManager.signInWithApple()
                         }
                     )
                     .signInWithAppleButtonStyle(.white)
                     .frame(height: 50)
                     .cornerRadius(12)
                     .disabled(authManager.isLoading)
-                    .onTapGesture {
-                        authManager.signInWithApple()
-                    }
                     
                     if authManager.isLoading {
                         HStack(spacing: 8) {

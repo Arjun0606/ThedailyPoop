@@ -199,7 +199,7 @@ struct FriendRowView: View {
                 )
                 .frame(width: 50, height: 50)
                 .overlay(
-                    Text(String(friend.displayName.prefix(1)).uppercased())
+                    Text(String(friend.username.prefix(1)).uppercased())
                         .font(.headline)
                         .fontWeight(.bold)
                         .foregroundColor(.white)
@@ -208,12 +208,13 @@ struct FriendRowView: View {
             // Friend info
             VStack(alignment: .leading, spacing: 4) {
                 HStack(spacing: 8) {
-                    Text(friend.displayName)
+                    Text(friend.username)
                         .font(.headline)
                         .fontWeight(.semibold)
                         .foregroundColor(.white)
                     
-                    if friend.isPro {
+                    // Pro badges removed - all users get badges now
+                    if true {
                         Text("PRO")
                             .font(.caption2)
                             .fontWeight(.bold)
@@ -234,21 +235,11 @@ struct FriendRowView: View {
                             .foregroundColor(.white.opacity(0.8))
                     }
                     
-                    if friend.streak > 0 {
-                        HStack(spacing: 4) {
-                            Text("🔥")
-                                .font(.caption)
-                            Text("\(friend.streak)")
-                                .font(.caption)
-                                .foregroundColor(.orange)
-                        }
-                    }
+                    StreakView(user: friend, fontSize: .caption)
                     
-                    if let city = friend.city {
-                        Text(city)
+                    Text("Location Private")
                             .font(.caption)
                             .foregroundColor(.white.opacity(0.6))
-                    }
                 }
             }
             
@@ -284,7 +275,7 @@ struct FriendRequestRowView: View {
                 )
                 .frame(width: 50, height: 50)
                 .overlay(
-                    Text(String(request.displayName.prefix(1)).uppercased())
+                    Text(String(request.username.prefix(1)).uppercased())
                         .font(.headline)
                         .fontWeight(.bold)
                         .foregroundColor(.white)
@@ -293,12 +284,13 @@ struct FriendRequestRowView: View {
             // Request info
             VStack(alignment: .leading, spacing: 4) {
                 HStack(spacing: 8) {
-                    Text(request.displayName)
+                    Text(request.username)
                         .font(.headline)
                         .fontWeight(.semibold)
                         .foregroundColor(.white)
                     
-                    if request.isPro {
+                    // Pro badges removed - all users get badges now
+                    if false { // Hide Pro badge for now
                         Text("PRO")
                             .font(.caption2)
                             .fontWeight(.bold)
@@ -520,7 +512,7 @@ struct SearchResultRowView: View {
                 )
                 .frame(width: 50, height: 50)
                 .overlay(
-                    Text(String(user.displayName.prefix(1)).uppercased())
+                    Text(String(user.username.prefix(1)).uppercased())
                         .font(.headline)
                         .fontWeight(.bold)
                         .foregroundColor(.white)
@@ -529,12 +521,13 @@ struct SearchResultRowView: View {
             // User info
             VStack(alignment: .leading, spacing: 4) {
                 HStack(spacing: 8) {
-                    Text(user.displayName)
+                    Text(user.username)
                         .font(.headline)
                         .fontWeight(.semibold)
                         .foregroundColor(.white)
                     
-                    if user.isPro {
+                    // Pro badges removed - all users get badges now
+                    if false { // Hide Pro badge for now
                         Text("PRO")
                             .font(.caption2)
                             .fontWeight(.bold)
@@ -546,11 +539,9 @@ struct SearchResultRowView: View {
                     }
                 }
                 
-                if let city = user.city {
-                    Text(city)
+                Text("Location Private")
                         .font(.subheadline)
                         .foregroundColor(.white.opacity(0.6))
-                }
             }
             
             Spacer()

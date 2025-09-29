@@ -11,7 +11,7 @@ struct DropCardView: View {
     private var timeAgo: String {
         let formatter = RelativeDateTimeFormatter()
         formatter.unitsStyle = .abbreviated
-        return formatter.localizedString(for: drop.createdAt, relativeTo: Date())
+        return formatter.localizedString(for: drop.timestamp, relativeTo: Date())
     }
     
     private var poopEmoji: String {
@@ -37,7 +37,7 @@ struct DropCardView: View {
                     )
                     .frame(width: 40, height: 40)
                     .overlay(
-                        Text(String(drop.creatorName.prefix(1)).uppercased())
+                        Text(String(drop.username.prefix(1)).uppercased())
                             .font(.headline)
                             .fontWeight(.bold)
                             .foregroundColor(.white)
@@ -45,7 +45,7 @@ struct DropCardView: View {
                 
                 VStack(alignment: .leading, spacing: 2) {
                     HStack(spacing: 8) {
-                        Text(drop.creatorName)
+                        Text(drop.username)
                             .font(.headline)
                             .fontWeight(.semibold)
                             .foregroundColor(.white)
@@ -281,7 +281,7 @@ struct SponsoredContentView: View {
     }
     
     private func loadCampaign() {
-        guard let campaignId = drop.sponsorCampaignId else { return }
+        guard let campaignId = drop.sponsorCampaignID else { return }
         
         // Find campaign in CloudKit manager's campaigns
         campaign = cloudKitManager.sponsorCampaigns.first { $0.id == campaignId }
@@ -299,7 +299,7 @@ struct ShareSheetView: View {
             text += "\n\n\"\(caption)\""
         }
         
-        text += "\n\nDrop by \(drop.creatorName)"
+        text += "\n\nDrop by \(drop.username)"
         text += "\n\nDownload Poop Drop: [App Store Link]"
         
         return text

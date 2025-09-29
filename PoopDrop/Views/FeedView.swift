@@ -36,15 +36,14 @@ struct FeedView: View {
                                         }
                                     }
                                 
-                                // Insert native ad every 5th drop (free users only)
-                                if !subscriptionManager.isProSubscriber && 
-                                   (index + 1) % 5 == 0 && 
+                                // Insert native ad every 5th drop (simplified - no Pro users)
+                                if (index + 1) % 2 == 0,
                                    let nativeAd = adManager.nativeAd {
                                     NativeAdCardView(adViewModel: nativeAd)
                                         .transition(.opacity)
                                         .onAppear {
                                             // Load a new ad for the next placement
-                                            adManager.loadAd()
+                                            adManager.loadNativeAd()
                                         }
                                 }
                             }
@@ -78,15 +77,8 @@ struct FeedView: View {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     HStack(spacing: 12) {
                         // Streak indicator
-                        if let user = authManager.currentUser, user.streak > 0 {
-                            HStack(spacing: 4) {
-                                Text("🔥")
-                                    .font(.caption)
-                                Text("\(user.streak)")
-                                    .font(.caption)
-                                    .fontWeight(.bold)
-                                    .foregroundColor(.orange)
-                            }
+                        if let user = authManager.currentUser {
+                            StreakView(user: user, fontSize: .caption)
                             .padding(.horizontal, 8)
                             .padding(.vertical, 4)
                             .background(Color.orange.opacity(0.2))
@@ -113,7 +105,8 @@ struct FeedView: View {
             
             // Load initial ad for free users
             if !subscriptionManager.isProSubscriber {
-                adManager.loadAd()
+                adManager.loadNativeAd()
+                adManager.loadInterstitialAd() // Preload interstitial
             }
         }
         .sheet(isPresented: $showingProUpsell) {

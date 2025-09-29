@@ -63,24 +63,14 @@ struct SnapchatStyleMapView: View {
             mapTheme.backgroundColor.ignoresSafeArea()
             
             // Map with custom styling
-            Map(coordinateRegion: $region) {
-                // User location
-                if let userLocation = locationManager.location {
-                    MapAnnotation(coordinate: userLocation.coordinate) {
-                        UserLocationPin()
-                    }
-                }
-                
-                // Clustered poop drops
-                ForEach(clusteredDrops) { cluster in
-                    MapAnnotation(coordinate: cluster.coordinate) {
-                        ClusteredPoopPin(cluster: cluster) {
-                            if cluster.drops.count == 1 {
-                                selectedDrop = cluster.drops.first
-                                showingDropDetail = true
-                            } else {
-                                // Show cluster detail
-                            }
+            Map(coordinateRegion: $region, annotationItems: clusteredDrops) { cluster in
+                MapAnnotation(coordinate: cluster.coordinate) {
+                    ClusteredPoopPin(cluster: cluster) {
+                        if cluster.drops.count == 1 {
+                            selectedDrop = cluster.drops.first
+                            showingDropDetail = true
+                        } else {
+                            // Show cluster detail
                         }
                     }
                 }
@@ -90,9 +80,8 @@ struct SnapchatStyleMapView: View {
                 centerOnUserLocation()
                 loadAndClusterDrops()
             }
-            .onChange(of: region) { _ in
-                loadAndClusterDrops()
-            }
+            // Note: onChange removed due to MKCoordinateRegion not conforming to Equatable
+            // Can be re-added with custom Equatable implementation if needed
             
             // Snapchat-style overlay elements
             VStack {
@@ -190,12 +179,12 @@ struct SnapchatStyleMapView: View {
         // Convert to ClusteredDrop objects
         return clusters.compactMap { (key, drops) in
             guard let firstDrop = drops.first,
-                  let coordinate = firstDrop.coordinate else { return nil }
+                  let coordinate = firstDrop.location else { return nil }
             
             return ClusteredDrop(
                 id: key,
                 coordinate: coordinate,
-                drops: drops.sorted { $0.createdAt > $1.createdAt } // Most recent first
+                drops: drops.sorted { $0.timestamp > $1.timestamp } // Most recent first
             )
         }
     }
@@ -209,7 +198,7 @@ struct ClusteredDrop: Identifiable {
     
     var count: Int { drops.count }
     var mostRecentDrop: Drop? { drops.first }
-    var hasProDrops: Bool { drops.contains { $0.isProUser } }
+    var hasSponsoredDrops: Bool { drops.contains { $0.isSponsored } }
 }
 
 // MARK: - Custom Map Pins
@@ -223,7 +212,7 @@ struct ClusteredPoopPin: View {
     }
     
     private var pinColor: Color {
-        if cluster.hasProDrops {
+        if cluster.hasSponsoredDrops {
             return .yellow // Pro users get gold pins
         } else {
             return .brown // Free users get brown pins
@@ -251,7 +240,7 @@ struct ClusteredPoopPin: View {
                     .shadow(color: .black.opacity(0.3), radius: 6, x: 0, y: 3)
                 
                 // Poop emoji or animation
-                if cluster.hasProDrops {
+                if cluster.hasSponsoredDrops {
                     LottieAnimationView(
                         "poop_pin_animated",
                         loopMode: .loop,

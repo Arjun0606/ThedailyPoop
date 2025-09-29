@@ -1,6 +1,7 @@
 import Foundation
 import CloudKit
 import Combine
+import CoreLocation
 
 @MainActor
 class CloudKitManager: ObservableObject {
@@ -71,7 +72,7 @@ class CloudKitManager: ObservableObject {
     
     func fetchAllUsers() async throws -> [User] {
         let query = CKQuery(recordType: User.recordType, predicate: NSPredicate(value: true))
-        let (matchResults, _) = try await publicDatabase.records(matching: query)
+        let (matchResults, _) = try await privateDatabase.records(matching: query)
         
         var users: [User] = []
         for (_, result) in matchResults {
@@ -92,12 +93,12 @@ class CloudKitManager: ObservableObject {
         return users
     }
     
-    func searchUsers(displayName: String) async throws -> [User] {
-        let predicate = NSPredicate(format: "displayName CONTAINS[c] %@", displayName)
+    func searchUsers(username: String) async throws -> [User] {
+        let predicate = NSPredicate(format: "username CONTAINS[c] %@", username)
         let query = CKQuery(recordType: User.recordType, predicate: predicate)
-        query.sortDescriptors = [NSSortDescriptor(key: "displayName", ascending: true)]
+        query.sortDescriptors = [NSSortDescriptor(key: "username", ascending: true)]
         
-        let (matchResults, _) = try await publicDatabase.records(matching: query, desiredKeys: nil, resultsLimit: 20)
+        let (matchResults, _) = try await privateDatabase.records(matching: query, desiredKeys: nil, resultsLimit: 20)
         
         var users: [User] = []
         for (_, result) in matchResults {
@@ -112,6 +113,60 @@ class CloudKitManager: ObservableObject {
         }
         
         return users
+    }
+    
+    // MARK: - Username Validation
+    
+    func isUsernameAvailable(_ username: String) async throws -> Bool {
+        let predicate = NSPredicate(format: "username == %@", username)
+        let query = CKQuery(recordType: User.recordType, predicate: predicate)
+        
+        let (matchResults, _) = try await privateDatabase.records(matching: query, desiredKeys: nil, resultsLimit: 1)
+        
+        // Username is available if no matches found
+        return matchResults.isEmpty
+    }
+    
+    // MARK: - Friend Operations
+    
+    func fetchFriends(for user: User) async throws -> [User] {
+        var friends: [User] = []
+        
+        for friendID in user.friends {
+            if let friend = try await fetchUser(id: friendID) {
+                friends.append(friend)
+            }
+        }
+        
+        return friends
+    }
+    
+    // MARK: - Reaction Operations
+    
+    func saveReaction(_ reaction: Reaction) async throws {
+        let record = reaction.toCKRecord()
+        try await publicDatabase.save(record)
+    }
+    
+    func fetchReactions(for dropID: String) async throws -> [Reaction] {
+        let predicate = NSPredicate(format: "dropID == %@", dropID)
+        let query = CKQuery(recordType: "Reaction", predicate: predicate)
+        
+        let result = try await publicDatabase.records(matching: query)
+        
+        var reactions: [Reaction] = []
+        for (_, result) in result.matchResults {
+            switch result {
+            case .success(let record):
+                if let reaction = Reaction(from: record) {
+                    reactions.append(reaction)
+                }
+            case .failure(let error):
+                print("Failed to fetch reaction: \(error)")
+            }
+        }
+        
+        return reactions.sorted { $0.timestamp > $1.timestamp }
     }
     
     // MARK: - Drop Operations
@@ -131,7 +186,7 @@ class CloudKitManager: ObservableObject {
     
     func fetchDrops(limit: Int = 50) async throws -> [Drop] {
         let query = CKQuery(recordType: Drop.recordType, predicate: NSPredicate(value: true))
-        query.sortDescriptors = [NSSortDescriptor(key: "createdAt", ascending: false)]
+        query.sortDescriptors = [NSSortDescriptor(key: "timestamp", ascending: false)]
         
         let (matchResults, _) = try await publicDatabase.records(matching: query, desiredKeys: nil, resultsLimit: limit)
         
@@ -155,11 +210,11 @@ class CloudKitManager: ObservableObject {
     }
     
     func fetchNearbyDrops(coordinate: CLLocationCoordinate2D, radius: Double = 1000) async throws -> [Drop] {
-        let location = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
-        let predicate = NSPredicate(format: "distanceToLocation:fromLocation:(location, %@) < %f", location, radius)
-        
+        // For now, fetch all visible drops and filter by distance
+        // In production, you'd use CloudKit's location-based queries
+        let predicate = NSPredicate(format: "expiresAt > %@", Date() as NSDate)
         let query = CKQuery(recordType: Drop.recordType, predicate: predicate)
-        query.sortDescriptors = [NSSortDescriptor(key: "createdAt", ascending: false)]
+        query.sortDescriptors = [NSSortDescriptor(key: "timestamp", ascending: false)]
         
         let (matchResults, _) = try await publicDatabase.records(matching: query)
         
@@ -247,6 +302,7 @@ class CloudKitManager: ObservableObject {
         let subscription = CKQuerySubscription(
             recordType: Drop.recordType,
             predicate: NSPredicate(value: true),
+            subscriptionID: "drop-subscription",
             options: [.firesOnRecordCreation, .firesOnRecordUpdate]
         )
         
@@ -265,6 +321,7 @@ class CloudKitManager: ObservableObject {
         let subscription = CKQuerySubscription(
             recordType: User.recordType,
             predicate: NSPredicate(value: true),
+            subscriptionID: "user-subscription",
             options: [.firesOnRecordCreation, .firesOnRecordUpdate]
         )
         
@@ -283,6 +340,7 @@ class CloudKitManager: ObservableObject {
         let subscription = CKQuerySubscription(
             recordType: SponsorCampaign.recordType,
             predicate: NSPredicate(value: true),
+            subscriptionID: "sponsor-campaign-subscription",
             options: [.firesOnRecordCreation, .firesOnRecordUpdate]
         )
         
@@ -298,9 +356,9 @@ class CloudKitManager: ObservableObject {
     }
     
     func fetchUserDrops(for user: User) async throws -> [Drop] {
-        let predicate = NSPredicate(format: "creatorId == %@", user.id)
+        let predicate = NSPredicate(format: "userID == %@", user.id)
         let query = CKQuery(recordType: Drop.recordType, predicate: predicate)
-        query.sortDescriptors = [NSSortDescriptor(key: "createdAt", ascending: false)]
+        query.sortDescriptors = [NSSortDescriptor(key: "timestamp", ascending: false)]
         
         let (matchResults, _) = try await privateDatabase.records(matching: query)
         
@@ -319,36 +377,11 @@ class CloudKitManager: ObservableObject {
         return drops
     }
     
-    func fetchNearbyDrops(coordinate: CLLocationCoordinate2D, radius: Double) async throws -> [Drop] {
-        // For now, fetch all visible drops and filter by distance
-        // In production, you'd use CloudKit's location-based queries
-        let predicate = NSPredicate(format: "expiresAt > %@", Date() as NSDate)
-        let query = CKQuery(recordType: Drop.recordType, predicate: predicate)
-        query.sortDescriptors = [NSSortDescriptor(key: "createdAt", ascending: false)]
-        
-        let (matchResults, _) = try await privateDatabase.records(matching: query)
-        
-        var drops: [Drop] = []
-        for (_, result) in matchResults {
-            switch result {
-            case .success(let record):
-                if let drop = Drop(from: record) {
-                    // Filter by distance
-                    if let dropCoord = drop.coordinate {
-                        let dropLocation = CLLocation(latitude: dropCoord.latitude, longitude: dropCoord.longitude)
-                        let centerLocation = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
-                        let distance = dropLocation.distance(from: centerLocation)
-                        
-                        if distance <= radius {
-                            drops.append(drop)
-                        }
-                    }
-                }
-            case .failure(let error):
-                print("Failed to fetch drop: \(error)")
-            }
-        }
-        
-        return drops
+    // MARK: - Badge Operations
+    
+    func saveBadge(_ badge: Badge, for user: User) async throws {
+        // In the simplified model, badges are stored locally or in user preferences
+        // For now, we'll just print success
+        print("Badge '\(badge.name)' unlocked for user \(user.username)")
     }
 }

@@ -1,5 +1,7 @@
 import SwiftUI
 import CloudKit
+import UserNotifications
+// import GoogleMobileAds // TODO: Add as Swift Package when ready
 
 @main
 struct PoopDropApp: App {
@@ -7,6 +9,7 @@ struct PoopDropApp: App {
     @StateObject private var subscriptionManager = SubscriptionManager()
     @StateObject private var cloudKitManager = CloudKitManager()
     @StateObject private var locationManager = LocationManager()
+    private let notificationHandler = NotificationHandler()
     
     var body: some Scene {
         WindowGroup {
@@ -23,6 +26,13 @@ struct PoopDropApp: App {
     }
     
     private func setupApp() {
+        // Initialize Google Mobile Ads if SDK is linked
+        // If GoogleMobileAds is added via SPM, uncomment the import at the top and this line:
+        // GADMobileAds.sharedInstance().start(completionHandler: nil)
+        
+        // Setup notification handler
+        notificationHandler.setup()
+        
         // Initialize CloudKit container
         cloudKitManager.initialize()
         
@@ -33,5 +43,10 @@ struct PoopDropApp: App {
         
         // Request location permission
         locationManager.requestLocationPermission()
+        
+        // Request notification permission
+        Task {
+            await NotificationManager.shared.requestPermission()
+        }
     }
 }
