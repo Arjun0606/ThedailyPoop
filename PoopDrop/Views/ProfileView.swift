@@ -23,7 +23,7 @@ struct ProfileView: View {
                             // Profile header
                             ProfileHeaderView(user: user)
                             
-                            // Stats section
+                            // Stats section (friends-only; remove global/city ranks)
                             StatsSection(user: user)
                             
                             // Pro removed
@@ -185,21 +185,7 @@ struct StatsSection: View {
                 )
             }
             
-            HStack(spacing: 16) {
-                StatCard(
-                    icon: "🏆",
-                    title: "Global Rank",
-                    value: "#\(Int.random(in: 15...100))",
-                    color: .yellow
-                )
-                
-                StatCard(
-                    icon: "📍",
-                    title: "City Rank",
-                    value: "#\(Int.random(in: 1...20))",
-                    color: .blue
-                )
-            }
+            // Friends-only app: remove global/city ranks
         }
     }
 }
@@ -521,6 +507,12 @@ struct SettingsView: View {
                             }
                         }.foregroundColor(.white)
                     }
+                    Section(header: Text("Profile").foregroundColor(.white)) {
+                        NavigationLink("Edit Profile") {
+                            EditProfileView()
+                        }
+                        .foregroundColor(.white)
+                    }
                     Section(header: Text("Legal").foregroundColor(.white)) {
                         Button("Terms of Service") {
                             if let url = URL(string: "https://poopdrop.app/terms") { UIApplication.shared.open(url) }
@@ -569,6 +561,88 @@ struct SettingsView: View {
             }
         }))
         root.present(alert, animated: true)
+    }
+}
+
+// MARK: - Edit Profile
+struct EditProfileView: View {
+    @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject var authManager: AuthenticationManager
+    @State private var username: String = ""
+    @State private var checking = false
+    @State private var available: Bool = true
+    @State private var showingEditor = false
+    @State private var selectedImage: UIImage? = nil
+    
+    var body: some View {
+        Form {
+            Section(header: Text("Username")) {
+                HStack {
+                    TextField("username", text: $username)
+                        .autocapitalization(.none)
+                        .disableAutocorrection(true)
+                        .onChange(of: username) { _ in debounceCheck() }
+                    if checking { ProgressView() }
+                    Image(systemName: available ? "checkmark.circle.fill" : "xmark.circle.fill")
+                        .foregroundColor(available ? .green : .red)
+                }
+            }
+            Section(header: Text("Profile Photo")) {
+                HStack {
+                    if let img = selectedImage {
+                        Image(uiImage: img)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 60, height: 60)
+                            .clipShape(Circle())
+                    }
+                    Button("Change Photo") { showingEditor = true }
+                }
+            }
+            Section {
+                Button("Save") { Task { await saveProfile() } }
+                    .disabled(!available || username.isEmpty)
+            }
+        }
+        .navigationTitle("Edit Profile")
+        .onAppear { if let u = authManager.currentUser { username = u.username } }
+        .sheet(isPresented: $showingEditor) {
+            ProfilePictureEditor(selectedImage: $selectedImage, isPresented: $showingEditor) { _ in }
+        }
+    }
+    
+    private func debounceCheck() {
+        checking = true
+        available = false
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+            Task { await checkUsername() }
+        }
+    }
+    
+    private func checkUsername() async {
+        do {
+            let ok = try await CloudKitManager.shared.isUsernameAvailable(username)
+            await MainActor.run { available = ok; checking = false }
+        } catch {
+            await MainActor.run { available = false; checking = false }
+        }
+    }
+    
+    private func saveProfile() async {
+        guard var user = authManager.currentUser else { return }
+        user.username = username
+        if let img = selectedImage, let data = img.pngData() {
+            let tmp = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("avatar_\(UUID().uuidString).png")
+            try? data.write(to: tmp)
+            user.avatarURL = tmp
+        }
+        do {
+            try await CloudKitManager.shared.saveUser(user)
+            await MainActor.run {
+                authManager.currentUser = user
+                dismiss()
+            }
+        } catch { }
     }
 }
 

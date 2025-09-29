@@ -31,6 +31,12 @@ struct PoopDropApp: App {
         // Initialize Google Mobile Ads if SDK is linked
 #if canImport(GoogleMobileAds)
         GADMobileAds.sharedInstance().start(completionHandler: nil)
+        #if DEBUG
+        GADMobileAds.sharedInstance().requestConfiguration.testDeviceIdentifiers = [ GADSimulatorID ]
+        print("[AdMob] SDK initialized (TEST mode on simulator)")
+        #else
+        print("[AdMob] SDK initialized (PRODUCTION)")
+        #endif
 #endif
         
         // Setup notification handler

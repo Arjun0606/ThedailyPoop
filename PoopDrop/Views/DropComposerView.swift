@@ -65,15 +65,7 @@ struct DropComposerView: View {
                             }
                         }
                         
-                        // Skin selector (only for regular poops)
-                        if !isNoPoop {
-                            SkinSelectorView(
-                                selectedSkinId: $selectedSkinId,
-                                availableSkins: availableSkins,
-                                userIsPro: false,
-                                onProSkinTapped: {}
-                            )
-                        }
+                        // Single poop type only - remove style selector
                         
                         // Caption input
                         CaptionInputView(

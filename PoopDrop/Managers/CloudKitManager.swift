@@ -69,7 +69,12 @@ class CloudKitManager: ObservableObject {
             existing["dateOfBirth"] = user.dateOfBirth
             existing["gender"] = user.gender.rawValue
             existing["appleUserID"] = user.appleUserID
-            existing["avatarURL"] = user.avatarURL?.absoluteString
+            // Store avatar as CKAsset if we have a local file URL
+            if let localURL = user.avatarURL, FileManager.default.fileExists(atPath: localURL.path) {
+                existing["avatar"] = CKAsset(fileURL: localURL)
+            } else {
+                existing["avatarURL"] = user.avatarURL?.absoluteString
+            }
             existing["streak"] = user.streak
             existing["createdAt"] = user.createdAt
             existing["lastDropDate"] = user.lastDropDate
@@ -219,9 +224,9 @@ class CloudKitManager: ObservableObject {
     }
     
     func fetchDrops(limit: Int = 50) async throws -> [Drop] {
+        // Avoid using non-indexed sort server-side; fetch recent records by creationDate
         let query = CKQuery(recordType: Drop.recordType, predicate: NSPredicate(value: true))
-        query.sortDescriptors = [NSSortDescriptor(key: "timestamp", ascending: false)]
-        
+        query.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
         let (matchResults, _) = try await publicDatabase.records(matching: query, desiredKeys: nil, resultsLimit: limit)
         
         var drops: [Drop] = []
@@ -248,8 +253,7 @@ class CloudKitManager: ObservableObject {
         // In production, you'd use CloudKit's location-based queries
         let predicate = NSPredicate(format: "expiresAt > %@", Date() as NSDate)
         let query = CKQuery(recordType: Drop.recordType, predicate: predicate)
-        query.sortDescriptors = [NSSortDescriptor(key: "timestamp", ascending: false)]
-        
+        query.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
         let (matchResults, _) = try await publicDatabase.records(matching: query)
         
         var drops: [Drop] = []
