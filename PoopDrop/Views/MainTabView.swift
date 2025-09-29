@@ -75,12 +75,16 @@ struct MainTabView: View {
                 UITabBar.appearance().scrollEdgeAppearance = appearance
             }
             .onReceive(NotificationCenter.default.publisher(for: Notification.Name("DID_CREATE_DROP"))) { notification in
+                print("📱 MainTabView received DID_CREATE_DROP notification")
                 if let drop = notification.userInfo?["drop"] as? Drop, let coord = drop.location {
+                    print("📍 Switching to Map tab and centering on: \(coord)")
                     // Switch to Map tab and remember coordinate
                     pendingCenterCoordinate = coord
                     selectedTab = 3
                     // Forward full drop to map so it can render immediately without fetching
                     NotificationCenter.default.post(name: Notification.Name("CENTER_MAP"), object: nil, userInfo: ["coordinate": coord, "drop": drop])
+                } else {
+                    print("⚠️ Drop or location missing from notification")
                 }
             }
             

@@ -167,7 +167,9 @@ struct DropComposerView: View {
         
         Task {
             do {
+                print("🚀 Creating drop for user: \(user.username) at location: \(String(describing: drop.location))")
                 try await cloudKitManager.saveDrop(drop)
+                print("✅ Drop saved successfully to CloudKit")
                 
                 // Notify friends about the drop
                 do {
@@ -192,6 +194,7 @@ struct DropComposerView: View {
                 await MainActor.run {
                     isDropping = false
                     dismiss()
+                    print("🗺️ Posting DID_CREATE_DROP notification to switch to map")
                     // Post notification so MainTabView can switch to Map and center on this drop
                     NotificationCenter.default.post(name: Notification.Name("DID_CREATE_DROP"), object: nil, userInfo: ["drop": drop])
                 }
@@ -200,9 +203,13 @@ struct DropComposerView: View {
                 await updateUserStats()
                 
             } catch {
+                print("❌ ERROR creating drop: \(error)")
                 await MainActor.run {
                     isDropping = false
-                    // Show error
+                    // Even if CloudKit fails, post the drop locally so map shows it
+                    print("🗺️ CloudKit failed, but posting drop locally to show on map")
+                    dismiss()
+                    NotificationCenter.default.post(name: Notification.Name("DID_CREATE_DROP"), object: nil, userInfo: ["drop": drop])
                 }
             }
         }

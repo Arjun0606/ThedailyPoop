@@ -81,7 +81,9 @@ struct SnapchatStyleMapView: View {
                 loadAndClusterDrops()
             }
             .onReceive(NotificationCenter.default.publisher(for: Notification.Name("CENTER_MAP"))) { notification in
+                print("🗺️ MapView received CENTER_MAP notification")
                 if let coord = notification.userInfo?["coordinate"] as? CLLocationCoordinate2D {
+                    print("🎯 Centering map on: \(coord)")
                     withAnimation(.easeInOut(duration: 0.6)) {
                         region = MKCoordinateRegion(
                             center: coord,
@@ -90,15 +92,22 @@ struct SnapchatStyleMapView: View {
                     }
                     // If a fresh drop is provided, render it immediately without waiting for CloudKit
                     if let drop = notification.userInfo?["drop"] as? Drop {
+                        print("📍 Adding new drop to map immediately: \(drop.id)")
                         let cluster = ClusteredDrop(id: drop.id, coordinate: drop.location ?? coord, drops: [drop])
                         // Prepend if not present
                         if !self.clusteredDrops.contains(where: { $0.id == drop.id }) {
                             self.clusteredDrops.insert(cluster, at: 0)
+                            print("✅ Drop added to clusteredDrops. Total drops on map: \(self.clusteredDrops.count)")
+                        } else {
+                            print("⚠️ Drop already exists on map")
                         }
                     } else {
+                        print("🔄 No drop provided, reloading from CloudKit")
                         // Otherwise reload from CloudKit
                         loadAndClusterDrops()
                     }
+                } else {
+                    print("⚠️ No coordinate in CENTER_MAP notification")
                 }
             }
             // Note: onChange removed due to MKCoordinateRegion not conforming to Equatable
