@@ -272,7 +272,12 @@ struct DropComposerView: View {
         
         user.lastDropDate = today
         
-        print("📊 Updated user stats: totalDrops now \(user.totalDrops), streak now \(user.streak), maxDropsInDay: \(user.maxDropsInDay)")
+        // Update travel tracking if location is available
+        if !isNoPoop, let location = currentLocation {
+            await updateTravelStats(for: &user, location: location)
+        }
+        
+        print("📊 Updated user stats: totalDrops now \(user.totalDrops), streak now \(user.streak), maxDropsInDay: \(user.maxDropsInDay), countries: \(user.countriesVisited.count), continents: \(user.continentsVisited.count)")
         
         do {
             try await cloudKitManager.saveUser(user)
@@ -322,6 +327,68 @@ struct DropComposerView: View {
         }
         
         user.longestNoPoopStreak = max(user.longestNoPoopStreak, longestStreak)
+    }
+    
+    private func updateTravelStats(for user: inout User, location: CLLocation) async {
+        let geocoder = CLGeocoder()
+        
+        do {
+            let placemarks = try await geocoder.reverseGeocodeLocation(location)
+            
+            if let placemark = placemarks.first {
+                // Add country
+                if let country = placemark.country {
+                    let wasNew = user.countriesVisited.insert(country).inserted
+                    if wasNew {
+                        print("🌍 New country visited: \(country)! Total countries: \(user.countriesVisited.count)")
+                    }
+                }
+                
+                // Add continent based on country
+                if let country = placemark.country {
+                    let continent = getContinent(for: country)
+                    let wasNew = user.continentsVisited.insert(continent).inserted
+                    if wasNew {
+                        print("🌏 New continent visited: \(continent)! Total continents: \(user.continentsVisited.count)")
+                    }
+                }
+            }
+        } catch {
+            print("Failed to get location details for travel tracking: \(error)")
+        }
+    }
+    
+    private func getContinent(for country: String) -> String {
+        // Map countries to continents
+        let continentMap: [String: String] = [
+            // North America
+            "United States": "North America", "Canada": "North America", "Mexico": "North America",
+            "Guatemala": "North America", "Belize": "North America", "Costa Rica": "North America",
+            
+            // South America
+            "Brazil": "South America", "Argentina": "South America", "Chile": "South America",
+            "Peru": "South America", "Colombia": "South America", "Venezuela": "South America",
+            
+            // Europe
+            "United Kingdom": "Europe", "France": "Europe", "Germany": "Europe", "Italy": "Europe",
+            "Spain": "Europe", "Netherlands": "Europe", "Sweden": "Europe", "Norway": "Europe",
+            
+            // Asia
+            "China": "Asia", "Japan": "Asia", "India": "Asia", "South Korea": "Asia",
+            "Thailand": "Asia", "Singapore": "Asia", "Malaysia": "Asia", "Indonesia": "Asia",
+            
+            // Africa
+            "South Africa": "Africa", "Egypt": "Africa", "Morocco": "Africa", "Kenya": "Africa",
+            "Nigeria": "Africa", "Ghana": "Africa", "Tanzania": "Africa",
+            
+            // Oceania
+            "Australia": "Oceania", "New Zealand": "Oceania", "Fiji": "Oceania", "Papua New Guinea": "Oceania",
+            
+            // Antarctica (for adventurous poopers!)
+            "Antarctica": "Antarctica"
+        ]
+        
+        return continentMap[country] ?? "Unknown"
     }
 }
 

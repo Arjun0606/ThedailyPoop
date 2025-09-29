@@ -394,11 +394,47 @@ struct AchievementsSection: View {
     private var achievements: [Achievement] {
         // Compute from real user stats; no dummy unlocks
         [
+            // Basic Progress Badges
             Achievement(id: "first_drop", title: "First Drop", description: "Dropped your first poop", icon: "💩", isUnlocked: user.totalDrops >= 1),
-            Achievement(id: "streak_7", title: "Week Warrior", description: "7-day streak", icon: "🔥", isUnlocked: user.streak >= 7),
             Achievement(id: "drops_10", title: "Getting Warm", description: "10 total drops", icon: "🥉", isUnlocked: user.totalDrops >= 10),
             Achievement(id: "drops_50", title: "Half Century", description: "50 total drops", icon: "🏆", isUnlocked: user.totalDrops >= 50),
-            Achievement(id: "no_poop_3", title: "Desert Days", description: "3 days no poop", icon: "😵‍💫", isUnlocked: user.longestNoPoopStreak >= 3)
+            Achievement(id: "drops_100", title: "Centurion", description: "100 total drops", icon: "👑", isUnlocked: user.totalDrops >= 100),
+            Achievement(id: "drops_500", title: "Poop Legend", description: "500 total drops", icon: "🌟", isUnlocked: user.totalDrops >= 500),
+            
+            // Streak Badges
+            Achievement(id: "streak_3", title: "Getting Regular", description: "3-day streak", icon: "📅", isUnlocked: user.streak >= 3),
+            Achievement(id: "streak_7", title: "Week Warrior", description: "7-day streak", icon: "🔥", isUnlocked: user.streak >= 7),
+            Achievement(id: "streak_30", title: "Monthly Master", description: "30-day streak", icon: "🗓️", isUnlocked: user.streak >= 30),
+            Achievement(id: "streak_100", title: "Unstoppable", description: "100-day streak", icon: "⚡", isUnlocked: user.streak >= 100),
+            
+            // Travel Badges
+            Achievement(id: "countries_2", title: "Border Crosser", description: "Pooped in 2 countries", icon: "🌍", isUnlocked: user.countriesVisited.count >= 2),
+            Achievement(id: "countries_5", title: "Jet Setter", description: "Pooped in 5 countries", icon: "✈️", isUnlocked: user.countriesVisited.count >= 5),
+            Achievement(id: "countries_10", title: "Globe Trotter", description: "Pooped in 10 countries", icon: "🌎", isUnlocked: user.countriesVisited.count >= 10),
+            Achievement(id: "continents_2", title: "Continental", description: "Pooped on 2 continents", icon: "🌏", isUnlocked: user.continentsVisited.count >= 2),
+            Achievement(id: "continents_5", title: "World Pooper", description: "Pooped on 5+ continents", icon: "🌐", isUnlocked: user.continentsVisited.count >= 5),
+            
+            // Timing Badges
+            Achievement(id: "early_bird", title: "Early Bird", description: "Dropped before 6 AM", icon: "🌅", isUnlocked: false), // TODO: Track time
+            Achievement(id: "night_owl", title: "Night Owl", description: "Dropped after midnight", icon: "🦉", isUnlocked: false),
+            Achievement(id: "lunch_break", title: "Lunch Break", description: "Dropped during lunch (12-2 PM)", icon: "🍽️", isUnlocked: false),
+            
+            // Daily Performance Badges
+            Achievement(id: "daily_3", title: "Triple Threat", description: "3 drops in one day", icon: "🎯", isUnlocked: user.maxDropsInDay >= 3),
+            Achievement(id: "daily_5", title: "Power User", description: "5 drops in one day", icon: "💪", isUnlocked: user.maxDropsInDay >= 5),
+            
+            // Constipation/No-Poop Badges
+            Achievement(id: "no_poop_3", title: "Desert Days", description: "3 days no poop", icon: "😵‍💫", isUnlocked: user.longestNoPoopStreak >= 3),
+            Achievement(id: "no_poop_7", title: "Constipation Station", description: "7 days no poop", icon: "🚂", isUnlocked: user.longestNoPoopStreak >= 7),
+            
+            // Social Badges (need to implement friend interactions)
+            Achievement(id: "friends_5", title: "Social Pooper", description: "Added 5 friends", icon: "👥", isUnlocked: user.friends.count >= 5),
+            Achievement(id: "friends_20", title: "Popular Pooper", description: "Added 20 friends", icon: "🎉", isUnlocked: user.friends.count >= 20),
+            
+            // Special/Fun Badges
+            Achievement(id: "weekend_warrior", title: "Weekend Warrior", description: "Dropped on weekend", icon: "🏖️", isUnlocked: false), // TODO: Track weekend drops
+            Achievement(id: "holiday_pooper", title: "Holiday Pooper", description: "Dropped on a holiday", icon: "🎄", isUnlocked: false), // TODO: Track holiday drops
+            Achievement(id: "birthday_drop", title: "Birthday Drop", description: "Dropped on your birthday", icon: "🎂", isUnlocked: false) // TODO: Track birthday
         ]
     }
     

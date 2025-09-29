@@ -27,6 +27,10 @@ struct User: Identifiable, Codable {
     var isActive: Bool // Account status
     var lastSeen: Date? // Last app activity
     
+    // Travel tracking for badges
+    var countriesVisited: Set<String> // Countries where user has dropped
+    var continentsVisited: Set<String> // Continents where user has dropped
+    
     init(id: String = UUID().uuidString, 
          username: String,
          dateOfBirth: Date,
@@ -53,6 +57,8 @@ struct User: Identifiable, Codable {
         self.lastStreakDate = nil
         self.isActive = true
         self.lastSeen = Date()
+        self.countriesVisited = []
+        self.continentsVisited = []
     }
 }
 
@@ -104,6 +110,19 @@ extension User {
         }
         
         self.lastStreakDate = record["lastStreakDate"] as? Date
+        
+        // Decode travel sets from CloudKit
+        if let countriesData = record["countriesVisited"] as? Data {
+            self.countriesVisited = (try? JSONDecoder().decode(Set<String>.self, from: countriesData)) ?? []
+        } else {
+            self.countriesVisited = []
+        }
+        
+        if let continentsData = record["continentsVisited"] as? Data {
+            self.continentsVisited = (try? JSONDecoder().decode(Set<String>.self, from: continentsData)) ?? []
+        } else {
+            self.continentsVisited = []
+        }
     }
     
     func toCKRecord() -> CKRecord {
@@ -136,6 +155,15 @@ extension User {
         // Encode friend requests array for CloudKit
         if let requestsData = try? JSONEncoder().encode(friendRequests) {
             record["friendRequests"] = requestsData
+        }
+        
+        // Encode travel sets for CloudKit
+        if let countriesData = try? JSONEncoder().encode(countriesVisited) {
+            record["countriesVisited"] = countriesData
+        }
+        
+        if let continentsData = try? JSONEncoder().encode(continentsVisited) {
+            record["continentsVisited"] = continentsData
         }
         
         return record
