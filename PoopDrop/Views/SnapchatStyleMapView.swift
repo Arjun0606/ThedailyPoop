@@ -88,8 +88,17 @@ struct SnapchatStyleMapView: View {
                             span: MKCoordinateSpan(latitudeDelta: 0.02, longitudeDelta: 0.02)
                         )
                     }
-                    // Reload drops so the new one appears quickly
-                    loadAndClusterDrops()
+                    // If a fresh drop is provided, render it immediately without waiting for CloudKit
+                    if let drop = notification.userInfo?["drop"] as? Drop {
+                        let cluster = ClusteredDrop(id: drop.id, coordinate: drop.location ?? coord, drops: [drop])
+                        // Prepend if not present
+                        if !self.clusteredDrops.contains(where: { $0.id == drop.id }) {
+                            self.clusteredDrops.insert(cluster, at: 0)
+                        }
+                    } else {
+                        // Otherwise reload from CloudKit
+                        loadAndClusterDrops()
+                    }
                 }
             }
             // Note: onChange removed due to MKCoordinateRegion not conforming to Equatable
@@ -252,16 +261,9 @@ struct ClusteredPoopPin: View {
                     .shadow(color: .black.opacity(0.3), radius: 6, x: 0, y: 3)
                 
                 // Poop emoji or animation
-                if cluster.hasSponsoredDrops {
-                    LottieAnimationView(
-                        "poop_pin_animated",
-                        loopMode: .loop,
-                        size: CGSize(width: 30, height: 30)
-                    )
-                } else {
-                    Text(displayEmoji)
-                        .font(.title2)
-                }
+                // Always use plain iOS emoji for pins per request
+                Text(displayEmoji)
+                    .font(.title2)
                 
                 // Cluster count badge
                 if cluster.count > 1 {

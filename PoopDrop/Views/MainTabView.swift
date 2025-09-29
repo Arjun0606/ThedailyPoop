@@ -79,6 +79,8 @@ struct MainTabView: View {
                     // Switch to Map tab and remember coordinate
                     pendingCenterCoordinate = coord
                     selectedTab = 3
+                    // Forward full drop to map so it can render immediately without fetching
+                    NotificationCenter.default.post(name: Notification.Name("CENTER_MAP"), object: nil, userInfo: ["coordinate": coord, "drop": drop])
                 }
             }
             

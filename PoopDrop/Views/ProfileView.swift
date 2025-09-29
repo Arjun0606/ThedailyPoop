@@ -383,12 +383,16 @@ struct ProUpsellSection: View {
 struct AchievementsSection: View {
     let user: User
     
-    private let achievements = [
-        Achievement(id: "first_drop", title: "First Drop", description: "Dropped your first poop", icon: "💩", isUnlocked: true),
-        Achievement(id: "streak_7", title: "Week Warrior", description: "7-day streak", icon: "🔥", isUnlocked: true),
-        Achievement(id: "drops_50", title: "Half Century", description: "50 total drops", icon: "🏆", isUnlocked: false),
-        Achievement(id: "pro_user", title: "Pro Dropper", description: "Upgraded to Pro", icon: "👑", isUnlocked: false)
-    ]
+    private var achievements: [Achievement] {
+        // Compute from real user stats; no dummy unlocks
+        [
+            Achievement(id: "first_drop", title: "First Drop", description: "Dropped your first poop", icon: "💩", isUnlocked: user.totalDrops >= 1),
+            Achievement(id: "streak_7", title: "Week Warrior", description: "7-day streak", icon: "🔥", isUnlocked: user.streak >= 7),
+            Achievement(id: "drops_10", title: "Getting Warm", description: "10 total drops", icon: "🥉", isUnlocked: user.totalDrops >= 10),
+            Achievement(id: "drops_50", title: "Half Century", description: "50 total drops", icon: "🏆", isUnlocked: user.totalDrops >= 50),
+            Achievement(id: "no_poop_3", title: "Desert Days", description: "3 days no poop", icon: "😵‍💫", isUnlocked: user.longestNoPoopStreak >= 3)
+        ]
+    }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -416,6 +420,11 @@ struct Achievement: Identifiable {
 
 struct AchievementCard: View {
     let achievement: Achievement
+    @State private var showingShare = false
+    
+    private var shareText: String {
+        "I just unlocked ‘\(achievement.title)’ on PoopDrop! 💩 #PoopDrop"
+    }
     
     var body: some View {
         VStack(spacing: 8) {
@@ -444,7 +453,24 @@ struct AchievementCard: View {
                         .stroke(achievement.isUnlocked ? Color.white.opacity(0.2) : Color.clear, lineWidth: 1)
                 )
         )
+        .contextMenu {
+            if achievement.isUnlocked {
+                Button("Share") { showingShare = true }
+            }
+        }
+        .sheet(isPresented: $showingShare) {
+            ActivityViewController(activityItems: [shareText])
+        }
     }
+}
+
+// UIKit share sheet wrapper
+struct ActivityViewController: UIViewControllerRepresentable {
+    let activityItems: [Any]
+    func makeUIViewController(context: Context) -> UIActivityViewController {
+        UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
+    }
+    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
 }
 
 struct SettingsSection: View {
