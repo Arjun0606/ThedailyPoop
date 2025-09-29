@@ -30,9 +30,9 @@ struct PoopDropApp: App {
     private func setupApp() {
         // Initialize Google Mobile Ads if SDK is linked
 #if canImport(GoogleMobileAds)
-        GADMobileAds.sharedInstance().start(completionHandler: nil)
+        MobileAds.shared.start(completionHandler: nil)
         #if DEBUG
-        GADMobileAds.sharedInstance().requestConfiguration.testDeviceIdentifiers = [ GADSimulatorID ]
+        MobileAds.shared.requestConfiguration.testDeviceIdentifiers = [ "Simulator" ]
         print("[AdMob] SDK initialized (TEST mode on simulator)")
         #else
         print("[AdMob] SDK initialized (PRODUCTION)")
