@@ -307,14 +307,8 @@ struct DropDetailView: View {
                         VStack(spacing: 8) {
                             LocationDetailRow(
                                 icon: "location.fill",
-                                title: "Address",
+                                title: "Location",
                                 value: address ?? "Loading..."
-                            )
-                            
-                            LocationDetailRow(
-                                icon: "globe",
-                                title: "Coordinates",
-                                value: coordinatesText
                             )
                             
                             LocationDetailRow(
@@ -354,7 +348,7 @@ struct DropDetailView: View {
         Task {
             guard let coordinate = drop.coordinate else { return }
             let location = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
-            address = await LocationManager().getAddressFromLocation(location)
+            address = await LocationManager().getCityStateCountryFromLocation(location)
         }
     }
     

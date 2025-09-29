@@ -133,6 +133,39 @@ class LocationManager: NSObject, ObservableObject {
             return nil
         }
     }
+    
+    func getCityStateCountryFromLocation(_ location: CLLocation) async -> String? {
+        let geocoder = CLGeocoder()
+        
+        do {
+            let placemarks = try await geocoder.reverseGeocodeLocation(location)
+            
+            if let placemark = placemarks.first {
+                var components: [String] = []
+                
+                // Add city
+                if let locality = placemark.locality {
+                    components.append(locality)
+                }
+                
+                // Add state/region
+                if let administrativeArea = placemark.administrativeArea {
+                    components.append(administrativeArea)
+                }
+                
+                // Add country
+                if let country = placemark.country {
+                    components.append(country)
+                }
+                
+                return components.joined(separator: ", ")
+            }
+        } catch {
+            print("Geocoding error: \(error)")
+        }
+        
+        return "Unknown location"
+    }
 }
 
 // MARK: - CLLocationManagerDelegate

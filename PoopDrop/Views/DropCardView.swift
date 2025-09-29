@@ -7,6 +7,7 @@ struct DropCardView: View {
     @State private var address: String?
     @State private var showingShareSheet = false
     @State private var showingReportSheet = false
+    @State private var userAvatar: UIImage? = nil
     
     private var timeAgo: String {
         let formatter = RelativeDateTimeFormatter()
@@ -26,22 +27,30 @@ struct DropCardView: View {
         VStack(alignment: .leading, spacing: 12) {
             // Header
             HStack(spacing: 12) {
-                // Profile picture placeholder
-                Circle()
-                    .fill(
-                        LinearGradient(
-                            colors: [Color.brown.opacity(0.7), Color.brown],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
+                // Profile picture with avatar support
+                if let avatar = userAvatar {
+                    Image(uiImage: avatar)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 40, height: 40)
+                        .clipShape(Circle())
+                } else {
+                    Circle()
+                        .fill(
+                            LinearGradient(
+                                colors: [Color.brown.opacity(0.7), Color.brown],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
                         )
-                    )
-                    .frame(width: 40, height: 40)
-                    .overlay(
-                        Text(String(drop.username.prefix(1)).uppercased())
-                            .font(.headline)
-                            .fontWeight(.bold)
-                            .foregroundColor(.white)
-                    )
+                        .frame(width: 40, height: 40)
+                        .overlay(
+                            Text(String(drop.username.prefix(1)).uppercased())
+                                .font(.headline)
+                                .fontWeight(.bold)
+                                .foregroundColor(.white)
+                        )
+                }
                 
                 VStack(alignment: .leading, spacing: 2) {
                     HStack(spacing: 8) {
@@ -172,6 +181,7 @@ struct DropCardView: View {
         )
         .onAppear {
             loadAddress()
+            loadUserAvatar()
         }
         .sheet(isPresented: $showingReportSheet) {
             ReportView(drop: drop)
@@ -184,7 +194,25 @@ struct DropCardView: View {
         
         Task {
             let location = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
-            address = await LocationManager().getAddressFromLocation(location)
+            // Get only city, state, country for privacy
+            address = await LocationManager().getCityStateCountryFromLocation(location)
+        }
+    }
+    
+    private func loadUserAvatar() {
+        Task {
+            do {
+                if let user = try await CloudKitManager.shared.fetchUser(id: drop.userID),
+                   let avatarURL = user.avatarURL,
+                   let data = try? Data(contentsOf: avatarURL),
+                   let image = UIImage(data: data) {
+                    await MainActor.run {
+                        self.userAvatar = image
+                    }
+                }
+            } catch {
+                // Silently fail - will show initial instead
+            }
         }
     }
 }

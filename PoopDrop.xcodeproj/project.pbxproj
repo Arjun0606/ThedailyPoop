@@ -47,6 +47,7 @@
 		A100004B294A0000000000002 /* SnapchatStyleMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100004C294A0000000000002 /* SnapchatStyleMapView.swift */; };
 		A100004D294A0000000000002 /* StreakView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100004E294A0000000000002 /* StreakView.swift */; };
 		A100004F294A0000000000002 /* TryProView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000050294A0000000000002 /* TryProView.swift */; };
+		DCD130952E8B3BCE00F717FC /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = DCD130942E8B3BCE00F717FC /* GoogleMobileAds */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -100,6 +101,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DCD130952E8B3BCE00F717FC /* GoogleMobileAds in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -255,6 +257,9 @@
 				Base,
 			);
 			mainGroup = A0FFFFFF294A0000000000888;
+			packageReferences = (
+				DCD130932E8B3BCE00F717FC /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */,
+			);
 			productRefGroup = A1000002294A0000000000888 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -470,9 +475,13 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.poopdrop.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -502,9 +511,13 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.poopdrop.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};
@@ -530,6 +543,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		DCD130932E8B3BCE00F717FC /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/googleads/swift-package-manager-google-mobile-ads.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.11.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		DCD130942E8B3BCE00F717FC /* GoogleMobileAds */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = DCD130932E8B3BCE00F717FC /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */;
+			productName = GoogleMobileAds;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = A0FFFFFF294A0000000000777 /* Project object */;
 }
