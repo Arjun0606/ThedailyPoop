@@ -16,6 +16,7 @@ struct Drop: Identifiable, Codable {
     let isNoPoop: Bool // true for "no poop" streak maintenance
     let isSponsored: Bool // Sponsored content flag
     var sponsorCampaignID: String? // optional for sponsored drops
+    var reactions: [String: Int] // Emoji reactions (emoji -> count)
     var reactionCount: Int // Total reactions
     var commentCount: Int // Total comments
     var expiresAt: Date // When this drop expires from map
@@ -73,6 +74,7 @@ struct Drop: Identifiable, Codable {
         self.sponsorCampaignID = sponsorCampaignID
         self.isNoPoop = isNoPoop
         self.isSponsored = isSponsored
+        self.reactions = [:] // Empty reactions dict initially
         self.reactionCount = 0
         self.commentCount = 0
         self.isVisible = true
@@ -111,7 +113,15 @@ extension Drop {
         self.sponsorCampaignID = record["sponsorCampaignID"] as? String
         self.isNoPoop = (record["isNoPoop"] as? Int) == 1
         self.isSponsored = (record["isSponsored"] as? Int) == 1
-        self.reactionCount = record["reactionCount"] as? Int ?? 0
+        
+        // Decode reactions dictionary from CloudKit
+        if let reactionsData = record["reactions"] as? Data {
+            self.reactions = (try? JSONDecoder().decode([String: Int].self, from: reactionsData)) ?? [:]
+        } else {
+            self.reactions = [:]
+        }
+        
+        self.reactionCount = record["reactionCount"] as? Int ?? reactions.values.reduce(0, +)
         self.commentCount = record["commentCount"] as? Int ?? 0
         self.expiresAt = record["expiresAt"] as? Date ?? Date().addingTimeInterval(3 * 24 * 60 * 60)
         self.isVisible = (record["isVisible"] as? Int) == 1
@@ -137,6 +147,12 @@ extension Drop {
         record["skinId"] = skinId
         record["caption"] = caption
         record["sponsorCampaignID"] = sponsorCampaignID
+        
+        // Encode reactions dictionary for CloudKit
+        if let reactionsData = try? JSONEncoder().encode(reactions) {
+            record["reactions"] = reactionsData
+        }
+        
         record["reactionCount"] = reactionCount
         record["commentCount"] = commentCount
         record["expiresAt"] = expiresAt
