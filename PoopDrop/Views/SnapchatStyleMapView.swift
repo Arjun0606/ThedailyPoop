@@ -184,13 +184,17 @@ struct SnapchatStyleMapView: View {
         }
         .sheet(isPresented: $showingDropDetail) {
             if let drop = selectedDrop {
-                print("📱 Presenting DropDetailView for drop: \(drop.id)")
                 DropDetailView(drop: drop)
+                    .onAppear {
+                        print("📱 Presenting DropDetailView for drop: \(drop.id)")
+                    }
             } else {
-                print("⚠️ No selectedDrop when trying to present sheet")
                 Text("No drop selected")
                     .foregroundColor(.white)
                     .background(Color.black)
+                    .onAppear {
+                        print("⚠️ No selectedDrop when trying to present sheet")
+                    }
             }
         }
         .sheet(isPresented: $showingClusterSheet) {
