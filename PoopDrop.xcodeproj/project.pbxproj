@@ -46,7 +46,6 @@
 		A1000049294A0000000000002 /* ProfileSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100004A294A0000000000002 /* ProfileSetupView.swift */; };
 		A100004B294A0000000000002 /* SnapchatStyleMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100004C294A0000000000002 /* SnapchatStyleMapView.swift */; };
 		A100004D294A0000000000002 /* StreakView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100004E294A0000000000002 /* StreakView.swift */; };
-		A100004F294A0000000000002 /* TryProView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000050294A0000000000002 /* TryProView.swift */; };
 		DCD130952E8B3BCE00F717FC /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = DCD130942E8B3BCE00F717FC /* GoogleMobileAds */; };
 /* End PBXBuildFile section */
 
@@ -93,7 +92,6 @@
 		A100004A294A0000000000002 /* ProfileSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSetupView.swift; sourceTree = "<group>"; };
 		A100004C294A0000000000002 /* SnapchatStyleMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapchatStyleMapView.swift; sourceTree = "<group>"; };
 		A100004E294A0000000000002 /* StreakView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreakView.swift; sourceTree = "<group>"; };
-		A1000050294A0000000000002 /* TryProView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TryProView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -200,7 +198,6 @@
 				A100004A294A0000000000002 /* ProfileSetupView.swift */,
 				A100004C294A0000000000002 /* SnapchatStyleMapView.swift */,
 				A100004E294A0000000000002 /* StreakView.swift */,
-				A1000050294A0000000000002 /* TryProView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -323,7 +320,6 @@
 				A1000049294A0000000000002 /* ProfileSetupView.swift in Sources */,
 				A100004B294A0000000000002 /* SnapchatStyleMapView.swift in Sources */,
 				A100004D294A0000000000002 /* StreakView.swift in Sources */,
-				A100004F294A0000000000002 /* TryProView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
