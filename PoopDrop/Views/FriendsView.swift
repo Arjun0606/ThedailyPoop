@@ -680,7 +680,7 @@ struct InviteFriendsView: View {
                             .fontWeight(.bold)
                             .foregroundColor(.white)
                         
-                        Text("Share PoopDrop and earn rewards when friends join")
+                        Text("Share PoopDrop and compete with friends!")
                             .font(.subheadline)
                             .foregroundColor(.white.opacity(0.7))
                             .multilineTextAlignment(.center)

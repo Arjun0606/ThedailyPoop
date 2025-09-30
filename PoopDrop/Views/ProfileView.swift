@@ -103,20 +103,20 @@ struct ProfileHeaderView: View {
                         presentImageFullScreen(image)
                     }
             } else {
-                ZStack {
-                    Circle()
-                        .fill(
-                            LinearGradient(
-                                colors: [Color.brown.opacity(0.7), Color.brown],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
+            ZStack {
+                Circle()
+                    .fill(
+                        LinearGradient(
+                            colors: [Color.brown.opacity(0.7), Color.brown],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
                         )
-                        .frame(width: 100, height: 100)
+                    )
+                    .frame(width: 100, height: 100)
                     Text(String(user.username.prefix(1)).uppercased())
-                        .font(.largeTitle)
-                        .fontWeight(.bold)
-                        .foregroundColor(.white)
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
                 }
             }
             
@@ -131,13 +131,13 @@ struct ProfileHeaderView: View {
                     // Pro removed
                 }
                 
-                HStack(spacing: 4) {
-                    Image(systemName: "location.fill")
-                        .font(.caption)
-                        .foregroundColor(.white.opacity(0.6))
+                    HStack(spacing: 4) {
+                        Image(systemName: "location.fill")
+                            .font(.caption)
+                            .foregroundColor(.white.opacity(0.6))
                     Text("Location Private")
-                        .font(.subheadline)
-                        .foregroundColor(.white.opacity(0.8))
+                            .font(.subheadline)
+                            .foregroundColor(.white.opacity(0.8))
                 }
                 
                 Text("Member since \(formatDate(user.createdAt))")
@@ -183,11 +183,11 @@ struct StatsSection: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
-                Text("Your Stats")
-                    .font(.headline)
-                    .fontWeight(.bold)
-                    .foregroundColor(.white)
-                
+            Text("Your Stats")
+                .font(.headline)
+                .fontWeight(.bold)
+                .foregroundColor(.white)
+            
                 Spacer()
                 
                 Button(action: {
@@ -208,8 +208,11 @@ struct StatsSection: View {
                 }
             }
             
-            // Top row stats
-            HStack(spacing: 16) {
+            // Vertical scrollable grid of ALL stats
+            ScrollView(.vertical, showsIndicators: false) {
+                VStack(spacing: 12) {
+                    // Row 1
+                    HStack(spacing: 12) {
                 StatCard(
                     icon: "💩",
                     title: "Total Drops",
@@ -225,8 +228,8 @@ struct StatsSection: View {
                 )
             }
             
-            // Second row stats
-            HStack(spacing: 16) {
+                    // Row 2
+                    HStack(spacing: 12) {
                 StatCard(
                     icon: "📈",
                     title: "Max Dumps/Day",
@@ -242,11 +245,51 @@ struct StatsSection: View {
                 )
             }
             
-            // Friends-only app: remove global/city ranks
+                    // Row 3
+                    HStack(spacing: 12) {
+                StatCard(
+                            icon: "🌍",
+                            title: "Countries",
+                            value: "\(user.countriesVisited.count)",
+                            color: .blue
+                )
+                
+                StatCard(
+                            icon: "🌎",
+                            title: "Continents",
+                            value: "\(user.continentsVisited.count)",
+                            color: .indigo
+                        )
+                    }
+                    
+                    // Row 4
+                    HStack(spacing: 12) {
+                        StatCard(
+                            icon: "👥",
+                            title: "Friends",
+                            value: "\(user.friends.count)",
+                            color: .pink
+                        )
+                        
+                        StatCard(
+                            icon: "📅",
+                            title: "Member Since",
+                            value: memberDays,
+                            color: .cyan
+                        )
+                    }
+                }
+            }
+            .frame(maxHeight: 400) // Allow scrolling if content is tall
         }
         .sheet(isPresented: $showingShareSheet) {
             ShareStatsView(user: user)
         }
+    }
+    
+    private var memberDays: String {
+        let days = Calendar.current.dateComponents([.day], from: user.createdAt, to: Date()).day ?? 0
+        return "\(days) days"
     }
 }
 
@@ -409,8 +452,8 @@ struct AchievementsSection: View {
             
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 12) {
-                    ForEach(achievements) { achievement in
-                        AchievementCard(achievement: achievement)
+                ForEach(achievements) { achievement in
+                    AchievementCard(achievement: achievement)
                             .frame(width: 220)
                     }
                 }
