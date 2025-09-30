@@ -261,10 +261,9 @@ class CloudKitManager: ObservableObject {
     func fetchDrops(limit: Int = 50) async throws -> [Drop] {
         print("🔍 Fetching drops from CloudKit (limit: \(limit))")
         
-        // Use a simple predicate that doesn't require recordName indexing
-        // Fetch all drops created in the last 30 days (way more than needed)
-        let thirtyDaysAgo = Date().addingTimeInterval(-30 * 24 * 60 * 60)
-        let predicate = NSPredicate(format: "creationDate > %@", thirtyDaysAgo as NSDate)
+        // Use NSPredicate(value: true) to fetch all drops without any field requirements
+        // CloudKit will return results sorted by creation time by default
+        let predicate = NSPredicate(value: true)
         let query = CKQuery(recordType: Drop.recordType, predicate: predicate)
         
         return try await withCheckedThrowingContinuation { continuation in
