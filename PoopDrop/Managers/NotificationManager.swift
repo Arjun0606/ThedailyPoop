@@ -47,7 +47,7 @@ class NotificationManager: ObservableObject {
         let content = UNMutableNotificationContent()
         content.title = "New Friend Request! 👥"
         content.body = "\(sender.username) wants to be your poop buddy!"
-        content.sound = UNNotificationSound.default
+        content.sound = UNNotificationSound(named: UNNotificationSoundName("friend_request.wav"))
         content.badge = 1
         
         let request = UNNotificationRequest(
@@ -63,7 +63,7 @@ class NotificationManager: ObservableObject {
         let content = UNMutableNotificationContent()
         content.title = "Friend Request Accepted! 🎉"
         content.body = "\(accepter.username) is now your poop buddy!"
-        content.sound = UNNotificationSound.default
+        content.sound = UNNotificationSound(named: UNNotificationSoundName("celebration.wav"))
         
         let request = UNNotificationRequest(
             identifier: "friend_accepted_\(accepter.id)",
@@ -88,9 +88,9 @@ class NotificationManager: ObservableObject {
                 content.title = "Fresh Drop Alert! 💩"
                 content.body = "\(dropper.username) just dropped a poop!"
                 
-                // Random fart/flush sound for all users
-                let sounds = ["fart1.wav", "fart2.wav", "flush1.wav", "flush2.wav", "plop.wav", "basic_poop.wav"]
-                let randomSound = sounds.randomElement() ?? "basic_poop.wav"
+                // Random fart/flush/plop sound!
+                let sounds = ["fart_short.wav", "fart_long.wav", "bubble_fart.wav", "plop_single.wav", "big_splash.wav"]
+                let randomSound = sounds.randomElement() ?? "fart_short.wav"
                 content.sound = UNNotificationSound(named: UNNotificationSoundName(randomSound))
             }
             
@@ -182,7 +182,7 @@ class NotificationManager: ObservableObject {
         let content = UNMutableNotificationContent()
         content.title = "Don't break your streak! 🔥"
         content.body = "You're on a \(user.streak)-day streak! Log your poop to keep it going 💩"
-        content.sound = UNNotificationSound(named: UNNotificationSoundName("flush.wav"))
+        content.sound = UNNotificationSound(named: UNNotificationSoundName("urgent_reminder.wav"))
         content.badge = 1
         content.userInfo = [
             "type": "daily_streak_reminder",
