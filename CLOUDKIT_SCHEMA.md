@@ -1,6 +1,6 @@
 # CloudKit Schema Configuration
 
-This document outlines the CloudKit schema setup required for PoopMap. **Updated to match current implementation.**
+This document outlines the CloudKit schema setup required for Plop. **Updated to match current implementation.**
 
 ## Container Configuration
 

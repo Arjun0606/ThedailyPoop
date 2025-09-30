@@ -193,7 +193,7 @@ extension Drop {
         caption: "Best poop of the day! 💩✨"
     )
     
-    static let sampleNoPoopMap = Drop(
+    static let sampleNoPlop = Drop(
         userID: "user456",
         username: "constipated_carl",
         city: "New York",

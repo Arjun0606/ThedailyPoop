@@ -37,7 +37,7 @@ struct ContactView: View {
                                 title: "Email Us",
                                 subtitle: "karjunvarma2001@gmail.com",
                                 action: {
-                                    if let url = URL(string: "mailto:karjunvarma2001@gmail.com?subject=PoopMap%20Feedback") {
+                                    if let url = URL(string: "mailto:karjunvarma2001@gmail.com?subject=Plop%20Feedback") {
                                         UIApplication.shared.open(url)
                                     }
                                 },
@@ -78,7 +78,7 @@ struct ContactView: View {
                                     title: "Suggest a Feature",
                                     color: .yellow
                                 ) {
-                                    if let url = URL(string: "mailto:karjunvarma2001@gmail.com?subject=PoopMap%20Feature%20Request") {
+                                    if let url = URL(string: "mailto:karjunvarma2001@gmail.com?subject=Plop%20Feature%20Request") {
                                         UIApplication.shared.open(url)
                                     }
                                 }
@@ -88,7 +88,7 @@ struct ContactView: View {
                                     title: "Report a Bug",
                                     color: .red
                                 ) {
-                                    if let url = URL(string: "mailto:karjunvarma2001@gmail.com?subject=PoopMap%20Bug%20Report") {
+                                    if let url = URL(string: "mailto:karjunvarma2001@gmail.com?subject=Plop%20Bug%20Report") {
                                         UIApplication.shared.open(url)
                                     }
                                 }
@@ -98,7 +98,7 @@ struct ContactView: View {
                                     title: "Send Feedback",
                                     color: .pink
                                 ) {
-                                    if let url = URL(string: "mailto:karjunvarma2001@gmail.com?subject=PoopMap%20Feedback") {
+                                    if let url = URL(string: "mailto:karjunvarma2001@gmail.com?subject=Plop%20Feedback") {
                                         UIApplication.shared.open(url)
                                     }
                                 }

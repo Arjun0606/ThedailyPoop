@@ -186,7 +186,7 @@ struct InviteFriendsCard: View {
                         .font(.headline)
                         .foregroundColor(.white)
                     
-                    Text("Share PoopMap with your friends!")
+                    Text("Share Plop with your friends!")
                         .font(.caption)
                         .foregroundColor(.white.opacity(0.7))
                 }
@@ -648,7 +648,7 @@ struct InviteFriendsView: View {
     
     var inviteMessage: String {
         """
-        Hey! Join me on PoopMap 💩
+        Hey! Join me on Plop 💩
         
         Track your bathroom breaks, compete with friends, and unlock badges around the world!
         
@@ -673,7 +673,7 @@ struct InviteFriendsView: View {
                             .fontWeight(.bold)
                             .foregroundColor(.white)
                         
-                        Text("Share PoopMap and compete with friends!")
+                        Text("Share Plop and compete with friends!")
                             .font(.subheadline)
                             .foregroundColor(.white.opacity(0.7))
                             .multilineTextAlignment(.center)

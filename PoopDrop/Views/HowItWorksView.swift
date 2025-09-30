@@ -12,7 +12,7 @@ struct HowItWorksView: View {
                     VStack(alignment: .leading, spacing: 24) {
                         // Header
                         VStack(alignment: .leading, spacing: 8) {
-                            Text("💩 Welcome to PoopMap")
+                            Text("💩 Welcome to Plop")
                                 .font(.largeTitle)
                                 .fontWeight(.bold)
                                 .foregroundColor(.white)
@@ -80,7 +80,7 @@ struct HowItWorksView: View {
                                 .font(.body)
                                 .foregroundColor(.gray)
                             
-                            Text("🎉 Why PoopMap?")
+                            Text("🎉 Why Plop?")
                                 .font(.headline)
                                 .foregroundColor(.white)
                                 .padding(.top, 8)

@@ -56,7 +56,7 @@
 
 1. **Create "Sounds" folder** in your Xcode project
 2. **Drag & drop all .wav files** into the folder
-3. **Ensure "Add to target" is checked** for PoopMap
+3. **Ensure "Add to target" is checked** for Plop
 4. **Verify files appear** in your project navigator
 
 ---

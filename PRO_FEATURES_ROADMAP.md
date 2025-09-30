@@ -1,4 +1,4 @@
-# 💎 PoopMap PRO - Features & Revenue Model
+# 💎 Plop PRO - Features & Revenue Model
 
 **Price:** $5.99/month or $49.99/year (save 30%)
 
