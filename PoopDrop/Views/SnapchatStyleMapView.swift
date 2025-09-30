@@ -69,11 +69,15 @@ struct SnapchatStyleMapView: View {
                 MapAnnotation(coordinate: cluster.coordinate) {
                     ClusteredPoopPin(cluster: cluster) {
                         print("🎯 Tapped cluster with \(cluster.drops.count) drops")
+                        print("🎯 Cluster drops: \(cluster.drops.map { $0.id })")
                         if cluster.drops.count == 1 {
-                            selectedDrop = cluster.drops.first
-                            print("📱 Setting selectedDrop: \(selectedDrop?.id ?? "nil")")
+                            let drop = cluster.drops.first!
+                            print("📱 Setting selectedDrop: \(drop.id)")
+                            print("📱 Drop details - username: \(drop.username), location: \(String(describing: drop.location)), city: \(drop.city ?? "nil")")
+                            selectedDrop = drop
                             // Small delay to ensure pin is fully rendered and data is stable
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                print("📱 About to set showingDropDetail = true")
                                 showingDropDetail = true
                                 print("📱 Set showingDropDetail = true")
                             }
@@ -194,6 +198,8 @@ struct SnapchatStyleMapView: View {
                     .background(Color.black)
                     .onAppear {
                         print("⚠️ No selectedDrop when trying to present sheet")
+                        print("⚠️ showingDropDetail: \(showingDropDetail)")
+                        print("⚠️ clusteredDrops count: \(clusteredDrops.count)")
                     }
             }
         }
@@ -222,6 +228,7 @@ struct SnapchatStyleMapView: View {
     }
     
     private func loadAndClusterDrops() {
+        print("🔄 loadAndClusterDrops called")
         Task {
             do {
                 // Get visible drops only (not expired)
@@ -231,11 +238,14 @@ struct SnapchatStyleMapView: View {
                 )
                 
                 let visibleDrops = allDrops.filter { $0.isCurrentlyVisible }
+                print("🔄 Loaded \(visibleDrops.count) visible drops from CloudKit")
                 
                 // Cluster drops by location
                 let clusters = clusterDrops(visibleDrops)
+                print("🔄 Created \(clusters.count) clusters")
                 
                 await MainActor.run {
+                    print("🔄 Updating clusteredDrops from \(self.clusteredDrops.count) to \(clusters.count)")
                     self.clusteredDrops = clusters
                 }
             } catch {

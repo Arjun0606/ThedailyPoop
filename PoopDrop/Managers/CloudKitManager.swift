@@ -235,9 +235,9 @@ class CloudKitManager: ObservableObject {
     }
     
     func fetchDrops(limit: Int = 50) async throws -> [Drop] {
-        // Avoid using non-indexed sort server-side; fetch recent records by creationDate
+        // Simple query without sorting to avoid CloudKit indexing errors
         let query = CKQuery(recordType: Drop.recordType, predicate: NSPredicate(value: true))
-        query.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
+        // Remove sort to avoid "Type is not marked indexable" error
         let (matchResults, _) = try await publicDatabase.records(matching: query, desiredKeys: nil, resultsLimit: limit)
         
         var drops: [Drop] = []
