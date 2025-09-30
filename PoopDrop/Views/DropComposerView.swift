@@ -249,9 +249,12 @@ struct DropComposerView: View {
         let today = Date()
         let startOfDay = calendar.startOfDay(for: today)
         
+        // Wait a moment for CloudKit to catch up with the drop we just saved
+        try? await Task.sleep(nanoseconds: 500_000_000) // 0.5 seconds
+        
         do {
             let userDrops = try await cloudKitManager.fetchUserDrops(for: user)
-            print("📊 Fetched \(userDrops.count) total drops for user")
+            print("📊 Fetched \(userDrops.count) total drops for user (should include drop we just saved)")
             
             // Calculate max drops in any single 24-hour day (00:00 to 23:59)
             // Group all drops by day and find the day with most drops
@@ -259,14 +262,7 @@ struct DropComposerView: View {
             let dateFormatter = DateFormatter()
             dateFormatter.dateFormat = "yyyy-MM-dd"
             
-            // Count ALL drops per day (including the one we're about to save)
-            // Add current drop first
-            let todayKey = dateFormatter.string(from: today)
-            if !isNoPoop {
-                dropsPerDay[todayKey, default: 0] += 1
-            }
-            
-            // Then add existing drops per day
+            // Count only the drops returned from CloudKit (which already includes the drop we just saved)
             for drop in userDrops where !drop.isNoPoop {
                 let dayKey = dateFormatter.string(from: drop.timestamp)
                 dropsPerDay[dayKey, default: 0] += 1
@@ -274,10 +270,12 @@ struct DropComposerView: View {
             
             // Find the maximum drops in any single day
             let maxInAnyDay = dropsPerDay.values.max() ?? 0
+            let todayKey = dateFormatter.string(from: today)
             let todayDrops = dropsPerDay[todayKey] ?? 0
             
             print("📊 Today's drops: \(todayDrops), max drops in any day: \(maxInAnyDay)")
             print("📊 Drops per day breakdown: \(dropsPerDay)")
+            print("📊 Total drops from CloudKit: \(userDrops.count)")
             
             // Update max drops in day to the highest count across all days
             user.maxDropsInDay = maxInAnyDay
