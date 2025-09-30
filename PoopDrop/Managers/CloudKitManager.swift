@@ -242,8 +242,10 @@ class CloudKitManager: ObservableObject {
     
     // MARK: - Drop Operations
     func saveDrop(_ drop: Drop) async throws {
+        print("💾 Saving drop to CloudKit - User: \(drop.username), Location: \(drop.city ?? "unknown"), Time: \(drop.timestamp)")
         let record = drop.toCKRecord()
-        _ = try await publicDatabase.save(record)
+        let savedRecord = try await publicDatabase.save(record)
+        print("✅ Drop saved to CloudKit with ID: \(savedRecord.recordID.recordName)")
         
         // Update local drops array
         await MainActor.run {
@@ -252,6 +254,7 @@ class CloudKitManager: ObservableObject {
             } else {
                 self.drops.insert(drop, at: 0)
             }
+            print("📊 Local drops array now has \(self.drops.count) drops")
         }
     }
     
@@ -464,10 +467,14 @@ class CloudKitManager: ObservableObject {
     
     func fetchUserDrops(for user: User) async throws -> [Drop] {
         // CloudKit queries now work! Fetch all drops and filter client-side
-        print("🔍 Fetching user drops for: \(user.username)")
+        print("🔍 Fetching user drops for: \(user.username) (ID: \(user.id))")
         let allDrops = try await fetchDrops(limit: 500)
+        print("🔍 Total drops fetched from CloudKit: \(allDrops.count)")
         let userDrops = allDrops.filter { $0.userID == user.id }
         print("🔍 Found \(userDrops.count) drops for user \(user.username)")
+        if userDrops.count > 0 {
+            print("🔍 User drops timestamps: \(userDrops.map { $0.timestamp })")
+        }
         return userDrops.sorted { $0.timestamp > $1.timestamp }
     }
     
