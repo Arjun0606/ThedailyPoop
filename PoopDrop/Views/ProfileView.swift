@@ -395,7 +395,7 @@ struct AchievementsSection: View {
     let user: User
     let refreshTrigger: Bool
     
-    private var achievements: [Achievement] {
+    var achievements: [Achievement] {
         // Compute from real user stats; no dummy unlocks
         [
             // Basic Progress Badges
