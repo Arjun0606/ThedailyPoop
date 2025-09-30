@@ -235,58 +235,20 @@ class CloudKitManager: ObservableObject {
     }
     
     func fetchDrops(limit: Int = 50) async throws -> [Drop] {
-        print("🔍 Fetching drops from CloudKit (limit: \(limit))")
+        print("🔍 Attempting to fetch drops from CloudKit (limit: \(limit))")
+        print("⚠️ CloudKit schema not configured - using local cache only")
         
-        // Use simple fetch without queryable field predicates - just fetch all and filter client-side
-        // This avoids all CloudKit queryable field errors
-        let query = CKQuery(recordType: Drop.recordType, predicate: NSPredicate(value: true))
+        // WORKAROUND: CloudKit Dashboard doesn't have queryable fields configured
+        // Return existing local drops that were saved during this session
+        await MainActor.run {
+            print("📦 Returning \(self.drops.count) drops from local cache")
+            if self.drops.count > 0 {
+                print("🔍 First 3 local drops: \(self.drops.prefix(3).map { "\($0.username) at \($0.city ?? "unknown")" })")
+            }
+        }
         
-        return try await withCheckedThrowingContinuation { continuation in
-            var allRecords: [CKRecord] = []
-            
-            let operation = CKQueryOperation(query: query)
-            operation.resultsLimit = limit
-            
-            operation.recordMatchedBlock = { recordID, result in
-                switch result {
-                case .success(let record):
-                    allRecords.append(record)
-                case .failure(let error):
-                    print("❌ Failed to fetch record \(recordID): \(error)")
-                }
-            }
-            
-            operation.queryResultBlock = { result in
-                switch result {
-                case .success:
-                    print("🔍 CloudKit returned \(allRecords.count) drop records")
-                    var drops: [Drop] = []
-                    for record in allRecords {
-                        if let drop = Drop(from: record) {
-                            drops.append(drop)
-                        } else {
-                            print("❌ Failed to parse drop from record: \(record.recordID)")
-                        }
-                    }
-                    
-                    print("🔍 Successfully loaded \(drops.count) drops from CloudKit")
-                    if drops.count > 0 {
-                        print("🔍 First 3 drops: \(drops.prefix(3).map { "\($0.username) at \($0.city ?? "unknown")" })")
-                    }
-                    
-                    Task { @MainActor in
-                        self.drops = drops
-                    }
-                    
-                    continuation.resume(returning: drops)
-                    
-                case .failure(let error):
-                    print("❌ CloudKit query failed: \(error)")
-                    continuation.resume(throwing: error)
-                }
-            }
-            
-            publicDatabase.add(operation)
+        return await MainActor.run {
+            return self.drops
         }
     }
     
@@ -427,12 +389,12 @@ class CloudKitManager: ObservableObject {
     }
     
     func fetchUserDrops(for user: User) async throws -> [Drop] {
-        // Fetch ALL drops and filter client-side to avoid CloudKit queryable field errors
-        print("🔍 Fetching user drops for: \(user.username)")
+        // Use local cache since CloudKit queries are not configured
+        print("🔍 Fetching user drops for: \(user.username) from local cache")
         let allDrops = try await fetchDrops(limit: 500)
         let userDrops = allDrops.filter { $0.userID == user.id }
-        print("🔍 Found \(userDrops.count) drops for user \(user.username)")
-        return userDrops
+        print("🔍 Found \(userDrops.count) drops for user \(user.username) in local cache")
+        return userDrops.sorted { $0.timestamp > $1.timestamp }
     }
     
     // MARK: - Badge Operations
