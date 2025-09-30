@@ -76,7 +76,7 @@ class NotificationManager: ObservableObject {
     
     // MARK: - Poop Drop Notifications (with sounds!)
     
-    func sendPlopperNotification(to friends: [User], from dropper: User, drop: Drop) async {
+    func sendTheDailyPoopNotification(to friends: [User], from dropper: User, drop: Drop) async {
         for friend in friends {
             let content = UNMutableNotificationContent()
             

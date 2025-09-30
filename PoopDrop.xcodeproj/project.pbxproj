@@ -490,8 +490,8 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.plopperapp.app;
-				PRODUCT_NAME = Plopper;
+				PRODUCT_BUNDLE_IDENTIFIER = com.thedailypoop.app;
+				PRODUCT_NAME = TheDailyPoop;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
@@ -527,8 +527,8 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.plopperapp.app;
-				PRODUCT_NAME = Plopper;
+				PRODUCT_BUNDLE_IDENTIFIER = com.thedailypoop.app;
+				PRODUCT_NAME = TheDailyPoop;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;

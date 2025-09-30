@@ -24,14 +24,14 @@ struct TermsOfServiceView: View {
                         Group {
                             SectionHeader(title: "1. Acceptance of Terms")
                             BodyText(text: """
-                            By downloading, installing, or using Plopper ("the App"), you agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, do not use the App.
+                            By downloading, installing, or using TheDailyPoop ("the App"), you agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, do not use the App.
                             
-                            Plopper is operated by Arjun Varma ("we," "us," or "our"). The App is designed for entertainment and personal tracking purposes related to bathroom habits.
+                            TheDailyPoop is operated by Arjun Varma ("we," "us," or "our"). The App is designed for entertainment and personal tracking purposes related to bathroom habits.
                             """)
                             
                             SectionHeader(title: "2. Description of Service")
                             BodyText(text: """
-                            Plopper is a social tracking app that allows you to:
+                            TheDailyPoop is a social tracking app that allows you to:
                             • Log your bathroom visits with timestamps and locations
                             • View your activity on an interactive map
                             • Connect with friends and view their activity
@@ -44,18 +44,18 @@ struct TermsOfServiceView: View {
                             
                             SectionHeader(title: "3. User Accounts")
                             BodyText(text: """
-                            You must create an account using Sign in with Apple to use Plopper. You agree to:
+                            You must create an account using Sign in with Apple to use TheDailyPoop. You agree to:
                             • Provide accurate information during registration
                             • Maintain the security of your account credentials
                             • Immediately notify us of unauthorized account access
                             • Be responsible for all activity under your account
                             
-                            You must be at least 13 years old to use Plopper. Users under 18 should obtain parental consent.
+                            You must be at least 13 years old to use TheDailyPoop. Users under 18 should obtain parental consent.
                             """)
                             
                             SectionHeader(title: "4. User Content and Conduct")
                             BodyText(text: """
-                            You are responsible for all content you post through Plopper, including drop captions and reactions. You agree NOT to:
+                            You are responsible for all content you post through TheDailyPoop, including drop captions and reactions. You agree NOT to:
                             • Post offensive, harassing, or inappropriate content
                             • Impersonate others or create fake accounts
                             • Spam, harass, or bully other users
@@ -70,7 +70,7 @@ struct TermsOfServiceView: View {
                         Group {
                             SectionHeader(title: "5. Location Data")
                             BodyText(text: """
-                            Plopper collects your location when you log a drop. By using the App, you consent to:
+                            TheDailyPoop collects your location when you log a drop. By using the App, you consent to:
                             • Collection of city/state-level location data
                             • Display of your drops on maps visible to your friends
                             • Storage of location history for statistical purposes
@@ -80,22 +80,22 @@ struct TermsOfServiceView: View {
                             
                             SectionHeader(title: "6. Privacy")
                             BodyText(text: """
-                            Your privacy is important to us. Our Privacy Policy (available in-app) explains how we collect, use, and protect your data. By using Plopper, you agree to our Privacy Policy.
+                            Your privacy is important to us. Our Privacy Policy (available in-app) explains how we collect, use, and protect your data. By using TheDailyPoop, you agree to our Privacy Policy.
                             
                             We do not sell your personal information to third parties. We use CloudKit for secure data storage and Google AdMob for advertising.
                             """)
                             
                             SectionHeader(title: "7. Advertising")
                             BodyText(text: """
-                            Plopper displays advertisements through Google AdMob. By using the App, you agree to see ads. Advertisers may collect data about your device and usage for targeted advertising. See our Privacy Policy for details.
+                            TheDailyPoop displays advertisements through Google AdMob. By using the App, you agree to see ads. Advertisers may collect data about your device and usage for targeted advertising. See our Privacy Policy for details.
                             """)
                             
                             SectionHeader(title: "8. Intellectual Property")
                             BodyText(text: """
-                            All rights, title, and interest in Plopper (including design, code, graphics, and branding) belong to Arjun Varma. You may not:
+                            All rights, title, and interest in TheDailyPoop (including design, code, graphics, and branding) belong to Arjun Varma. You may not:
                             • Copy, modify, or distribute the App
                             • Use our trademarks or branding without permission
-                            • Create derivative works based on Plopper
+                            • Create derivative works based on TheDailyPoop
                             
                             You retain ownership of your user-generated content but grant us a worldwide license to use, display, and distribute it within the App.
                             """)
@@ -110,7 +110,7 @@ struct TermsOfServiceView: View {
                             • Compatibility with all devices
                             • Security against data loss or breaches
                             
-                            Plopper is for entertainment and personal tracking only. It is NOT a medical app and should not be used for health diagnosis or treatment.
+                            TheDailyPoop is for entertainment and personal tracking only. It is NOT a medical app and should not be used for health diagnosis or treatment.
                             """)
                             
                             SectionHeader(title: "10. Limitation of Liability")
@@ -127,7 +127,7 @@ struct TermsOfServiceView: View {
                             SectionHeader(title: "11. Indemnification")
                             BodyText(text: """
                             You agree to indemnify and hold harmless Arjun Varma from any claims, damages, or expenses arising from:
-                            • Your use of Plopper
+                            • Your use of TheDailyPoop
                             • Your violation of these Terms
                             • Your violation of others' rights
                             • Content you post through the App
@@ -148,7 +148,7 @@ struct TermsOfServiceView: View {
                         Group {
                             SectionHeader(title: "13. Changes to Terms")
                             BodyText(text: """
-                            We reserve the right to modify these Terms at any time. Changes will be posted in-app with an updated "Last Updated" date. Continued use of Plopper after changes constitutes acceptance of the new Terms.
+                            We reserve the right to modify these Terms at any time. Changes will be posted in-app with an updated "Last Updated" date. Continued use of TheDailyPoop after changes constitutes acceptance of the new Terms.
                             """)
                             
                             SectionHeader(title: "14. Governing Law")
@@ -174,7 +174,7 @@ struct TermsOfServiceView: View {
                             """)
                         }
                         
-                        Text("By using Plopper, you acknowledge that you have read, understood, and agree to these Terms of Service.")
+                        Text("By using TheDailyPoop, you acknowledge that you have read, understood, and agree to these Terms of Service.")
                             .font(.body)
                             .foregroundColor(.white)
                             .padding(.vertical, 20)

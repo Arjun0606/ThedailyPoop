@@ -53,7 +53,7 @@ Poop Drop is a viral lifestyle/social app where users drop poops on a map, frien
 
 ### Project Structure
 ```
-Plopper/
+TheDailyPoop/
 ├── Models/
 │   ├── User.swift              # User data model with CloudKit sync
 │   ├── Drop.swift              # Poop drop model with location
@@ -95,7 +95,7 @@ Plopper/
 
 2. **Open in Xcode**
    ```bash
-   open Plopper.xcodeproj
+   open TheDailyPoop.xcodeproj
    ```
 
 3. **Configure CloudKit**

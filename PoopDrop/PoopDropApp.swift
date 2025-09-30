@@ -6,7 +6,7 @@ import GoogleMobileAds
 #endif
 
 @main
-struct PlopperperApp: App {
+struct TheDailyPoopApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @StateObject private var authManager = AuthenticationManager()
     @StateObject private var subscriptionManager = SubscriptionManager()

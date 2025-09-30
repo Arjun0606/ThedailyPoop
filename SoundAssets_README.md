@@ -2,7 +2,7 @@
 
 ## **📁 Add these sound files to your Xcode project:**
 
-### **💩 Poop Sounds (Fart & Plopper Category)**
+### **💩 Poop Sounds (Fart & TheDailyPoop Category)**
 - `fart_short.wav` - Quick fart sound
 - `fart_long.wav` - Extended fart sound  
 - `bubble_fart.wav` - Bubbly fart sound
@@ -56,7 +56,7 @@
 
 1. **Create "Sounds" folder** in your Xcode project
 2. **Drag & drop all .wav files** into the folder
-3. **Ensure "Add to target" is checked** for Plopper
+3. **Ensure "Add to target" is checked** for TheDailyPoop
 4. **Verify files appear** in your project navigator
 
 ---

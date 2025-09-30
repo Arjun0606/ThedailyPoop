@@ -24,9 +24,9 @@ struct PrivacyPolicyView: View {
                         Group {
                             SectionHeader(title: "Introduction")
                             BodyText(text: """
-                            Plopper ("we," "us," or "our") respects your privacy. This Privacy Policy explains how we collect, use, store, and protect your personal information when you use the Plopper app ("the App").
+                            TheDailyPoop ("we," "us," or "our") respects your privacy. This Privacy Policy explains how we collect, use, store, and protect your personal information when you use the TheDailyPoop app ("the App").
                             
-                            By using Plopper, you agree to the collection and use of information as described in this policy.
+                            By using TheDailyPoop, you agree to the collection and use of information as described in this policy.
                             """)
                             
                             SectionHeader(title: "1. Information We Collect")
@@ -62,7 +62,7 @@ struct PrivacyPolicyView: View {
                             SectionHeader(title: "2. How We Use Your Information")
                             BodyText(text: """
                             We use your information to:
-                            • Provide and maintain the Plopper service
+                            • Provide and maintain the TheDailyPoop service
                             • Display your drops on maps and in feeds
                             • Calculate statistics, streaks, and achievements
                             • Facilitate social features (friends, leaderboards, notifications)
@@ -97,12 +97,12 @@ struct PrivacyPolicyView: View {
                             • To prevent fraud or illegal activity
                             
                             D. Business Transfers:
-                            • If Plopper is acquired or merged, your data may be transferred to the new entity
+                            • If TheDailyPoop is acquired or merged, your data may be transferred to the new entity
                             """)
                             
                             SectionHeader(title: "4. Advertising and Third-Party Services")
                             BodyText(text: """
-                            Plopper uses Google AdMob to display advertisements. AdMob may collect:
+                            TheDailyPoop uses Google AdMob to display advertisements. AdMob may collect:
                             • Device identifiers (IDFA on iOS)
                             • IP address and general location
                             • Ad interaction data (views, clicks)
@@ -120,7 +120,7 @@ struct PrivacyPolicyView: View {
                             • Secure data centers in multiple regions
                             • Regular security audits and compliance certifications
                             
-                            We implement industry-standard security measures, but no system is 100% secure. Use Plopper at your own risk.
+                            We implement industry-standard security measures, but no system is 100% secure. Use TheDailyPoop at your own risk.
                             
                             Data Retention:
                             • Drops are visible for 3 days in feeds, but stored indefinitely for map and stats
@@ -132,7 +132,7 @@ struct PrivacyPolicyView: View {
                         Group {
                             SectionHeader(title: "6. Location Privacy")
                             BodyText(text: """
-                            Plopper collects location data to provide map and location-based features. We prioritize your privacy:
+                            TheDailyPoop collects location data to provide map and location-based features. We prioritize your privacy:
                             
                             • Only city/state/country is displayed (not exact coordinates)
                             • Location data is collected only when you log a drop
@@ -159,18 +159,18 @@ struct PrivacyPolicyView: View {
                             
                             SectionHeader(title: "8. Children's Privacy")
                             BodyText(text: """
-                            Plopper is not intended for children under 13. We do not knowingly collect data from children under 13.
+                            TheDailyPoop is not intended for children under 13. We do not knowingly collect data from children under 13.
                             
                             If you are a parent and believe your child has created an account, please contact us immediately, and we will delete it.
                             
-                            Users aged 13-17 should obtain parental consent before using Plopper.
+                            Users aged 13-17 should obtain parental consent before using TheDailyPoop.
                             """)
                             
                             SectionHeader(title: "9. International Data Transfers")
                             BodyText(text: """
-                            Plopper is operated from India. Your data may be transferred to and stored in servers located outside your country of residence, including the United States (CloudKit data centers).
+                            TheDailyPoop is operated from India. Your data may be transferred to and stored in servers located outside your country of residence, including the United States (CloudKit data centers).
                             
-                            By using Plopper, you consent to the transfer of your data to these locations. We ensure appropriate safeguards are in place to protect your data.
+                            By using TheDailyPoop, you consent to the transfer of your data to these locations. We ensure appropriate safeguards are in place to protect your data.
                             """)
                         }
                         
@@ -184,12 +184,12 @@ struct PrivacyPolicyView: View {
                             • Friend requests and acceptances
                             • Reactions to your drops
                             
-                            You can disable notifications in iOS Settings > Notifications > Plopper.
+                            You can disable notifications in iOS Settings > Notifications > TheDailyPoop.
                             """)
                             
                             SectionHeader(title: "11. Cookies and Tracking")
                             BodyText(text: """
-                            Plopper does not use cookies (it's a native iOS app, not a website). However, third-party services like AdMob may use similar tracking technologies for advertising purposes.
+                            TheDailyPoop does not use cookies (it's a native iOS app, not a website). However, third-party services like AdMob may use similar tracking technologies for advertising purposes.
                             
                             You can control tracking in iOS Settings > Privacy > Tracking.
                             """)
@@ -202,7 +202,7 @@ struct PrivacyPolicyView: View {
                             • In-app notification
                             • Email (if you've provided one)
                             
-                            Continued use of Plopper after changes constitutes acceptance of the new Privacy Policy.
+                            Continued use of TheDailyPoop after changes constitutes acceptance of the new Privacy Policy.
                             """)
                             
                             SectionHeader(title: "13. Your California Privacy Rights (CCPA)")
@@ -239,7 +239,7 @@ struct PrivacyPolicyView: View {
                             
                             SectionHeader(title: "16. Consent")
                             BodyText(text: """
-                            By using Plopper, you consent to:
+                            By using TheDailyPoop, you consent to:
                             • Collection and use of your information as described
                             • Display of your drops and profile to friends
                             • Use of location data for map and stats features
