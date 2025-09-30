@@ -152,14 +152,10 @@ struct FriendsTabSelector: View {
 struct FriendsListView: View {
     let friends: [User]
     @EnvironmentObject var authManager: AuthenticationManager
-    @State private var showingInvite = false
     
     var body: some View {
         ScrollView {
             LazyVStack(spacing: 12) {
-                // Invite Friends Card
-                InviteFriendsCard(showingInvite: $showingInvite)
-                
                 if friends.isEmpty {
                     EmptyFriendsView()
                 } else {
@@ -170,9 +166,6 @@ struct FriendsListView: View {
             }
             .padding(.horizontal, 16)
             .padding(.top, 16)
-        }
-        .sheet(isPresented: $showingInvite) {
-            InviteFriendsView()
         }
     }
 }
