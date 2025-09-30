@@ -11,8 +11,8 @@ struct FeedView: View {
     @State private var isRefreshing = false
     
     enum FeedType {
-        case my
         case friends
+        case my
     }
     
     var body: some View {
@@ -22,10 +22,10 @@ struct FeedView: View {
                 Color.black.ignoresSafeArea()
                 
                 VStack(spacing: 0) {
-                    // Segmented Picker for My Feed / Friends Feed
+                    // Segmented Picker for Friends Feed / My Feed
                     Picker("Feed Type", selection: $selectedFeedType) {
-                        Text("My Feed").tag(FeedType.my)
                         Text("Friends").tag(FeedType.friends)
+                        Text("My Feed").tag(FeedType.my)
                     }
                     .pickerStyle(SegmentedPickerStyle())
                     .padding(.horizontal, 16)
@@ -41,10 +41,10 @@ struct FeedView: View {
                     
                     // Feed Content
                     if currentDrops.isEmpty && !friendsManager.isLoading {
-                        if selectedFeedType == .my {
-                            EmptyMyDropsView()
-                        } else {
+                        if selectedFeedType == .friends {
                             EmptyFriendsDropsView()
+                        } else {
+                            EmptyMyDropsView()
                         }
                     } else {
                         ScrollView {
@@ -126,7 +126,7 @@ struct FeedView: View {
     
     // Computed property to get current drops based on selected feed type
     private var currentDrops: [Drop] {
-        selectedFeedType == .my ? myDrops : friendDrops
+        selectedFeedType == .friends ? friendDrops : myDrops
     }
     
     private func loadMyDrops() {
@@ -151,7 +151,8 @@ struct FeedView: View {
             do {
                 let drops = try await friendsManager.getFriendDrops(for: user)
                 await MainActor.run {
-                    self.friendDrops = drops
+                    // Filter out user's own drops from Friends Feed
+                    self.friendDrops = drops.filter { $0.userID != user.id }
                 }
             } catch {
                 print("Failed to load friend drops: \(error)")
@@ -167,7 +168,8 @@ struct FeedView: View {
             do {
                 let drops = try await friendsManager.getFriendDrops(for: user)
                 await MainActor.run {
-                    self.friendDrops = drops
+                    // Filter out user's own drops from Friends Feed
+                    self.friendDrops = drops.filter { $0.userID != user.id }
                 }
             } catch {
                 print("Failed to load more friend drops: \(error)")
@@ -191,7 +193,8 @@ struct FeedView: View {
         } else {
             do {
                 let drops = try await friendsManager.getFriendDrops(for: user)
-                friendDrops = drops
+                // Filter out user's own drops from Friends Feed
+                friendDrops = drops.filter { $0.userID != user.id }
             } catch {
                 print("Failed to refresh friend feed: \(error)")
             }
