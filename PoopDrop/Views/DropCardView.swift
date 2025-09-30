@@ -5,6 +5,7 @@ struct DropCardView: View {
     let drop: Drop
     @EnvironmentObject var subscriptionManager: SubscriptionManager
     @State private var address: String
+    @State private var userAvatar: UIImage? = nil
     @State private var showingShareSheet = false
     @State private var showingReportSheet = false
     
@@ -38,22 +39,31 @@ struct DropCardView: View {
         VStack(alignment: .leading, spacing: 12) {
             // Header
             HStack(spacing: 12) {
-                // Profile picture with initial (simplified for performance)
-                Circle()
-                    .fill(
-                        LinearGradient(
-                            colors: [Color.brown.opacity(0.7), Color.brown],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
+                // Profile picture with avatar support
+                if let avatar = userAvatar {
+                    Image(uiImage: avatar)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 40, height: 40)
+                        .clipShape(Circle())
+                        .overlay(Circle().stroke(Color.white.opacity(0.3), lineWidth: 1))
+                } else {
+                    Circle()
+                        .fill(
+                            LinearGradient(
+                                colors: [Color.brown.opacity(0.7), Color.brown],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
                         )
-                    )
-                    .frame(width: 40, height: 40)
-                    .overlay(
-                        Text(String(drop.username.prefix(1)).uppercased())
-                            .font(.headline)
-                            .fontWeight(.bold)
-                            .foregroundColor(.white)
-                    )
+                        .frame(width: 40, height: 40)
+                        .overlay(
+                            Text(String(drop.username.prefix(1)).uppercased())
+                                .font(.headline)
+                                .fontWeight(.bold)
+                                .foregroundColor(.white)
+                        )
+                }
                 
                 VStack(alignment: .leading, spacing: 2) {
                     HStack(spacing: 8) {
@@ -182,6 +192,9 @@ struct DropCardView: View {
                         )
                 )
         )
+        .onAppear {
+            loadUserAvatar()
+        }
         .sheet(isPresented: $showingReportSheet) {
             ReportView(drop: drop)
         }
@@ -202,15 +215,25 @@ struct DropCardView: View {
         Task {
             do {
                 if let user = try await CloudKitManager.shared.fetchUser(id: drop.userID),
-                   let avatarURL = user.avatarURL,
-                   let data = try? Data(contentsOf: avatarURL),
-                   let image = UIImage(data: data) {
-                    await MainActor.run {
-                        self.userAvatar = image
+                   let avatarURL = user.avatarURL {
+                    
+                    print("🖼️ Loading avatar for \(drop.username) from: \(avatarURL)")
+                    
+                    let data = try Data(contentsOf: avatarURL)
+                    if let image = UIImage(data: data) {
+                        await MainActor.run {
+                            self.userAvatar = image
+                            print("✅ Avatar loaded successfully for \(drop.username)")
+                        }
+                    } else {
+                        print("❌ Failed to create UIImage from data for \(drop.username)")
                     }
+                } else {
+                    print("⚠️ No avatar URL found for user \(drop.username)")
                 }
             } catch {
-                // Silently fail - will show initial instead
+                print("❌ Failed to load user avatar for \(drop.username): \(error)")
+                // Will show initial instead
             }
         }
     }
