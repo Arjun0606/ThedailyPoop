@@ -474,7 +474,7 @@ struct AchievementCard: View {
     @State private var showingShare = false
     
     private var shareText: String {
-        "I just unlocked ‘\(achievement.title)’ on Plop! 💩 #Plop"
+        "I just unlocked ‘\(achievement.title)’ on Plopper! 💩 #Plopper"
     }
     
     var body: some View {
@@ -1090,7 +1090,7 @@ struct ShareAllStatsCard: View {
                 Text("💩")
                     .font(.system(size: 30))
                 
-                Text("Plop")
+                Text("Plopper")
                     .font(.title3)
                     .fontWeight(.bold)
                     .foregroundColor(.white)
@@ -1124,7 +1124,7 @@ struct ShareAllStatsCard: View {
             }
             
             // Footer - Compact
-            Text("Join me on Plop!")
+            Text("Join me on Plopper!")
                 .font(.caption)
                 .fontWeight(.semibold)
                 .foregroundColor(.white)
@@ -1153,7 +1153,7 @@ struct ShareStreakCard: View {
                 Text("💩")
                     .font(.system(size: 30))
                 
-                Text("Plop")
+                Text("Plopper")
                     .font(.title3)
                     .fontWeight(.bold)
                     .foregroundColor(.white)
@@ -1215,7 +1215,7 @@ struct ShareStreakCard: View {
             }
             
             // Footer - Compact
-            Text("Join me on Plop!")
+            Text("Join me on Plopper!")
                 .font(.caption)
                 .fontWeight(.semibold)
                 .foregroundColor(.white)
@@ -1248,7 +1248,7 @@ struct ShareAchievementsCard: View {
                 Text("💩")
                     .font(.system(size: 30))
                 
-                Text("Plop")
+                Text("Plopper")
                     .font(.title3)
                     .fontWeight(.bold)
                     .foregroundColor(.white)
@@ -1304,7 +1304,7 @@ struct ShareAchievementsCard: View {
                 .padding(.top, 4)
             
             // Footer - Compact
-            Text("Join me on Plop!")
+            Text("Join me on Plopper!")
                 .font(.caption2)
                 .fontWeight(.semibold)
                 .foregroundColor(.white.opacity(0.9))

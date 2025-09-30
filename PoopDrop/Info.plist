@@ -38,11 +38,11 @@
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Plop needs your location to place your poop drops on the map and connect you with nearby friends.</string>
+	<string>Plopper needs your location to place your poop drops on the map and connect you with nearby friends.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>Plop needs your location to place your poop drops on the map and track your bathroom adventures.</string>
+	<string>Plopper needs your location to place your poop drops on the map and track your bathroom adventures.</string>
 	<key>CFBundleDisplayName</key>
-	<string>Plop</string>
+	<string>Plopper</string>
 	<key>GADApplicationIdentifier</key>
 	<string>ca-app-pub-5826159291481711~2785528820</string>
 	<key>SKAdNetworkItems</key>

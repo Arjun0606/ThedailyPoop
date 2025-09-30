@@ -339,7 +339,7 @@ struct AnimatedStreakView: View {
  4. Sound Effects (to pair with animations):
     - Fart sounds (5 variations)
     - Flush sounds (3 variations)
-    - Plop/splash sounds (4 variations)
+    - Plopper/splash sounds (4 variations)
     - Badge unlock celebration sound
     - Streak milestone sounds
  */

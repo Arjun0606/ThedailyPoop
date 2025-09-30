@@ -74,13 +74,13 @@ This guide covers the complete deployment process from development to App Store 
 ### Unit Testing
 ```bash
 # Run unit tests
-xcodebuild test -project Plop.xcodeproj -scheme Plop -destination 'platform=iOS Simulator,name=iPhone 15'
+xcodebuild test -project Plopper.xcodeproj -scheme Plopper -destination 'platform=iOS Simulator,name=iPhone 15'
 ```
 
 ### UI Testing
 ```bash
 # Run UI tests
-xcodebuild test -project Plop.xcodeproj -scheme PlopUITests -destination 'platform=iOS Simulator,name=iPhone 15'
+xcodebuild test -project Plopper.xcodeproj -scheme PlopperUITests -destination 'platform=iOS Simulator,name=iPhone 15'
 ```
 
 ### Manual Testing Checklist

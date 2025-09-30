@@ -193,7 +193,7 @@ extension Drop {
         caption: "Best poop of the day! 💩✨"
     )
     
-    static let sampleNoPlop = Drop(
+    static let sampleNoPlopper = Drop(
         userID: "user456",
         username: "constipated_carl",
         city: "New York",
