@@ -1084,54 +1084,53 @@ struct ShareAllStatsCard: View {
     }
     
     var body: some View {
-        VStack(spacing: 16) {
-            // Header
-            VStack(spacing: 6) {
+        VStack(spacing: 8) {
+            // Header - Compact
+            VStack(spacing: 2) {
                 Text("💩")
-                    .font(.system(size: 45))
+                    .font(.system(size: 30))
                 
                 Text("PoopDrop")
-                    .font(.title2)
+                    .font(.title3)
                     .fontWeight(.bold)
                     .foregroundColor(.white)
                 
                 Text("@\(user.username)")
-                    .font(.subheadline)
+                    .font(.caption)
                     .foregroundColor(.white.opacity(0.7))
             }
             
-            // All Stats Grid (tighter spacing)
-            VStack(spacing: 10) {
-                HStack(spacing: 10) {
-                    ShareStatItem(icon: "💩", value: "\(user.totalDrops)", label: "Total Drops")
-                    ShareStatItem(icon: "🔥", value: "\(user.streak)", label: "Streak")
+            // All Stats Grid - Super Compact
+            VStack(spacing: 6) {
+                HStack(spacing: 6) {
+                    CompactStatItem(icon: "💩", value: "\(user.totalDrops)", label: "Drops")
+                    CompactStatItem(icon: "🔥", value: "\(user.streak)", label: "Streak")
                 }
                 
-                HStack(spacing: 10) {
-                    ShareStatItem(icon: "📈", value: "\(user.maxDropsInDay)", label: "Max/Day")
-                    ShareStatItem(icon: "😵‍💫", value: "\(user.longestNoPoopStreak)", label: "No Poop")
+                HStack(spacing: 6) {
+                    CompactStatItem(icon: "📈", value: "\(user.maxDropsInDay)", label: "Max/Day")
+                    CompactStatItem(icon: "😵‍💫", value: "\(user.longestNoPoopStreak)", label: "No Poop")
                 }
                 
-                HStack(spacing: 10) {
-                    ShareStatItem(icon: "🌍", value: "\(user.countriesVisited.count)", label: "Countries")
-                    ShareStatItem(icon: "🌎", value: "\(user.continentsVisited.count)", label: "Continents")
+                HStack(spacing: 6) {
+                    CompactStatItem(icon: "🌍", value: "\(user.countriesVisited.count)", label: "Countries")
+                    CompactStatItem(icon: "🌎", value: "\(user.continentsVisited.count)", label: "Continents")
                 }
                 
-                HStack(spacing: 10) {
-                    ShareStatItem(icon: "👥", value: "\(user.friends.count)", label: "Friends")
-                    ShareStatItem(icon: "📅", value: "\(memberDays)", label: "Days")
+                HStack(spacing: 6) {
+                    CompactStatItem(icon: "👥", value: "\(user.friends.count)", label: "Friends")
+                    CompactStatItem(icon: "📅", value: "\(memberDays)", label: "Days")
                 }
             }
             
-            // Footer
+            // Footer - Compact
             Text("Join me on PoopDrop!")
-                .font(.subheadline)
+                .font(.caption)
                 .fontWeight(.semibold)
                 .foregroundColor(.white)
-                .padding(.top, 4)
         }
-        .padding(20)
-        .frame(width: 400, height: 650)
+        .padding(12)
+        .frame(width: 320, height: 480)
         .background(
             LinearGradient(
                 colors: [Color.brown.opacity(0.8), Color.black],
@@ -1139,7 +1138,7 @@ struct ShareAllStatsCard: View {
                 endPoint: .bottomTrailing
             )
         )
-        .cornerRadius(24)
+        .cornerRadius(20)
     }
 }
 
@@ -1148,80 +1147,81 @@ struct ShareStreakCard: View {
     let user: User
     
     var body: some View {
-        VStack(spacing: 30) {
-            // Header
-            VStack(spacing: 8) {
+        VStack(spacing: 12) {
+            // Header - Compact
+            VStack(spacing: 2) {
                 Text("💩")
-                    .font(.system(size: 50))
+                    .font(.system(size: 30))
                 
                 Text("PoopDrop")
-                    .font(.title2)
-                    .fontWeight(.bold)
-                    .foregroundColor(.white)
-            }
-            
-            // Giant Streak Display
-            VStack(spacing: 16) {
-                Text("🔥")
-                    .font(.system(size: 80))
-                
-                Text("\(user.streak)")
-                    .font(.system(size: 100, weight: .bold))
-                    .foregroundColor(.orange)
-                
-                Text("DAY STREAK")
                     .font(.title3)
                     .fontWeight(.bold)
                     .foregroundColor(.white)
-                    .tracking(2)
             }
-            .padding(.vertical, 20)
+            
+            // Giant Streak Display - Compact
+            VStack(spacing: 8) {
+                Text("🔥")
+                    .font(.system(size: 50))
+                
+                Text("\(user.streak)")
+                    .font(.system(size: 64, weight: .bold))
+                    .foregroundColor(.orange)
+                
+                Text("DAY STREAK")
+                    .font(.callout)
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+                    .tracking(1)
+            }
+            .padding(.vertical, 12)
             .frame(maxWidth: .infinity)
             .background(Color.white.opacity(0.1))
-            .cornerRadius(20)
+            .cornerRadius(16)
             
-            // Supporting Stats
-            HStack(spacing: 16) {
-                VStack(spacing: 4) {
+            // Supporting Stats - Compact
+            HStack(spacing: 8) {
+                VStack(spacing: 2) {
                     Text("💩")
-                        .font(.title2)
+                        .font(.body)
                     Text("\(user.totalDrops)")
-                        .font(.title3)
+                        .font(.headline)
                         .fontWeight(.bold)
                         .foregroundColor(.white)
                     Text("Total")
-                        .font(.caption)
+                        .font(.caption2)
                         .foregroundColor(.white.opacity(0.7))
                 }
                 .frame(maxWidth: .infinity)
-                .padding()
+                .padding(.vertical, 8)
                 .background(Color.white.opacity(0.05))
-                .cornerRadius(12)
+                .cornerRadius(10)
                 
-                VStack(spacing: 4) {
+                VStack(spacing: 2) {
                     Text("📈")
-                        .font(.title2)
+                        .font(.body)
                     Text("\(user.maxDropsInDay)")
-                        .font(.title3)
+                        .font(.headline)
                         .fontWeight(.bold)
                         .foregroundColor(.white)
                     Text("Max/Day")
-                        .font(.caption)
+                        .font(.caption2)
                         .foregroundColor(.white.opacity(0.7))
                 }
                 .frame(maxWidth: .infinity)
-                .padding()
+                .padding(.vertical, 8)
                 .background(Color.white.opacity(0.05))
-                .cornerRadius(12)
+                .cornerRadius(10)
             }
             
-            // Footer
+            // Footer - Compact
             Text("Join me on PoopDrop!")
-                .font(.headline)
+                .font(.caption)
+                .fontWeight(.semibold)
                 .foregroundColor(.white)
         }
-        .padding(28)
-        .frame(width: 400, height: 600)
+        .padding(12)
+        .frame(width: 320, height: 480)
         .background(
             LinearGradient(
                 colors: [Color.orange.opacity(0.6), Color.brown.opacity(0.8), Color.black],
@@ -1229,7 +1229,7 @@ struct ShareStreakCard: View {
                 endPoint: .bottom
             )
         )
-        .cornerRadius(24)
+        .cornerRadius(20)
     }
 }
 
@@ -1242,71 +1242,75 @@ struct ShareAchievementsCard: View {
     }
     
     var body: some View {
-        VStack(spacing: 20) {
-            // Header
-            VStack(spacing: 8) {
+        VStack(spacing: 8) {
+            // Header - Compact
+            VStack(spacing: 2) {
                 Text("💩")
-                    .font(.system(size: 50))
+                    .font(.system(size: 30))
                 
                 Text("PoopDrop")
-                    .font(.title2)
+                    .font(.title3)
                     .fontWeight(.bold)
                     .foregroundColor(.white)
                 
                 Text("@\(user.username)")
-                    .font(.subheadline)
+                    .font(.caption)
                     .foregroundColor(.white.opacity(0.7))
             }
             
-            // Achievements Title
-            HStack(spacing: 8) {
+            // Achievements Title - Compact
+            HStack(spacing: 4) {
                 Text("🏆")
-                    .font(.title)
+                    .font(.body)
                 Text("Achievements")
-                    .font(.title2)
+                    .font(.headline)
                     .fontWeight(.bold)
                     .foregroundColor(.white)
             }
+            .padding(.top, 4)
             
-            // Achievements Grid (Fixed 9 badges to fit perfectly)
+            // Achievements Grid (9 badges, compact)
             LazyVGrid(columns: [
                 GridItem(.flexible()),
                 GridItem(.flexible()),
                 GridItem(.flexible())
-            ], spacing: 12) {
+            ], spacing: 6) {
                 ForEach(unlockedAchievements.prefix(9)) { achievement in
-                    VStack(spacing: 6) {
+                    VStack(spacing: 3) {
                         Text(achievement.icon)
-                            .font(.system(size: 28))
+                            .font(.system(size: 22))
                         
                         Text(achievement.title)
-                            .font(.caption2)
+                            .font(.system(size: 9))
                             .fontWeight(.semibold)
                             .foregroundColor(.white)
                             .multilineTextAlignment(.center)
                             .lineLimit(2)
-                            .minimumScaleFactor(0.7)
+                            .minimumScaleFactor(0.6)
                     }
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, 10)
-                    .padding(.horizontal, 4)
+                    .padding(.vertical, 6)
+                    .padding(.horizontal, 2)
                     .background(Color.white.opacity(0.1))
-                    .cornerRadius(12)
+                    .cornerRadius(10)
                 }
             }
             
-            // Achievement Count
+            // Achievement Count - Compact
             Text("\(unlockedAchievements.count) Badges Unlocked")
-                .font(.headline)
+                .font(.caption)
+                .fontWeight(.semibold)
                 .foregroundColor(.white)
+                .padding(.top, 4)
             
-            // Footer
+            // Footer - Compact
             Text("Join me on PoopDrop!")
-                .font(.subheadline)
+                .font(.caption2)
+                .fontWeight(.semibold)
                 .foregroundColor(.white.opacity(0.9))
         }
-        .padding(24)
-        .frame(width: 400, height: 600)
+        .padding(12)
+        .frame(width: 320, height: 480)
         .background(
             LinearGradient(
                 colors: [Color.yellow.opacity(0.4), Color.brown.opacity(0.8), Color.black],
@@ -1314,7 +1318,35 @@ struct ShareAchievementsCard: View {
                 endPoint: .bottom
             )
         )
-        .cornerRadius(24)
+        .cornerRadius(20)
+    }
+}
+
+// Super compact stat item for share cards
+struct CompactStatItem: View {
+    let icon: String
+    let value: String
+    let label: String
+    
+    var body: some View {
+        VStack(spacing: 4) {
+            Text(icon)
+                .font(.title3)
+            
+            Text(value)
+                .font(.title2)
+                .fontWeight(.bold)
+                .foregroundColor(.white)
+            
+            Text(label)
+                .font(.caption2)
+                .foregroundColor(.white.opacity(0.7))
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 8)
+        .padding(.horizontal, 6)
+        .background(Color.white.opacity(0.1))
+        .cornerRadius(12)
     }
 }
 
