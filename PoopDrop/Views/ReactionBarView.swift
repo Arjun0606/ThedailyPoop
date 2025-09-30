@@ -5,10 +5,8 @@ struct ReactionBarView: View {
     @EnvironmentObject var cloudKitManager: CloudKitManager
     @State private var localReactions: [String: Int]
     @State private var showingEmojiPicker = false
-    @State private var showingProUpsell = false
     @State private var userReactions: Set<String> = [] // Track what user has reacted to
     
-    private let freeReactions = ["😂", "🤢", "🔥", "👏"]
     
     init(drop: Drop) {
         self.drop = drop
@@ -31,9 +29,6 @@ struct ReactionBarView: View {
                 handleReaction(emoji)
                 showingEmojiPicker = false
             }
-        }
-        .sheet(isPresented: $showingProUpsell) {
-            ProUpsellView()
         }
         .onReceive(cloudKitManager.$drops) { drops in
             // Update local reactions when CloudKit data changes
@@ -84,43 +79,6 @@ struct ReactionBarView: View {
     }
 }
 
-struct FreeReactionView: View {
-    let reactions: [String: Int]
-    let freeReactions: [String]
-    let onReactionTap: (String) -> Void
-    let onProReactionTap: () -> Void
-    
-    var body: some View {
-        HStack(spacing: 8) {
-            ForEach(freeReactions, id: \.self) { emoji in
-                ReactionButton(
-                    emoji: emoji,
-                    count: reactions[emoji] ?? 0,
-                    isSelected: false
-                    action: {
-                        onReactionTap(emoji)
-                    }
-                )
-            }
-            
-            // Pro teaser button
-            Button(action: onProReactionTap) {
-                HStack(spacing: 4) {
-                    Image(systemName: "plus.circle.fill")
-                        .foregroundColor(.yellow)
-                    Text("PRO")
-                        .font(.caption2)
-                        .fontWeight(.bold)
-                        .foregroundColor(.yellow)
-                }
-                .padding(.horizontal, 8)
-                .padding(.vertical, 4)
-                .background(Color.yellow.opacity(0.2))
-                .cornerRadius(12)
-            }
-        }
-    }
-}
 
 struct ProReactionView: View {
     let reactions: [String: Int]
@@ -138,7 +96,7 @@ struct ProReactionView: View {
                 ReactionButton(
                     emoji: emoji,
                     count: reactions[emoji] ?? 0,
-                    isSelected: false
+                    isSelected: false,
                     action: {
                         onReactionTap(emoji)
                     }
