@@ -1018,18 +1018,29 @@ struct ShareStatsView: View {
     private func shareStats() {
         guard let image = shareImage else { return }
         
-        let activityVC = UIActivityViewController(activityItems: [image], applicationActivities: nil)
-        activityVC.excludedActivityTypes = [
-            .addToReadingList,
-            .assignToContact,
-            .openInIBooks,
-            .markupAsPDF
-        ]
+        // Dismiss the current modal first, then present share sheet
+        dismiss()
         
-        if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-           let root = scene.windows.first?.rootViewController {
-            activityVC.popoverPresentationController?.sourceView = root.view
-            root.present(activityVC, animated: true)
+        // Wait for dismiss animation to complete before showing share sheet
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            let activityVC = UIActivityViewController(activityItems: [image], applicationActivities: nil)
+            activityVC.excludedActivityTypes = [
+                .addToReadingList,
+                .assignToContact,
+                .openInIBooks,
+                .markupAsPDF
+            ]
+            
+            if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+               let root = scene.windows.first?.rootViewController {
+                // Find the topmost presented view controller
+                var topController = root
+                while let presented = topController.presentedViewController {
+                    topController = presented
+                }
+                activityVC.popoverPresentationController?.sourceView = topController.view
+                topController.present(activityVC, animated: true)
+            }
         }
     }
 }
@@ -1246,35 +1257,32 @@ struct ShareAchievementsCard: View {
                     .foregroundColor(.white)
             }
             
-            // Achievements Grid
-            ScrollView {
-                LazyVGrid(columns: [
-                    GridItem(.flexible()),
-                    GridItem(.flexible()),
-                    GridItem(.flexible())
-                ], spacing: 12) {
-                    ForEach(unlockedAchievements.prefix(12)) { achievement in
-                        VStack(spacing: 6) {
-                            Text(achievement.icon)
-                                .font(.system(size: 32))
-                            
-                            Text(achievement.title)
-                                .font(.caption2)
-                                .fontWeight(.semibold)
-                                .foregroundColor(.white)
-                                .multilineTextAlignment(.center)
-                                .lineLimit(2)
-                                .minimumScaleFactor(0.8)
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 12)
-                        .padding(.horizontal, 6)
-                        .background(Color.white.opacity(0.1))
-                        .cornerRadius(12)
+            // Achievements Grid (Fixed 9 badges to fit perfectly)
+            LazyVGrid(columns: [
+                GridItem(.flexible()),
+                GridItem(.flexible()),
+                GridItem(.flexible())
+            ], spacing: 12) {
+                ForEach(unlockedAchievements.prefix(9)) { achievement in
+                    VStack(spacing: 6) {
+                        Text(achievement.icon)
+                            .font(.system(size: 28))
+                        
+                        Text(achievement.title)
+                            .font(.caption2)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.white)
+                            .multilineTextAlignment(.center)
+                            .lineLimit(2)
+                            .minimumScaleFactor(0.7)
                     }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 10)
+                    .padding(.horizontal, 4)
+                    .background(Color.white.opacity(0.1))
+                    .cornerRadius(12)
                 }
             }
-            .frame(height: 340)
             
             // Achievement Count
             Text("\(unlockedAchievements.count) Badges Unlocked")
@@ -1287,7 +1295,7 @@ struct ShareAchievementsCard: View {
                 .foregroundColor(.white.opacity(0.9))
         }
         .padding(24)
-        .frame(width: 400, height: 650)
+        .frame(width: 400, height: 600)
         .background(
             LinearGradient(
                 colors: [Color.yellow.opacity(0.4), Color.brown.opacity(0.8), Color.black],
