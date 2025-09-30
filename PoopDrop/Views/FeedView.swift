@@ -3,12 +3,17 @@ import SwiftUI
 struct FeedView: View {
     @EnvironmentObject var cloudKitManager: CloudKitManager
     @EnvironmentObject var authManager: AuthenticationManager
-    // Subscription removed
     @StateObject private var friendsManager = FriendsManager()
     @StateObject private var adManager = AdManager.shared
+    @State private var selectedFeedType: FeedType = .friends
     @State private var friendDrops: [Drop] = []
+    @State private var myDrops: [Drop] = []
     @State private var isRefreshing = false
-                        // Pro removed
+    
+    enum FeedType {
+        case my
+        case friends
+    }
     
     var body: some View {
         NavigationView {
@@ -16,54 +21,76 @@ struct FeedView: View {
                 // Dark background
                 Color.black.ignoresSafeArea()
                 
-                if friendDrops.isEmpty && !friendsManager.isLoading {
-                    EmptyFriendsDropsView()
-                } else {
-                    ScrollView {
-                        LazyVStack(spacing: 16) {
-                        // Pro removed
-                            
-                            // Friends' drops feed with native ads
-                            ForEach(Array(friendDrops.enumerated()), id: \.element.id) { index, drop in
-                                DropCardView(drop: drop)
-                                    .onAppear {
-                                        // Load more drops when approaching end
-                                        if drop.id == friendDrops.last?.id {
-                                            loadMoreFriendDrops()
-                                        }
-                                    }
-                                
-                                // Insert native ad every 2 drops
-                                if (index + 1) % 2 == 0,
-                                   let nativeAd = adManager.nativeAd {
-                                    NativeAdCardView(adViewModel: nativeAd)
-                                        .transition(.opacity)
+                VStack(spacing: 0) {
+                    // Segmented Picker for My Feed / Friends Feed
+                    Picker("Feed Type", selection: $selectedFeedType) {
+                        Text("My Feed").tag(FeedType.my)
+                        Text("Friends").tag(FeedType.friends)
+                    }
+                    .pickerStyle(SegmentedPickerStyle())
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
+                    .background(Color.black)
+                    .onChange(of: selectedFeedType) { newType in
+                        if newType == .my {
+                            loadMyDrops()
+                        } else {
+                            loadInitialFriendDrops()
+                        }
+                    }
+                    
+                    // Feed Content
+                    if currentDrops.isEmpty && !friendsManager.isLoading {
+                        if selectedFeedType == .my {
+                            EmptyMyDropsView()
+                        } else {
+                            EmptyFriendsDropsView()
+                        }
+                    } else {
+                        ScrollView {
+                            LazyVStack(spacing: 16) {
+                                // Drops feed with native ads
+                                ForEach(Array(currentDrops.enumerated()), id: \.element.id) { index, drop in
+                                    DropCardView(drop: drop)
                                         .onAppear {
-                                            // Load a new ad for the next placement
-                                            adManager.loadNativeAd()
+                                            // Load more drops when approaching end
+                                            if drop.id == currentDrops.last?.id {
+                                                if selectedFeedType == .friends {
+                                                    loadMoreFriendDrops()
+                                                }
+                                            }
                                         }
+                                    
+                                    // Insert native ad every 2 drops
+                                    if (index + 1) % 2 == 0,
+                                       let nativeAd = adManager.nativeAd {
+                                        NativeAdCardView(adViewModel: nativeAd)
+                                            .transition(.opacity)
+                                            .onAppear {
+                                                // Load a new ad for the next placement
+                                                adManager.loadNativeAd()
+                                            }
+                                    }
+                                }
+                                
+                                // Loading indicator
+                                if friendsManager.isLoading {
+                                    ProgressView()
+                                        .scaleEffect(1.2)
+                                        .padding()
                                 }
                             }
-                            
-                            // Loading indicator
-                            if friendsManager.isLoading {
-                                ProgressView()
-                                    .scaleEffect(1.2)
-                                    .padding()
-                            }
-                            
-                            // Pro removed
+                            .padding(.horizontal, 16)
+                            .padding(.top, 8)
+                            .padding(.bottom, 100) // Space for FAB
                         }
-                        .padding(.horizontal, 16)
-                        .padding(.top, 8)
-                        .padding(.bottom, 100) // Space for FAB
-                    }
-                    .refreshable {
-                        await refreshFeed()
+                        .refreshable {
+                            await refreshFeed()
+                        }
                     }
                 }
             }
-            .navigationTitle("💩 Friends Feed")
+            .navigationTitle("💩 Feed")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -84,11 +111,37 @@ struct FeedView: View {
         }
         .onAppear {
             loadInitialFriendDrops()
+            loadMyDrops()
             
             adManager.loadNativeAd()
             adManager.loadInterstitialAd() // Preload interstitial
         }
-        // Pro removed
+        .onReceive(NotificationCenter.default.publisher(for: Notification.Name("USER_STATS_UPDATED"))) { _ in
+            // Refresh my drops when user creates a new drop
+            if selectedFeedType == .my {
+                loadMyDrops()
+            }
+        }
+    }
+    
+    // Computed property to get current drops based on selected feed type
+    private var currentDrops: [Drop] {
+        selectedFeedType == .my ? myDrops : friendDrops
+    }
+    
+    private func loadMyDrops() {
+        guard let user = authManager.currentUser else { return }
+        
+        Task {
+            do {
+                let drops = try await cloudKitManager.fetchUserDrops(for: user)
+                await MainActor.run {
+                    self.myDrops = drops.filter { $0.isCurrentlyVisible }
+                }
+            } catch {
+                print("Failed to load my drops: \(error)")
+            }
+        }
     }
     
     private func loadInitialFriendDrops() {
@@ -128,14 +181,47 @@ struct FeedView: View {
         
         isRefreshing = true
         
-        do {
-            let drops = try await friendsManager.getFriendDrops(for: user)
-            friendDrops = drops
-        } catch {
-            print("Failed to refresh friend feed: \(error)")
+        if selectedFeedType == .my {
+            do {
+                let drops = try await cloudKitManager.fetchUserDrops(for: user)
+                myDrops = drops.filter { $0.isCurrentlyVisible }
+            } catch {
+                print("Failed to refresh my drops: \(error)")
+            }
+        } else {
+            do {
+                let drops = try await friendsManager.getFriendDrops(for: user)
+                friendDrops = drops
+            } catch {
+                print("Failed to refresh friend feed: \(error)")
+            }
         }
         
         isRefreshing = false
+    }
+}
+
+// MARK: - Empty State Views
+struct EmptyMyDropsView: View {
+    var body: some View {
+        VStack(spacing: 24) {
+            Text("💩")
+                .font(.system(size: 80))
+            
+            VStack(spacing: 12) {
+                Text("No Drops Yet!")
+                    .font(.title2)
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+                
+                Text("Tap the 💩 button to drop your first poop!")
+                    .font(.subheadline)
+                    .foregroundColor(.white.opacity(0.7))
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 40)
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
 
