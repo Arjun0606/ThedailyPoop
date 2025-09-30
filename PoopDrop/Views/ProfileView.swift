@@ -1084,14 +1084,14 @@ struct ShareAllStatsCard: View {
     }
     
     var body: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: 16) {
             // Header
-            VStack(spacing: 8) {
+            VStack(spacing: 6) {
                 Text("💩")
-                    .font(.system(size: 50))
+                    .font(.system(size: 45))
                 
                 Text("PoopDrop")
-                    .font(.title)
+                    .font(.title2)
                     .fontWeight(.bold)
                     .foregroundColor(.white)
                 
@@ -1100,24 +1100,24 @@ struct ShareAllStatsCard: View {
                     .foregroundColor(.white.opacity(0.7))
             }
             
-            // All Stats Grid
-            VStack(spacing: 12) {
-                HStack(spacing: 12) {
+            // All Stats Grid (tighter spacing)
+            VStack(spacing: 10) {
+                HStack(spacing: 10) {
                     ShareStatItem(icon: "💩", value: "\(user.totalDrops)", label: "Total Drops")
                     ShareStatItem(icon: "🔥", value: "\(user.streak)", label: "Streak")
                 }
                 
-                HStack(spacing: 12) {
+                HStack(spacing: 10) {
                     ShareStatItem(icon: "📈", value: "\(user.maxDropsInDay)", label: "Max/Day")
                     ShareStatItem(icon: "😵‍💫", value: "\(user.longestNoPoopStreak)", label: "No Poop")
                 }
                 
-                HStack(spacing: 12) {
+                HStack(spacing: 10) {
                     ShareStatItem(icon: "🌍", value: "\(user.countriesVisited.count)", label: "Countries")
                     ShareStatItem(icon: "🌎", value: "\(user.continentsVisited.count)", label: "Continents")
                 }
                 
-                HStack(spacing: 12) {
+                HStack(spacing: 10) {
                     ShareStatItem(icon: "👥", value: "\(user.friends.count)", label: "Friends")
                     ShareStatItem(icon: "📅", value: "\(memberDays)", label: "Days")
                 }
@@ -1125,11 +1125,13 @@ struct ShareAllStatsCard: View {
             
             // Footer
             Text("Join me on PoopDrop!")
-                .font(.headline)
+                .font(.subheadline)
+                .fontWeight(.semibold)
                 .foregroundColor(.white)
+                .padding(.top, 4)
         }
-        .padding(24)
-        .frame(width: 400, height: 600)
+        .padding(20)
+        .frame(width: 400, height: 650)
         .background(
             LinearGradient(
                 colors: [Color.brown.opacity(0.8), Color.black],
