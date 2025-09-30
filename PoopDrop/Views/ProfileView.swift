@@ -590,6 +590,10 @@ struct SettingsView: View {
     @State private var confirmingDelete = false
     @State private var streakReminderEnabled = UserDefaults.standard.bool(forKey: "streakReminderEnabled")
     @State private var reminderTime = Date()
+    @State private var showingHowItWorks = false
+    @State private var showingContact = false
+    @State private var showingTerms = false
+    @State private var showingPrivacy = false
     
     var body: some View {
         NavigationView {
@@ -597,6 +601,26 @@ struct SettingsView: View {
                 Color.black.ignoresSafeArea()
                 
                 List {
+                    Section(header: Text("Help").foregroundColor(.white)) {
+                        Button(action: { showingHowItWorks = true }) {
+                            HStack {
+                                Image(systemName: "questionmark.circle.fill")
+                                    .foregroundColor(.blue)
+                                Text("How It Works")
+                                    .foregroundColor(.white)
+                            }
+                        }
+                        
+                        Button(action: { showingContact = true }) {
+                            HStack {
+                                Image(systemName: "envelope.fill")
+                                    .foregroundColor(.green)
+                                Text("Contact & Suggestions")
+                                    .foregroundColor(.white)
+                            }
+                        }
+                    }
+                    
                     Section(header: Text("Notifications").foregroundColor(.white)) {
                         Button("Open System Settings") {
                             if let url = URL(string: UIApplication.openSettingsURLString) {
@@ -644,12 +668,23 @@ struct SettingsView: View {
                         .foregroundColor(.white)
                     }
                     Section(header: Text("Legal").foregroundColor(.white)) {
-                        Button("Terms of Service") {
-                            if let url = URL(string: "https://poopdrop.app/terms") { UIApplication.shared.open(url) }
-                        }.foregroundColor(.white)
-                        Button("Privacy Policy") {
-                            if let url = URL(string: "https://poopdrop.app/privacy") { UIApplication.shared.open(url) }
-                        }.foregroundColor(.white)
+                        Button(action: { showingTerms = true }) {
+                            HStack {
+                                Image(systemName: "doc.text.fill")
+                                    .foregroundColor(.orange)
+                                Text("Terms of Service")
+                                    .foregroundColor(.white)
+                            }
+                        }
+                        
+                        Button(action: { showingPrivacy = true }) {
+                            HStack {
+                                Image(systemName: "lock.shield.fill")
+                                    .foregroundColor(.purple)
+                                Text("Privacy Policy")
+                                    .foregroundColor(.white)
+                            }
+                        }
                     }
                     Section {
                         Button(role: .destructive) {
@@ -670,6 +705,18 @@ struct SettingsView: View {
                     }
                     .foregroundColor(.white)
                 }
+            }
+            .sheet(isPresented: $showingHowItWorks) {
+                HowItWorksView()
+            }
+            .sheet(isPresented: $showingContact) {
+                ContactView()
+            }
+            .sheet(isPresented: $showingTerms) {
+                TermsOfServiceView()
+            }
+            .sheet(isPresented: $showingPrivacy) {
+                PrivacyPolicyView()
             }
         }
         .preferredColorScheme(.dark)

@@ -48,6 +48,10 @@
 		A100004B294A0000000000002 /* SnapchatStyleMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100004C294A0000000000002 /* SnapchatStyleMapView.swift */; };
 		A100004D294A0000000000002 /* StreakView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100004E294A0000000000002 /* StreakView.swift */; };
 		DCD130952E8B3BCE00F717FC /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = DCD130942E8B3BCE00F717FC /* GoogleMobileAds */; };
+		BCDC470159A99D640A798079 /* HowItWorksView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C017F38432C0902A18CF636D /* HowItWorksView.swift */; };
+		D9AC1536EA6A48F4FEAFB2CE /* ContactView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27F25651DCDE162B6C18444A /* ContactView.swift */; };
+		9122A731B4202D13CB528ADC /* TermsOfServiceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 119BCB7C76A3A13ECAA1ECFC /* TermsOfServiceView.swift */; };
+		18C93C69C717BE42F314D4B1 /* PrivacyPolicyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4210E055649FE550A178E211 /* PrivacyPolicyView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -94,6 +98,10 @@
 		A100004A294A0000000000002 /* ProfileSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSetupView.swift; sourceTree = "<group>"; };
 		A100004C294A0000000000002 /* SnapchatStyleMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapchatStyleMapView.swift; sourceTree = "<group>"; };
 		A100004E294A0000000000002 /* StreakView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreakView.swift; sourceTree = "<group>"; };
+		C017F38432C0902A18CF636D /* HowItWorksView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HowItWorksView.swift; sourceTree = "<group>"; };
+		27F25651DCDE162B6C18444A /* ContactView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactView.swift; sourceTree = "<group>"; };
+		119BCB7C76A3A13ECAA1ECFC /* TermsOfServiceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TermsOfServiceView.swift; sourceTree = "<group>"; };
+		4210E055649FE550A178E211 /* PrivacyPolicyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivacyPolicyView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -201,7 +209,11 @@
 				A100004A294A0000000000002 /* ProfileSetupView.swift */,
 				A100004C294A0000000000002 /* SnapchatStyleMapView.swift */,
 				A100004E294A0000000000002 /* StreakView.swift */,
-			);
+			
+				C017F38432C0902A18CF636D /* HowItWorksView.swift */,
+				27F25651DCDE162B6C18444A /* ContactView.swift */,
+				119BCB7C76A3A13ECAA1ECFC /* TermsOfServiceView.swift */,
+				4210E055649FE550A178E211 /* PrivacyPolicyView.swift */,);
 			path = Views;
 			sourceTree = "<group>";
 		};
@@ -324,7 +336,11 @@
 				A1000049294A0000000000002 /* ProfileSetupView.swift in Sources */,
 				A100004B294A0000000000002 /* SnapchatStyleMapView.swift in Sources */,
 				A100004D294A0000000000002 /* StreakView.swift in Sources */,
-			);
+			
+				BCDC470159A99D640A798079 /* HowItWorksView.swift in Sources */,
+				D9AC1536EA6A48F4FEAFB2CE /* ContactView.swift in Sources */,
+				9122A731B4202D13CB528ADC /* TermsOfServiceView.swift in Sources */,
+				18C93C69C717BE42F314D4B1 /* PrivacyPolicyView.swift in Sources */,);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
