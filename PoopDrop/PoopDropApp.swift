@@ -45,6 +45,16 @@ struct PoopDropApp: App {
         // Initialize CloudKit container
         cloudKitManager.initialize()
         
+        // Load existing drops on app start
+        Task {
+            do {
+                _ = try await cloudKitManager.fetchDrops(limit: 100)
+                print("📱 Loaded existing drops on app start")
+            } catch {
+                print("❌ Failed to load drops on app start: \(error)")
+            }
+        }
+        
         // Check subscription status
         Task {
             await subscriptionManager.checkSubscriptionStatus()

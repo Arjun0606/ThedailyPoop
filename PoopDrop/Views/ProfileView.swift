@@ -560,7 +560,11 @@ struct RecentDropsSection: View {
                             Spacer()
                             Button("Show on Map") {
                                 if let coord = drop.location {
-                                    NotificationCenter.default.post(name: Notification.Name("CENTER_MAP"), object: nil, userInfo: ["coordinate": coord])
+                                    // Switch to Map tab first, then center
+                                    NotificationCenter.default.post(name: Notification.Name("SWITCH_TO_MAP_TAB"), object: nil)
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                        NotificationCenter.default.post(name: Notification.Name("CENTER_MAP"), object: nil, userInfo: ["coordinate": coord, "drop": drop])
+                                    }
                                 }
                             }
                             .foregroundColor(.white)

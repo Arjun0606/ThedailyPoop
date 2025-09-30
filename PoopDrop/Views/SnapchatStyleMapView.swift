@@ -196,7 +196,7 @@ struct SnapchatStyleMapView: View {
                     radius: 10000 // 10km radius
                 )
                 
-                let visibleDrops = allDrops.filter { $0.isVisible }
+                let visibleDrops = allDrops.filter { $0.isCurrentlyVisible }
                 
                 // Cluster drops by location
                 let clusters = clusterDrops(visibleDrops)

@@ -345,10 +345,17 @@ struct DropDetailView: View {
     }
     
     private func loadAddress() {
-        Task {
-            guard let coordinate = drop.coordinate else { return }
-            let location = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
-            address = await LocationManager().getCityStateCountryFromLocation(location)
+        // Use pre-saved location data instead of slow reverse geocoding
+        if let city = drop.city, let country = drop.country {
+            address = "\(city), \(country)"
+        } else if let coordinate = drop.coordinate {
+            // Fallback to geocoding only if no saved data
+            Task {
+                let location = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
+                address = await LocationManager().getCityStateCountryFromLocation(location)
+            }
+        } else {
+            address = "Unknown location"
         }
     }
     
