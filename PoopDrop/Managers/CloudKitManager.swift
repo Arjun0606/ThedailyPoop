@@ -248,7 +248,6 @@ class CloudKitManager: ObservableObject {
             case .success(let record):
                 if let drop = Drop(from: record) {
                     drops.append(drop)
-                    print("✅ Loaded drop: \(drop.id) by \(drop.username)")
                 } else {
                     print("❌ Failed to parse drop from record: \(record.recordID)")
                 }
@@ -257,7 +256,11 @@ class CloudKitManager: ObservableObject {
             }
         }
         
-        print("🔍 Successfully loaded \(drops.count) drops")
+        print("🔍 Successfully loaded \(drops.count) drops from CloudKit")
+        if drops.count > 0 {
+            print("🔍 First 3 drops: \(drops.prefix(3).map { "\($0.username) at \($0.city ?? "unknown")" })")
+        }
+        
         await MainActor.run {
             self.drops = drops
         }

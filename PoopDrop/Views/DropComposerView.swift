@@ -251,12 +251,17 @@ struct DropComposerView: View {
         
         do {
             let userDrops = try await cloudKitManager.fetchUserDrops(for: user)
+            print("📊 Fetched \(userDrops.count) total drops for user")
+            
             let todayDrops = userDrops.filter { 
                 calendar.isDate($0.timestamp, inSameDayAs: today) && !$0.isNoPoop
             }.count + 1 // +1 for current drop
             
+            print("📊 Today's drops: \(todayDrops), current maxDropsInDay: \(user.maxDropsInDay)")
+            
             // Update max drops in day
             if todayDrops > user.maxDropsInDay {
+                print("📊 Updating maxDropsInDay from \(user.maxDropsInDay) to \(todayDrops)")
                 user.maxDropsInDay = todayDrops
             }
             
@@ -264,7 +269,11 @@ struct DropComposerView: View {
             calculateLongestNoPoopStreak(userDrops: userDrops, user: &user)
             
         } catch {
-            print("Failed to fetch user drops for stats: \(error)")
+            print("❌ Failed to fetch user drops for stats: \(error)")
+            // Even if fetch fails, still count this drop
+            if user.maxDropsInDay == 0 {
+                user.maxDropsInDay = 1
+            }
         }
         
         // Update streak
@@ -300,11 +309,15 @@ struct DropComposerView: View {
             await MainActor.run {
                 authManager.currentUser = user
                 print("✅ User stats saved to CloudKit and updated in authManager")
+                // Notify profile to refresh stats
+                NotificationCenter.default.post(name: Notification.Name("USER_STATS_UPDATED"), object: nil)
             }
         } catch {
             print("❌ Failed to save user stats to CloudKit: \(error), but updating locally")
             await MainActor.run {
                 authManager.currentUser = user
+                // Still notify even if save failed, to update UI with local changes
+                NotificationCenter.default.post(name: Notification.Name("USER_STATS_UPDATED"), object: nil)
             }
         }
     }
