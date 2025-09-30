@@ -237,57 +237,57 @@ class CloudKitManager: ObservableObject {
     func fetchDrops(limit: Int = 50) async throws -> [Drop] {
         print("🔍 Fetching drops from CloudKit (limit: \(limit))")
         
-        // Use CKQueryOperation instead of records(matching:) to avoid queryable field errors
+        // Use simple fetch without queryable field predicates - just fetch all and filter client-side
+        // This avoids all CloudKit queryable field errors
         let query = CKQuery(recordType: Drop.recordType, predicate: NSPredicate(value: true))
         
-        var allRecords: [CKRecord] = []
-        var queryCursor: CKQueryOperation.Cursor?
-        
-        repeat {
-            let operation: CKQueryOperation
-            if let cursor = queryCursor {
-                operation = CKQueryOperation(cursor: cursor)
-            } else {
-                operation = CKQueryOperation(query: query)
-            }
+        return try await withCheckedThrowingContinuation { continuation in
+            var allRecords: [CKRecord] = []
             
+            let operation = CKQueryOperation(query: query)
             operation.resultsLimit = limit
-            operation.database = publicDatabase
             
-            let (matchResults, cursor) = try await operation.allResults()
-            
-            for (_, result) in matchResults {
+            operation.recordMatchedBlock = { recordID, result in
                 switch result {
                 case .success(let record):
                     allRecords.append(record)
                 case .failure(let error):
-                    print("❌ Failed to fetch record: \(error)")
+                    print("❌ Failed to fetch record \(recordID): \(error)")
                 }
             }
             
-            queryCursor = cursor
-        } while queryCursor != nil && allRecords.count < limit
-        
-        print("🔍 CloudKit returned \(allRecords.count) drop records")
-        var drops: [Drop] = []
-        for record in allRecords {
-            if let drop = Drop(from: record) {
-                drops.append(drop)
-            } else {
-                print("❌ Failed to parse drop from record: \(record.recordID)")
+            operation.queryResultBlock = { result in
+                switch result {
+                case .success:
+                    print("🔍 CloudKit returned \(allRecords.count) drop records")
+                    var drops: [Drop] = []
+                    for record in allRecords {
+                        if let drop = Drop(from: record) {
+                            drops.append(drop)
+                        } else {
+                            print("❌ Failed to parse drop from record: \(record.recordID)")
+                        }
+                    }
+                    
+                    print("🔍 Successfully loaded \(drops.count) drops from CloudKit")
+                    if drops.count > 0 {
+                        print("🔍 First 3 drops: \(drops.prefix(3).map { "\($0.username) at \($0.city ?? "unknown")" })")
+                    }
+                    
+                    Task { @MainActor in
+                        self.drops = drops
+                    }
+                    
+                    continuation.resume(returning: drops)
+                    
+                case .failure(let error):
+                    print("❌ CloudKit query failed: \(error)")
+                    continuation.resume(throwing: error)
+                }
             }
+            
+            publicDatabase.add(operation)
         }
-        
-        print("🔍 Successfully loaded \(drops.count) drops from CloudKit")
-        if drops.count > 0 {
-            print("🔍 First 3 drops: \(drops.prefix(3).map { "\($0.username) at \($0.city ?? "unknown")" })")
-        }
-        
-        await MainActor.run {
-            self.drops = drops
-        }
-        
-        return drops
     }
     
     func fetchNearbyDrops(coordinate: CLLocationCoordinate2D, radius: Double = 1000) async throws -> [Drop] {
