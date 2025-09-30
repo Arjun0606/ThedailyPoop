@@ -113,7 +113,7 @@ class CloudKitManager: ObservableObject {
     func fetchUserByAppleUserID(_ appleUserID: String) async throws -> User? {
         let predicate = NSPredicate(format: "appleUserID == %@", appleUserID)
         let query = CKQuery(recordType: User.recordType, predicate: predicate)
-        let (results, _) = try await privateDatabase.records(matching: query, desiredKeys: nil, resultsLimit: 1)
+        let (results, _) = try await privateDatabase.records(matching: query, resultsLimit: 1)
         for (_, res) in results {
             if case let .success(record) = res { return User(from: record) }
         }
@@ -148,7 +148,7 @@ class CloudKitManager: ObservableObject {
         let query = CKQuery(recordType: User.recordType, predicate: predicate)
         query.sortDescriptors = [NSSortDescriptor(key: "username", ascending: true)]
         
-        let (matchResults, _) = try await privateDatabase.records(matching: query, desiredKeys: nil, resultsLimit: 20)
+        let (matchResults, _) = try await privateDatabase.records(matching: query, resultsLimit: 20)
         
         var users: [User] = []
         for (_, result) in matchResults {
@@ -171,7 +171,7 @@ class CloudKitManager: ObservableObject {
         let predicate = NSPredicate(format: "username == %@", username)
         let query = CKQuery(recordType: User.recordType, predicate: predicate)
         
-        let (matchResults, _) = try await privateDatabase.records(matching: query, desiredKeys: nil, resultsLimit: 1)
+        let (matchResults, _) = try await privateDatabase.records(matching: query, resultsLimit: 1)
         
         // Username is available if no matches found
         return matchResults.isEmpty
@@ -238,8 +238,9 @@ class CloudKitManager: ObservableObject {
         print("🔍 Fetching drops from CloudKit (limit: \(limit))")
         // Simple query without sorting to avoid CloudKit indexing errors
         let query = CKQuery(recordType: Drop.recordType, predicate: NSPredicate(value: true))
-        // Remove sort to avoid "Type is not marked indexable" error
-        let (matchResults, _) = try await publicDatabase.records(matching: query, desiredKeys: nil, resultsLimit: limit)
+        // Remove sort to avoid "Type is not marked queryable" error
+        // CRITICAL: Don't pass desiredKeys as it triggers queryable field requirements
+        let (matchResults, _) = try await publicDatabase.records(matching: query, resultsLimit: limit)
         
         print("🔍 CloudKit returned \(matchResults.count) drop records")
         var drops: [Drop] = []
