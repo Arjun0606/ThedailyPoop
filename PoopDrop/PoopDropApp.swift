@@ -37,11 +37,17 @@ struct PoopDropApp: App {
         // Initialize Google Mobile Ads if SDK is linked
 #if canImport(GoogleMobileAds)
         MobileAds.shared.start(completionHandler: nil)
+        
+        // ALWAYS use test mode until AdMob approves the app
+        MobileAds.shared.requestConfiguration.testDeviceIdentifiers = [
+            "Simulator",
+            GADSimulatorID // This enables test ads on all simulators and test devices
+        ]
+        
         #if DEBUG
-        MobileAds.shared.requestConfiguration.testDeviceIdentifiers = [ "Simulator" ]
-        print("[AdMob] SDK initialized (TEST mode on simulator)")
+        print("[AdMob] SDK initialized (TEST mode - will show sample ads)")
         #else
-        print("[AdMob] SDK initialized (PRODUCTION)")
+        print("[AdMob] SDK initialized (TEST mode - waiting for AdMob approval)")
         #endif
 #endif
         
