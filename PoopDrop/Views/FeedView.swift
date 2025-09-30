@@ -306,62 +306,6 @@ struct ProFeatureBadge: View {
     }
 }
 
-struct ProUpsellCard: View {
-    let onUpgrade: () -> Void
-    
-    var body: some View {
-        Button(action: onUpgrade) {
-            VStack(spacing: 16) {
-                HStack {
-                    VStack(alignment: .leading, spacing: 8) {
-                        HStack {
-                            Text("🚀")
-                                .font(.title2)
-                            
-                            Text("Upgrade to Pro")
-                                .font(.headline)
-                                .fontWeight(.bold)
-                                .foregroundColor(.white)
-                        }
-                        
-                        Text("Unlock premium features and become the ultimate poop dropper!")
-                            .font(.subheadline)
-                            .foregroundColor(.white.opacity(0.8))
-                            .multilineTextAlignment(.leading)
-                    }
-                    
-                    Spacer()
-                    
-                    Text("$3.99/mo")
-                        .font(.title3)
-                        .fontWeight(.bold)
-                        .foregroundColor(.yellow)
-                }
-                
-                HStack(spacing: 12) {
-                    FeatureHighlight(text: "200-word captions")
-                    FeatureHighlight(text: "Premium skins")
-                    FeatureHighlight(text: "All emojis")
-                    
-                    Spacer()
-                }
-            }
-            .padding()
-            .background(
-                LinearGradient(
-                    colors: [Color.purple.opacity(0.3), Color.blue.opacity(0.2)],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 16)
-                    .stroke(Color.purple.opacity(0.4), lineWidth: 1)
-            )
-            .cornerRadius(16)
-        }
-    }
-}
 
 struct FeatureHighlight: View {
     let text: String

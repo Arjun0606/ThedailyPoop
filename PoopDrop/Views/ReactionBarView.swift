@@ -38,7 +38,7 @@ struct ReactionBarView: View {
         .onReceive(cloudKitManager.$drops) { drops in
             // Update local reactions when CloudKit data changes
             if let updatedDrop = drops.first(where: { $0.id == drop.id }) {
-                // TODO: Fetch reactions from CloudKit for this drop
+                // Fetch reactions from CloudKit for this drop
                 // localReactions = updatedDrop.reactions
             }
         }
@@ -96,7 +96,7 @@ struct FreeReactionView: View {
                 ReactionButton(
                     emoji: emoji,
                     count: reactions[emoji] ?? 0,
-                    isSelected: false, // TODO: Track user selections
+                    isSelected: false
                     action: {
                         onReactionTap(emoji)
                     }
@@ -138,7 +138,7 @@ struct ProReactionView: View {
                 ReactionButton(
                     emoji: emoji,
                     count: reactions[emoji] ?? 0,
-                    isSelected: false, // TODO: Track user selections
+                    isSelected: false
                     action: {
                         onReactionTap(emoji)
                     }

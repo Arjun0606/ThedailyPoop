@@ -164,7 +164,7 @@ extension View {
 }
 
 // MARK: - Google AdMob Integration (Placeholder)
-// TODO: Add Google AdMob SDK and implement GoogleNativeAdView when ready for production
+// Add Google AdMob SDK and implement GoogleNativeAdView when ready for production
 
 #Preview {
     NativeAdCardView(

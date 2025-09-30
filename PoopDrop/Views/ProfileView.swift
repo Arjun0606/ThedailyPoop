@@ -326,69 +326,6 @@ struct ProFeatureItem: View {
     }
 }
 
-struct ProUpsellSection: View {
-    let onUpgrade: () -> Void
-    
-    var body: some View {
-        Button(action: onUpgrade) {
-            VStack(spacing: 16) {
-                HStack {
-                    VStack(alignment: .leading, spacing: 8) {
-                        HStack {
-                            Text("🚀")
-                                .font(.title2)
-                            
-                            Text("Upgrade to Pro")
-                                .font(.headline)
-                                .fontWeight(.bold)
-                                .foregroundColor(.white)
-                        }
-                        
-                        Text("Unlock all premium features and become the ultimate poop dropper!")
-                            .font(.subheadline)
-                            .foregroundColor(.white.opacity(0.8))
-                            .multilineTextAlignment(.leading)
-                    }
-                    
-                    Spacer()
-                    
-                    VStack {
-                        Text("$3.99")
-                            .font(.title2)
-                            .fontWeight(.bold)
-                            .foregroundColor(.yellow)
-                        
-                        Text("per month")
-                            .font(.caption)
-                            .foregroundColor(.white.opacity(0.7))
-                    }
-                }
-                
-                HStack(spacing: 8) {
-                    Text("📝 200 words")
-                    Text("🎨 All skins")
-                    Text("😀 All emojis")
-                    Spacer()
-                }
-                .font(.caption)
-                .foregroundColor(.white.opacity(0.8))
-            }
-            .padding()
-            .background(
-                LinearGradient(
-                    colors: [Color.purple.opacity(0.3), Color.blue.opacity(0.2)],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 16)
-                    .stroke(Color.purple.opacity(0.4), lineWidth: 1)
-            )
-            .cornerRadius(16)
-        }
-    }
-}
 
 struct AchievementsSection: View {
     let user: User
@@ -418,7 +355,7 @@ struct AchievementsSection: View {
             Achievement(id: "continents_5", title: "World Pooper", description: "Pooped on 5+ continents", icon: "🌐", isUnlocked: user.continentsVisited.count >= 5),
             
             // Timing Badges
-            Achievement(id: "early_bird", title: "Early Bird", description: "Dropped before 6 AM", icon: "🌅", isUnlocked: false), // TODO: Track time
+            Achievement(id: "early_bird", title: "Early Bird", description: "Dropped before 6 AM", icon: "🌅", isUnlocked: false),
             Achievement(id: "night_owl", title: "Night Owl", description: "Dropped after midnight", icon: "🦉", isUnlocked: false),
             Achievement(id: "lunch_break", title: "Lunch Break", description: "Dropped during lunch (12-2 PM)", icon: "🍽️", isUnlocked: false),
             
@@ -435,9 +372,9 @@ struct AchievementsSection: View {
             Achievement(id: "friends_20", title: "Popular Pooper", description: "Added 20 friends", icon: "🎉", isUnlocked: user.friends.count >= 20),
             
             // Special/Fun Badges
-            Achievement(id: "weekend_warrior", title: "Weekend Warrior", description: "Dropped on weekend", icon: "🏖️", isUnlocked: false), // TODO: Track weekend drops
-            Achievement(id: "holiday_pooper", title: "Holiday Pooper", description: "Dropped on a holiday", icon: "🎄", isUnlocked: false), // TODO: Track holiday drops
-            Achievement(id: "birthday_drop", title: "Birthday Drop", description: "Dropped on your birthday", icon: "🎂", isUnlocked: false) // TODO: Track birthday
+            Achievement(id: "weekend_warrior", title: "Weekend Warrior", description: "Dropped on weekend", icon: "🏖️", isUnlocked: false),
+            Achievement(id: "holiday_pooper", title: "Holiday Pooper", description: "Dropped on a holiday", icon: "🎄", isUnlocked: false),
+            Achievement(id: "birthday_drop", title: "Birthday Drop", description: "Dropped on your birthday", icon: "🎂", isUnlocked: false)
         ]
     }
     

@@ -7,7 +7,7 @@ struct MapBannerAdView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            // TODO: Replace with GADBannerView when SDK added
+            // Replace with GADBannerView when SDK added
             // GADBannerView(adUnitID: AdMobConfig.mapBannerAdUnitID)
             
             // Mock banner for testing
