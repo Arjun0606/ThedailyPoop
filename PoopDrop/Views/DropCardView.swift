@@ -4,10 +4,9 @@ import CoreLocation
 struct DropCardView: View {
     let drop: Drop
     @EnvironmentObject var subscriptionManager: SubscriptionManager
-    @State private var address: String?
+    @State private var address: String
     @State private var showingShareSheet = false
     @State private var showingReportSheet = false
-    @State private var userAvatar: UIImage? = nil
     
     private var timeAgo: String {
         let formatter = RelativeDateTimeFormatter()
@@ -23,34 +22,38 @@ struct DropCardView: View {
         drop.isSponsored
     }
     
+    init(drop: Drop) {
+        self.drop = drop
+        // Initialize address immediately to avoid loading states
+        if let city = drop.city, let country = drop.country {
+            self._address = State(initialValue: "\(city), \(country)")
+        } else if let coord = drop.location {
+            self._address = State(initialValue: "Lat: \(String(format: "%.4f", coord.latitude)), Lng: \(String(format: "%.4f", coord.longitude))")
+        } else {
+            self._address = State(initialValue: "Unknown location")
+        }
+    }
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             // Header
             HStack(spacing: 12) {
-                // Profile picture with avatar support
-                if let avatar = userAvatar {
-                    Image(uiImage: avatar)
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: 40, height: 40)
-                        .clipShape(Circle())
-                } else {
-                    Circle()
-                        .fill(
-                            LinearGradient(
-                                colors: [Color.brown.opacity(0.7), Color.brown],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
+                // Profile picture with initial (simplified for performance)
+                Circle()
+                    .fill(
+                        LinearGradient(
+                            colors: [Color.brown.opacity(0.7), Color.brown],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
                         )
-                        .frame(width: 40, height: 40)
-                        .overlay(
-                            Text(String(drop.username.prefix(1)).uppercased())
-                                .font(.headline)
-                                .fontWeight(.bold)
-                                .foregroundColor(.white)
-                        )
-                }
+                    )
+                    .frame(width: 40, height: 40)
+                    .overlay(
+                        Text(String(drop.username.prefix(1)).uppercased())
+                            .font(.headline)
+                            .fontWeight(.bold)
+                            .foregroundColor(.white)
+                    )
                 
                 VStack(alignment: .leading, spacing: 2) {
                     HStack(spacing: 8) {
@@ -74,7 +77,7 @@ struct DropCardView: View {
                                 .font(.caption)
                                 .foregroundColor(.white.opacity(0.6))
                             
-                            Text(address ?? "Loading location...")
+                            Text(address)
                                 .font(.caption)
                                 .foregroundColor(.white.opacity(0.6))
                             
@@ -179,17 +182,6 @@ struct DropCardView: View {
                         )
                 )
         )
-        .onAppear {
-            // Use pre-saved address instead of slow geocoding
-            if let city = drop.city, let country = drop.country {
-                address = "\(city), \(country)"
-            } else {
-                loadAddress() // Fallback only if no saved data
-            }
-            // Load avatar with caching to avoid repeated CloudKit calls
-            // Skip avatar loading for performance - using initials only
-            // loadUserAvatarCached()
-        }
         .sheet(isPresented: $showingReportSheet) {
             ReportView(drop: drop)
         }

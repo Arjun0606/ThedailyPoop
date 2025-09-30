@@ -45,13 +45,11 @@ struct PoopDropApp: App {
         // Initialize CloudKit container
         cloudKitManager.initialize()
         
-        // Load existing drops on app start with forced refresh
+        // Load existing drops on app start
         Task {
             do {
-                // Clear cache first to ensure fresh data
-                cloudKitManager.clearLocalCache()
                 _ = try await cloudKitManager.fetchDrops(limit: 100)
-                print("📱 Loaded fresh drops on app start")
+                print("📱 Loaded drops on app start")
             } catch {
                 print("❌ Failed to load drops on app start: \(error)")
             }

@@ -436,6 +436,14 @@ class CloudKitManager: ObservableObject {
             print("🗑️ Local cache cleared")
         }
     }
+    
+    func clearUserCache() {
+        Task { @MainActor in
+            users.removeAll()
+            // Keep drops and sponsor campaigns for continuity
+            print("🗑️ User cache cleared (keeping drops)")
+        }
+    }
 
     // MARK: - Account Deletion
     func deleteAccount(for user: User) async throws {

@@ -72,8 +72,8 @@ class AuthenticationManager: NSObject, ObservableObject {
         UserDefaults.standard.removeObject(forKey: "appleUserID")
         UserDefaults.standard.removeObject(forKey: "currentUserID")
         
-        // Clear any cached data
-        CloudKitManager.shared.clearLocalCache()
+        // Clear user-specific cached data (but keep drops)
+        CloudKitManager.shared.clearUserCache()
         
         print("✅ Sign out completed")
     }
