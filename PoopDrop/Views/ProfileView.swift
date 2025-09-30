@@ -208,11 +208,9 @@ struct StatsSection: View {
                 }
             }
             
-            // Vertical scrollable grid of ALL stats
-            ScrollView(.vertical, showsIndicators: false) {
-                VStack(spacing: 12) {
-                    // Row 1
-                    HStack(spacing: 12) {
+            // Horizontal scrollable grid of ALL stats
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 12) {
                 StatCard(
                     icon: "💩",
                     title: "Total Drops",
@@ -226,10 +224,7 @@ struct StatsSection: View {
                     value: "\(user.streak)",
                     color: .orange
                 )
-            }
             
-                    // Row 2
-                    HStack(spacing: 12) {
                 StatCard(
                     icon: "📈",
                     title: "Max Dumps/Day",
@@ -243,44 +238,37 @@ struct StatsSection: View {
                     value: "\(user.longestNoPoopStreak) days",
                     color: .purple
                 )
-            }
             
-                    // Row 3
-                    HStack(spacing: 12) {
                 StatCard(
-                            icon: "🌍",
-                            title: "Countries",
-                            value: "\(user.countriesVisited.count)",
-                            color: .blue
+                        icon: "🌍",
+                        title: "Countries",
+                        value: "\(user.countriesVisited.count)",
+                        color: .blue
                 )
                 
                 StatCard(
-                            icon: "🌎",
-                            title: "Continents",
-                            value: "\(user.continentsVisited.count)",
-                            color: .indigo
-                        )
-                    }
+                        icon: "🌎",
+                        title: "Continents",
+                        value: "\(user.continentsVisited.count)",
+                        color: .indigo
+                    )
                     
-                    // Row 4
-                    HStack(spacing: 12) {
-                        StatCard(
-                            icon: "👥",
-                            title: "Friends",
-                            value: "\(user.friends.count)",
-                            color: .pink
-                        )
-                        
-                        StatCard(
-                            icon: "📅",
-                            title: "Member Since",
-                            value: memberDays,
-                            color: .cyan
-                        )
-                    }
+                    StatCard(
+                        icon: "👥",
+                        title: "Friends",
+                        value: "\(user.friends.count)",
+                        color: .pink
+                    )
+                    
+                    StatCard(
+                        icon: "📅",
+                        title: "Member Since",
+                        value: memberDays,
+                        color: .cyan
+                    )
                 }
+                .padding(.horizontal, 4)
             }
-            .frame(maxHeight: 400) // Allow scrolling if content is tall
         }
         .sheet(isPresented: $showingShareSheet) {
             ShareStatsView(user: user)

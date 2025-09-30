@@ -87,6 +87,8 @@ class AuthenticationManager: NSObject, ObservableObject {
         Task {
             do {
                 let user = try await CloudKitManager.shared.fetchUser(id: userID)
+                print("✅ Loaded user from CloudKit: \(user.username)")
+                print("📊 User stats - Countries: \(user.countriesVisited.count), Continents: \(user.continentsVisited.count), Created: \(user.createdAt)")
                 await MainActor.run {
                     self.currentUser = user
                     // Notify map to reload data

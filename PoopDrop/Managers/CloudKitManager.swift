@@ -85,12 +85,22 @@ class CloudKitManager: ObservableObject {
             existing["isActive"] = user.isActive ? 1 : 0
             existing["lastSeen"] = user.lastSeen
             existing["lastStreakDate"] = user.lastStreakDate
+            existing["lastRealDropDate"] = user.lastRealDropDate
             if let friendsData = try? JSONEncoder().encode(user.friends) {
                 existing["friends"] = friendsData
             }
             if let requestsData = try? JSONEncoder().encode(user.friendRequests) {
                 existing["friendRequests"] = requestsData
             }
+            // Save travel stats (countries and continents)
+            if let countriesData = try? JSONEncoder().encode(user.countriesVisited) {
+                existing["countriesVisited"] = countriesData
+            }
+            if let continentsData = try? JSONEncoder().encode(user.continentsVisited) {
+                existing["continentsVisited"] = continentsData
+            }
+            
+            print("💾 Saving user to CloudKit - Countries: \(user.countriesVisited.count), Continents: \(user.continentsVisited.count)")
             _ = try await privateDatabase.save(existing)
         } catch {
             // If not found, create
@@ -107,7 +117,18 @@ class CloudKitManager: ObservableObject {
     func fetchUser(id: String) async throws -> User? {
         let recordID = CKRecord.ID(recordName: id)
         let record = try await privateDatabase.record(for: recordID)
-        return User(from: record)
+        
+        // Debug: Check what's in the CloudKit record
+        print("🔍 Fetched user record from CloudKit:")
+        print("  - countriesVisited data: \(record["countriesVisited"] != nil ? "✅ Present" : "❌ Missing")")
+        print("  - continentsVisited data: \(record["continentsVisited"] != nil ? "✅ Present" : "❌ Missing")")
+        print("  - createdAt: \(record["createdAt"] as? Date ?? Date())")
+        
+        let user = User(from: record)
+        if let user = user {
+            print("📊 Parsed user - Countries: \(user.countriesVisited.count), Continents: \(user.continentsVisited.count)")
+        }
+        return user
     }
     
     func fetchUserByAppleUserID(_ appleUserID: String) async throws -> User? {
