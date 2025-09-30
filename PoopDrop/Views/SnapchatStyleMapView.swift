@@ -81,6 +81,7 @@ struct SnapchatStyleMapView: View {
             }
             .mapStyle(mapTheme.mapStyle)
             .onAppear {
+                print("🗺️ Map appeared - loading drops")
                 centerOnUserLocation()
                 loadAndClusterDrops()
             }
@@ -89,14 +90,8 @@ struct SnapchatStyleMapView: View {
                 loadAndClusterDrops()
             }
             .onReceive(NotificationCenter.default.publisher(for: Notification.Name("REFRESH_MAP"))) { _ in
-                print("🔄 Received REFRESH_MAP notification")
-                // Only refresh if we don't have fresh local data
-                if clusteredDrops.isEmpty {
-                    print("🔄 No local drops, refreshing from CloudKit")
-                    loadAndClusterDrops()
-                } else {
-                    print("🔄 Have local drops, skipping refresh to preserve fresh data")
-                }
+                print("🔄 Received REFRESH_MAP notification - always reloading from CloudKit")
+                loadAndClusterDrops()
             }
             .onReceive(NotificationCenter.default.publisher(for: Notification.Name("CENTER_MAP"))) { notification in
                 print("🗺️ MapView received CENTER_MAP notification")

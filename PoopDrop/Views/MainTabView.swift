@@ -134,13 +134,11 @@ struct MainTabView: View {
                 selectedTab = 0
                 showingDropComposer = true
             } else if newTab == 3 {
-                // Only refresh map if we don't have a pending coordinate (fresh drop)
-                if pendingCenterCoordinate == nil {
-                    print("🗺️ Switching to Map tab, posting REFRESH_MAP")
-                    NotificationCenter.default.post(name: Notification.Name("REFRESH_MAP"), object: nil)
-                } else {
-                    print("🗺️ Switching to Map tab, but have pending coordinate - skipping refresh")
-                }
+                // Always refresh map when switching to it (to handle app restart scenario)
+                print("🗺️ Switching to Map tab, posting REFRESH_MAP")
+                NotificationCenter.default.post(name: Notification.Name("REFRESH_MAP"), object: nil)
+                // Clear pending coordinate after use
+                pendingCenterCoordinate = nil
             }
         }
     }
