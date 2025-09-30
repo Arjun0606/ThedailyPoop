@@ -72,14 +72,15 @@ struct SnapchatStyleMapView: View {
                         if cluster.drops.count == 1 {
                             selectedDrop = cluster.drops.first
                             print("📱 Setting selectedDrop: \(selectedDrop?.id ?? "nil")")
-                            DispatchQueue.main.async {
+                            // Small delay to ensure pin is fully rendered and data is stable
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                                 showingDropDetail = true
                                 print("📱 Set showingDropDetail = true")
                             }
                         } else {
                             selectedCluster = cluster
                             print("📱 Setting selectedCluster with \(cluster.drops.count) drops")
-                            DispatchQueue.main.async {
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                                 showingClusterSheet = true
                                 print("📱 Set showingClusterSheet = true")
                             }
@@ -97,8 +98,14 @@ struct SnapchatStyleMapView: View {
                 loadAndClusterDrops()
             }
             .onReceive(NotificationCenter.default.publisher(for: Notification.Name("REFRESH_MAP"))) { _ in
-                print("🔄 Refreshing map data")
-                loadAndClusterDrops()
+                print("🔄 Received REFRESH_MAP notification")
+                // Only refresh if we don't have fresh local data
+                if clusteredDrops.isEmpty {
+                    print("🔄 No local drops, refreshing from CloudKit")
+                    loadAndClusterDrops()
+                } else {
+                    print("🔄 Have local drops, skipping refresh to preserve fresh data")
+                }
             }
             .onReceive(NotificationCenter.default.publisher(for: Notification.Name("CENTER_MAP"))) { notification in
                 print("🗺️ MapView received CENTER_MAP notification")
