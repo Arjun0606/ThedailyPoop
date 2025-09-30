@@ -11,7 +11,6 @@ struct SnapchatStyleMapView: View {
         span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
     )
     @State private var selectedDrop: Drop?
-    @State private var showingDropDetail = false
     @State private var mapTheme: CartoonMapTheme = .snapchatStyle
     @State private var clusteredDrops: [ClusteredDrop] = []
     @State private var selectedCluster: ClusteredDrop? = nil
@@ -71,20 +70,13 @@ struct SnapchatStyleMapView: View {
                         print("🎯 Tapped cluster with \(cluster.drops.count) drops")
                         if cluster.drops.count == 1 {
                             let drop = cluster.drops.first!
-                            print("📱 Setting selectedDrop: \(drop.id) - username: \(drop.username)")
-                            // CRITICAL: Set selectedDrop FIRST synchronously
+                            print("📱 Presenting drop: \(drop.id) - username: \(drop.username)")
+                            // Using .sheet(item:) binding - just set selectedDrop and sheet will present automatically
                             selectedDrop = drop
-                            // THEN trigger sheet presentation on next run loop to ensure selectedDrop is set
-                            DispatchQueue.main.async {
-                                showingDropDetail = true
-                                print("📱 Sheet presented for drop: \(drop.id)")
-                            }
                         } else {
                             selectedCluster = cluster
-                            print("📱 Setting selectedCluster with \(cluster.drops.count) drops")
-                            DispatchQueue.main.async {
-                                showingClusterSheet = true
-                            }
+                            print("📱 Presenting cluster with \(cluster.drops.count) drops")
+                            showingClusterSheet = true
                         }
                     }
                 }
@@ -183,28 +175,17 @@ struct SnapchatStyleMapView: View {
                 .padding(.bottom, 100) // Above tab bar
             }
         }
-        .sheet(isPresented: $showingDropDetail) {
-            if let drop = selectedDrop {
-                DropDetailView(drop: drop)
-                    .onAppear {
-                        print("📱 Presenting DropDetailView for drop: \(drop.id)")
-                    }
-            } else {
-                Text("No drop selected")
-                    .foregroundColor(.white)
-                    .background(Color.black)
-                    .onAppear {
-                        print("⚠️ No selectedDrop when trying to present sheet")
-                        print("⚠️ showingDropDetail: \(showingDropDetail)")
-                        print("⚠️ clusteredDrops count: \(clusteredDrops.count)")
-                    }
-            }
+        .sheet(item: $selectedDrop) { drop in
+            DropDetailView(drop: drop)
+                .onAppear {
+                    print("📱 Presenting DropDetailView for drop: \(drop.id)")
+                }
         }
         .sheet(isPresented: $showingClusterSheet) {
             if let cluster = selectedCluster {
                 ClusterDetailSheet(cluster: cluster) { drop in
                     selectedDrop = drop
-                    showingDropDetail = true
+                    // Setting selectedDrop will automatically present the detail sheet via .sheet(item:)
                 }
             }
         }
