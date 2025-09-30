@@ -130,7 +130,7 @@ struct MainTabView: View {
                 showingDropComposer = true
             }
             if newTab == 3, let coord = pendingCenterCoordinate {
-                // Notify map view to center on coordinate
+                // Already posted with the drop to render instantly; only center if needed
                 NotificationCenter.default.post(name: Notification.Name("CENTER_MAP"), object: nil, userInfo: ["coordinate": coord])
                 pendingCenterCoordinate = nil
             }

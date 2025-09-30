@@ -105,9 +105,11 @@ struct SnapchatStyleMapView: View {
                             print("⚠️ Drop already exists on map")
                         }
                     } else {
-                        print("🔄 No drop provided, reloading from CloudKit")
-                        // Otherwise reload from CloudKit
-                        loadAndClusterDrops()
+                        // If we didn't get a new drop, only reload if we have no local pins
+                        if self.clusteredDrops.isEmpty {
+                            print("🔄 Reloading from CloudKit (no local pins)")
+                            loadAndClusterDrops()
+                        }
                     }
                 } else {
                     print("⚠️ No coordinate in CENTER_MAP notification")
