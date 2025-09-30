@@ -11,7 +11,8 @@ struct ReactionBarView: View {
     
     init(drop: Drop) {
         self.drop = drop
-        self._localReactions = State(initialValue: [:])
+        // Initialize with reactions from the drop
+        self._localReactions = State(initialValue: drop.reactions)
     }
     
     var body: some View {
@@ -34,8 +35,7 @@ struct ReactionBarView: View {
         .onReceive(cloudKitManager.$drops) { drops in
             // Update local reactions when CloudKit data changes
             if let updatedDrop = drops.first(where: { $0.id == drop.id }) {
-                // Fetch reactions from CloudKit for this drop
-                // localReactions = updatedDrop.reactions
+                localReactions = updatedDrop.reactions
             }
         }
     }

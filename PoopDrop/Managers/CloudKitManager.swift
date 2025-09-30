@@ -366,15 +366,15 @@ class CloudKitManager: ObservableObject {
             record["reactions"] = reactionsData
         }
         
-        _ = try await publicDatabase.save(record)
+        let savedRecord = try await publicDatabase.save(record)
+        print("✅ Reactions saved to CloudKit: \(reactions)")
         
-        // Update local drop
-        if let drop = Drop(from: record) {
+        // Update local drop with fresh data from CloudKit
+        if let updatedDrop = Drop(from: savedRecord) {
             await MainActor.run {
                 if let index = self.drops.firstIndex(where: { $0.id == dropId }) {
-                    var updated = drop
-                    updated.reactionCount = reactions.values.reduce(0, +)
-                    self.drops[index] = updated
+                    self.drops[index] = updatedDrop
+                    print("✅ Local drop updated with reactions: \(updatedDrop.reactions)")
                 }
             }
         }
