@@ -86,13 +86,16 @@ class AuthenticationManager: NSObject, ObservableObject {
         // Load user from CloudKit
         Task {
             do {
-                let user = try await CloudKitManager.shared.fetchUser(id: userID)
-                print("✅ Loaded user from CloudKit: \(user.username)")
-                print("📊 User stats - Countries: \(user.countriesVisited.count), Continents: \(user.continentsVisited.count), Created: \(user.createdAt)")
-                await MainActor.run {
-                    self.currentUser = user
-                    // Notify map to reload data
-                    NotificationCenter.default.post(name: Notification.Name("USER_SIGNED_IN"), object: nil)
+                if let user = try await CloudKitManager.shared.fetchUser(id: userID) {
+                    print("✅ Loaded user from CloudKit: \(user.username)")
+                    print("📊 User stats - Countries: \(user.countriesVisited.count), Continents: \(user.continentsVisited.count), Created: \(user.createdAt)")
+                    await MainActor.run {
+                        self.currentUser = user
+                        // Notify map to reload data
+                        NotificationCenter.default.post(name: Notification.Name("USER_SIGNED_IN"), object: nil)
+                    }
+                } else {
+                    print("❌ User not found in CloudKit")
                 }
             } catch {
                 print("Failed to load current user: \(error)")
