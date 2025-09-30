@@ -75,12 +75,9 @@ struct SnapchatStyleMapView: View {
                             print("📱 Setting selectedDrop: \(drop.id)")
                             print("📱 Drop details - username: \(drop.username), location: \(String(describing: drop.location)), city: \(drop.city ?? "nil")")
                             selectedDrop = drop
-                            // Small delay to ensure pin is fully rendered and data is stable
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                                print("📱 About to set showingDropDetail = true")
-                                showingDropDetail = true
-                                print("📱 Set showingDropDetail = true")
-                            }
+                            // Immediately show the sheet without delay to prevent race conditions
+                            showingDropDetail = true
+                            print("📱 Set showingDropDetail = true immediately")
                         } else {
                             selectedCluster = cluster
                             print("📱 Setting selectedCluster with \(cluster.drops.count) drops")
@@ -99,6 +96,7 @@ struct SnapchatStyleMapView: View {
             }
             .onReceive(NotificationCenter.default.publisher(for: Notification.Name("USER_SIGNED_IN"))) { _ in
                 print("🔄 User signed in, reloading map data")
+                print("🔄 Current clusteredDrops before reload: \(clusteredDrops.count)")
                 loadAndClusterDrops()
             }
             .onReceive(NotificationCenter.default.publisher(for: Notification.Name("REFRESH_MAP"))) { _ in

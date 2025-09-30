@@ -235,23 +235,29 @@ class CloudKitManager: ObservableObject {
     }
     
     func fetchDrops(limit: Int = 50) async throws -> [Drop] {
+        print("🔍 Fetching drops from CloudKit (limit: \(limit))")
         // Simple query without sorting to avoid CloudKit indexing errors
         let query = CKQuery(recordType: Drop.recordType, predicate: NSPredicate(value: true))
         // Remove sort to avoid "Type is not marked indexable" error
         let (matchResults, _) = try await publicDatabase.records(matching: query, desiredKeys: nil, resultsLimit: limit)
         
+        print("🔍 CloudKit returned \(matchResults.count) records")
         var drops: [Drop] = []
         for (_, result) in matchResults {
             switch result {
             case .success(let record):
                 if let drop = Drop(from: record) {
                     drops.append(drop)
+                    print("✅ Successfully parsed drop: \(drop.id) by \(drop.username)")
+                } else {
+                    print("❌ Failed to parse drop from record: \(record.recordID)")
                 }
             case .failure(let error):
-                print("Failed to fetch drop: \(error)")
+                print("❌ Failed to fetch drop: \(error)")
             }
         }
         
+        print("🔍 Final drops count: \(drops.count)")
         await MainActor.run {
             self.drops = drops
         }
