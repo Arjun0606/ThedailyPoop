@@ -287,6 +287,9 @@ struct DropComposerView: View {
         }
         
         user.lastDropDate = today
+        if !isNoPoop {
+            user.lastRealDropDate = today
+        }
         
         // Update travel tracking if location is available
         if !isNoPoop, let location = currentLocation {

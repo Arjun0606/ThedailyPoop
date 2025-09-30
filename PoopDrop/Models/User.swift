@@ -17,6 +17,7 @@ struct User: Identifiable, Codable {
     var streak: Int
     var createdAt: Date
     var lastDropDate: Date?
+    var lastRealDropDate: Date? // Last actual poop (excludes no-poop entries)
     var totalDrops: Int
     var maxDropsInDay: Int // Highest number of poops in a single day
     var longestNoPoopStreak: Int // Most days gone without pooping
@@ -49,6 +50,7 @@ struct User: Identifiable, Codable {
         self.streak = streak
         self.createdAt = Date()
         self.lastDropDate = nil
+        self.lastRealDropDate = nil
         self.totalDrops = 0
         self.maxDropsInDay = 0
         self.longestNoPoopStreak = 0
@@ -89,6 +91,7 @@ extension User {
         self.streak = record["streak"] as? Int ?? 0
         self.createdAt = record["createdAt"] as? Date ?? Date()
         self.lastDropDate = record["lastDropDate"] as? Date
+        self.lastRealDropDate = record["lastRealDropDate"] as? Date
         self.totalDrops = record["totalDrops"] as? Int ?? 0
         self.maxDropsInDay = record["maxDropsInDay"] as? Int ?? 0
         self.longestNoPoopStreak = record["longestNoPoopStreak"] as? Int ?? 0
@@ -140,6 +143,7 @@ extension User {
         record["streak"] = streak
         record["createdAt"] = createdAt
         record["lastDropDate"] = lastDropDate
+        record["lastRealDropDate"] = lastRealDropDate
         record["totalDrops"] = totalDrops
         record["maxDropsInDay"] = maxDropsInDay
         record["longestNoPoopStreak"] = longestNoPoopStreak

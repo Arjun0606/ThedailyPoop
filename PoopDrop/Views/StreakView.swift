@@ -9,17 +9,16 @@ struct StreakView: View {
         self.fontSize = fontSize
     }
     
-    private var isConstipated: Bool {
-        // Check if user has a "No Poop" entry in the last 24 hours
-        // For now, we'll use a simple heuristic - if they have a streak but no recent drop
-        guard let lastDropDate = user.lastDropDate else { return false }
-        let hoursSinceLastDrop = Date().timeIntervalSince(lastDropDate) / 3600
-        return hoursSinceLastDrop > 12 && user.streak > 0
+    private var constipatedDays: Int {
+        // Count full days since last REAL poop
+        guard let lastReal = user.lastRealDropDate else { return 0 }
+        let days = Calendar.current.dateComponents([.day], from: lastReal, to: Date()).day ?? 0
+        return max(0, days)
     }
     
     var body: some View {
         if user.streak > 0 {
-            HStack(spacing: 4) {
+            HStack(spacing: 6) {
                 // Flame emoji
                 Text("🔥")
                     .font(fontSize)
@@ -29,11 +28,11 @@ struct StreakView: View {
                     .font(fontSize)
                     .foregroundColor(.orange)
                 
-                // Constipation indicator
-                if isConstipated {
-                    Text("😵‍💫")
+                // Constipated counter (days without a real poop)
+                if constipatedDays >= 1 {
+                    Text("😵‍💫 \(constipatedDays)")
                         .font(fontSize)
-                        .scaleEffect(0.8)
+                        .foregroundColor(.white)
                 }
             }
         }
