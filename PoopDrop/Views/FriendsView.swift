@@ -42,6 +42,18 @@ struct FriendsView: View {
             .navigationTitle("👥 Friends")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    NavigationLink(destination: FriendLeaderboardView()) {
+                        HStack(spacing: 4) {
+                            Text("🏆")
+                            Text("Leaderboard")
+                                .font(.subheadline)
+                                .fontWeight(.semibold)
+                        }
+                        .foregroundColor(.yellow)
+                    }
+                }
+                
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {
                         showingAddFriend = true
