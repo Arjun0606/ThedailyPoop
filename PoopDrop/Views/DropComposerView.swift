@@ -155,10 +155,26 @@ struct DropComposerView: View {
         // Simplified - no Pro features, use word limit for all users
         let finalCaption = caption.truncatedToWordLimit(200)
         
+        // Resolve city/state/country once to avoid slow geocoding later
+        var resolvedCity: String? = nil
+        var resolvedCountry: String? = nil
+        var resolvedContinent: String? = nil
+        if !isNoPoop, let loc = currentLocation {
+            let geocoder = CLGeocoder()
+            if let placemark = try? await geocoder.reverseGeocodeLocation(loc).first {
+                resolvedCity = placemark.locality
+                resolvedCountry = placemark.country
+                resolvedContinent = getContinent(for: placemark.country ?? "")
+            }
+        }
+
         let drop = Drop(
             userID: user.id,
             username: user.username,
             location: isNoPoop ? nil : currentLocation?.coordinate,
+            city: resolvedCity,
+            country: resolvedCountry,
+            continent: resolvedContinent,
             skinId: isNoPoop ? nil : selectedSkinId,
             caption: finalCaption.isEmpty ? nil : finalCaption,
             isNoPoop: isNoPoop,

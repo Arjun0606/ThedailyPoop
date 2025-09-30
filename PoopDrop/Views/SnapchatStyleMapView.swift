@@ -14,6 +14,8 @@ struct SnapchatStyleMapView: View {
     @State private var showingDropDetail = false
     @State private var mapTheme: CartoonMapTheme = .snapchatStyle
     @State private var clusteredDrops: [ClusteredDrop] = []
+    @State private var selectedCluster: ClusteredDrop? = nil
+    @State private var showingClusterSheet: Bool = false
     
     enum CartoonMapTheme: String, CaseIterable {
         case snapchatStyle = "Snapchat Style"
@@ -70,7 +72,8 @@ struct SnapchatStyleMapView: View {
                             selectedDrop = cluster.drops.first
                             showingDropDetail = true
                         } else {
-                            // Show cluster detail
+                            selectedCluster = cluster
+                            showingClusterSheet = true
                         }
                     }
                 }
@@ -156,6 +159,14 @@ struct SnapchatStyleMapView: View {
         .sheet(isPresented: $showingDropDetail) {
             if let drop = selectedDrop {
                 DropDetailView(drop: drop)
+            }
+        }
+        .sheet(isPresented: $showingClusterSheet) {
+            if let cluster = selectedCluster {
+                ClusterDetailSheet(cluster: cluster) { drop in
+                    selectedDrop = drop
+                    showingDropDetail = true
+                }
             }
         }
     }
@@ -311,6 +322,54 @@ struct ClusteredPoopPin: View {
                 }
             }
         }
+    }
+}
+
+// MARK: - Cluster Detail Sheet
+struct ClusterDetailSheet: View {
+    let cluster: ClusteredDrop
+    let onSelectDrop: (Drop) -> Void
+    
+    var body: some View {
+        NavigationView {
+            List {
+                Section(header: Text("Who pooped here?").foregroundColor(.white)) {
+                    ForEach(cluster.drops) { drop in
+                        Button(action: { onSelectDrop(drop) }) {
+                            HStack(spacing: 12) {
+                                // Avatar initial
+                                Circle()
+                                    .fill(Color.brown.opacity(0.8))
+                                    .frame(width: 34, height: 34)
+                                    .overlay(
+                                        Text(String(drop.username.prefix(1)).uppercased())
+                                            .foregroundColor(.white)
+                                            .font(.subheadline)
+                                            .fontWeight(.bold)
+                                    )
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(drop.username)
+                                        .foregroundColor(.white)
+                                        .fontWeight(.semibold)
+                                    Text(drop.caption ?? "")
+                                        .foregroundColor(.white.opacity(0.7))
+                                        .lineLimit(1)
+                                }
+                                Spacer()
+                                Text(drop.city ?? "")
+                                    .foregroundColor(.white.opacity(0.6))
+                                    .font(.caption)
+                            }
+                        }
+                    }
+                }
+            }
+            .scrollContentBackground(.hidden)
+            .background(Color.black)
+            .navigationTitle("\(cluster.count) drops here")
+            .navigationBarTitleDisplayMode(.inline)
+        }
+        .preferredColorScheme(.dark)
     }
 }
 

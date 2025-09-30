@@ -32,6 +32,9 @@ struct ProfileView: View {
                             // Achievements section
                             AchievementsSection(user: user, refreshTrigger: refreshTrigger)
                             
+                            // Recent drops
+                            RecentDropsSection(userId: user.id)
+                            
                             // Settings section
                             SettingsSection(
                                 onSettingsTap: {
@@ -585,6 +588,77 @@ struct SettingsRow: View {
             }
             .padding()
         }
+    }
+}
+
+// MARK: - Recent Drops Section
+struct RecentDropsSection: View {
+    let userId: String
+    @State private var drops: [Drop] = []
+    @State private var isLoading = true
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Recent Drops")
+                .font(.headline)
+                .fontWeight(.bold)
+                .foregroundColor(.white)
+            
+            if isLoading {
+                ProgressView().tint(.white)
+            } else if drops.isEmpty {
+                Text("No drops yet")
+                    .foregroundColor(.white.opacity(0.6))
+            } else {
+                ForEach(drops) { drop in
+                    VStack(alignment: .leading, spacing: 6) {
+                        HStack {
+                            Text(drop.displayEmoji)
+                            Text(drop.caption ?? "")
+                                .foregroundColor(.white)
+                                .lineLimit(2)
+                            Spacer()
+                            Button("Show on Map") {
+                                if let coord = drop.location {
+                                    NotificationCenter.default.post(name: Notification.Name("CENTER_MAP"), object: nil, userInfo: ["coordinate": coord])
+                                }
+                            }
+                            .foregroundColor(.white)
+                        }
+                        Text("\(drop.city ?? "") • \(format(date: drop.timestamp))")
+                            .foregroundColor(.white.opacity(0.6))
+                            .font(.caption)
+                    }
+                    .padding()
+                    .background(Color.white.opacity(0.05))
+                    .cornerRadius(12)
+                }
+            }
+        }
+        .onAppear { load() }
+    }
+    
+    private func load() {
+        Task {
+            do {
+                if let user = try await CloudKitManager.shared.fetchUser(id: userId) {
+                    let fetched = try await CloudKitManager.shared.fetchUserDrops(for: user)
+                    await MainActor.run {
+                        drops = fetched.sorted { $0.timestamp > $1.timestamp }
+                        isLoading = false
+                    }
+                }
+            } catch {
+                await MainActor.run { isLoading = false }
+            }
+        }
+    }
+    
+    private func format(date: Date) -> String {
+        let f = DateFormatter()
+        f.dateStyle = .medium
+        f.timeStyle = .short
+        return f.string(from: date)
     }
 }
 

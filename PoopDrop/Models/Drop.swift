@@ -18,7 +18,7 @@ struct Drop: Identifiable, Codable {
     var sponsorCampaignID: String? // optional for sponsored drops
     var reactionCount: Int // Total reactions
     var commentCount: Int // Total comments
-    var expiresAt: Date // When this drop expires from map (15 days for all users)
+    var expiresAt: Date // When this drop expires from map
     let isVisible: Bool // Soft delete capability
     
     // Computed property for display emoji
@@ -77,9 +77,9 @@ struct Drop: Identifiable, Codable {
         self.commentCount = 0
         self.isVisible = true
         
-        // Set expiration to 15 days for all users (simplified model)
+        // Set expiration to 3 days for all users (simplified model)
         let calendar = Calendar.current
-        self.expiresAt = calendar.date(byAdding: .day, value: 15, to: Date()) ?? Date().addingTimeInterval(15 * 24 * 60 * 60)
+        self.expiresAt = calendar.date(byAdding: .day, value: 3, to: Date()) ?? Date().addingTimeInterval(3 * 24 * 60 * 60)
     }
 }
 
@@ -113,7 +113,7 @@ extension Drop {
         self.isSponsored = (record["isSponsored"] as? Int) == 1
         self.reactionCount = record["reactionCount"] as? Int ?? 0
         self.commentCount = record["commentCount"] as? Int ?? 0
-        self.expiresAt = record["expiresAt"] as? Date ?? Date().addingTimeInterval(15 * 24 * 60 * 60)
+        self.expiresAt = record["expiresAt"] as? Date ?? Date().addingTimeInterval(3 * 24 * 60 * 60)
         self.isVisible = (record["isVisible"] as? Int) == 1
     }
     
