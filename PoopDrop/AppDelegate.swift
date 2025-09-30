@@ -1,5 +1,6 @@
 import UIKit
 import UserNotifications
+import CloudKit
 
 class AppDelegate: NSObject, UIApplicationDelegate {
     

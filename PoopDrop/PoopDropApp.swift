@@ -40,8 +40,7 @@ struct PoopDropApp: App {
         
         // ALWAYS use test mode until AdMob approves the app
         MobileAds.shared.requestConfiguration.testDeviceIdentifiers = [
-            "Simulator",
-            GADSimulatorID // This enables test ads on all simulators and test devices
+            "Simulator"
         ]
         
         #if DEBUG
