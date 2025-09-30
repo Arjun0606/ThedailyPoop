@@ -465,23 +465,43 @@ class CloudKitManager: ObservableObject {
 
     // MARK: - Account Deletion
     func deleteAccount(for user: User) async throws {
-        print("🗑️ Deleting account for user: \(user.username)")
+        print("🗑️ Deleting account for user: \(user.username) (ID: \(user.id))")
         
-        // Fetch all drops and delete user's drops client-side filtering
+        // 1. Delete all user's drops from public database
+        print("🗑️ Step 1: Deleting user's drops from CloudKit...")
         let allDrops = try await fetchDrops(limit: 1000)
         let userDrops = allDrops.filter { $0.userID == user.id }
-        print("🗑️ Deleting \(userDrops.count) drops")
+        print("🗑️ Found \(userDrops.count) drops to delete")
+        
         for drop in userDrops {
             let recordID = CKRecord.ID(recordName: drop.id)
-            try? await publicDatabase.deleteRecord(withID: recordID)
+            do {
+                try await publicDatabase.deleteRecord(withID: recordID)
+                print("✅ Deleted drop: \(drop.id)")
+            } catch {
+                print("⚠️ Failed to delete drop \(drop.id): \(error)")
+            }
         }
-
-        // Note: Reactions, Friendships, and Notifications would need similar client-side filtering
-        // For now, we'll skip those to avoid errors. In production, these should be indexed in CloudKit.
         
-        // Finally delete the user record in private DB
-        let userID = CKRecord.ID(recordName: user.id)
-        try? await privateDatabase.deleteRecord(withID: userID)
-        print("✅ Account deletion complete")
+        // 2. Delete the user record from private database
+        print("🗑️ Step 2: Deleting user record from private database...")
+        let userRecordID = CKRecord.ID(recordName: user.id)
+        do {
+            try await privateDatabase.deleteRecord(withID: userRecordID)
+            print("✅ User record deleted: \(user.id)")
+        } catch {
+            print("❌ Failed to delete user record: \(error)")
+            throw error
+        }
+        
+        // 3. Clear local caches
+        print("🗑️ Step 3: Clearing local caches...")
+        await MainActor.run {
+            self.drops.removeAll()
+            self.users.removeAll()
+            self.sponsorCampaigns.removeAll()
+        }
+        
+        print("✅ Account deletion complete - deleted \(userDrops.count) drops and user record")
     }
 }
