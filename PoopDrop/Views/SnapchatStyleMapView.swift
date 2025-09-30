@@ -14,7 +14,6 @@ struct SnapchatStyleMapView: View {
     @State private var mapTheme: CartoonMapTheme = .snapchatStyle
     @State private var clusteredDrops: [ClusteredDrop] = []
     @State private var selectedCluster: ClusteredDrop? = nil
-    @State private var showingClusterSheet: Bool = false
     
     enum CartoonMapTheme: String, CaseIterable {
         case snapchatStyle = "Snapchat Style"
@@ -74,9 +73,8 @@ struct SnapchatStyleMapView: View {
                             // Using .sheet(item:) binding - just set selectedDrop and sheet will present automatically
                             selectedDrop = drop
                         } else {
-                            selectedCluster = cluster
                             print("📱 Presenting cluster with \(cluster.drops.count) drops")
-                            showingClusterSheet = true
+                            selectedCluster = cluster
                         }
                     }
                 }
@@ -181,11 +179,11 @@ struct SnapchatStyleMapView: View {
                     print("📱 Presenting DropDetailView for drop: \(drop.id)")
                 }
         }
-        .sheet(isPresented: $showingClusterSheet) {
-            if let cluster = selectedCluster {
-                ClusterDetailSheet(cluster: cluster) { drop in
-                    selectedDrop = drop
-                    // Setting selectedDrop will automatically present the detail sheet via .sheet(item:)
+        .sheet(item: $selectedCluster) { cluster in
+            ClusterDetailSheet(cluster: cluster) { drop in
+                selectedCluster = nil // Dismiss cluster sheet first
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    selectedDrop = drop // Then present drop detail
                 }
             }
         }
@@ -353,24 +351,37 @@ struct ClusteredPoopPin: View {
 struct ClusterDetailSheet: View {
     let cluster: ClusteredDrop
     let onSelectDrop: (Drop) -> Void
+    @State private var userAvatars: [String: UIImage] = [:]
     
     var body: some View {
         NavigationView {
             List {
                 Section(header: Text("Who pooped here?").foregroundColor(.white)) {
                     ForEach(cluster.drops) { drop in
-                        Button(action: { onSelectDrop(drop) }) {
+                        Button(action: { 
+                            // Dismiss sheet first, then show drop detail
+                            onSelectDrop(drop)
+                        }) {
                             HStack(spacing: 12) {
-                                // Avatar initial
-                                Circle()
-                                    .fill(Color.brown.opacity(0.8))
-                                    .frame(width: 34, height: 34)
-                                    .overlay(
-                                        Text(String(drop.username.prefix(1)).uppercased())
-                                            .foregroundColor(.white)
-                                            .font(.subheadline)
-                                            .fontWeight(.bold)
-                                    )
+                                // Avatar or initial
+                                if let avatar = userAvatars[drop.userID] {
+                                    Image(uiImage: avatar)
+                                        .resizable()
+                                        .scaledToFill()
+                                        .frame(width: 40, height: 40)
+                                        .clipShape(Circle())
+                                } else {
+                                    Circle()
+                                        .fill(Color.brown.opacity(0.8))
+                                        .frame(width: 40, height: 40)
+                                        .overlay(
+                                            Text(String(drop.username.prefix(1)).uppercased())
+                                                .foregroundColor(.white)
+                                                .font(.subheadline)
+                                                .fontWeight(.bold)
+                                        )
+                                }
+                                
                                 VStack(alignment: .leading, spacing: 4) {
                                     Text(drop.username)
                                         .foregroundColor(.white)
@@ -394,6 +405,31 @@ struct ClusterDetailSheet: View {
             .navigationBarTitleDisplayMode(.inline)
         }
         .preferredColorScheme(.dark)
+        .onAppear {
+            loadAvatars()
+        }
+    }
+    
+    private func loadAvatars() {
+        Task {
+            for drop in cluster.drops {
+                // Skip if already loaded
+                if userAvatars[drop.userID] != nil { continue }
+                
+                do {
+                    if let user = try await CloudKitManager.shared.fetchUser(id: drop.userID),
+                       let avatarURL = user.avatarURL,
+                       let data = try? Data(contentsOf: avatarURL),
+                       let image = UIImage(data: data) {
+                        await MainActor.run {
+                            userAvatars[drop.userID] = image
+                        }
+                    }
+                } catch {
+                    print("❌ Failed to load avatar for user \(drop.userID): \(error)")
+                }
+            }
+        }
     }
 }
 
