@@ -81,8 +81,10 @@ struct MainTabView: View {
                     // Switch to Map tab and remember coordinate
                     pendingCenterCoordinate = coord
                     selectedTab = 3
-                    // Forward full drop to map so it can render immediately without fetching
-                    NotificationCenter.default.post(name: Notification.Name("CENTER_MAP"), object: nil, userInfo: ["coordinate": coord, "drop": drop])
+                    // Forward full drop to map on next runloop so the view is ready
+                    DispatchQueue.main.async {
+                        NotificationCenter.default.post(name: Notification.Name("CENTER_MAP"), object: nil, userInfo: ["coordinate": coord, "drop": drop])
+                    }
                 } else {
                     print("⚠️ Drop or location missing from notification")
                 }
@@ -129,11 +131,7 @@ struct MainTabView: View {
                 selectedTab = 0
                 showingDropComposer = true
             }
-            if newTab == 3, let coord = pendingCenterCoordinate {
-                // Already posted with the drop to render instantly; only center if needed
-                NotificationCenter.default.post(name: Notification.Name("CENTER_MAP"), object: nil, userInfo: ["coordinate": coord])
-                pendingCenterCoordinate = nil
-            }
+            // No-op; we already post the event with the drop once the tab switches
         }
     }
 }

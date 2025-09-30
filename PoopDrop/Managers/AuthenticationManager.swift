@@ -21,13 +21,23 @@ class AuthenticationManager: NSObject, ObservableObject {
         // Check if user is already signed in with Apple ID
         let appleIDProvider = ASAuthorizationAppleIDProvider()
         
-        if let userID = UserDefaults.standard.string(forKey: "appleUserID") {
-            appleIDProvider.getCredentialState(forUserID: userID) { [weak self] credentialState, error in
+        if let appleID = UserDefaults.standard.string(forKey: "appleUserID") {
+            appleIDProvider.getCredentialState(forUserID: appleID) { [weak self] credentialState, error in
                 DispatchQueue.main.async {
                     switch credentialState {
                     case .authorized:
                         self?.isAuthenticated = true
-                        self?.loadCurrentUser()
+                        // Load by stored currentUserID if available; otherwise look up by appleUserID
+                        if UserDefaults.standard.string(forKey: "currentUserID") != nil {
+                            self?.loadCurrentUser()
+                        } else {
+                            Task { @MainActor in
+                                if let user = try? await CloudKitManager.shared.fetchUserByAppleUserID(appleID) {
+                                    self?.currentUser = user
+                                    UserDefaults.standard.set(user?.id, forKey: "currentUserID")
+                                }
+                            }
+                        }
                     case .revoked, .notFound:
                         self?.signOut()
                     default:

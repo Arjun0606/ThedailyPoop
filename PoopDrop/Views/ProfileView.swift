@@ -448,9 +448,12 @@ struct AchievementsSection: View {
                 .fontWeight(.bold)
                 .foregroundColor(.white)
             
-            LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 2), spacing: 12) {
-                ForEach(achievements) { achievement in
-                    AchievementCard(achievement: achievement)
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 12) {
+                    ForEach(achievements) { achievement in
+                        AchievementCard(achievement: achievement)
+                            .frame(width: 220)
+                    }
                 }
             }
         }

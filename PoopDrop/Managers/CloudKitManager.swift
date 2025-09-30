@@ -110,6 +110,16 @@ class CloudKitManager: ObservableObject {
         return User(from: record)
     }
     
+    func fetchUserByAppleUserID(_ appleUserID: String) async throws -> User? {
+        let predicate = NSPredicate(format: "appleUserID == %@", appleUserID)
+        let query = CKQuery(recordType: User.recordType, predicate: predicate)
+        let (results, _) = try await privateDatabase.records(matching: query, desiredKeys: nil, resultsLimit: 1)
+        for (_, res) in results {
+            if case let .success(record) = res { return User(from: record) }
+        }
+        return nil
+    }
+    
     func fetchAllUsers() async throws -> [User] {
         let query = CKQuery(recordType: User.recordType, predicate: NSPredicate(value: true))
         let (matchResults, _) = try await privateDatabase.records(matching: query)
