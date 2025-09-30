@@ -69,21 +69,21 @@ struct SnapchatStyleMapView: View {
                 MapAnnotation(coordinate: cluster.coordinate) {
                     ClusteredPoopPin(cluster: cluster) {
                         print("🎯 Tapped cluster with \(cluster.drops.count) drops")
-                        print("🎯 Cluster drops: \(cluster.drops.map { $0.id })")
                         if cluster.drops.count == 1 {
                             let drop = cluster.drops.first!
-                            print("📱 Setting selectedDrop: \(drop.id)")
-                            print("📱 Drop details - username: \(drop.username), location: \(String(describing: drop.location)), city: \(drop.city ?? "nil")")
+                            print("📱 Setting selectedDrop: \(drop.id) - username: \(drop.username)")
+                            // CRITICAL: Set selectedDrop FIRST synchronously
                             selectedDrop = drop
-                            // Immediately show the sheet without delay to prevent race conditions
-                            showingDropDetail = true
-                            print("📱 Set showingDropDetail = true immediately")
+                            // THEN trigger sheet presentation on next run loop to ensure selectedDrop is set
+                            DispatchQueue.main.async {
+                                showingDropDetail = true
+                                print("📱 Sheet presented for drop: \(drop.id)")
+                            }
                         } else {
                             selectedCluster = cluster
                             print("📱 Setting selectedCluster with \(cluster.drops.count) drops")
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                            DispatchQueue.main.async {
                                 showingClusterSheet = true
-                                print("📱 Set showingClusterSheet = true")
                             }
                         }
                     }
@@ -96,7 +96,6 @@ struct SnapchatStyleMapView: View {
             }
             .onReceive(NotificationCenter.default.publisher(for: Notification.Name("USER_SIGNED_IN"))) { _ in
                 print("🔄 User signed in, reloading map data")
-                print("🔄 Current clusteredDrops before reload: \(clusteredDrops.count)")
                 loadAndClusterDrops()
             }
             .onReceive(NotificationCenter.default.publisher(for: Notification.Name("REFRESH_MAP"))) { _ in

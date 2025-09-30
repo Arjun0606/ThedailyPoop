@@ -241,23 +241,23 @@ class CloudKitManager: ObservableObject {
         // Remove sort to avoid "Type is not marked indexable" error
         let (matchResults, _) = try await publicDatabase.records(matching: query, desiredKeys: nil, resultsLimit: limit)
         
-        print("🔍 CloudKit returned \(matchResults.count) records")
+        print("🔍 CloudKit returned \(matchResults.count) drop records")
         var drops: [Drop] = []
         for (_, result) in matchResults {
             switch result {
             case .success(let record):
                 if let drop = Drop(from: record) {
                     drops.append(drop)
-                    print("✅ Successfully parsed drop: \(drop.id) by \(drop.username)")
+                    print("✅ Loaded drop: \(drop.id) by \(drop.username)")
                 } else {
                     print("❌ Failed to parse drop from record: \(record.recordID)")
                 }
             case .failure(let error):
-                print("❌ Failed to fetch drop: \(error)")
+                print("❌ Failed to fetch drop record: \(error)")
             }
         }
         
-        print("🔍 Final drops count: \(drops.count)")
+        print("🔍 Successfully loaded \(drops.count) drops")
         await MainActor.run {
             self.drops = drops
         }
