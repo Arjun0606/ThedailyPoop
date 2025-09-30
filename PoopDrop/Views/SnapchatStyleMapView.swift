@@ -68,12 +68,21 @@ struct SnapchatStyleMapView: View {
             Map(coordinateRegion: $region, annotationItems: clusteredDrops) { cluster in
                 MapAnnotation(coordinate: cluster.coordinate) {
                     ClusteredPoopPin(cluster: cluster) {
+                        print("🎯 Tapped cluster with \(cluster.drops.count) drops")
                         if cluster.drops.count == 1 {
                             selectedDrop = cluster.drops.first
-                            showingDropDetail = true
+                            print("📱 Setting selectedDrop: \(selectedDrop?.id ?? "nil")")
+                            DispatchQueue.main.async {
+                                showingDropDetail = true
+                                print("📱 Set showingDropDetail = true")
+                            }
                         } else {
                             selectedCluster = cluster
-                            showingClusterSheet = true
+                            print("📱 Setting selectedCluster with \(cluster.drops.count) drops")
+                            DispatchQueue.main.async {
+                                showingClusterSheet = true
+                                print("📱 Set showingClusterSheet = true")
+                            }
                         }
                     }
                 }
@@ -81,6 +90,10 @@ struct SnapchatStyleMapView: View {
             .mapStyle(mapTheme.mapStyle)
             .onAppear {
                 centerOnUserLocation()
+                loadAndClusterDrops()
+            }
+            .onReceive(NotificationCenter.default.publisher(for: Notification.Name("USER_SIGNED_IN"))) { _ in
+                print("🔄 User signed in, reloading map data")
                 loadAndClusterDrops()
             }
             .onReceive(NotificationCenter.default.publisher(for: Notification.Name("REFRESH_MAP"))) { _ in
@@ -164,7 +177,13 @@ struct SnapchatStyleMapView: View {
         }
         .sheet(isPresented: $showingDropDetail) {
             if let drop = selectedDrop {
+                print("📱 Presenting DropDetailView for drop: \(drop.id)")
                 DropDetailView(drop: drop)
+            } else {
+                print("⚠️ No selectedDrop when trying to present sheet")
+                Text("No drop selected")
+                    .foregroundColor(.white)
+                    .background(Color.black)
             }
         }
         .sheet(isPresented: $showingClusterSheet) {

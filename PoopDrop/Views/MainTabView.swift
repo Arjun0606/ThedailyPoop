@@ -135,6 +135,7 @@ struct MainTabView: View {
                 showingDropComposer = true
             } else if newTab == 3 {
                 // Refresh map when switching to it to ensure fresh data
+                print("🗺️ Switching to Map tab, posting REFRESH_MAP")
                 NotificationCenter.default.post(name: Notification.Name("REFRESH_MAP"), object: nil)
             }
         }

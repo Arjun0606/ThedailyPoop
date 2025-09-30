@@ -89,6 +89,8 @@ class AuthenticationManager: NSObject, ObservableObject {
                 let user = try await CloudKitManager.shared.fetchUser(id: userID)
                 await MainActor.run {
                     self.currentUser = user
+                    // Notify map to reload data
+                    NotificationCenter.default.post(name: Notification.Name("USER_SIGNED_IN"), object: nil)
                 }
             } catch {
                 print("Failed to load current user: \(error)")
@@ -107,6 +109,8 @@ class AuthenticationManager: NSObject, ObservableObject {
                 self.isAuthenticated = true
                 UserDefaults.standard.set(userID, forKey: "appleUserID")
                 UserDefaults.standard.set(existingUser.id, forKey: "currentUserID")
+                // Notify map to reload data
+                NotificationCenter.default.post(name: Notification.Name("USER_SIGNED_IN"), object: nil)
             }
             return
         }
@@ -129,6 +133,8 @@ class AuthenticationManager: NSObject, ObservableObject {
                 self.isAuthenticated = true
                 UserDefaults.standard.set(userID, forKey: "appleUserID")
                 UserDefaults.standard.set(userID, forKey: "currentUserID")
+                // Notify map to reload data
+                NotificationCenter.default.post(name: Notification.Name("USER_SIGNED_IN"), object: nil)
             }
         } catch {
             await MainActor.run {
