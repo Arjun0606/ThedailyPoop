@@ -223,9 +223,6 @@ struct DropComposerView: View {
             } catch {
                 print("❌ ERROR creating drop: \(error)")
                 
-                // Even if CloudKit fails, update user stats locally
-                await updateUserStats()
-                
                 await MainActor.run {
                     isDropping = false
                     // Even if CloudKit fails, post the drop locally so map shows it

@@ -662,18 +662,30 @@ struct SettingsView: View {
         .preferredColorScheme(.dark)
         .alert("Delete Account?", isPresented: $confirmingDelete) {
             Button("Cancel", role: .cancel) {}
-            Button("Delete", role: .destructive) {
+            Button("Delete Forever", role: .destructive) {
                 Task {
                     guard let user = authManager.currentUser else { return }
-                    try? await CloudKitManager.shared.deleteAccount(for: user)
+                    
+                    print("🗑️ Starting account deletion for user: \(user.username)")
+                    
+                    do {
+                        // Delete all CloudKit data
+                        try await CloudKitManager.shared.deleteAccount(for: user)
+                        print("✅ CloudKit data deleted successfully")
+                    } catch {
+                        print("⚠️ CloudKit deletion failed: \(error), but continuing with local cleanup")
+                    }
+                    
                     await MainActor.run {
+                        // Clear all local data and sign out
                         authManager.signOut()
                         dismiss()
+                        print("✅ Account deletion completed")
                     }
                 }
             }
         } message: {
-            Text("This will permanently delete your account and data.")
+            Text("This will permanently delete your account, drops, reactions, and all data. This cannot be undone.")
         }
     }
 }

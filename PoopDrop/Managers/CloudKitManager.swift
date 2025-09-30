@@ -427,6 +427,16 @@ class CloudKitManager: ObservableObject {
         print("Badge '\(badge.name)' unlocked for user \(user.username)")
     }
 
+    // MARK: - Cache Management
+    func clearLocalCache() {
+        Task { @MainActor in
+            drops.removeAll()
+            users.removeAll()
+            sponsorCampaigns.removeAll()
+            print("🗑️ Local cache cleared")
+        }
+    }
+
     // MARK: - Account Deletion
     func deleteAccount(for user: User) async throws {
         // Delete public drops by this user

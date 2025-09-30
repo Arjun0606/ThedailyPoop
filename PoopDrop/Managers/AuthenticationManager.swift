@@ -62,10 +62,20 @@ class AuthenticationManager: NSObject, ObservableObject {
     }
     
     func signOut() {
+        print("🚪 Signing out user")
+        
+        // Clear authentication state
         isAuthenticated = false
         currentUser = nil
+        
+        // Clear all stored user data
         UserDefaults.standard.removeObject(forKey: "appleUserID")
         UserDefaults.standard.removeObject(forKey: "currentUserID")
+        
+        // Clear any cached data
+        CloudKitManager.shared.clearLocalCache()
+        
+        print("✅ Sign out completed")
     }
     
     private func loadCurrentUser() {

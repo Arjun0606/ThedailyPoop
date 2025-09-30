@@ -180,8 +180,13 @@ struct DropCardView: View {
                 )
         )
         .onAppear {
-            loadAddress()
-            loadUserAvatar()
+            // Use pre-saved address instead of slow geocoding
+            if let city = drop.city, let country = drop.country {
+                address = "\(city), \(country)"
+            } else {
+                loadAddress() // Fallback only if no saved data
+            }
+            // Skip avatar loading for performance - use initial instead
         }
         .sheet(isPresented: $showingReportSheet) {
             ReportView(drop: drop)
