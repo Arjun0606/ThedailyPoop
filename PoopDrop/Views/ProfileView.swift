@@ -2,12 +2,14 @@ import SwiftUI
 
 struct ProfileView: View {
     @EnvironmentObject var authManager: AuthenticationManager
-    // Subscription removed
     @EnvironmentObject var cloudKitManager: CloudKitManager
     @State private var showingSettings = false
-    // Pro removed
-    @State private var showingSubscriptionManagement = false
+    @State private var showingHowItWorks = false
+    @State private var showingContact = false
+    @State private var showingTerms = false
+    @State private var showingPrivacy = false
     @State private var refreshTrigger = false
+    @State private var isRotating = false
     
     var user: User? {
         authManager.currentUser
@@ -24,23 +26,18 @@ struct ProfileView: View {
                             // Profile header
                             ProfileHeaderView(user: user)
                             
-                            // Stats section (friends-only; remove global/city ranks)
+                            // Stats section
                             StatsSection(user: user, refreshTrigger: refreshTrigger)
-                            
-                            // Pro removed
                             
                             // Achievements section
                             AchievementsSection(user: user, refreshTrigger: refreshTrigger)
                             
-                            // Settings section
-                            SettingsSection(
-                                onSettingsTap: {
-                                    showingSettings = true
-                                },
-                                onSubscriptionTap: {},
-                                onSignOut: {
-                                    authManager.signOut()
-                                }
+                            // Info & Legal Section (replaces old Settings/Sign Out section)
+                            InfoLegalSection(
+                                onHowItWorksTap: { showingHowItWorks = true },
+                                onContactTap: { showingContact = true },
+                                onTermsTap: { showingTerms = true },
+                                onPrivacyTap: { showingPrivacy = true }
                             )
                             
                             Spacer(minLength: 100)
@@ -60,9 +57,18 @@ struct ProfileView: View {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: {
                         showingSettings = true
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            isRotating = true
+                        }
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                            isRotating = false
+                        }
                     }) {
                         Image(systemName: "gearshape.fill")
+                            .font(.title2)
                             .foregroundColor(.white)
+                            .rotationEffect(.degrees(isRotating ? 180 : 0))
+                            .animation(.easeInOut(duration: 0.3), value: isRotating)
                     }
                 }
             }
@@ -70,17 +76,22 @@ struct ProfileView: View {
         .sheet(isPresented: $showingSettings) {
             SettingsView()
         }
+        .sheet(isPresented: $showingHowItWorks) {
+            HowItWorksView()
+        }
+        .sheet(isPresented: $showingContact) {
+            ContactView()
+        }
+        .sheet(isPresented: $showingTerms) {
+            TermsOfServiceView()
+        }
+        .sheet(isPresented: $showingPrivacy) {
+            PrivacyPolicyView()
+        }
         .onReceive(NotificationCenter.default.publisher(for: Notification.Name("USER_STATS_UPDATED"))) { _ in
             print("📊 Profile refreshing stats after drop")
-            // Force refresh by toggling a state variable
             refreshTrigger.toggle()
         }
-        // Pro removed
-        // Pro upsell removed - simplified ad-supported model
-        // .sheet(isPresented: $showingProUpsell) {
-        //     ProUpsellView()
-        // }
-        // Subscription removed
     }
 }
 
@@ -513,32 +524,50 @@ struct ActivityViewController: UIViewControllerRepresentable {
     func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
 }
 
-struct SettingsSection: View {
-    let onSettingsTap: () -> Void
-    let onSubscriptionTap: () -> Void
-    let onSignOut: () -> Void
+// Info & Legal Section (replaces old Settings/Sign Out section)
+struct InfoLegalSection: View {
+    let onHowItWorksTap: () -> Void
+    let onContactTap: () -> Void
+    let onTermsTap: () -> Void
+    let onPrivacyTap: () -> Void
     
     var body: some View {
         VStack(spacing: 0) {
-            SettingsRow(
-                icon: "gearshape.fill",
-                title: "Settings",
-                action: onSettingsTap
+            InfoLegalRow(
+                icon: "questionmark.circle.fill",
+                title: "How It Works",
+                color: .blue,
+                action: onHowItWorksTap
             )
             
             Divider()
                 .background(Color.white.opacity(0.1))
             
-            // Subscription removed
+            InfoLegalRow(
+                icon: "envelope.fill",
+                title: "Contact & Suggestions",
+                color: .green,
+                action: onContactTap
+            )
             
             Divider()
                 .background(Color.white.opacity(0.1))
             
-            SettingsRow(
-                icon: "rectangle.portrait.and.arrow.right",
-                title: "Sign Out",
-                action: onSignOut,
-                isDestructive: true
+            InfoLegalRow(
+                icon: "doc.text.fill",
+                title: "Terms of Service",
+                color: .orange,
+                action: onTermsTap
+            )
+            
+            Divider()
+                .background(Color.white.opacity(0.1))
+            
+            InfoLegalRow(
+                icon: "lock.shield.fill",
+                title: "Privacy Policy",
+                color: .purple,
+                action: onPrivacyTap
             )
         }
         .background(Color.white.opacity(0.05))
@@ -546,38 +575,29 @@ struct SettingsSection: View {
     }
 }
 
-struct SettingsRow: View {
+struct InfoLegalRow: View {
     let icon: String
     let title: String
+    let color: Color
     let action: () -> Void
-    let isDestructive: Bool
-    
-    init(icon: String, title: String, action: @escaping () -> Void, isDestructive: Bool = false) {
-        self.icon = icon
-        self.title = title
-        self.action = action
-        self.isDestructive = isDestructive
-    }
     
     var body: some View {
         Button(action: action) {
             HStack(spacing: 12) {
                 Image(systemName: icon)
-                    .foregroundColor(isDestructive ? .red : .white.opacity(0.8))
+                    .foregroundColor(color)
                     .font(.body)
-                    .frame(width: 20)
+                    .frame(width: 24)
                 
                 Text(title)
                     .font(.body)
-                    .foregroundColor(isDestructive ? .red : .white)
+                    .foregroundColor(.white)
                 
                 Spacer()
                 
-                if !isDestructive {
-                    Image(systemName: "chevron.right")
-                        .foregroundColor(.white.opacity(0.4))
-                        .font(.caption)
-                }
+                Image(systemName: "chevron.right")
+                    .foregroundColor(.white.opacity(0.3))
+                    .font(.caption)
             }
             .padding()
         }
@@ -590,10 +610,6 @@ struct SettingsView: View {
     @State private var confirmingDelete = false
     @State private var streakReminderEnabled = UserDefaults.standard.bool(forKey: "streakReminderEnabled")
     @State private var reminderTime = Date()
-    @State private var showingHowItWorks = false
-    @State private var showingContact = false
-    @State private var showingTerms = false
-    @State private var showingPrivacy = false
     
     var body: some View {
         NavigationView {
@@ -601,25 +617,6 @@ struct SettingsView: View {
                 Color.black.ignoresSafeArea()
                 
                 List {
-                    Section(header: Text("Help").foregroundColor(.white)) {
-                        Button(action: { showingHowItWorks = true }) {
-                            HStack {
-                                Image(systemName: "questionmark.circle.fill")
-                                    .foregroundColor(.blue)
-                                Text("How It Works")
-                                    .foregroundColor(.white)
-                            }
-                        }
-                        
-                        Button(action: { showingContact = true }) {
-                            HStack {
-                                Image(systemName: "envelope.fill")
-                                    .foregroundColor(.green)
-                                Text("Contact & Suggestions")
-                                    .foregroundColor(.white)
-                            }
-                        }
-                    }
                     
                     Section(header: Text("Notifications").foregroundColor(.white)) {
                         Button("Open System Settings") {
@@ -667,26 +664,20 @@ struct SettingsView: View {
                         }
                         .foregroundColor(.white)
                     }
-                    Section(header: Text("Legal").foregroundColor(.white)) {
-                        Button(action: { showingTerms = true }) {
+                    
+                    Section {
+                        Button(action: {
+                            authManager.signOut()
+                            dismiss()
+                        }) {
                             HStack {
-                                Image(systemName: "doc.text.fill")
-                                    .foregroundColor(.orange)
-                                Text("Terms of Service")
-                                    .foregroundColor(.white)
+                                Image(systemName: "rectangle.portrait.and.arrow.right")
+                                    .foregroundColor(.red)
+                                Text("Sign Out")
+                                    .foregroundColor(.red)
                             }
                         }
                         
-                        Button(action: { showingPrivacy = true }) {
-                            HStack {
-                                Image(systemName: "lock.shield.fill")
-                                    .foregroundColor(.purple)
-                                Text("Privacy Policy")
-                                    .foregroundColor(.white)
-                            }
-                        }
-                    }
-                    Section {
                         Button(role: .destructive) {
                             confirmingDelete = true
                         } label: {
@@ -705,18 +696,6 @@ struct SettingsView: View {
                     }
                     .foregroundColor(.white)
                 }
-            }
-            .sheet(isPresented: $showingHowItWorks) {
-                HowItWorksView()
-            }
-            .sheet(isPresented: $showingContact) {
-                ContactView()
-            }
-            .sheet(isPresented: $showingTerms) {
-                TermsOfServiceView()
-            }
-            .sheet(isPresented: $showingPrivacy) {
-                PrivacyPolicyView()
             }
         }
         .preferredColorScheme(.dark)

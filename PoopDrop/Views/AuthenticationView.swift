@@ -4,6 +4,8 @@ import AuthenticationServices
 struct AuthenticationView: View {
     @EnvironmentObject var authManager: AuthenticationManager
     @State private var showingError = false
+    @State private var showingTerms = false
+    @State private var showingPrivacy = false
     
     var body: some View {
         ZStack {
@@ -83,9 +85,7 @@ struct AuthenticationView: View {
                     
                     HStack(spacing: 16) {
                         Button("Terms of Service") {
-                            if let url = URL(string: "https://poopdrop.app/terms") {
-                                UIApplication.shared.open(url)
-                            }
+                            showingTerms = true
                         }
                         .font(.caption)
                         .foregroundColor(.white.opacity(0.8))
@@ -94,9 +94,7 @@ struct AuthenticationView: View {
                             .foregroundColor(.white.opacity(0.6))
                         
                         Button("Privacy Policy") {
-                            if let url = URL(string: "https://poopdrop.app/privacy") {
-                                UIApplication.shared.open(url)
-                            }
+                            showingPrivacy = true
                         }
                         .font(.caption)
                         .foregroundColor(.white.opacity(0.8))
@@ -114,6 +112,12 @@ struct AuthenticationView: View {
         }
         .onChange(of: authManager.errorMessage) { errorMessage in
             showingError = errorMessage != nil
+        }
+        .sheet(isPresented: $showingTerms) {
+            TermsOfServiceView()
+        }
+        .sheet(isPresented: $showingPrivacy) {
+            PrivacyPolicyView()
         }
     }
 }

@@ -152,7 +152,7 @@ struct PrivacyPolicyView: View {
                             • Control push notifications (iOS device settings)
                             • Control location permissions (iOS device settings)
                             
-                            To exercise these rights, use the in-app settings or contact us at arjunvarma2001@gmail.com.
+                            To exercise these rights, use the in-app settings or contact us at karjunvarma2001@gmail.com.
                             
                             For users in the EU/EEA: You have additional rights under GDPR, including data portability and the right to object to processing.
                             """)
@@ -212,7 +212,7 @@ struct PrivacyPolicyView: View {
                             • Request deletion of your personal information
                             • Opt out of the "sale" of personal information (we do not sell data)
                             
-                            To exercise these rights, contact us at arjunvarma2001@gmail.com or delete your account in Settings.
+                            To exercise these rights, contact us at karjunvarma2001@gmail.com or delete your account in Settings.
                             """)
                             
                             SectionHeader(title: "14. Data Breach Notification")
@@ -231,7 +231,7 @@ struct PrivacyPolicyView: View {
                             BodyText(text: """
                             If you have questions, concerns, or requests regarding this Privacy Policy or your personal data, contact us:
                             
-                            Email: arjunvarma2001@gmail.com
+                            Email: karjunvarma2001@gmail.com
                             X/Twitter: @Arjun06061
                             
                             We will respond to privacy inquiries within 7 business days.

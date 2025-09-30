@@ -159,7 +159,7 @@ struct TermsOfServiceView: View {
                             SectionHeader(title: "15. Contact Information")
                             BodyText(text: """
                             If you have questions about these Terms, contact us:
-                            • Email: arjunvarma2001@gmail.com
+                            • Email: karjunvarma2001@gmail.com
                             • X/Twitter: @Arjun06061
                             
                             We will respond to inquiries within 7 business days.
