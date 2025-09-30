@@ -151,10 +151,15 @@ struct FriendsTabSelector: View {
 
 struct FriendsListView: View {
     let friends: [User]
+    @EnvironmentObject var authManager: AuthenticationManager
+    @State private var showingInvite = false
     
     var body: some View {
         ScrollView {
             LazyVStack(spacing: 12) {
+                // Invite Friends Card
+                InviteFriendsCard(showingInvite: $showingInvite)
+                
                 if friends.isEmpty {
                     EmptyFriendsView()
                 } else {
@@ -165,6 +170,48 @@ struct FriendsListView: View {
             }
             .padding(.horizontal, 16)
             .padding(.top, 16)
+        }
+        .sheet(isPresented: $showingInvite) {
+            InviteFriendsView()
+        }
+    }
+}
+
+struct InviteFriendsCard: View {
+    @Binding var showingInvite: Bool
+    
+    var body: some View {
+        Button(action: {
+            showingInvite = true
+        }) {
+            HStack(spacing: 16) {
+                Text("👥")
+                    .font(.system(size: 40))
+                
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Invite Friends")
+                        .font(.headline)
+                        .foregroundColor(.white)
+                    
+                    Text("Share PoopDrop with your friends!")
+                        .font(.caption)
+                        .foregroundColor(.white.opacity(0.7))
+                }
+                
+                Spacer()
+                
+                Image(systemName: "chevron.right")
+                    .foregroundColor(.white.opacity(0.5))
+            }
+            .padding()
+            .background(
+                LinearGradient(
+                    colors: [Color.blue.opacity(0.3), Color.purple.opacity(0.2)],
+                    startPoint: .leading,
+                    endPoint: .trailing
+                )
+            )
+            .cornerRadius(16)
         }
     }
 }
@@ -593,6 +640,159 @@ struct SearchResultRowView: View {
         .padding()
         .background(Color.white.opacity(0.05))
         .cornerRadius(12)
+    }
+}
+
+// MARK: - Invite Friends View
+struct InviteFriendsView: View {
+    @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject var authManager: AuthenticationManager
+    @State private var copied = false
+    
+    var inviteLink: String {
+        "https://poopdrop.app/invite?ref=\(authManager.currentUser?.id ?? "app")"
+    }
+    
+    var inviteMessage: String {
+        """
+        Hey! Join me on PoopDrop 💩
+        
+        Track your bathroom breaks, compete with friends, and unlock badges around the world!
+        
+        Download now: \(inviteLink)
+        """
+    }
+    
+    var body: some View {
+        NavigationView {
+            ZStack {
+                Color.black.ignoresSafeArea()
+                
+                VStack(spacing: 24) {
+                    // Icon
+                    Text("💩")
+                        .font(.system(size: 80))
+                    
+                    // Title
+                    VStack(spacing: 8) {
+                        Text("Invite Your Friends!")
+                            .font(.title2)
+                            .fontWeight(.bold)
+                            .foregroundColor(.white)
+                        
+                        Text("Share PoopDrop and earn rewards when friends join")
+                            .font(.subheadline)
+                            .foregroundColor(.white.opacity(0.7))
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal)
+                    }
+                    
+                    // Stats
+                    VStack(spacing: 12) {
+                        HStack(spacing: 20) {
+                            VStack(spacing: 4) {
+                                Text("0")
+                                    .font(.title)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.white)
+                                Text("Invited")
+                                    .font(.caption)
+                                    .foregroundColor(.white.opacity(0.6))
+                            }
+                            
+                            Rectangle()
+                                .fill(Color.white.opacity(0.2))
+                                .frame(width: 1, height: 40)
+                            
+                            VStack(spacing: 4) {
+                                Text("0")
+                                    .font(.title)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.white)
+                                Text("Joined")
+                                    .font(.caption)
+                                    .foregroundColor(.white.opacity(0.6))
+                            }
+                        }
+                        .padding()
+                        .background(Color.white.opacity(0.05))
+                        .cornerRadius(16)
+                    }
+                    .padding(.horizontal)
+                    
+                    Spacer()
+                    
+                    // Buttons
+                    VStack(spacing: 12) {
+                        Button(action: {
+                            shareInvite()
+                        }) {
+                            HStack(spacing: 8) {
+                                Image(systemName: "square.and.arrow.up")
+                                Text("Share Invite Link")
+                                    .fontWeight(.semibold)
+                            }
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.blue)
+                            .cornerRadius(12)
+                        }
+                        
+                        Button(action: {
+                            copyToClipboard()
+                        }) {
+                            HStack(spacing: 8) {
+                                Image(systemName: copied ? "checkmark" : "doc.on.doc")
+                                Text(copied ? "Copied!" : "Copy Link")
+                                    .fontWeight(.semibold)
+                            }
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.white.opacity(0.1))
+                            .cornerRadius(12)
+                        }
+                    }
+                    .padding(.horizontal)
+                }
+                .padding(.vertical, 32)
+            }
+            .navigationTitle("Invite Friends")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Done") {
+                        dismiss()
+                    }
+                    .foregroundColor(.white)
+                }
+            }
+        }
+        .preferredColorScheme(.dark)
+    }
+    
+    private func shareInvite() {
+        let activityVC = UIActivityViewController(
+            activityItems: [inviteMessage],
+            applicationActivities: nil
+        )
+        
+        if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let root = scene.windows.first?.rootViewController {
+            activityVC.popoverPresentationController?.sourceView = root.view
+            root.present(activityVC, animated: true)
+        }
+    }
+    
+    private func copyToClipboard() {
+        UIPasteboard.general.string = inviteLink
+        copied = true
+        
+        // Reset after 2 seconds
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            copied = false
+        }
     }
 }
 
