@@ -236,24 +236,45 @@ class CloudKitManager: ObservableObject {
     
     func fetchDrops(limit: Int = 50) async throws -> [Drop] {
         print("🔍 Fetching drops from CloudKit (limit: \(limit))")
-        // Simple query without sorting to avoid CloudKit indexing errors
-        let query = CKQuery(recordType: Drop.recordType, predicate: NSPredicate(value: true))
-        // Remove sort to avoid "Type is not marked queryable" error
-        // CRITICAL: Don't pass desiredKeys as it triggers queryable field requirements
-        let (matchResults, _) = try await publicDatabase.records(matching: query, resultsLimit: limit)
         
-        print("🔍 CloudKit returned \(matchResults.count) drop records")
-        var drops: [Drop] = []
-        for (_, result) in matchResults {
-            switch result {
-            case .success(let record):
-                if let drop = Drop(from: record) {
-                    drops.append(drop)
-                } else {
-                    print("❌ Failed to parse drop from record: \(record.recordID)")
+        // Use CKQueryOperation instead of records(matching:) to avoid queryable field errors
+        let query = CKQuery(recordType: Drop.recordType, predicate: NSPredicate(value: true))
+        
+        var allRecords: [CKRecord] = []
+        var queryCursor: CKQueryOperation.Cursor?
+        
+        repeat {
+            let operation: CKQueryOperation
+            if let cursor = queryCursor {
+                operation = CKQueryOperation(cursor: cursor)
+            } else {
+                operation = CKQueryOperation(query: query)
+            }
+            
+            operation.resultsLimit = limit
+            operation.database = publicDatabase
+            
+            let (matchResults, cursor) = try await operation.allResults()
+            
+            for (_, result) in matchResults {
+                switch result {
+                case .success(let record):
+                    allRecords.append(record)
+                case .failure(let error):
+                    print("❌ Failed to fetch record: \(error)")
                 }
-            case .failure(let error):
-                print("❌ Failed to fetch drop record: \(error)")
+            }
+            
+            queryCursor = cursor
+        } while queryCursor != nil && allRecords.count < limit
+        
+        print("🔍 CloudKit returned \(allRecords.count) drop records")
+        var drops: [Drop] = []
+        for record in allRecords {
+            if let drop = Drop(from: record) {
+                drops.append(drop)
+            } else {
+                print("❌ Failed to parse drop from record: \(record.recordID)")
             }
         }
         
