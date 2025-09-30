@@ -83,6 +83,10 @@ struct SnapchatStyleMapView: View {
                 centerOnUserLocation()
                 loadAndClusterDrops()
             }
+            .onReceive(NotificationCenter.default.publisher(for: Notification.Name("REFRESH_MAP"))) { _ in
+                print("🔄 Refreshing map data")
+                loadAndClusterDrops()
+            }
             .onReceive(NotificationCenter.default.publisher(for: Notification.Name("CENTER_MAP"))) { notification in
                 print("🗺️ MapView received CENTER_MAP notification")
                 if let coord = notification.userInfo?["coordinate"] as? CLLocationCoordinate2D {

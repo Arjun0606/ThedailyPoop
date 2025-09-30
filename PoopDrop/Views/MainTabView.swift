@@ -133,8 +133,10 @@ struct MainTabView: View {
                 // Reset to previous tab and show composer
                 selectedTab = 0
                 showingDropComposer = true
+            } else if newTab == 3 {
+                // Refresh map when switching to it to ensure fresh data
+                NotificationCenter.default.post(name: Notification.Name("REFRESH_MAP"), object: nil)
             }
-            // No-op; we already post the event with the drop once the tab switches
         }
     }
 }

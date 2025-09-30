@@ -99,6 +99,20 @@ class AuthenticationManager: NSObject, ObservableObject {
     private func createUserFromAppleID(_ authorization: ASAuthorizationAppleIDCredential) async {
         let userID = authorization.user
         
+        // First, check if user already exists
+        if let existingUser = try? await CloudKitManager.shared.fetchUserByAppleUserID(userID) {
+            print("✅ Found existing user: \(existingUser.username)")
+            await MainActor.run {
+                self.currentUser = existingUser
+                self.isAuthenticated = true
+                UserDefaults.standard.set(userID, forKey: "appleUserID")
+                UserDefaults.standard.set(existingUser.id, forKey: "currentUserID")
+            }
+            return
+        }
+        
+        print("🆕 Creating new user for Apple ID: \(userID)")
+        
         // Create a minimal user with empty username to trigger profile setup
         let user = User(
             id: userID,

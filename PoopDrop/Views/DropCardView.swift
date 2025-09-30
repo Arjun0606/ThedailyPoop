@@ -186,7 +186,9 @@ struct DropCardView: View {
             } else {
                 loadAddress() // Fallback only if no saved data
             }
-            // Skip avatar loading for performance - use initial instead
+            // Load avatar with caching to avoid repeated CloudKit calls
+            // Skip avatar loading for performance - using initials only
+            // loadUserAvatarCached()
         }
         .sheet(isPresented: $showingReportSheet) {
             ReportView(drop: drop)
