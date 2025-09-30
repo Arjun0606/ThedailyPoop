@@ -207,7 +207,7 @@ struct DropCardView: View {
         Task {
             let location = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
             // Get only city, state, country for privacy
-            address = await LocationManager().getCityStateCountryFromLocation(location)
+            address = await LocationManager().getCityStateCountryFromLocation(location) ?? "Unknown location"
         }
     }
     
