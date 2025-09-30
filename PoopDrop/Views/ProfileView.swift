@@ -898,44 +898,90 @@ struct SubscriptionManagementView: View {
 struct ShareStatsView: View {
     let user: User
     @Environment(\.dismiss) private var dismiss
+    @State private var selectedShareType: ShareType = .allStats
     @State private var shareImage: UIImage?
+    
+    enum ShareType: String, CaseIterable {
+        case allStats = "All Stats"
+        case streak = "Streak"
+        case achievements = "Achievements"
+        
+        var icon: String {
+            switch self {
+            case .allStats: return "chart.bar.fill"
+            case .streak: return "flame.fill"
+            case .achievements: return "trophy.fill"
+            }
+        }
+    }
     
     var body: some View {
         NavigationView {
             ZStack {
                 Color.black.ignoresSafeArea()
                 
-                VStack(spacing: 20) {
-                    if let image = shareImage {
-                        Image(uiImage: image)
-                            .resizable()
-                            .scaledToFit()
-                            .cornerRadius(20)
-                            .padding()
-                    } else {
-                        // Preview of what will be shared
-                        ShareStatsCard(user: user)
-                            .padding()
-                    }
-                    
-                    Button(action: {
-                        shareStats()
-                    }) {
-                        HStack(spacing: 8) {
-                            Image(systemName: "square.and.arrow.up")
-                            Text("Share to Socials")
-                                .fontWeight(.semibold)
+                ScrollView {
+                    VStack(spacing: 20) {
+                        // Share Type Selector
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("What would you like to share?")
+                                .font(.headline)
+                                .foregroundColor(.white)
+                                .padding(.horizontal)
+                            
+                            ScrollView(.horizontal, showsIndicators: false) {
+                                HStack(spacing: 12) {
+                                    ForEach(ShareType.allCases, id: \.self) { type in
+                                        ShareTypeButton(
+                                            type: type,
+                                            isSelected: selectedShareType == type,
+                                            action: {
+                                                selectedShareType = type
+                                                generateShareImage()
+                                            }
+                                        )
+                                    }
+                                }
+                                .padding(.horizontal)
+                            }
                         }
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.blue)
-                        .cornerRadius(12)
+                        .padding(.top)
+                        
+                        // Preview
+                        if let image = shareImage {
+                            Image(uiImage: image)
+                                .resizable()
+                                .scaledToFit()
+                                .cornerRadius(20)
+                                .padding()
+                        } else {
+                            // Loading preview
+                            ProgressView()
+                                .scaleEffect(1.5)
+                                .frame(height: 400)
+                        }
+                        
+                        // Share Button
+                        Button(action: {
+                            shareStats()
+                        }) {
+                            HStack(spacing: 8) {
+                                Image(systemName: "square.and.arrow.up")
+                                Text("Share to Socials")
+                                    .fontWeight(.semibold)
+                            }
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.blue)
+                            .cornerRadius(12)
+                        }
+                        .padding(.horizontal)
+                        .padding(.bottom, 20)
                     }
-                    .padding(.horizontal)
                 }
             }
-            .navigationTitle("Share Your Stats")
+            .navigationTitle("Share")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -953,7 +999,17 @@ struct ShareStatsView: View {
     }
     
     private func generateShareImage() {
-        let cardView = ShareStatsCard(user: user)
+        let cardView: AnyView
+        
+        switch selectedShareType {
+        case .allStats:
+            cardView = AnyView(ShareAllStatsCard(user: user))
+        case .streak:
+            cardView = AnyView(ShareStreakCard(user: user))
+        case .achievements:
+            cardView = AnyView(ShareAchievementsCard(user: user))
+        }
+        
         let renderer = ImageRenderer(content: cardView)
         renderer.scale = 3.0
         shareImage = renderer.uiImage
@@ -962,11 +1018,7 @@ struct ShareStatsView: View {
     private func shareStats() {
         guard let image = shareImage else { return }
         
-        // Share just the image - social apps will detect it automatically
-        // Users can add their own caption when posting
         let activityVC = UIActivityViewController(activityItems: [image], applicationActivities: nil)
-        
-        // Exclude some activities that don't make sense for image sharing
         activityVC.excludedActivityTypes = [
             .addToReadingList,
             .assignToContact,
@@ -982,49 +1034,265 @@ struct ShareStatsView: View {
     }
 }
 
-struct ShareStatsCard: View {
-    let user: User
+struct ShareTypeButton: View {
+    let type: ShareStatsView.ShareType
+    let isSelected: Bool
+    let action: () -> Void
     
     var body: some View {
-        VStack(spacing: 24) {
+        Button(action: action) {
+            HStack(spacing: 8) {
+                Image(systemName: type.icon)
+                Text(type.rawValue)
+                    .fontWeight(.medium)
+            }
+            .foregroundColor(isSelected ? .white : .white.opacity(0.7))
+            .padding(.horizontal, 20)
+            .padding(.vertical, 12)
+            .background(isSelected ? Color.blue : Color.white.opacity(0.1))
+            .cornerRadius(20)
+        }
+    }
+}
+
+// MARK: - All Stats Card (Shows ALL 8 stats)
+struct ShareAllStatsCard: View {
+    let user: User
+    
+    var memberDays: Int {
+        Calendar.current.dateComponents([.day], from: user.createdAt, to: Date()).day ?? 0
+    }
+    
+    var body: some View {
+        VStack(spacing: 20) {
             // Header
             VStack(spacing: 8) {
                 Text("💩")
-                    .font(.system(size: 60))
+                    .font(.system(size: 50))
                 
                 Text("PoopDrop")
                     .font(.title)
                     .fontWeight(.bold)
                     .foregroundColor(.white)
+                
+                Text("@\(user.username)")
+                    .font(.subheadline)
+                    .foregroundColor(.white.opacity(0.7))
             }
             
-            // Stats Grid
-            VStack(spacing: 16) {
-                HStack(spacing: 16) {
+            // All Stats Grid
+            VStack(spacing: 12) {
+                HStack(spacing: 12) {
                     ShareStatItem(icon: "💩", value: "\(user.totalDrops)", label: "Total Drops")
-                    ShareStatItem(icon: "🔥", value: "\(user.streak)", label: "Day Streak")
+                    ShareStatItem(icon: "🔥", value: "\(user.streak)", label: "Streak")
                 }
                 
-                HStack(spacing: 16) {
-                    ShareStatItem(icon: "🌍", value: "\(user.countriesVisited.count)", label: "Countries")
+                HStack(spacing: 12) {
                     ShareStatItem(icon: "📈", value: "\(user.maxDropsInDay)", label: "Max/Day")
+                    ShareStatItem(icon: "😵‍💫", value: "\(user.longestNoPoopStreak)", label: "No Poop")
+                }
+                
+                HStack(spacing: 12) {
+                    ShareStatItem(icon: "🌍", value: "\(user.countriesVisited.count)", label: "Countries")
+                    ShareStatItem(icon: "🌎", value: "\(user.continentsVisited.count)", label: "Continents")
+                }
+                
+                HStack(spacing: 12) {
+                    ShareStatItem(icon: "👥", value: "\(user.friends.count)", label: "Friends")
+                    ShareStatItem(icon: "📅", value: "\(memberDays)", label: "Days")
                 }
             }
             
             // Footer
-            VStack(spacing: 8) {
-                Text("Join me on PoopDrop!")
-                    .font(.headline)
-                    .foregroundColor(.white)
-            }
+            Text("Join me on PoopDrop!")
+                .font(.headline)
+                .foregroundColor(.white)
         }
-        .padding(32)
-        .frame(width: 400, height: 500)
+        .padding(24)
+        .frame(width: 400, height: 600)
         .background(
             LinearGradient(
                 colors: [Color.brown.opacity(0.8), Color.black],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
+            )
+        )
+        .cornerRadius(24)
+    }
+}
+
+// MARK: - Streak Card (Focused on streak achievement)
+struct ShareStreakCard: View {
+    let user: User
+    
+    var body: some View {
+        VStack(spacing: 30) {
+            // Header
+            VStack(spacing: 8) {
+                Text("💩")
+                    .font(.system(size: 50))
+                
+                Text("PoopDrop")
+                    .font(.title2)
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+            }
+            
+            // Giant Streak Display
+            VStack(spacing: 16) {
+                Text("🔥")
+                    .font(.system(size: 80))
+                
+                Text("\(user.streak)")
+                    .font(.system(size: 100, weight: .bold))
+                    .foregroundColor(.orange)
+                
+                Text("DAY STREAK")
+                    .font(.title3)
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+                    .tracking(2)
+            }
+            .padding(.vertical, 20)
+            .frame(maxWidth: .infinity)
+            .background(Color.white.opacity(0.1))
+            .cornerRadius(20)
+            
+            // Supporting Stats
+            HStack(spacing: 16) {
+                VStack(spacing: 4) {
+                    Text("💩")
+                        .font(.title2)
+                    Text("\(user.totalDrops)")
+                        .font(.title3)
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                    Text("Total")
+                        .font(.caption)
+                        .foregroundColor(.white.opacity(0.7))
+                }
+                .frame(maxWidth: .infinity)
+                .padding()
+                .background(Color.white.opacity(0.05))
+                .cornerRadius(12)
+                
+                VStack(spacing: 4) {
+                    Text("📈")
+                        .font(.title2)
+                    Text("\(user.maxDropsInDay)")
+                        .font(.title3)
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                    Text("Max/Day")
+                        .font(.caption)
+                        .foregroundColor(.white.opacity(0.7))
+                }
+                .frame(maxWidth: .infinity)
+                .padding()
+                .background(Color.white.opacity(0.05))
+                .cornerRadius(12)
+            }
+            
+            // Footer
+            Text("Join me on PoopDrop!")
+                .font(.headline)
+                .foregroundColor(.white)
+        }
+        .padding(28)
+        .frame(width: 400, height: 600)
+        .background(
+            LinearGradient(
+                colors: [Color.orange.opacity(0.6), Color.brown.opacity(0.8), Color.black],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+        )
+        .cornerRadius(24)
+    }
+}
+
+// MARK: - Achievements Card (Shows unlocked badges)
+struct ShareAchievementsCard: View {
+    let user: User
+    
+    var unlockedAchievements: [Achievement] {
+        AchievementsSection(user: user, refreshTrigger: false).achievements.filter { $0.isUnlocked }
+    }
+    
+    var body: some View {
+        VStack(spacing: 20) {
+            // Header
+            VStack(spacing: 8) {
+                Text("💩")
+                    .font(.system(size: 50))
+                
+                Text("PoopDrop")
+                    .font(.title2)
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+                
+                Text("@\(user.username)")
+                    .font(.subheadline)
+                    .foregroundColor(.white.opacity(0.7))
+            }
+            
+            // Achievements Title
+            HStack(spacing: 8) {
+                Text("🏆")
+                    .font(.title)
+                Text("Achievements")
+                    .font(.title2)
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+            }
+            
+            // Achievements Grid
+            ScrollView {
+                LazyVGrid(columns: [
+                    GridItem(.flexible()),
+                    GridItem(.flexible()),
+                    GridItem(.flexible())
+                ], spacing: 12) {
+                    ForEach(unlockedAchievements.prefix(12)) { achievement in
+                        VStack(spacing: 6) {
+                            Text(achievement.icon)
+                                .font(.system(size: 32))
+                            
+                            Text(achievement.title)
+                                .font(.caption2)
+                                .fontWeight(.semibold)
+                                .foregroundColor(.white)
+                                .multilineTextAlignment(.center)
+                                .lineLimit(2)
+                                .minimumScaleFactor(0.8)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .padding(.horizontal, 6)
+                        .background(Color.white.opacity(0.1))
+                        .cornerRadius(12)
+                    }
+                }
+            }
+            .frame(height: 340)
+            
+            // Achievement Count
+            Text("\(unlockedAchievements.count) Badges Unlocked")
+                .font(.headline)
+                .foregroundColor(.white)
+            
+            // Footer
+            Text("Join me on PoopDrop!")
+                .font(.subheadline)
+                .foregroundColor(.white.opacity(0.9))
+        }
+        .padding(24)
+        .frame(width: 400, height: 650)
+        .background(
+            LinearGradient(
+                colors: [Color.yellow.opacity(0.4), Color.brown.opacity(0.8), Color.black],
+                startPoint: .top,
+                endPoint: .bottom
             )
         )
         .cornerRadius(24)
