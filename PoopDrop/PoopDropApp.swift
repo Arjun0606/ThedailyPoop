@@ -7,11 +7,17 @@ import GoogleMobileAds
 
 @main
 struct PoopDropApp: App {
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @StateObject private var authManager = AuthenticationManager()
     @StateObject private var subscriptionManager = SubscriptionManager()
     @StateObject private var cloudKitManager = CloudKitManager()
     @StateObject private var locationManager = LocationManager()
     private let notificationHandler = NotificationHandler()
+    
+    init() {
+        // Register for remote notifications on app launch
+        UIApplication.shared.registerForRemoteNotifications()
+    }
     
     var body: some Scene {
         WindowGroup {
