@@ -920,48 +920,55 @@ struct ShareStatsView: View {
             ZStack {
                 Color.black.ignoresSafeArea()
                 
-                ScrollView {
-                    VStack(spacing: 20) {
-                        // Share Type Selector
-                        VStack(alignment: .leading, spacing: 12) {
-                            Text("What would you like to share?")
-                                .font(.headline)
-                                .foregroundColor(.white)
-                                .padding(.horizontal)
-                            
-                            ScrollView(.horizontal, showsIndicators: false) {
-                                HStack(spacing: 12) {
-                                    ForEach(ShareType.allCases, id: \.self) { type in
-                                        ShareTypeButton(
-                                            type: type,
-                                            isSelected: selectedShareType == type,
-                                            action: {
-                                                selectedShareType = type
-                                                generateShareImage()
-                                            }
-                                        )
-                                    }
+                VStack(spacing: 0) {
+                    // Share Type Selector (Fixed at top)
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("What would you like to share?")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                            .padding(.horizontal)
+                        
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 12) {
+                                ForEach(ShareType.allCases, id: \.self) { type in
+                                    ShareTypeButton(
+                                        type: type,
+                                        isSelected: selectedShareType == type,
+                                        action: {
+                                            selectedShareType = type
+                                            generateShareImage()
+                                        }
+                                    )
                                 }
-                                .padding(.horizontal)
+                            }
+                            .padding(.horizontal)
+                        }
+                    }
+                    .padding(.top)
+                    .padding(.bottom, 12)
+                    
+                    // Scrollable preview area
+                    ScrollView {
+                        VStack(spacing: 20) {
+                            // Preview
+                            if let image = shareImage {
+                                Image(uiImage: image)
+                                    .resizable()
+                                    .scaledToFit()
+                                    .cornerRadius(20)
+                                    .padding(.horizontal)
+                            } else {
+                                // Loading preview
+                                ProgressView()
+                                    .scaleEffect(1.5)
+                                    .frame(height: 400)
                             }
                         }
-                        .padding(.top)
-                        
-                        // Preview
-                        if let image = shareImage {
-                            Image(uiImage: image)
-                                .resizable()
-                                .scaledToFit()
-                                .cornerRadius(20)
-                                .padding()
-                        } else {
-                            // Loading preview
-                            ProgressView()
-                                .scaleEffect(1.5)
-                                .frame(height: 400)
-                        }
-                        
-                        // Share Button
+                        .padding(.bottom, 80) // Space for button
+                    }
+                    
+                    // Share Button (Fixed at bottom)
+                    VStack {
                         Button(action: {
                             shareStats()
                         }) {
@@ -977,8 +984,9 @@ struct ShareStatsView: View {
                             .cornerRadius(12)
                         }
                         .padding(.horizontal)
-                        .padding(.bottom, 20)
+                        .padding(.vertical, 12)
                     }
+                    .background(Color.black)
                 }
             }
             .navigationTitle("Share")
@@ -1018,29 +1026,30 @@ struct ShareStatsView: View {
     private func shareStats() {
         guard let image = shareImage else { return }
         
-        // Dismiss the current modal first, then present share sheet
-        dismiss()
+        let activityVC = UIActivityViewController(activityItems: [image], applicationActivities: nil)
+        activityVC.excludedActivityTypes = [
+            .addToReadingList,
+            .assignToContact,
+            .openInIBooks,
+            .markupAsPDF
+        ]
         
-        // Wait for dismiss animation to complete before showing share sheet
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            let activityVC = UIActivityViewController(activityItems: [image], applicationActivities: nil)
-            activityVC.excludedActivityTypes = [
-                .addToReadingList,
-                .assignToContact,
-                .openInIBooks,
-                .markupAsPDF
-            ]
+        // Get the key window and present from the root view controller
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let window = windowScene.windows.first(where: { $0.isKeyWindow }),
+           let rootViewController = window.rootViewController {
             
-            if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-               let root = scene.windows.first?.rootViewController {
-                // Find the topmost presented view controller
-                var topController = root
-                while let presented = topController.presentedViewController {
-                    topController = presented
-                }
-                activityVC.popoverPresentationController?.sourceView = topController.view
-                topController.present(activityVC, animated: true)
+            // Find the topmost presented view controller
+            var topController = rootViewController
+            while let presented = topController.presentedViewController {
+                topController = presented
             }
+            
+            activityVC.popoverPresentationController?.sourceView = topController.view
+            activityVC.popoverPresentationController?.sourceRect = CGRect(x: topController.view.bounds.midX, y: topController.view.bounds.midY, width: 0, height: 0)
+            activityVC.popoverPresentationController?.permittedArrowDirections = []
+            
+            topController.present(activityVC, animated: true)
         }
     }
 }
