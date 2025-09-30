@@ -557,6 +557,8 @@ struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var authManager: AuthenticationManager
     @State private var confirmingDelete = false
+    @State private var streakReminderEnabled = UserDefaults.standard.bool(forKey: "streakReminderEnabled")
+    @State private var reminderTime = Date()
     
     var body: some View {
         NavigationView {
@@ -570,6 +572,39 @@ struct SettingsView: View {
                                 UIApplication.shared.open(url)
                             }
                         }.foregroundColor(.white)
+                    }
+                    
+                    Section(header: Text("Streak Reminders").foregroundColor(.white)) {
+                        Toggle("Daily Reminder", isOn: $streakReminderEnabled)
+                            .foregroundColor(.white)
+                            .onChange(of: streakReminderEnabled) { _, newValue in
+                                UserDefaults.standard.set(newValue, forKey: "streakReminderEnabled")
+                                Task {
+                                    if newValue, let user = authManager.currentUser {
+                                        let calendar = Calendar.current
+                                        let hour = calendar.component(.hour, from: reminderTime)
+                                        let minute = calendar.component(.minute, from: reminderTime)
+                                        await NotificationManager.shared.scheduleDailyStreakReminder(for: user, hour: hour, minute: minute)
+                                    } else if let user = authManager.currentUser {
+                                        await NotificationManager.shared.cancelDailyStreakReminder(for: user)
+                                    }
+                                }
+                            }
+                        
+                        if streakReminderEnabled {
+                            DatePicker("Reminder Time", selection: $reminderTime, displayedComponents: .hourAndMinute)
+                                .foregroundColor(.white)
+                                .onChange(of: reminderTime) { _, newValue in
+                                    Task {
+                                        if let user = authManager.currentUser {
+                                            let calendar = Calendar.current
+                                            let hour = calendar.component(.hour, from: newValue)
+                                            let minute = calendar.component(.minute, from: newValue)
+                                            await NotificationManager.shared.scheduleDailyStreakReminder(for: user, hour: hour, minute: minute)
+                                        }
+                                    }
+                                }
+                        }
                     }
                     Section(header: Text("Profile").foregroundColor(.white)) {
                         NavigationLink("Edit Profile") {

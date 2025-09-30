@@ -172,6 +172,46 @@ class NotificationManager: ObservableObject {
         )
     }
     
+    /// Schedule daily streak reminder at a specific time
+    func scheduleDailyStreakReminder(for user: User, hour: Int, minute: Int) async {
+        // Cancel existing daily reminder
+        UNUserNotificationCenter.current().removePendingNotificationRequests(
+            withIdentifiers: ["daily_streak_reminder_\(user.id)"]
+        )
+        
+        let content = UNMutableNotificationContent()
+        content.title = "Don't break your streak! 🔥"
+        content.body = "You're on a \(user.streak)-day streak! Log your poop to keep it going 💩"
+        content.sound = UNNotificationSound(named: UNNotificationSoundName("flush.wav"))
+        content.badge = 1
+        content.userInfo = [
+            "type": "daily_streak_reminder",
+            "userId": user.id
+        ]
+        
+        // Create date components for daily trigger
+        var dateComponents = DateComponents()
+        dateComponents.hour = hour
+        dateComponents.minute = minute
+        
+        let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
+        
+        let request = UNNotificationRequest(
+            identifier: "daily_streak_reminder_\(user.id)",
+            content: content,
+            trigger: trigger
+        )
+        
+        try? await UNUserNotificationCenter.current().add(request)
+        print("📅 Daily streak reminder scheduled for \(hour):\(String(format: "%02d", minute))")
+    }
+    
+    func cancelDailyStreakReminder(for user: User) {
+        UNUserNotificationCenter.current().removePendingNotificationRequests(
+            withIdentifiers: ["daily_streak_reminder_\(user.id)"]
+        )
+    }
+    
     // MARK: - Comprehensive Notification System
     
     /// Friend dropped a poop
