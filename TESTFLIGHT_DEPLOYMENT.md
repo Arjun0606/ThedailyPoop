@@ -1,10 +1,10 @@
-# 🚀 PoopDrop TestFlight Deployment Guide
+# 🚀 PoopMap TestFlight Deployment Guide
 
 ## 📋 Pre-Flight Checklist
 
 ### ✅ Current App Configuration
-- **App Name:** PoopDrop
-- **Bundle ID:** `com.poopdrop.app`
+- **App Name:** PoopMap
+- **Bundle ID:** `com.poopmap.app`
 - **Version:** 1.0
 - **Build:** 1
 - **Team ID:** UDGYWMWVJS
@@ -15,13 +15,13 @@
 
 ### 1.1 Open Xcode
 ```bash
-cd /Users/arjun/poopdrop
-open PoopDrop.xcodeproj
+cd /Users/arjun/poopmap
+open PoopMap.xcodeproj
 ```
 
 ### 1.2 Configure Signing & Capabilities
-1. Click on **PoopDrop** (blue icon) in the Project Navigator
-2. Select **PoopDrop** target
+1. Click on **PoopMap** (blue icon) in the Project Navigator
+2. Select **PoopMap** target
 3. Go to **Signing & Capabilities** tab
 4. **Automatically manage signing:** ✅ Checked
 5. **Team:** Select your Apple Developer account (UDGYWMWVJS)
@@ -48,10 +48,10 @@ open PoopDrop.xcodeproj
 
 ### 2.2 Fill in App Information
 - **Platform:** iOS
-- **Name:** PoopDrop
+- **Name:** PoopMap
 - **Primary Language:** English (U.S.)
-- **Bundle ID:** `com.poopdrop.app` (select from dropdown)
-- **SKU:** `poopdrop-2025` (or any unique identifier)
+- **Bundle ID:** `com.poopmap.app` (select from dropdown)
+- **SKU:** `poopmap-2025` (or any unique identifier)
 - **User Access:** Full Access
 
 ### 2.3 Create App Record
@@ -62,7 +62,7 @@ Click **Create** to finish setting up the app record.
 ## 🎨 Step 3: Prepare App Store Assets
 
 ### 3.1 App Icon (Already created! ✅)
-- Located in: `PoopDrop/Assets.xcassets/AppIcon.appiconset/`
+- Located in: `PoopMap/Assets.xcassets/AppIcon.appiconset/`
 - Size: 1024×1024 PNG
 
 ### 3.2 Screenshots Required
@@ -82,7 +82,7 @@ You'll need screenshots for:
 4. Screenshots saved to Desktop
 
 ### 3.3 App Privacy Details
-**Privacy Policy URL:** https://poopdrop.app/privacy
+**Privacy Policy URL:** https://poopmap.app/privacy
 
 **Data Collection:**
 - ✅ Location (precise location for poop drops)
@@ -133,7 +133,7 @@ You'll see: **"Upload Successful - The build has been uploaded to App Store Conn
 ## 🧪 Step 5: Configure TestFlight
 
 ### 5.1 Go to TestFlight Tab
-1. In App Store Connect, open your PoopDrop app
+1. In App Store Connect, open your PoopMap app
 2. Click **TestFlight** tab (top navigation)
 3. Wait for build to process (10-60 minutes)
    - You'll get an email when processing is complete
@@ -146,7 +146,7 @@ Once build is ready:
 2. Fill in **Test Information:**
    - **What to Test:**
      ```
-     Welcome to PoopDrop Beta! 💩
+     Welcome to PoopMap Beta! 💩
      
      Please test:
      - Sign in with Apple
@@ -167,8 +167,8 @@ Once build is ready:
      ```
    
    - **Feedback Email:** karjunvarma2001@gmail.com
-   - **Marketing URL:** https://poopdrop.app (optional)
-   - **Privacy Policy URL:** https://poopdrop.app/privacy
+   - **Marketing URL:** https://poopmap.app (optional)
+   - **Privacy Policy URL:** https://poopmap.app/privacy
 
 3. Click **Save**
 
@@ -216,7 +216,7 @@ Once build is ready:
 4. Tap **Install**
 
 ### 7.3 Test the App
-Launch PoopDrop and test all features! 🎉
+Launch PoopMap and test all features! 🎉
 
 ---
 
@@ -225,7 +225,7 @@ Launch PoopDrop and test all features! 🎉
 ### When you make changes:
 
 1. **Increment Build Number** (in Xcode):
-   - Select PoopDrop project → Target → General
+   - Select PoopMap project → Target → General
    - Build: `1` → `2`, `3`, etc.
    - Keep Version at `1.0` for now
 
@@ -263,7 +263,7 @@ Launch PoopDrop and test all features! 🎉
 ## 🐛 Common Issues & Fixes
 
 ### ❌ "Invalid Bundle" Error
-**Solution:** Ensure Bundle ID matches App Store Connect exactly (`com.poopdrop.app`)
+**Solution:** Ensure Bundle ID matches App Store Connect exactly (`com.poopmap.app`)
 
 ### ❌ "Missing Compliance" Error
 **Solution:** Answer Export Compliance questions in TestFlight
@@ -305,7 +305,7 @@ Launch PoopDrop and test all features! 🎉
 
 ```bash
 # Open Xcode
-open PoopDrop.xcodeproj
+open PoopMap.xcodeproj
 
 # In Xcode:
 # 1. Select "Any iOS Device (arm64)" from device dropdown

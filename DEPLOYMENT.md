@@ -74,13 +74,13 @@ This guide covers the complete deployment process from development to App Store 
 ### Unit Testing
 ```bash
 # Run unit tests
-xcodebuild test -project PoopDrop.xcodeproj -scheme PoopDrop -destination 'platform=iOS Simulator,name=iPhone 15'
+xcodebuild test -project PoopMap.xcodeproj -scheme PoopMap -destination 'platform=iOS Simulator,name=iPhone 15'
 ```
 
 ### UI Testing
 ```bash
 # Run UI tests
-xcodebuild test -project PoopDrop.xcodeproj -scheme PoopDropUITests -destination 'platform=iOS Simulator,name=iPhone 15'
+xcodebuild test -project PoopMap.xcodeproj -scheme PoopMapUITests -destination 'platform=iOS Simulator,name=iPhone 15'
 ```
 
 ### Manual Testing Checklist

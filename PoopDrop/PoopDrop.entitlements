@@ -10,7 +10,7 @@
 	</array>
 	<key>com.apple.developer.icloud-container-identifiers</key>
 	<array>
-		<string>iCloud.com.poopdrop.app</string>
+		<string>iCloud.com.poopmap.app</string>
 	</array>
 	<key>com.apple.developer.icloud-services</key>
 	<array>

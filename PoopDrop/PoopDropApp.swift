@@ -6,7 +6,7 @@ import GoogleMobileAds
 #endif
 
 @main
-struct PoopDropApp: App {
+struct PoopMapApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @StateObject private var authManager = AuthenticationManager()
     @StateObject private var subscriptionManager = SubscriptionManager()
