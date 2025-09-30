@@ -150,11 +150,11 @@ class BadgeManager: ObservableObject {
     
     private func setupDefaultBadges() {
         availableBadges = [
-            // Travel Badges (Pro Only)
+            // Travel Badges
             Badge(
                 name: "City Hopper",
                 description: "Pooped in 5 different cities",
-                iconName: "city_badge", // IconScout asset
+                iconName: "city_badge",
                 category: .travel,
                 requirement: BadgeRequirement(type: .citiesVisited, value: 5, geoLocked: true)
             ),
@@ -171,6 +171,20 @@ class BadgeManager: ObservableObject {
                 iconName: "world_badge",
                 category: .travel,
                 requirement: BadgeRequirement(type: .countriesVisited, value: 10, geoLocked: true)
+            ),
+            Badge(
+                name: "Explorer",
+                description: "First in friend group to poop in a new city",
+                iconName: "🗺️",
+                category: .travel,
+                requirement: BadgeRequirement(type: .uniqueLocations, value: 1, geoLocked: false)
+            ),
+            Badge(
+                name: "Pioneer",
+                description: "First in friend group to poop in a new country",
+                iconName: "🏴",
+                category: .travel,
+                requirement: BadgeRequirement(type: .uniqueLocations, value: 1, geoLocked: false)
             ),
             
             // Streak Badges
