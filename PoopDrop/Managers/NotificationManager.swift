@@ -299,6 +299,29 @@ class NotificationManager: ObservableObject {
         }
     }
     
+    /// Friend reacted to your drop
+    func notifyReaction(from reactor: User, to dropOwner: User, emoji: String, dropId: String) async {
+        let content = UNMutableNotificationContent()
+        content.title = "\(reactor.username) reacted to your drop!"
+        content.body = "\(emoji) - Check it out!"
+        content.sound = UNNotificationSound.default
+        content.userInfo = [
+            "type": "reaction",
+            "reactorId": reactor.id,
+            "dropId": dropId,
+            "emoji": emoji
+        ]
+        content.badge = 1
+        
+        let request = UNNotificationRequest(
+            identifier: "reaction_\(dropId)_\(reactor.id)_\(Date().timeIntervalSince1970)",
+            content: content,
+            trigger: nil
+        )
+        
+        try? await UNUserNotificationCenter.current().add(request)
+    }
+    
     /// Friend request received
     func notifyFriendRequestReceived(from sender: User, to recipient: User) async {
         let content = UNMutableNotificationContent()

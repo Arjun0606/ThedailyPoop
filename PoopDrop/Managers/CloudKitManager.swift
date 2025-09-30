@@ -304,7 +304,7 @@ class CloudKitManager: ObservableObject {
         return filtered
     }
     
-    func updateDropReaction(_ dropId: String, emoji: String, increment: Bool) async throws {
+    func updateDropReaction(_ dropId: String, emoji: String, increment: Bool, reactingUser: User, dropOwner: User) async throws {
         let recordID = CKRecord.ID(recordName: dropId)
         let record = try await publicDatabase.record(for: recordID)
         
@@ -318,6 +318,16 @@ class CloudKitManager: ObservableObject {
         let currentCount = reactions[emoji] ?? 0
         if increment {
             reactions[emoji] = currentCount + 1
+            
+            // Send notification to drop owner (only if it's not their own drop)
+            if reactingUser.id != dropOwner.id {
+                await NotificationManager.shared.notifyReaction(
+                    from: reactingUser,
+                    to: dropOwner,
+                    emoji: emoji,
+                    dropId: dropId
+                )
+            }
         } else {
             reactions[emoji] = max(0, currentCount - 1)
             if reactions[emoji] == 0 {

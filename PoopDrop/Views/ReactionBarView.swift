@@ -3,6 +3,7 @@ import SwiftUI
 struct ReactionBarView: View {
     let drop: Drop
     @EnvironmentObject var cloudKitManager: CloudKitManager
+    @EnvironmentObject var authManager: AuthenticationManager
     @State private var localReactions: [String: Int]
     @State private var showingEmojiPicker = false
     @State private var userReactions: Set<String> = [] // Track what user has reacted to
@@ -60,7 +61,18 @@ struct ReactionBarView: View {
         // Update CloudKit
         Task {
             do {
-                try await cloudKitManager.updateDropReaction(drop.id, emoji: emoji, increment: !hasReacted)
+                guard let currentUser = authManager.currentUser else { return }
+                
+                // Fetch drop owner
+                let dropOwner = try await cloudKitManager.fetchUser(id: drop.userID) ?? currentUser
+                
+                try await cloudKitManager.updateDropReaction(
+                    drop.id,
+                    emoji: emoji,
+                    increment: !hasReacted,
+                    reactingUser: currentUser,
+                    dropOwner: dropOwner
+                )
             } catch {
                 // Revert local changes on error
                 if hasReacted {
