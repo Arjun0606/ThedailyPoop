@@ -253,17 +253,32 @@ struct DropComposerView: View {
             let userDrops = try await cloudKitManager.fetchUserDrops(for: user)
             print("📊 Fetched \(userDrops.count) total drops for user")
             
-            let todayDrops = userDrops.filter { 
-                calendar.isDate($0.timestamp, inSameDayAs: today) && !$0.isNoPoop
-            }.count + 1 // +1 for current drop
+            // Calculate max drops in any single 24-hour day (00:00 to 23:59)
+            // Group all drops by day and find the day with most drops
+            var dropsPerDay: [String: Int] = [:]
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "yyyy-MM-dd"
             
-            print("📊 Today's drops: \(todayDrops), current maxDropsInDay: \(user.maxDropsInDay)")
-            
-            // Update max drops in day
-            if todayDrops > user.maxDropsInDay {
-                print("📊 Updating maxDropsInDay from \(user.maxDropsInDay) to \(todayDrops)")
-                user.maxDropsInDay = todayDrops
+            // Count existing drops per day
+            for drop in userDrops where !drop.isNoPoop {
+                let dayKey = dateFormatter.string(from: drop.timestamp)
+                dropsPerDay[dayKey, default: 0] += 1
             }
+            
+            // Add current drop to today's count
+            let todayKey = dateFormatter.string(from: today)
+            dropsPerDay[todayKey, default: 0] += 1
+            
+            // Find the maximum drops in any single day
+            let maxInAnyDay = dropsPerDay.values.max() ?? 1
+            let todayDrops = dropsPerDay[todayKey] ?? 1
+            
+            print("📊 Today's drops: \(todayDrops), max drops in any day: \(maxInAnyDay)")
+            print("📊 Drops per day breakdown: \(dropsPerDay)")
+            
+            // Update max drops in day to the highest count across all days
+            user.maxDropsInDay = maxInAnyDay
+            print("📊 Set maxDropsInDay to \(maxInAnyDay)")
             
             // Calculate longest no-poop streak
             calculateLongestNoPoopStreak(userDrops: userDrops, user: &user)
