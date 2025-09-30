@@ -233,8 +233,6 @@ struct EmptyFriendsDropsView: View {
         VStack(spacing: 24) {
             Text("👥")
                 .font(.system(size: 80))
-                .scaleEffect(1.0)
-                .animation(.easeInOut(duration: 2).repeatForever(autoreverses: true), value: true)
             
             VStack(spacing: 12) {
                 Text("No Friend Drops Yet!")
@@ -266,6 +264,7 @@ struct EmptyFriendsDropsView: View {
             .cornerRadius(16)
             .padding(.horizontal, 32)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
 
