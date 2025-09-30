@@ -580,6 +580,10 @@ struct RecentDropsSection: View {
             }
         }
         .onAppear { load() }
+        .onReceive(NotificationCenter.default.publisher(for: Notification.Name("USER_STATS_UPDATED"))) { _ in
+            print("📊 RecentDrops refreshing after stats update")
+            load()
+        }
     }
     
     private func load() {

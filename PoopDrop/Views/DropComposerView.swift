@@ -259,19 +259,22 @@ struct DropComposerView: View {
             let dateFormatter = DateFormatter()
             dateFormatter.dateFormat = "yyyy-MM-dd"
             
-            // Count existing drops per day
+            // Count ALL drops per day (including the one we're about to save)
+            // Add current drop first
+            let todayKey = dateFormatter.string(from: today)
+            if !isNoPoop {
+                dropsPerDay[todayKey, default: 0] += 1
+            }
+            
+            // Then add existing drops per day
             for drop in userDrops where !drop.isNoPoop {
                 let dayKey = dateFormatter.string(from: drop.timestamp)
                 dropsPerDay[dayKey, default: 0] += 1
             }
             
-            // Add current drop to today's count
-            let todayKey = dateFormatter.string(from: today)
-            dropsPerDay[todayKey, default: 0] += 1
-            
             // Find the maximum drops in any single day
-            let maxInAnyDay = dropsPerDay.values.max() ?? 1
-            let todayDrops = dropsPerDay[todayKey] ?? 1
+            let maxInAnyDay = dropsPerDay.values.max() ?? 0
+            let todayDrops = dropsPerDay[todayKey] ?? 0
             
             print("📊 Today's drops: \(todayDrops), max drops in any day: \(maxInAnyDay)")
             print("📊 Drops per day breakdown: \(dropsPerDay)")
