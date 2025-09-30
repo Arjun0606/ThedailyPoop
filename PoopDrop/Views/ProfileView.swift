@@ -32,9 +32,6 @@ struct ProfileView: View {
                             // Achievements section
                             AchievementsSection(user: user, refreshTrigger: refreshTrigger)
                             
-                            // Recent drops
-                            RecentDropsSection(userId: user.id)
-                            
                             // Settings section
                             SettingsSection(
                                 onSettingsTap: {
@@ -181,13 +178,35 @@ struct ProfileHeaderView: View {
 struct StatsSection: View {
     let user: User
     let refreshTrigger: Bool
+    @State private var showingShareSheet = false
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Your Stats")
-                .font(.headline)
-                .fontWeight(.bold)
-                .foregroundColor(.white)
+            HStack {
+                Text("Your Stats")
+                    .font(.headline)
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+                
+                Spacer()
+                
+                Button(action: {
+                    showingShareSheet = true
+                }) {
+                    HStack(spacing: 6) {
+                        Image(systemName: "square.and.arrow.up")
+                            .font(.subheadline)
+                        Text("Share")
+                            .font(.subheadline)
+                            .fontWeight(.semibold)
+                    }
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(Color.blue)
+                    .cornerRadius(20)
+                }
+            }
             
             // Top row stats
             HStack(spacing: 16) {
@@ -224,6 +243,9 @@ struct StatsSection: View {
             }
             
             // Friends-only app: remove global/city ranks
+        }
+        .sheet(isPresented: $showingShareSheet) {
+            ShareStatsView(user: user)
         }
     }
 }
@@ -531,85 +553,6 @@ struct SettingsRow: View {
     }
 }
 
-// MARK: - Recent Drops Section
-struct RecentDropsSection: View {
-    let userId: String
-    @State private var drops: [Drop] = []
-    @State private var isLoading = true
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Recent Drops")
-                .font(.headline)
-                .fontWeight(.bold)
-                .foregroundColor(.white)
-            
-            if isLoading {
-                ProgressView().tint(.white)
-            } else if drops.isEmpty {
-                Text("No drops yet")
-                    .foregroundColor(.white.opacity(0.6))
-            } else {
-                ForEach(drops) { drop in
-                    VStack(alignment: .leading, spacing: 6) {
-                        HStack {
-                            Text(drop.displayEmoji)
-                            Text(drop.caption ?? "")
-                                .foregroundColor(.white)
-                                .lineLimit(2)
-                            Spacer()
-                            Button("Show on Map") {
-                                if let coord = drop.location {
-                                    // Switch to Map tab first, then center
-                                    NotificationCenter.default.post(name: Notification.Name("SWITCH_TO_MAP_TAB"), object: nil)
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                                        NotificationCenter.default.post(name: Notification.Name("CENTER_MAP"), object: nil, userInfo: ["coordinate": coord, "drop": drop])
-                                    }
-                                }
-                            }
-                            .foregroundColor(.white)
-                        }
-                        Text("\(drop.city ?? "") • \(format(date: drop.timestamp))")
-                            .foregroundColor(.white.opacity(0.6))
-                            .font(.caption)
-                    }
-                    .padding()
-                    .background(Color.white.opacity(0.05))
-                    .cornerRadius(12)
-                }
-            }
-        }
-        .onAppear { load() }
-        .onReceive(NotificationCenter.default.publisher(for: Notification.Name("USER_STATS_UPDATED"))) { _ in
-            print("📊 RecentDrops refreshing after stats update")
-            load()
-        }
-    }
-    
-    private func load() {
-        Task {
-            do {
-                if let user = try await CloudKitManager.shared.fetchUser(id: userId) {
-                    let fetched = try await CloudKitManager.shared.fetchUserDrops(for: user)
-                    await MainActor.run {
-                        drops = fetched.sorted { $0.timestamp > $1.timestamp }
-                        isLoading = false
-                    }
-                }
-            } catch {
-                await MainActor.run { isLoading = false }
-            }
-        }
-    }
-    
-    private func format(date: Date) -> String {
-        let f = DateFormatter()
-        f.dateStyle = .medium
-        f.timeStyle = .short
-        return f.string(from: date)
-    }
-}
-
 struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var authManager: AuthenticationManager
@@ -856,6 +799,166 @@ struct SubscriptionManagementView: View {
             }
         }
         .preferredColorScheme(.dark)
+    }
+}
+
+// MARK: - Share Stats View
+struct ShareStatsView: View {
+    let user: User
+    @Environment(\.dismiss) private var dismiss
+    @State private var shareImage: UIImage?
+    
+    var body: some View {
+        NavigationView {
+            ZStack {
+                Color.black.ignoresSafeArea()
+                
+                VStack(spacing: 20) {
+                    if let image = shareImage {
+                        Image(uiImage: image)
+                            .resizable()
+                            .scaledToFit()
+                            .cornerRadius(20)
+                            .padding()
+                    } else {
+                        // Preview of what will be shared
+                        ShareStatsCard(user: user)
+                            .padding()
+                    }
+                    
+                    Button(action: {
+                        shareStats()
+                    }) {
+                        HStack(spacing: 8) {
+                            Image(systemName: "square.and.arrow.up")
+                            Text("Share to Socials")
+                                .fontWeight(.semibold)
+                        }
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.blue)
+                        .cornerRadius(12)
+                    }
+                    .padding(.horizontal)
+                }
+            }
+            .navigationTitle("Share Your Stats")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Done") {
+                        dismiss()
+                    }
+                    .foregroundColor(.white)
+                }
+            }
+        }
+        .preferredColorScheme(.dark)
+        .onAppear {
+            generateShareImage()
+        }
+    }
+    
+    private func generateShareImage() {
+        let cardView = ShareStatsCard(user: user)
+        let renderer = ImageRenderer(content: cardView)
+        renderer.scale = 3.0
+        shareImage = renderer.uiImage
+    }
+    
+    private func shareStats() {
+        guard let image = shareImage else { return }
+        
+        let text = "I've dropped 💩 \(user.totalDrops) times in \(user.countriesVisited.count) countries on PoopDrop! 🔥\nJoin me: https://poopdrop.app"
+        
+        let activityVC = UIActivityViewController(activityItems: [text, image], applicationActivities: nil)
+        
+        if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let root = scene.windows.first?.rootViewController {
+            activityVC.popoverPresentationController?.sourceView = root.view
+            root.present(activityVC, animated: true)
+        }
+    }
+}
+
+struct ShareStatsCard: View {
+    let user: User
+    
+    var body: some View {
+        VStack(spacing: 24) {
+            // Header
+            VStack(spacing: 8) {
+                Text("💩")
+                    .font(.system(size: 60))
+                
+                Text("PoopDrop")
+                    .font(.title)
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+            }
+            
+            // Stats Grid
+            VStack(spacing: 16) {
+                HStack(spacing: 16) {
+                    ShareStatItem(icon: "💩", value: "\(user.totalDrops)", label: "Total Drops")
+                    ShareStatItem(icon: "🔥", value: "\(user.streak)", label: "Day Streak")
+                }
+                
+                HStack(spacing: 16) {
+                    ShareStatItem(icon: "🌍", value: "\(user.countriesVisited.count)", label: "Countries")
+                    ShareStatItem(icon: "📈", value: "\(user.maxDropsInDay)", label: "Max/Day")
+                }
+            }
+            
+            // Footer
+            VStack(spacing: 8) {
+                Text("Join me on PoopDrop!")
+                    .font(.headline)
+                    .foregroundColor(.white)
+                
+                Text("poopdrop.app")
+                    .font(.subheadline)
+                    .foregroundColor(.blue)
+                    .fontWeight(.semibold)
+            }
+        }
+        .padding(32)
+        .frame(width: 400, height: 500)
+        .background(
+            LinearGradient(
+                colors: [Color.brown.opacity(0.8), Color.black],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        )
+        .cornerRadius(24)
+    }
+}
+
+struct ShareStatItem: View {
+    let icon: String
+    let value: String
+    let label: String
+    
+    var body: some View {
+        VStack(spacing: 8) {
+            Text(icon)
+                .font(.largeTitle)
+            
+            Text(value)
+                .font(.title)
+                .fontWeight(.bold)
+                .foregroundColor(.white)
+            
+            Text(label)
+                .font(.caption)
+                .foregroundColor(.white.opacity(0.7))
+        }
+        .frame(maxWidth: .infinity)
+        .padding()
+        .background(Color.white.opacity(0.1))
+        .cornerRadius(16)
     }
 }
 
