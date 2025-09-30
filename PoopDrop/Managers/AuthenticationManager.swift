@@ -34,7 +34,7 @@ class AuthenticationManager: NSObject, ObservableObject {
                             Task { @MainActor in
                                 if let user = try? await CloudKitManager.shared.fetchUserByAppleUserID(appleID) {
                                     self?.currentUser = user
-                                    UserDefaults.standard.set(user?.id, forKey: "currentUserID")
+                                    UserDefaults.standard.set(user.id, forKey: "currentUserID")
                                 }
                             }
                         }
