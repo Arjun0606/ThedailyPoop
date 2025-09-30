@@ -962,9 +962,17 @@ struct ShareStatsView: View {
     private func shareStats() {
         guard let image = shareImage else { return }
         
-        let text = "I've dropped 💩 \(user.totalDrops) times in \(user.countriesVisited.count) countries on PoopDrop! 🔥\nJoin me: https://poopdrop.app"
+        // Share just the image - social apps will detect it automatically
+        // Users can add their own caption when posting
+        let activityVC = UIActivityViewController(activityItems: [image], applicationActivities: nil)
         
-        let activityVC = UIActivityViewController(activityItems: [text, image], applicationActivities: nil)
+        // Exclude some activities that don't make sense for image sharing
+        activityVC.excludedActivityTypes = [
+            .addToReadingList,
+            .assignToContact,
+            .openInIBooks,
+            .markupAsPDF
+        ]
         
         if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
            let root = scene.windows.first?.rootViewController {
@@ -1008,11 +1016,6 @@ struct ShareStatsCard: View {
                 Text("Join me on PoopDrop!")
                     .font(.headline)
                     .foregroundColor(.white)
-                
-                Text("poopdrop.app")
-                    .font(.subheadline)
-                    .foregroundColor(.blue)
-                    .fontWeight(.semibold)
             }
         }
         .padding(32)
