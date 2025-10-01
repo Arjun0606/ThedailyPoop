@@ -7,6 +7,10 @@
 
 > The most fun way to share your bathroom adventures with friends around the world! 🚽✨
 
+SCREENSHOTS!!!!!
+![Screenshot 2025-10-01 at 7 23 50 pm](https://github.com/user-attachments/assets/18f6a20f-f9d3-426a-b6fb-e723a8a5f3f9)
+
+
 ## 🎯 Overview
 
 Poop Drop is a viral lifestyle/social app where users drop poops on a map, friends get notified, and culture drives monetization. Built with SwiftUI, CloudKit, and StoreKit 2 for a seamless iOS experience.
