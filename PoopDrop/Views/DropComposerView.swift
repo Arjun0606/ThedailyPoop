@@ -35,11 +35,11 @@ struct DropComposerView: View {
     }
     
     var captionLimitText: String {
-        return "\(caption.wordCount)/\(proWordLimit) words"
+            return "\(caption.wordCount)/\(proWordLimit) words"
     }
     
     var isAtLimit: Bool {
-        return caption.wordCount >= proWordLimit
+            return caption.wordCount >= proWordLimit
     }
     
     var canDrop: Bool {
@@ -184,17 +184,17 @@ struct DropComposerView: View {
                     resolvedContinent = getContinent(for: placemark.country ?? "")
                 }
             }
-
-            let drop = Drop(
+        
+        let drop = Drop(
                 userID: user.id,
                 username: user.username,
                 location: isNoPoop ? nil : currentLocation?.coordinate,
                 city: resolvedCity,
                 country: resolvedCountry,
                 continent: resolvedContinent,
-                skinId: isNoPoop ? nil : selectedSkinId,
-                caption: finalCaption.isEmpty ? nil : finalCaption,
-                isNoPoop: isNoPoop,
+            skinId: isNoPoop ? nil : selectedSkinId,
+            caption: finalCaption.isEmpty ? nil : finalCaption,
+            isNoPoop: isNoPoop,
                 isSponsored: false,
                 rating: isNoPoop ? nil : Int(rating),
                 musicTitle: musicData?.title,
@@ -949,9 +949,9 @@ struct MusicLinkInput: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("🎵 Listening To (Optional)")
+            Text("🎵 What are you listening to while pooping?")
                 .font(.headline)
-                .foregroundColor(.white)
+                    .foregroundColor(.white)
             
             VStack(spacing: 12) {
                 HStack {
@@ -1041,7 +1041,7 @@ struct MusicLinkInput: View {
                                         .aspectRatio(contentMode: .fill)
                                 case .failure:
                                     Image(systemName: "music.note")
-                                        .font(.title2)
+                .font(.title2)
                                         .foregroundColor(.white.opacity(0.6))
                                         .frame(width: 50, height: 50)
                                         .background(Color.gray.opacity(0.3))
@@ -1059,17 +1059,17 @@ struct MusicLinkInput: View {
                                 .background(Color.gray.opacity(0.3))
                                 .cornerRadius(8)
                         }
-                        
-                        VStack(alignment: .leading, spacing: 4) {
+            
+            VStack(alignment: .leading, spacing: 4) {
                             Text(music.title)
                                 .font(.subheadline)
                                 .fontWeight(.semibold)
-                                .foregroundColor(.white)
+                    .foregroundColor(.white)
                                 .lineLimit(1)
-                            
+                
                             Text(music.artist)
                                 .font(.caption)
-                                .foregroundColor(.white.opacity(0.7))
+                    .foregroundColor(.white.opacity(0.7))
                                 .lineLimit(1)
                                 
                             // Source indicator
@@ -1085,9 +1085,9 @@ struct MusicLinkInput: View {
                                     .font(.caption2)
                             }
                             .foregroundColor(.white.opacity(0.5))
-                        }
-                        
-                        Spacer()
+            }
+            
+            Spacer()
                         
                         Button(action: {
                             if let url = URL(string: music.url) {
@@ -1135,54 +1135,91 @@ struct MusicLinkInput: View {
         
         // Try to extract song ID from URL
         var songId: String?
+        var albumId: String?
         
-        // Method 1: Check for i= parameter in query
+        // Method 1: Check for i= parameter in query (song ID)
         if let components = URLComponents(string: link),
            let iParam = components.queryItems?.first(where: { $0.name == "i" })?.value {
             songId = iParam
         }
-        // Method 2: Try to extract from path components
-        else if url.pathComponents.count >= 5 && url.pathComponents[1] == "album" {
-            // Try to extract album ID from path
-            let potentialAlbumId = url.pathComponents.last ?? ""
-            // Search for album to get tracks
-            searchAppleMusic(term: potentialAlbumId, entity: "album")
-            return
-        }
-        // Method 3: Search by song name from URL
-        else if url.pathComponents.count >= 3 {
-            // Extract song name from URL path
-            let potentialSongName = url.pathComponents
-                .filter { !$0.isEmpty && $0 != "/" }
-                .last?
-                .replacingOccurrences(of: "-", with: " ")
-                .capitalized ?? ""
-            
-            if !potentialSongName.isEmpty {
-                searchAppleMusic(term: potentialSongName, entity: "song")
-                return
+        
+        // Method 2: Extract album ID from path (format: /album/name/1234567890)
+        if url.pathComponents.contains("album") {
+            // Get the last numeric component (album ID)
+            for component in url.pathComponents.reversed() {
+                if component.allSatisfy({ $0.isNumber }) && component.count > 5 {
+                    albumId = component
+                    break
+                }
             }
         }
         
         // If we have a song ID, use it directly
         if let songId = songId {
             fetchAppleMusicTrack(songId: songId)
+            return
+        }
+        
+        // If we have an album ID, fetch the album and get the first track
+        if let albumId = albumId {
+            fetchAppleMusicAlbum(albumId: albumId)
+            return
+        }
+        
+        // Method 3: Extract song name from URL path and search
+        let pathComponents = url.pathComponents.filter { !$0.isEmpty && $0 != "/" && $0 != "album" && !$0.contains("music.apple.com") }
+        
+        // Try to find the song name (usually the component before the album ID)
+        var songName = ""
+        for (index, component) in pathComponents.enumerated() {
+            // Skip numeric IDs
+            if component.allSatisfy({ $0.isNumber }) {
+                continue
+            }
+            // This is likely the song name
+            if !component.isEmpty && component.count > 2 {
+                songName = component.replacingOccurrences(of: "-", with: " ").capitalized
+                break
+            }
+        }
+        
+        if !songName.isEmpty {
+            searchAppleMusic(term: songName, entity: "song")
         } else {
-            // Last resort: extract any text from URL that might be a song name
-            let urlString = url.absoluteString
-            let searchTerms = urlString
-                .components(separatedBy: "/")
-                .last?
-                .components(separatedBy: "?")
-                .first?
-                .replacingOccurrences(of: "-", with: " ")
-                .capitalized
-            
-            if let terms = searchTerms, !terms.isEmpty {
-                searchAppleMusic(term: terms, entity: "song")
-            } else {
-                errorMessage = "Couldn't extract song information from link"
-                isLoading = false
+            errorMessage = "Could not extract song info from Apple Music link"
+            isLoading = false
+        }
+    }
+    
+    private func fetchAppleMusicAlbum(albumId: String) {
+        Task {
+            do {
+                let apiURL = URL(string: "https://itunes.apple.com/lookup?id=\(albumId)&entity=song&limit=25")!
+                let (data, _) = try await URLSession.shared.data(from: apiURL)
+                let response = try JSONDecoder().decode(ITunesResponse.self, from: data)
+                
+                // Get the first actual song (not the album itself)
+                if let track = response.results.first(where: { $0.trackName != "Unknown Track" }) {
+                    await MainActor.run {
+                        musicData = MusicData(
+                            title: track.trackName,
+                            artist: track.artistName,
+                            url: track.trackViewUrl ?? track.collectionViewUrl ?? link,
+                            coverArtURL: track.artworkUrl100.replacingOccurrences(of: "100x100", with: "600x600")
+                        )
+                        isLoading = false
+                    }
+                } else {
+                    await MainActor.run {
+                        errorMessage = "Could not find track in album"
+                        isLoading = false
+                    }
+                }
+            } catch {
+                await MainActor.run {
+                    errorMessage = "Failed to fetch album details"
+                    isLoading = false
+                }
             }
         }
     }

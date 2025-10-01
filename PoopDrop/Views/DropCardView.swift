@@ -201,7 +201,7 @@ struct DropCardView: View {
                             }
                             
                             VStack(alignment: .leading, spacing: 2) {
-                                Text("🎵 Listening to")
+                                Text("🎵 Was listening to while pooping")
                                     .font(.caption2)
                                     .foregroundColor(.white.opacity(0.6))
                                 
