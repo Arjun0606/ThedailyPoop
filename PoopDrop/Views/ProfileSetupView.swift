@@ -272,10 +272,31 @@ struct ProfileSetupView: View {
         currentUser.username = username
         currentUser.dateOfBirth = dateOfBirth
         currentUser.gender = selectedGender
-        if let img = selectedImage, let data = img.pngData() {
-            let tmp = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("avatar_\(UUID().uuidString).png")
-            try? data.write(to: tmp)
-            currentUser.avatarURL = tmp
+        if let img = selectedImage {
+            // Compress image to stay within CloudKit limits (< 1MB recommended)
+            let maxSize: CGFloat = 512 // Max dimension
+            let compressedImage: UIImage
+            
+            // Resize if needed
+            if img.size.width > maxSize || img.size.height > maxSize {
+                let scale = min(maxSize / img.size.width, maxSize / img.size.height)
+                let newSize = CGSize(width: img.size.width * scale, height: img.size.height * scale)
+                
+                UIGraphicsBeginImageContextWithOptions(newSize, false, 1.0)
+                img.draw(in: CGRect(origin: .zero, size: newSize))
+                compressedImage = UIGraphicsGetImageFromCurrentImageContext() ?? img
+                UIGraphicsEndImageContext()
+            } else {
+                compressedImage = img
+            }
+            
+            // Compress to JPEG with quality 0.7 (good balance of quality/size)
+            if let data = compressedImage.jpegData(compressionQuality: 0.7) {
+                let tmp = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("avatar_\(UUID().uuidString).jpg")
+                try? data.write(to: tmp)
+                currentUser.avatarURL = tmp
+                print("💾 Compressed avatar: \(data.count / 1024)KB")
+            }
         }
         
         Task {
