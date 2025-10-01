@@ -30,21 +30,17 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
         print("📬 Received remote notification: \(userInfo)")
         
-        // Handle CloudKit notification
-        if let notification = CKNotification(fromRemoteNotificationDictionary: userInfo) {
-            print("📬 CloudKit notification type: \(notification.notificationType.rawValue)")
+        // Handle CloudKit notification via PushNotificationManager
+        Task { @MainActor in
+            await PushNotificationManager.shared.handleRemoteNotification(userInfo: userInfo)
             
-            // Refresh data based on notification
-            Task {
-                do {
-                    _ = try await CloudKitManager.shared.fetchDrops(limit: 100)
-                    completionHandler(.newData)
-                } catch {
-                    completionHandler(.failed)
-                }
+            // Refresh data
+            do {
+                _ = try await CloudKitManager.shared.fetchDrops(limit: 100)
+                completionHandler(.newData)
+            } catch {
+                completionHandler(.failed)
             }
-        } else {
-            completionHandler(.noData)
         }
     }
 }
