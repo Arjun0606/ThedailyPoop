@@ -1,5 +1,6 @@
 import SwiftUI
 import CoreLocation
+import UIKit
 
 struct DropComposerView: View {
     @Environment(\.dismiss) private var dismiss
@@ -1253,72 +1254,49 @@ struct MusicLinkInput: View {
     }
     
     private func parseSpotify(_ link: String) {
-        // Extract track ID from URL
-        // Format: https://open.spotify.com/track/track-id or https://spotify.link/xxxxx
+        // Use our dedicated SpotifyAPIClient
+        Task {
+            do {
+                // Get a client credentials token and fetch track info
+                let spotifyClient = SpotifyAPIClient.shared
+                let musicInfo = try await spotifyClient.parseSpotifyLink(link)
+                
+                await MainActor.run {
+                    self.musicData = musicInfo
+                    self.isLoading = false
+                }
+            } catch {
+                // If the API fails, fall back to our oEmbed approach
+                await MainActor.run {
+                    print("Spotify API error: \(error.localizedDescription)")
+                    // Fall back to oEmbed
+                    fallbackSpotifyParsing(link)
+                }
+            }
+        }
+    }
+    
+    // Fallback method if the Spotify API fails
+    private func fallbackSpotifyParsing(_ link: String) {
         guard let url = URL(string: link) else {
             errorMessage = "Invalid Spotify link"
             isLoading = false
             return
         }
         
-        // Handle different Spotify URL formats
+        // Handle different Spotify URL formats using oEmbed
         
-        // Case 1: Standard Spotify URL (open.spotify.com/track/...)
-        if url.host == "open.spotify.com" {
-            if url.pathComponents.contains("track"), 
-               let trackIndex = url.pathComponents.firstIndex(of: "track"), 
-               trackIndex + 1 < url.pathComponents.count {
-                let trackId = url.pathComponents[trackIndex + 1].split(separator: "?").first.map(String.init) ?? ""
-                fetchSpotifyTrack(trackId: trackId, originalLink: link)
-                return
-            }
-            // Handle album, playlist, etc.
-            else if url.pathComponents.count >= 3 {
-                // Extract what we can from the URL
-                let type = url.pathComponents.count > 1 ? url.pathComponents[1] : "track"
-                let name = url.pathComponents.last?.replacingOccurrences(of: "-", with: " ").capitalized ?? "Unknown"
-                
-                // Use oEmbed as fallback
-                fetchSpotifyOEmbed(url: link, fallbackTitle: name, fallbackType: type)
-                return
-            }
-        }
+        // Try to extract track name from URL for fallback
+        let trackName = url.lastPathComponent
+            .split(separator: "?")
+            .first?
+            .replacingOccurrences(of: "-", with: " ")
+            .capitalized ?? "Spotify Track"
         
-        // Case 2: Shortened Spotify URL (spotify.link/...)
-        else if url.host == "spotify.link" || url.absoluteString.contains("spotify.link") {
-            // For shortened URLs, we can only use oEmbed
-            fetchSpotifyOEmbed(url: link, fallbackTitle: "Spotify Track", fallbackType: "track")
-            return
-        }
-        
-        // Case 3: Try to extract any useful info from the URL
-        let urlString = url.absoluteString
-        if urlString.contains("spotify") {
-            // Extract any potential track name from the URL
-            let components = urlString.components(separatedBy: "/")
-            if let lastComponent = components.last {
-                let trackName = lastComponent
-                    .split(separator: "?")
-                    .first?
-                    .replacingOccurrences(of: "-", with: " ")
-                    .capitalized ?? "Spotify Track"
-                
-                fetchSpotifyOEmbed(url: link, fallbackTitle: trackName, fallbackType: "track")
-                return
-            }
-        }
-        
-        // Fallback if nothing else works
-        errorMessage = "Could not extract Spotify track information"
-        isLoading = false
+        fetchSpotifyOEmbed(url: link, fallbackTitle: trackName)
     }
     
-    private func fetchSpotifyTrack(trackId: String, originalLink: String) {
-        // Use Spotify oEmbed API for the track
-        fetchSpotifyOEmbed(url: originalLink, fallbackTitle: "Spotify Track", fallbackType: "track")
-    }
-    
-    private func fetchSpotifyOEmbed(url: String, fallbackTitle: String, fallbackType: String) {
+    private func fetchSpotifyOEmbed(url: String, fallbackTitle: String) {
         Task {
             do {
                 let encodedURL = url.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? url
@@ -1350,22 +1328,17 @@ struct MusicLinkInput: View {
             } catch {
                 print("Spotify oEmbed error: \(error.localizedDescription)")
                 
-                // Fallback to search if oEmbed fails
-                await searchSpotifyTrack(query: fallbackTitle)
+                // Last resort fallback
+                await MainActor.run {
+                    musicData = MusicData(
+                        title: fallbackTitle,
+                        artist: "Spotify Artist",
+                        url: url,
+                        coverArtURL: "https://i.scdn.co/image/ab67616d0000b273b5551c9e9bee25baa55ef5a3" // Generic Spotify logo
+                    )
+                    isLoading = false
+                }
             }
-        }
-    }
-    
-    private func searchSpotifyTrack(query: String) async {
-        // Since we can't use Spotify Web API without auth, create a basic fallback
-        await MainActor.run {
-            musicData = MusicData(
-                title: query,
-                artist: "Spotify Artist",
-                url: "https://open.spotify.com/search/\(query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? query)",
-                coverArtURL: "https://i.scdn.co/image/ab67616d0000b273b5551c9e9bee25baa55ef5a3" // Generic Spotify logo
-            )
-            isLoading = false
         }
     }
 }
