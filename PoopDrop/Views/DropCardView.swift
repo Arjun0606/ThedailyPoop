@@ -180,12 +180,30 @@ struct DropCardView: View {
                         }
                     }) {
                         HStack(spacing: 12) {
-                            Image(systemName: "music.note")
-                                .font(.title3)
-                                .foregroundColor(.green)
-                                .frame(width: 40, height: 40)
-                                .background(Color.green.opacity(0.2))
+                            // Album cover art or music icon
+                            if let coverArtURL = drop.musicCoverArt, let url = URL(string: coverArtURL) {
+                                AsyncImage(url: url) { image in
+                                    image
+                                        .resizable()
+                                        .scaledToFill()
+                                } placeholder: {
+                                    Rectangle()
+                                        .fill(Color.green.opacity(0.2))
+                                        .overlay(
+                                            ProgressView()
+                                                .scaleEffect(0.6)
+                                        )
+                                }
+                                .frame(width: 50, height: 50)
                                 .cornerRadius(8)
+                            } else {
+                                Image(systemName: "music.note")
+                                    .font(.title3)
+                                    .foregroundColor(.green)
+                                    .frame(width: 50, height: 50)
+                                    .background(Color.green.opacity(0.2))
+                                    .cornerRadius(8)
+                            }
                             
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("🎵 Listening to")

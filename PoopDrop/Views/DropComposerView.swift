@@ -803,6 +803,23 @@ struct MusicData {
     let coverArtURL: String?
 }
 
+// MARK: - iTunes API Response
+struct ITunesResponse: Codable {
+    let results: [ITunesTrack]
+}
+
+struct ITunesTrack: Codable {
+    let trackName: String
+    let artistName: String
+    let artworkUrl100: String
+}
+
+// MARK: - Spotify oEmbed Response
+struct SpotifyOEmbedResponse: Codable {
+    let title: String
+    let thumbnail_url: String?
+}
+
 // MARK: - Poop Rating Slider
 struct PoopRatingSlider: View {
     @Binding var rating: Double
@@ -963,33 +980,44 @@ struct MusicLinkInput: View {
     private func parseAppleMusic(_ link: String) {
         // Extract song ID from URL
         // Format: https://music.apple.com/us/album/song-name/album-id?i=song-id
-        guard let url = URL(string: link) else {
+        guard let url = URL(string: link),
+              let components = URLComponents(string: link),
+              let songId = components.queryItems?.first(where: { $0.name == "i" })?.value else {
             errorMessage = "Invalid Apple Music link"
             isLoading = false
             return
         }
         
-        // For now, we'll extract basic info from the URL path
-        // In production, you'd use Apple Music API
-        let pathComponents = url.pathComponents
-        if pathComponents.count >= 3 {
-            let songName = pathComponents[3].replacingOccurrences(of: "-", with: " ").capitalized
-            musicData = MusicData(
-                title: songName,
-                artist: "Apple Music",
-                url: link,
-                coverArtURL: nil
-            )
-        } else {
-            musicData = MusicData(
-                title: "Apple Music Track",
-                artist: "Unknown Artist",
-                url: link,
-                coverArtURL: nil
-            )
+        // Use iTunes Search API to get song metadata
+        Task {
+            do {
+                let apiURL = URL(string: "https://itunes.apple.com/lookup?id=\(songId)")!
+                let (data, _) = try await URLSession.shared.data(from: apiURL)
+                let response = try JSONDecoder().decode(ITunesResponse.self, from: data)
+                
+                if let track = response.results.first {
+                    await MainActor.run {
+                        musicData = MusicData(
+                            title: track.trackName,
+                            artist: track.artistName,
+                            url: link,
+                            coverArtURL: track.artworkUrl100.replacingOccurrences(of: "100x100", with: "300x300")
+                        )
+                        isLoading = false
+                    }
+                } else {
+                    await MainActor.run {
+                        errorMessage = "Could not find song details"
+                        isLoading = false
+                    }
+                }
+            } catch {
+                await MainActor.run {
+                    errorMessage = "Failed to fetch song details"
+                    isLoading = false
+                }
+            }
         }
-        
-        isLoading = false
     }
     
     private func parseSpotify(_ link: String) {
@@ -1001,29 +1029,69 @@ struct MusicLinkInput: View {
             return
         }
         
-        // For now, we'll extract basic info from the URL
-        // In production, you'd use Spotify API
-        if url.pathComponents.contains("track") {
-            let trackIndex = url.pathComponents.firstIndex(of: "track") ?? 0
-            if trackIndex + 1 < url.pathComponents.count {
-                let trackName = url.pathComponents[trackIndex + 1].replacingOccurrences(of: "-", with: " ").capitalized
+        // Extract track ID from Spotify URL
+        var trackId: String?
+        if url.pathComponents.contains("track"), let trackIndex = url.pathComponents.firstIndex(of: "track"), trackIndex + 1 < url.pathComponents.count {
+            trackId = url.pathComponents[trackIndex + 1].split(separator: "?").first.map(String.init)
+        }
+        
+        guard let id = trackId else {
+            // Fallback: extract from URL path
+            let pathComponents = url.pathComponents.filter { !$0.isEmpty && $0 != "/" }
+            if let trackName = pathComponents.last {
+                let cleanName = trackName.split(separator: "?").first?.replacingOccurrences(of: "-", with: " ").capitalized ?? "Unknown Track"
                 musicData = MusicData(
-                    title: trackName,
+                    title: cleanName,
                     artist: "Spotify",
                     url: link,
                     coverArtURL: nil
                 )
+            } else {
+                musicData = MusicData(
+                    title: "Spotify Track",
+                    artist: "Unknown Artist",
+                    url: link,
+                    coverArtURL: nil
+                )
             }
-        } else {
-            musicData = MusicData(
-                title: "Spotify Track",
-                artist: "Unknown Artist",
-                url: link,
-                coverArtURL: nil
-            )
+            isLoading = false
+            return
         }
         
-        isLoading = false
+        // Use Spotify oEmbed API (no auth required) to get basic metadata
+        Task {
+            do {
+                let apiURL = URL(string: "https://open.spotify.com/oembed?url=\(link.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? link)")!
+                let (data, _) = try await URLSession.shared.data(from: apiURL)
+                let response = try JSONDecoder().decode(SpotifyOEmbedResponse.self, from: data)
+                
+                await MainActor.run {
+                    // Parse title and artist from "title" field (format: "Song Name · Artist Name")
+                    let components = response.title.split(separator: "·").map { $0.trimmingCharacters(in: .whitespaces) }
+                    let title = components.first ?? response.title
+                    let artist = components.count > 1 ? components[1] : "Unknown Artist"
+                    
+                    musicData = MusicData(
+                        title: title,
+                        artist: artist,
+                        url: link,
+                        coverArtURL: response.thumbnail_url
+                    )
+                    isLoading = false
+                }
+            } catch {
+                await MainActor.run {
+                    // Fallback if API fails
+                    musicData = MusicData(
+                        title: "Spotify Track",
+                        artist: "Unknown Artist",
+                        url: link,
+                        coverArtURL: nil
+                    )
+                    isLoading = false
+                }
+            }
+        }
     }
 }
 
