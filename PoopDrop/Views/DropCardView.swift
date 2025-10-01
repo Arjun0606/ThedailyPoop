@@ -201,7 +201,7 @@ struct DropCardView: View {
                             }
                             
                             VStack(alignment: .leading, spacing: 4) {
-                                Text("🎵 Was listening to while pooping")
+                                Text("🎵 Was listening to")
                                     .font(.caption2)
                                     .foregroundColor(.white.opacity(0.6))
                                 
@@ -244,6 +244,12 @@ struct DropCardView: View {
                                         }
                                     }
                                 }
+                                
+                                // While pooping badge
+                                Text("while pooping 💩")
+                                    .font(.caption2)
+                                    .foregroundColor(.orange.opacity(0.8))
+                                    .padding(.top, 2)
                             }
                             
                             Spacer()
