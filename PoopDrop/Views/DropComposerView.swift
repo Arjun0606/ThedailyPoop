@@ -806,18 +806,63 @@ struct MusicData {
 // MARK: - iTunes API Response
 struct ITunesResponse: Codable {
     let results: [ITunesTrack]
+    let resultCount: Int
 }
 
 struct ITunesTrack: Codable {
+    // Required fields with defaults for when they might be missing
     let trackName: String
     let artistName: String
     let artworkUrl100: String
+    
+    // Optional fields
+    let trackViewUrl: String?
+    let collectionViewUrl: String?
+    let previewUrl: String?
+    let collectionName: String?
+    let primaryGenreName: String?
+    let releaseDate: String?
+    
+    // Handle missing fields with coding keys
+    enum CodingKeys: String, CodingKey {
+        case trackName, artistName, artworkUrl100, trackViewUrl, collectionViewUrl, 
+             previewUrl, collectionName, primaryGenreName, releaseDate
+    }
+    
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        
+        // Handle missing trackName (might be an album)
+        if let name = try? container.decode(String.self, forKey: .trackName) {
+            trackName = name
+        } else if let name = try? container.decode(String.self, forKey: .collectionName) {
+            trackName = name
+        } else {
+            trackName = "Unknown Track"
+        }
+        
+        // Required fields with fallbacks
+        artistName = try container.decodeIfPresent(String.self, forKey: .artistName) ?? "Unknown Artist"
+        artworkUrl100 = try container.decodeIfPresent(String.self, forKey: .artworkUrl100) ?? ""
+        
+        // Optional fields
+        trackViewUrl = try container.decodeIfPresent(String.self, forKey: .trackViewUrl)
+        collectionViewUrl = try container.decodeIfPresent(String.self, forKey: .collectionViewUrl)
+        previewUrl = try container.decodeIfPresent(String.self, forKey: .previewUrl)
+        collectionName = try container.decodeIfPresent(String.self, forKey: .collectionName)
+        primaryGenreName = try container.decodeIfPresent(String.self, forKey: .primaryGenreName)
+        releaseDate = try container.decodeIfPresent(String.self, forKey: .releaseDate)
+    }
 }
 
 // MARK: - Spotify oEmbed Response
 struct SpotifyOEmbedResponse: Codable {
     let title: String
     let thumbnail_url: String?
+    let html: String?
+    let provider_name: String?
+    let width: Int?
+    let height: Int?
 }
 
 // MARK: - Poop Rating Slider
@@ -909,48 +954,107 @@ struct MusicLinkInput: View {
             
             VStack(spacing: 12) {
                 HStack {
-                    Image(systemName: "link")
+                    Image(systemName: "music.note.list")
                         .foregroundColor(.white.opacity(0.6))
                     
                     TextField("Paste Apple Music or Spotify link", text: $musicLink)
                         .foregroundColor(.white)
+                        .autocorrectionDisabled()
+                        .textInputAutocapitalization(.never)
                         .onChange(of: musicLink) { oldValue, newValue in
-                            if !newValue.isEmpty {
+                            if !newValue.isEmpty && (newValue.contains("music.apple") || newValue.contains("spotify")) {
                                 parseMusicLink(newValue)
-                            } else {
+                            } else if newValue.isEmpty {
                                 musicData = nil
                                 errorMessage = nil
                             }
                         }
+                    
+                    if isLoading {
+                        ProgressView()
+                            .scaleEffect(0.7)
+                    } else if musicLink.isEmpty {
+                        Button(action: {
+                            UIPasteboard.general.string.map { pasteboardContent in
+                                if pasteboardContent.contains("music.apple.com") || pasteboardContent.contains("spotify.com") {
+                                    musicLink = pasteboardContent
+                                    parseMusicLink(pasteboardContent)
+                                }
+                            }
+                        }) {
+                            Image(systemName: "doc.on.clipboard")
+                                .foregroundColor(.white.opacity(0.6))
+                        }
+                    } else {
+                        Button(action: {
+                            musicLink = ""
+                            musicData = nil
+                            errorMessage = nil
+                        }) {
+                            Image(systemName: "xmark.circle.fill")
+                                .foregroundColor(.white.opacity(0.6))
+                        }
+                    }
                 }
                 .padding()
                 .background(Color.white.opacity(0.1))
                 .cornerRadius(8)
                 
                 if let error = errorMessage {
-                    Text(error)
-                        .font(.caption)
-                        .foregroundColor(.red.opacity(0.8))
+                    HStack {
+                        Image(systemName: "exclamationmark.triangle")
+                            .foregroundColor(.red.opacity(0.8))
+                        Text(error)
+                            .font(.caption)
+                            .foregroundColor(.red.opacity(0.8))
+                    }
+                    .padding(.horizontal, 8)
+                }
+                
+                if isLoading && errorMessage == nil {
+                    HStack {
+                        ProgressView()
+                            .scaleEffect(0.8)
+                        Text("Fetching song details...")
+                            .font(.caption)
+                            .foregroundColor(.white.opacity(0.7))
+                    }
+                    .padding(.horizontal, 8)
                 }
                 
                 if let music = musicData {
                     HStack(spacing: 12) {
                         if let coverURL = music.coverArtURL, let url = URL(string: coverURL) {
-                            AsyncImage(url: url) { image in
-                                image
-                                    .resizable()
-                                    .scaledToFill()
-                            } placeholder: {
-                                Rectangle()
-                                    .fill(Color.gray.opacity(0.3))
+                            AsyncImage(url: url) { phase in
+                                switch phase {
+                                case .empty:
+                                    Rectangle()
+                                        .fill(Color.gray.opacity(0.3))
+                                        .overlay(
+                                            ProgressView()
+                                                .scaleEffect(0.6)
+                                        )
+                                case .success(let image):
+                                    image
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fill)
+                                case .failure:
+                                    Image(systemName: "music.note")
+                                        .font(.title2)
+                                        .foregroundColor(.white.opacity(0.6))
+                                        .frame(width: 50, height: 50)
+                                        .background(Color.gray.opacity(0.3))
+                                @unknown default:
+                                    EmptyView()
+                                }
                             }
-                            .frame(width: 50, height: 50)
+                            .frame(width: 60, height: 60)
                             .cornerRadius(8)
                         } else {
                             Image(systemName: "music.note")
                                 .font(.title2)
                                 .foregroundColor(.white.opacity(0.6))
-                                .frame(width: 50, height: 50)
+                                .frame(width: 60, height: 60)
                                 .background(Color.gray.opacity(0.3))
                                 .cornerRadius(8)
                         }
@@ -966,16 +1070,37 @@ struct MusicLinkInput: View {
                                 .font(.caption)
                                 .foregroundColor(.white.opacity(0.7))
                                 .lineLimit(1)
+                                
+                            // Source indicator
+                            HStack(spacing: 4) {
+                                if music.url.contains("apple.com") {
+                                    Image(systemName: "applelogo")
+                                        .font(.caption2)
+                                } else if music.url.contains("spotify.com") {
+                                    Text("Spotify")
+                                        .font(.caption2)
+                                }
+                                Text("Music")
+                                    .font(.caption2)
+                            }
+                            .foregroundColor(.white.opacity(0.5))
                         }
                         
                         Spacer()
                         
-                        Image(systemName: "checkmark.circle.fill")
-                            .foregroundColor(.green)
+                        Button(action: {
+                            if let url = URL(string: music.url) {
+                                UIApplication.shared.open(url)
+                            }
+                        }) {
+                            Image(systemName: "play.circle.fill")
+                                .font(.title2)
+                                .foregroundColor(.green)
+                        }
                     }
                     .padding()
                     .background(Color.green.opacity(0.1))
-                    .cornerRadius(8)
+                    .cornerRadius(12)
                 }
             }
         }
@@ -1000,17 +1125,68 @@ struct MusicLinkInput: View {
     }
     
     private func parseAppleMusic(_ link: String) {
-        // Extract song ID from URL
-        // Format: https://music.apple.com/us/album/song-name/album-id?i=song-id
-        guard let url = URL(string: link),
-              let components = URLComponents(string: link),
-              let songId = components.queryItems?.first(where: { $0.name == "i" })?.value else {
+        // Extract song ID from URL - handle multiple Apple Music URL formats
+        guard let url = URL(string: link) else {
             errorMessage = "Invalid Apple Music link"
             isLoading = false
             return
         }
         
-        // Use iTunes Search API to get song metadata
+        // Try to extract song ID from URL
+        var songId: String?
+        
+        // Method 1: Check for i= parameter in query
+        if let components = URLComponents(string: link),
+           let iParam = components.queryItems?.first(where: { $0.name == "i" })?.value {
+            songId = iParam
+        }
+        // Method 2: Try to extract from path components
+        else if url.pathComponents.count >= 5 && url.pathComponents[1] == "album" {
+            // Try to extract album ID from path
+            let potentialAlbumId = url.pathComponents.last ?? ""
+            // Search for album to get tracks
+            searchAppleMusic(term: potentialAlbumId, entity: "album")
+            return
+        }
+        // Method 3: Search by song name from URL
+        else if url.pathComponents.count >= 3 {
+            // Extract song name from URL path
+            let potentialSongName = url.pathComponents
+                .filter { !$0.isEmpty && $0 != "/" }
+                .last?
+                .replacingOccurrences(of: "-", with: " ")
+                .capitalized ?? ""
+            
+            if !potentialSongName.isEmpty {
+                searchAppleMusic(term: potentialSongName, entity: "song")
+                return
+            }
+        }
+        
+        // If we have a song ID, use it directly
+        if let songId = songId {
+            fetchAppleMusicTrack(songId: songId)
+        } else {
+            // Last resort: extract any text from URL that might be a song name
+            let urlString = url.absoluteString
+            let searchTerms = urlString
+                .components(separatedBy: "/")
+                .last?
+                .components(separatedBy: "?")
+                .first?
+                .replacingOccurrences(of: "-", with: " ")
+                .capitalized
+            
+            if let terms = searchTerms, !terms.isEmpty {
+                searchAppleMusic(term: terms, entity: "song")
+            } else {
+                errorMessage = "Couldn't extract song information from link"
+                isLoading = false
+            }
+        }
+    }
+    
+    private func fetchAppleMusicTrack(songId: String) {
         Task {
             do {
                 let apiURL = URL(string: "https://itunes.apple.com/lookup?id=\(songId)")!
@@ -1022,8 +1198,8 @@ struct MusicLinkInput: View {
                         musicData = MusicData(
                             title: track.trackName,
                             artist: track.artistName,
-                            url: link,
-                            coverArtURL: track.artworkUrl100.replacingOccurrences(of: "100x100", with: "300x300")
+                            url: track.trackViewUrl ?? track.collectionViewUrl ?? "",
+                            coverArtURL: track.artworkUrl100.replacingOccurrences(of: "100x100", with: "600x600")
                         )
                         isLoading = false
                     }
@@ -1035,7 +1211,41 @@ struct MusicLinkInput: View {
                 }
             } catch {
                 await MainActor.run {
-                    errorMessage = "Failed to fetch song details"
+                    errorMessage = "Failed to fetch song details: \(error.localizedDescription)"
+                    isLoading = false
+                }
+            }
+        }
+    }
+    
+    private func searchAppleMusic(term: String, entity: String) {
+        Task {
+            do {
+                let encodedTerm = term.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
+                let apiURL = URL(string: "https://itunes.apple.com/search?term=\(encodedTerm)&entity=\(entity)&limit=1")!
+                
+                let (data, _) = try await URLSession.shared.data(from: apiURL)
+                let response = try JSONDecoder().decode(ITunesResponse.self, from: data)
+                
+                if let track = response.results.first {
+                    await MainActor.run {
+                        musicData = MusicData(
+                            title: track.trackName,
+                            artist: track.artistName,
+                            url: track.trackViewUrl ?? track.collectionViewUrl ?? "",
+                            coverArtURL: track.artworkUrl100.replacingOccurrences(of: "100x100", with: "600x600")
+                        )
+                        isLoading = false
+                    }
+                } else {
+                    await MainActor.run {
+                        errorMessage = "No matching songs found"
+                        isLoading = false
+                    }
+                }
+            } catch {
+                await MainActor.run {
+                    errorMessage = "Search failed: \(error.localizedDescription)"
                     isLoading = false
                 }
             }
@@ -1051,68 +1261,111 @@ struct MusicLinkInput: View {
             return
         }
         
-        // Extract track ID from Spotify URL
-        var trackId: String?
-        if url.pathComponents.contains("track"), let trackIndex = url.pathComponents.firstIndex(of: "track"), trackIndex + 1 < url.pathComponents.count {
-            trackId = url.pathComponents[trackIndex + 1].split(separator: "?").first.map(String.init)
+        // Handle different Spotify URL formats
+        
+        // Case 1: Standard Spotify URL (open.spotify.com/track/...)
+        if url.host == "open.spotify.com" {
+            if url.pathComponents.contains("track"), 
+               let trackIndex = url.pathComponents.firstIndex(of: "track"), 
+               trackIndex + 1 < url.pathComponents.count {
+                let trackId = url.pathComponents[trackIndex + 1].split(separator: "?").first.map(String.init) ?? ""
+                fetchSpotifyTrack(trackId: trackId, originalLink: link)
+                return
+            }
+            // Handle album, playlist, etc.
+            else if url.pathComponents.count >= 3 {
+                // Extract what we can from the URL
+                let type = url.pathComponents.count > 1 ? url.pathComponents[1] : "track"
+                let name = url.pathComponents.last?.replacingOccurrences(of: "-", with: " ").capitalized ?? "Unknown"
+                
+                // Use oEmbed as fallback
+                fetchSpotifyOEmbed(url: link, fallbackTitle: name, fallbackType: type)
+                return
+            }
         }
         
-        guard let id = trackId else {
-            // Fallback: extract from URL path
-            let pathComponents = url.pathComponents.filter { !$0.isEmpty && $0 != "/" }
-            if let trackName = pathComponents.last {
-                let cleanName = trackName.split(separator: "?").first?.replacingOccurrences(of: "-", with: " ").capitalized ?? "Unknown Track"
-                musicData = MusicData(
-                    title: cleanName,
-                    artist: "Spotify",
-                    url: link,
-                    coverArtURL: nil
-                )
-            } else {
-                musicData = MusicData(
-                    title: "Spotify Track",
-                    artist: "Unknown Artist",
-                    url: link,
-                    coverArtURL: nil
-                )
-            }
-            isLoading = false
+        // Case 2: Shortened Spotify URL (spotify.link/...)
+        else if url.host == "spotify.link" || url.absoluteString.contains("spotify.link") {
+            // For shortened URLs, we can only use oEmbed
+            fetchSpotifyOEmbed(url: link, fallbackTitle: "Spotify Track", fallbackType: "track")
             return
         }
         
-        // Use Spotify oEmbed API (no auth required) to get basic metadata
+        // Case 3: Try to extract any useful info from the URL
+        let urlString = url.absoluteString
+        if urlString.contains("spotify") {
+            // Extract any potential track name from the URL
+            let components = urlString.components(separatedBy: "/")
+            if let lastComponent = components.last {
+                let trackName = lastComponent
+                    .split(separator: "?")
+                    .first?
+                    .replacingOccurrences(of: "-", with: " ")
+                    .capitalized ?? "Spotify Track"
+                
+                fetchSpotifyOEmbed(url: link, fallbackTitle: trackName, fallbackType: "track")
+                return
+            }
+        }
+        
+        // Fallback if nothing else works
+        errorMessage = "Could not extract Spotify track information"
+        isLoading = false
+    }
+    
+    private func fetchSpotifyTrack(trackId: String, originalLink: String) {
+        // Use Spotify oEmbed API for the track
+        fetchSpotifyOEmbed(url: originalLink, fallbackTitle: "Spotify Track", fallbackType: "track")
+    }
+    
+    private func fetchSpotifyOEmbed(url: String, fallbackTitle: String, fallbackType: String) {
         Task {
             do {
-                let apiURL = URL(string: "https://open.spotify.com/oembed?url=\(link.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? link)")!
-                let (data, _) = try await URLSession.shared.data(from: apiURL)
-                let response = try JSONDecoder().decode(SpotifyOEmbedResponse.self, from: data)
+                let encodedURL = url.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? url
+                let apiURL = URL(string: "https://open.spotify.com/oembed?url=\(encodedURL)")!
+                
+                let (data, response) = try await URLSession.shared.data(from: apiURL)
+                
+                // Check if we got a valid response
+                guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+                    throw NSError(domain: "SpotifyAPI", code: 0, userInfo: [NSLocalizedDescriptionKey: "Invalid response"])
+                }
+                
+                let oembedResponse = try JSONDecoder().decode(SpotifyOEmbedResponse.self, from: data)
                 
                 await MainActor.run {
                     // Parse title and artist from "title" field (format: "Song Name · Artist Name")
-                    let components = response.title.split(separator: "·").map { $0.trimmingCharacters(in: .whitespaces) }
-                    let title = components.first ?? response.title
-                    let artist = components.count > 1 ? components[1] : "Unknown Artist"
+                    let components = oembedResponse.title.split(separator: "·").map { $0.trimmingCharacters(in: .whitespaces) }
+                    let title = components.first ?? oembedResponse.title
+                    let artist = components.count > 1 ? components[1] : "Spotify Artist"
                     
                     musicData = MusicData(
                         title: title,
                         artist: artist,
-                        url: link,
-                        coverArtURL: response.thumbnail_url
+                        url: url,
+                        coverArtURL: oembedResponse.thumbnail_url
                     )
                     isLoading = false
                 }
             } catch {
-                await MainActor.run {
-                    // Fallback if API fails
-                    musicData = MusicData(
-                        title: "Spotify Track",
-                        artist: "Unknown Artist",
-                        url: link,
-                        coverArtURL: nil
-                    )
-                    isLoading = false
-                }
+                print("Spotify oEmbed error: \(error.localizedDescription)")
+                
+                // Fallback to search if oEmbed fails
+                await searchSpotifyTrack(query: fallbackTitle)
             }
+        }
+    }
+    
+    private func searchSpotifyTrack(query: String) async {
+        // Since we can't use Spotify Web API without auth, create a basic fallback
+        await MainActor.run {
+            musicData = MusicData(
+                title: query,
+                artist: "Spotify Artist",
+                url: "https://open.spotify.com/search/\(query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? query)",
+                coverArtURL: "https://i.scdn.co/image/ab67616d0000b273b5551c9e9bee25baa55ef5a3" // Generic Spotify logo
+            )
+            isLoading = false
         }
     }
 }
