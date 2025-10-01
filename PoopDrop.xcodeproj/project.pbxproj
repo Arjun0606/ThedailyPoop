@@ -40,6 +40,7 @@
 		A100003B294A0000000000002 /* FriendsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100003C294A0000000000002 /* FriendsManager.swift */; };
 		A100003D294A0000000000002 /* NotificationHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100003E294A0000000000002 /* NotificationHandler.swift */; };
 		A100003F294A0000000000002 /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000040294A0000000000002 /* NotificationManager.swift */; };
+		A1000050294A0000000000003 /* SpotifyAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000051294A0000000000003 /* SpotifyAPIClient.swift */; };
 		A1000041294A0000000000002 /* FriendsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000042294A0000000000002 /* FriendsView.swift */; };
 		A1000043294A0000000000002 /* MapBannerAdView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000044294A0000000000002 /* MapBannerAdView.swift */; };
 		A1000045294A0000000000002 /* NativeAdCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000046294A0000000000002 /* NativeAdCardView.swift */; };
@@ -91,6 +92,7 @@
 		A100003C294A0000000000002 /* FriendsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsManager.swift; sourceTree = "<group>"; };
 		A100003E294A0000000000002 /* NotificationHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationHandler.swift; sourceTree = "<group>"; };
 		A1000040294A0000000000002 /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
+		A1000051294A0000000000003 /* SpotifyAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpotifyAPIClient.swift; sourceTree = "<group>"; };
 		A1000042294A0000000000002 /* FriendsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsView.swift; sourceTree = "<group>"; };
 		A1000044294A0000000000002 /* MapBannerAdView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapBannerAdView.swift; sourceTree = "<group>"; };
 		A1000046294A0000000000002 /* NativeAdCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeAdCardView.swift; sourceTree = "<group>"; };
@@ -185,6 +187,7 @@
 				A100003C294A0000000000002 /* FriendsManager.swift */,
 				A100003E294A0000000000002 /* NotificationHandler.swift */,
 				A1000040294A0000000000002 /* NotificationManager.swift */,
+				A1000051294A0000000000003 /* SpotifyAPIClient.swift */,
 			);
 			path = Managers;
 			sourceTree = "<group>";
@@ -329,6 +332,7 @@
 				A100003B294A0000000000002 /* FriendsManager.swift in Sources */,
 				A100003D294A0000000000002 /* NotificationHandler.swift in Sources */,
 				A100003F294A0000000000002 /* NotificationManager.swift in Sources */,
+				A1000050294A0000000000003 /* SpotifyAPIClient.swift in Sources */,
 				A1000041294A0000000000002 /* FriendsView.swift in Sources */,
 				A1000043294A0000000000002 /* MapBannerAdView.swift in Sources */,
 				A1000045294A0000000000002 /* NativeAdCardView.swift in Sources */,

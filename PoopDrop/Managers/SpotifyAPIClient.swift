@@ -5,9 +5,9 @@ import SwiftUI
 class SpotifyAPIClient: ObservableObject {
     static let shared = SpotifyAPIClient()
     
-    // MARK: - Replace these with your actual Spotify Developer credentials
-    private let clientID = "YOUR_CLIENT_ID" // ⚠️ Replace with your actual Client ID
-    private let clientSecret = "YOUR_CLIENT_SECRET" // ⚠️ Replace with your actual Client Secret
+    // MARK: - Spotify Developer credentials
+    private let clientID = "3c060a8e9c39489f9928ee998a26b2de"
+    private let clientSecret = "YOUR_CLIENT_SECRET" // ⚠️ Click "View client secret" in Spotify Dashboard and paste it here
     private let redirectURI = "thedailypoop://spotify-callback"
     
     // Authentication state
