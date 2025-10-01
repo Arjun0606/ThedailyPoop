@@ -35,7 +35,7 @@ class CloudKitManager: ObservableObject {
                 case .available:
                     self?.isAvailable = true
                 case .noAccount:
-                    self?.errorMessage = "Please sign in to iCloud to use Poop Drop"
+                    self?.errorMessage = "Please sign in to iCloud to use TheDailyPoop"
                 case .restricted:
                     self?.errorMessage = "CloudKit is restricted on this device"
                 case .couldNotDetermine:

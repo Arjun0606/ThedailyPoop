@@ -235,7 +235,7 @@ extension NotificationHandler {
         // Set up notification categories with actions
         let center = UNUserNotificationCenter.current()
         
-        // Poop Drop Actions
+        // TheDailyPoop Actions
         let viewDropAction = UNNotificationAction(identifier: "VIEW_DROP", title: "View Drop 👁️", options: [.foreground])
         let reactAction = UNNotificationAction(identifier: "QUICK_REACT", title: "React 😂", options: [])
         let mapAction = UNNotificationAction(identifier: "OPEN_MAP", title: "Where? 🗺️", options: [.foreground])

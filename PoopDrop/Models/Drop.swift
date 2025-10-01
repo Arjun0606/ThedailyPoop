@@ -51,23 +51,8 @@ struct Drop: Identifiable, Codable {
         return "\(lat)_\(lon)"
     }
     
-    // Get rating description
-    var ratingDescription: String {
-        guard let rating = rating else { return "" }
-        switch rating {
-        case 1: return "Regret Incarnate"
-        case 2: return "Houston, We Have a Problem"
-        case 3: return "Meh, Could Be Worse"
-        case 4: return "Just Another Day"
-        case 5: return "Not Bad, Not Bad"
-        case 6: return "Chef's Kiss"
-        case 7: return "Heavenly Relief"
-        case 8: return "Absolute Euphoria"
-        case 9: return "Life-Changing Experience"
-        case 10: return "Transcendent Bliss"
-        default: return ""
-        }
-    }
+    // Placeholder for future custom rating functionality
+    // Rating descriptions removed as requested
     
     // Legacy coordinate property for backward compatibility
     var coordinate: CLLocationCoordinate2D? {

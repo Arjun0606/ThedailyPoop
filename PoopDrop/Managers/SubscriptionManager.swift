@@ -176,7 +176,7 @@ extension Product {
     var localizedTitle: String {
         switch id {
         case "com.poopdrop.pro.monthly":
-            return "Poop Drop Pro"
+            return "TheDailyPoop Pro"
         default:
             return displayName
         }

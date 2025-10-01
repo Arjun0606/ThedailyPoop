@@ -74,7 +74,7 @@ class NotificationManager: ObservableObject {
         try? await UNUserNotificationCenter.current().add(request)
     }
     
-    // MARK: - Poop Drop Notifications (with sounds!)
+    // MARK: - TheDailyPoop Notifications (with sounds!)
     
     func sendTheDailyPoopNotification(to friends: [User], from dropper: User, drop: Drop) async {
         for friend in friends {

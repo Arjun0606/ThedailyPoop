@@ -28,7 +28,7 @@ struct AuthenticationView: View {
                         .animation(.easeInOut(duration: 0.6).repeatForever(autoreverses: true), value: authManager.isLoading)
                     
                     VStack(spacing: 8) {
-                        Text("Poop Drop")
+                        Text("TheDailyPoop")
                             .font(.largeTitle)
                             .fontWeight(.bold)
                             .foregroundColor(.white)

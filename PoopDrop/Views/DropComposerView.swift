@@ -139,7 +139,7 @@ struct DropComposerView: View {
                 dismiss()
             }
         } message: {
-            Text("Poop Drop needs location access to drop poops. Please enable location access in Settings.")
+            Text("TheDailyPoop needs location access to drop poops. Please enable location access in Settings.")
         }
     }
     
@@ -823,21 +823,14 @@ struct SpotifyOEmbedResponse: Codable {
 // MARK: - Poop Rating Slider
 struct PoopRatingSlider: View {
     @Binding var rating: Double
+    @State private var sliderOffset: CGFloat = 0
     
-    var ratingDescription: String {
-        switch Int(rating) {
-        case 1: return "Regret Incarnate"
-        case 2: return "Houston, We Have a Problem"
-        case 3: return "Meh, Could Be Worse"
-        case 4: return "Just Another Day"
-        case 5: return "Not Bad, Not Bad"
-        case 6: return "Chef's Kiss"
-        case 7: return "Heavenly Relief"
-        case 8: return "Absolute Euphoria"
-        case 9: return "Life-Changing Experience"
-        case 10: return "Transcendent Bliss"
-        default: return "Not Bad, Not Bad"
-        }
+    // Poop emoji size increases with rating
+    private var poopSize: CGFloat {
+        let baseSize: CGFloat = 24
+        let maxSize: CGFloat = 40
+        let scale = CGFloat(rating) / 10.0
+        return baseSize + (maxSize - baseSize) * scale
     }
     
     var body: some View {
@@ -846,23 +839,52 @@ struct PoopRatingSlider: View {
                 .font(.headline)
                 .foregroundColor(.white)
             
-            VStack(spacing: 8) {
-                HStack {
+            VStack(spacing: 12) {
+                // Custom slider with poop emoji as thumb
+                ZStack(alignment: .leading) {
+                    // Track background
+                    Rectangle()
+                        .fill(Color.white.opacity(0.2))
+                        .frame(height: 8)
+                        .cornerRadius(4)
+                    
+                    // Filled track
+                    Rectangle()
+                        .fill(Color.orange)
+                        .frame(width: sliderOffset, height: 8)
+                        .cornerRadius(4)
+                    
+                    // Poop emoji thumb
                     Text("💩")
-                        .font(.title)
-                    Slider(value: $rating, in: 1...10, step: 1)
-                        .accentColor(.orange)
-                    Text("\(Int(rating))/10")
-                        .font(.title2)
-                        .fontWeight(.bold)
-                        .foregroundColor(.orange)
-                        .frame(width: 60)
+                        .font(.system(size: poopSize))
+                        .offset(x: sliderOffset - poopSize/2, y: -poopSize/2)
+                        .gesture(
+                            DragGesture(minimumDistance: 0)
+                                .onChanged { value in
+                                    let width = UIScreen.main.bounds.width - 100 // Approximate slider width
+                                    let newOffset = max(0, min(width, value.location.x))
+                                    sliderOffset = newOffset
+                                    
+                                    // Calculate rating based on offset
+                                    let percentage = newOffset / width
+                                    let newRating = 1 + 9 * percentage
+                                    rating = min(10, max(1, newRating))
+                                }
+                        )
+                }
+                .frame(height: 40)
+                .padding(.horizontal, 10)
+                .onAppear {
+                    // Initialize slider position based on rating
+                    let width = UIScreen.main.bounds.width - 100
+                    sliderOffset = width * (CGFloat(rating) - 1) / 9
                 }
                 
-                Text(ratingDescription)
-                    .font(.subheadline)
-                    .fontWeight(.medium)
-                    .foregroundColor(.orange.opacity(0.9))
+                // Rating display
+                Text("\(Int(rating))/10")
+                    .font(.title2)
+                    .fontWeight(.bold)
+                    .foregroundColor(.orange)
                     .frame(maxWidth: .infinity, alignment: .center)
             }
         }

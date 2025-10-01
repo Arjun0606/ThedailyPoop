@@ -7,7 +7,7 @@ struct OnboardingView: View {
     private let pages = [
         OnboardingPage(
             emoji: "💩",
-            title: "Welcome to Poop Drop!",
+            title: "Welcome to TheDailyPoop!",
             description: "The most fun way to share your bathroom adventures with friends around the world!"
         ),
         OnboardingPage(

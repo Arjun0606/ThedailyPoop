@@ -146,7 +146,7 @@ struct DropCardView: View {
                     Spacer()
                 }
                 
-                // NEW: Rating display
+                // Rating display
                 if let rating = drop.rating {
                     HStack(spacing: 8) {
                         Text("⭐")
@@ -155,11 +155,6 @@ struct DropCardView: View {
                             .font(.headline)
                             .fontWeight(.bold)
                             .foregroundColor(.orange)
-                        Text("•")
-                            .foregroundColor(.white.opacity(0.5))
-                        Text(drop.ratingDescription)
-                            .font(.subheadline)
-                            .foregroundColor(.orange.opacity(0.9))
                     }
                     .padding(.vertical, 8)
                 }
@@ -426,14 +421,14 @@ struct ShareSheetView: View {
     @Binding var isPresented: Bool
     
     var shareText: String {
-        var text = "Check out this poop drop on Poop Drop! 💩"
+        var text = "Check out this poop drop on TheDailyPoop! 💩"
         
         if let caption = drop.caption, !caption.isEmpty {
             text += "\n\n\"\(caption)\""
         }
         
         text += "\n\nDrop by \(drop.username)"
-        text += "\n\nDownload Poop Drop: [App Store Link]"
+        text += "\n\nDownload TheDailyPoop: [App Store Link]"
         
         return text
     }
