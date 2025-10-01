@@ -200,7 +200,7 @@ struct DropCardView: View {
                                     .cornerRadius(8)
                             }
                             
-                            VStack(alignment: .leading, spacing: 2) {
+                            VStack(alignment: .leading, spacing: 4) {
                                 Text("🎵 Was listening to while pooping")
                                     .font(.caption2)
                                     .foregroundColor(.white.opacity(0.6))
@@ -211,19 +211,46 @@ struct DropCardView: View {
                                     .foregroundColor(.white)
                                     .lineLimit(1)
                                 
-                                if let artist = drop.musicArtist {
-                                    Text(artist)
-                                        .font(.caption)
-                                        .foregroundColor(.white.opacity(0.7))
-                                        .lineLimit(1)
+                                HStack(spacing: 4) {
+                                    if let artist = drop.musicArtist {
+                                        Text(artist)
+                                            .font(.caption)
+                                            .foregroundColor(.white.opacity(0.7))
+                                            .lineLimit(1)
+                                    }
+                                    
+                                    // Music service provider badge
+                                    if let musicURL = drop.musicURL {
+                                        Text("•")
+                                            .font(.caption2)
+                                            .foregroundColor(.white.opacity(0.5))
+                                        
+                                        if musicURL.contains("spotify.com") {
+                                            HStack(spacing: 2) {
+                                                Image(systemName: "music.note")
+                                                    .font(.caption2)
+                                                Text("Spotify")
+                                                    .font(.caption2)
+                                            }
+                                            .foregroundColor(.green)
+                                        } else if musicURL.contains("apple.com") || musicURL.contains("itunes.apple.com") {
+                                            HStack(spacing: 2) {
+                                                Image(systemName: "applelogo")
+                                                    .font(.caption2)
+                                                Text("Music")
+                                                    .font(.caption2)
+                                            }
+                                            .foregroundColor(.pink)
+                                        }
+                                    }
                                 }
                             }
                             
                             Spacer()
                             
-                            Image(systemName: "chevron.right")
-                                .font(.caption)
-                                .foregroundColor(.white.opacity(0.5))
+                            Image(systemName: "play.circle.fill")
+                                .font(.title3)
+                                .foregroundColor(.white.opacity(0.7))
                         }
                         .padding(12)
                         .background(Color.white.opacity(0.05))
