@@ -1161,10 +1161,14 @@ struct MusicLinkInput: View {
             }
         }
         
+        // Extract country code from URL (e.g., /in/ for India)
+        let countryCode = url.pathComponents.first(where: { $0.count == 2 && $0 != "/" }) ?? "us"
+        print("🌍 Country code: \(countryCode)")
+        
         // If we have a song ID, use it directly (PRIORITY)
         if let songId = songId {
             print("🎯 Using song ID: \(songId)")
-            fetchAppleMusicTrack(songId: songId)
+            fetchAppleMusicTrack(songId: songId, country: countryCode)
             return
         }
         
@@ -1238,15 +1242,34 @@ struct MusicLinkInput: View {
         }
     }
     
-    private func fetchAppleMusicTrack(songId: String) {
+    private func fetchAppleMusicTrack(songId: String, country: String = "us") {
         Task {
             do {
-                let apiURL = URL(string: "https://itunes.apple.com/lookup?id=\(songId)")!
+                // Try with the country from URL first, fallback to US
+                var apiURL = URL(string: "https://itunes.apple.com/lookup?id=\(songId)&country=\(country)")!
                 print("📡 Fetching from: \(apiURL.absoluteString)")
-                let (data, _) = try await URLSession.shared.data(from: apiURL)
-                let response = try JSONDecoder().decode(ITunesResponse.self, from: data)
+                var (data, _) = try await URLSession.shared.data(from: apiURL)
+                var response = try JSONDecoder().decode(ITunesResponse.self, from: data)
                 
-                print("📦 Got \(response.resultCount) results")
+                print("📦 Got \(response.resultCount) results from \(country)")
+                
+                // If no results and we tried a specific country, try US as fallback
+                if response.resultCount == 0 && country != "us" {
+                    print("🔄 No results in \(country), trying US...")
+                    apiURL = URL(string: "https://itunes.apple.com/lookup?id=\(songId)&country=us")!
+                    (data, _) = try await URLSession.shared.data(from: apiURL)
+                    response = try JSONDecoder().decode(ITunesResponse.self, from: data)
+                    print("📦 Got \(response.resultCount) results from US")
+                }
+                
+                // If still no results, try without country parameter
+                if response.resultCount == 0 {
+                    print("🔄 Trying without country parameter...")
+                    apiURL = URL(string: "https://itunes.apple.com/lookup?id=\(songId)")!
+                    (data, _) = try await URLSession.shared.data(from: apiURL)
+                    response = try JSONDecoder().decode(ITunesResponse.self, from: data)
+                    print("📦 Got \(response.resultCount) results without country")
+                }
                 
                 if let track = response.results.first {
                     print("✅ Track found: \(track.trackName) by \(track.artistName)")
@@ -1260,9 +1283,9 @@ struct MusicLinkInput: View {
                         isLoading = false
                     }
                 } else {
-                    print("❌ No tracks in response")
+                    print("❌ No tracks found in any region")
                     await MainActor.run {
-                        errorMessage = "Could not find song details"
+                        errorMessage = "Song not available in iTunes API"
                         isLoading = false
                     }
                 }
