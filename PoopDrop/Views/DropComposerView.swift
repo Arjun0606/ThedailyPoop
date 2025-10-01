@@ -1133,35 +1133,44 @@ struct MusicLinkInput: View {
             return
         }
         
+        print("🎵 Parsing Apple Music link: \(link)")
+        
         // Try to extract song ID from URL
         var songId: String?
         var albumId: String?
         
         // Method 1: Check for i= parameter in query (song ID)
-        if let components = URLComponents(string: link),
-           let iParam = components.queryItems?.first(where: { $0.name == "i" })?.value {
-            songId = iParam
+        if let components = URLComponents(string: link) {
+            print("🔍 Query items: \(components.queryItems?.map { "\($0.name)=\($0.value ?? "nil")" } ?? [])")
+            if let iParam = components.queryItems?.first(where: { $0.name == "i" })?.value {
+                songId = iParam
+                print("✅ Found song ID: \(songId!)")
+            }
         }
         
         // Method 2: Extract album ID from path (format: /album/name/1234567890)
+        print("📂 Path components: \(url.pathComponents)")
         if url.pathComponents.contains("album") {
             // Get the last numeric component (album ID)
             for component in url.pathComponents.reversed() {
                 if component.allSatisfy({ $0.isNumber }) && component.count > 5 {
                     albumId = component
+                    print("✅ Found album ID: \(albumId!)")
                     break
                 }
             }
         }
         
-        // If we have a song ID, use it directly
+        // If we have a song ID, use it directly (PRIORITY)
         if let songId = songId {
+            print("🎯 Using song ID: \(songId)")
             fetchAppleMusicTrack(songId: songId)
             return
         }
         
-        // If we have an album ID, fetch the album and get the first track
+        // If we have an album ID, fetch the album and get tracks
         if let albumId = albumId {
+            print("🎯 Using album ID: \(albumId)")
             fetchAppleMusicAlbum(albumId: albumId)
             return
         }
@@ -1169,23 +1178,28 @@ struct MusicLinkInput: View {
         // Method 3: Extract song name from URL path and search
         let pathComponents = url.pathComponents.filter { !$0.isEmpty && $0 != "/" && $0 != "album" && !$0.contains("music.apple.com") }
         
+        print("📝 Filtered path components: \(pathComponents)")
+        
         // Try to find the song name (usually the component before the album ID)
         var songName = ""
-        for (index, component) in pathComponents.enumerated() {
-            // Skip numeric IDs
-            if component.allSatisfy({ $0.isNumber }) {
+        for component in pathComponents {
+            // Skip numeric IDs and country codes
+            if component.allSatisfy({ $0.isNumber }) || component.count == 2 {
                 continue
             }
-            // This is likely the song name
+            // This is likely the song name or album name
             if !component.isEmpty && component.count > 2 {
                 songName = component.replacingOccurrences(of: "-", with: " ").capitalized
+                print("🔤 Extracted song name: \(songName)")
                 break
             }
         }
         
         if !songName.isEmpty {
+            print("🔍 Searching for: \(songName)")
             searchAppleMusic(term: songName, entity: "song")
         } else {
+            print("❌ Could not extract any useful info")
             errorMessage = "Could not extract song info from Apple Music link"
             isLoading = false
         }
@@ -1228,10 +1242,14 @@ struct MusicLinkInput: View {
         Task {
             do {
                 let apiURL = URL(string: "https://itunes.apple.com/lookup?id=\(songId)")!
+                print("📡 Fetching from: \(apiURL.absoluteString)")
                 let (data, _) = try await URLSession.shared.data(from: apiURL)
                 let response = try JSONDecoder().decode(ITunesResponse.self, from: data)
                 
+                print("📦 Got \(response.resultCount) results")
+                
                 if let track = response.results.first {
+                    print("✅ Track found: \(track.trackName) by \(track.artistName)")
                     await MainActor.run {
                         musicData = MusicData(
                             title: track.trackName,
@@ -1242,12 +1260,14 @@ struct MusicLinkInput: View {
                         isLoading = false
                     }
                 } else {
+                    print("❌ No tracks in response")
                     await MainActor.run {
                         errorMessage = "Could not find song details"
                         isLoading = false
                     }
                 }
             } catch {
+                print("❌ Error: \(error.localizedDescription)")
                 await MainActor.run {
                     errorMessage = "Failed to fetch song details: \(error.localizedDescription)"
                     isLoading = false
