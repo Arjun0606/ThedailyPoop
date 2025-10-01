@@ -22,6 +22,13 @@ struct Drop: Identifiable, Codable {
     var expiresAt: Date // When this drop expires from map
     let isVisible: Bool // Soft delete capability
     
+    // NEW: Poop rating and music
+    var rating: Int? // 1-10 rating of the poop
+    var musicTitle: String? // Song title
+    var musicArtist: String? // Artist name
+    var musicURL: String? // Apple Music/Spotify URL
+    var musicCoverArt: String? // Cover art URL
+    
     // Computed property for display emoji
     var displayEmoji: String {
         if isNoPoop {
@@ -44,6 +51,24 @@ struct Drop: Identifiable, Codable {
         return "\(lat)_\(lon)"
     }
     
+    // Get rating description
+    var ratingDescription: String {
+        guard let rating = rating else { return "" }
+        switch rating {
+        case 1: return "Regret Incarnate"
+        case 2: return "Houston, We Have a Problem"
+        case 3: return "Meh, Could Be Worse"
+        case 4: return "Just Another Day"
+        case 5: return "Not Bad, Not Bad"
+        case 6: return "Chef's Kiss"
+        case 7: return "Heavenly Relief"
+        case 8: return "Absolute Euphoria"
+        case 9: return "Life-Changing Experience"
+        case 10: return "Transcendent Bliss"
+        default: return ""
+        }
+    }
+    
     // Legacy coordinate property for backward compatibility
     var coordinate: CLLocationCoordinate2D? {
         return location
@@ -60,7 +85,12 @@ struct Drop: Identifiable, Codable {
          caption: String? = nil,
          sponsorCampaignID: String? = nil,
          isNoPoop: Bool = false,
-         isSponsored: Bool = false) {
+         isSponsored: Bool = false,
+         rating: Int? = nil,
+         musicTitle: String? = nil,
+         musicArtist: String? = nil,
+         musicURL: String? = nil,
+         musicCoverArt: String? = nil) {
         self.id = id
         self.userID = userID
         self.username = username
@@ -78,6 +108,11 @@ struct Drop: Identifiable, Codable {
         self.reactionCount = 0
         self.commentCount = 0
         self.isVisible = true
+        self.rating = rating
+        self.musicTitle = musicTitle
+        self.musicArtist = musicArtist
+        self.musicURL = musicURL
+        self.musicCoverArt = musicCoverArt
         
         // Set expiration to 3 days for all users (simplified model)
         let calendar = Calendar.current
@@ -125,6 +160,13 @@ extension Drop {
         self.commentCount = record["commentCount"] as? Int ?? 0
         self.expiresAt = record["expiresAt"] as? Date ?? Date().addingTimeInterval(3 * 24 * 60 * 60)
         self.isVisible = (record["isVisible"] as? Int) == 1
+        
+        // NEW: Load rating and music data
+        self.rating = record["rating"] as? Int
+        self.musicTitle = record["musicTitle"] as? String
+        self.musicArtist = record["musicArtist"] as? String
+        self.musicURL = record["musicURL"] as? String
+        self.musicCoverArt = record["musicCoverArt"] as? String
     }
     
     func toCKRecord() -> CKRecord {
@@ -156,6 +198,13 @@ extension Drop {
         record["reactionCount"] = reactionCount
         record["commentCount"] = commentCount
         record["expiresAt"] = expiresAt
+        
+        // NEW: Save rating and music data
+        record["rating"] = rating
+        record["musicTitle"] = musicTitle
+        record["musicArtist"] = musicArtist
+        record["musicURL"] = musicURL
+        record["musicCoverArt"] = musicCoverArt
         
         return record
     }

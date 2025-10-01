@@ -17,6 +17,11 @@ struct DropComposerView: View {
     @State private var currentLocation: CLLocation?
     @State private var isNoPoop = false // Toggle for "no poop" option
     
+    // NEW: Rating and music
+    @State private var rating: Double = 5.0 // 1-10 slider, default 5
+    @State private var musicLink: String = ""
+    @State private var musicData: MusicData? = nil
+    
     private let freeCharLimit = 50
     private let proWordLimit = 200
     
@@ -67,6 +72,11 @@ struct DropComposerView: View {
                         
                         // Single poop type only - remove style selector
                         
+                        // NEW: Poop Rating Slider
+                        if !isNoPoop {
+                            PoopRatingSlider(rating: $rating)
+                        }
+                        
                         // Caption input
                         CaptionInputView(
                             caption: $caption,
@@ -77,6 +87,11 @@ struct DropComposerView: View {
                             isAtLimit: isAtLimit,
                             onLimitReached: {}
                         )
+                        
+                        // NEW: Music Link Input
+                        if !isNoPoop {
+                            MusicLinkInput(musicLink: $musicLink, musicData: $musicData)
+                        }
                         
                         // Pro removed
                         
@@ -179,7 +194,12 @@ struct DropComposerView: View {
                 skinId: isNoPoop ? nil : selectedSkinId,
                 caption: finalCaption.isEmpty ? nil : finalCaption,
                 isNoPoop: isNoPoop,
-                isSponsored: false
+                isSponsored: false,
+                rating: isNoPoop ? nil : Int(rating),
+                musicTitle: musicData?.title,
+                musicArtist: musicData?.artist,
+                musicURL: musicData?.url,
+                musicCoverArt: musicData?.coverArtURL
             )
 
             do {
@@ -774,6 +794,238 @@ struct DropButton: View {
     }
 }
 
+
+// MARK: - Music Data Model
+struct MusicData {
+    let title: String
+    let artist: String
+    let url: String
+    let coverArtURL: String?
+}
+
+// MARK: - Poop Rating Slider
+struct PoopRatingSlider: View {
+    @Binding var rating: Double
+    
+    var ratingDescription: String {
+        switch Int(rating) {
+        case 1: return "Regret Incarnate"
+        case 2: return "Houston, We Have a Problem"
+        case 3: return "Meh, Could Be Worse"
+        case 4: return "Just Another Day"
+        case 5: return "Not Bad, Not Bad"
+        case 6: return "Chef's Kiss"
+        case 7: return "Heavenly Relief"
+        case 8: return "Absolute Euphoria"
+        case 9: return "Life-Changing Experience"
+        case 10: return "Transcendent Bliss"
+        default: return "Not Bad, Not Bad"
+        }
+    }
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Rate This Drop")
+                .font(.headline)
+                .foregroundColor(.white)
+            
+            VStack(spacing: 8) {
+                HStack {
+                    Text("💩")
+                        .font(.title)
+                    Slider(value: $rating, in: 1...10, step: 1)
+                        .accentColor(.orange)
+                    Text("\(Int(rating))/10")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .foregroundColor(.orange)
+                        .frame(width: 60)
+                }
+                
+                Text(ratingDescription)
+                    .font(.subheadline)
+                    .fontWeight(.medium)
+                    .foregroundColor(.orange.opacity(0.9))
+                    .frame(maxWidth: .infinity, alignment: .center)
+            }
+        }
+        .padding()
+        .background(Color.white.opacity(0.05))
+        .cornerRadius(12)
+    }
+}
+
+// MARK: - Music Link Input
+struct MusicLinkInput: View {
+    @Binding var musicLink: String
+    @Binding var musicData: MusicData?
+    @State private var isLoading = false
+    @State private var errorMessage: String? = nil
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("🎵 Listening To (Optional)")
+                .font(.headline)
+                .foregroundColor(.white)
+            
+            VStack(spacing: 12) {
+                HStack {
+                    Image(systemName: "link")
+                        .foregroundColor(.white.opacity(0.6))
+                    
+                    TextField("Paste Apple Music or Spotify link", text: $musicLink)
+                        .foregroundColor(.white)
+                        .onChange(of: musicLink) { oldValue, newValue in
+                            if !newValue.isEmpty {
+                                parseMusicLink(newValue)
+                            } else {
+                                musicData = nil
+                                errorMessage = nil
+                            }
+                        }
+                }
+                .padding()
+                .background(Color.white.opacity(0.1))
+                .cornerRadius(8)
+                
+                if let error = errorMessage {
+                    Text(error)
+                        .font(.caption)
+                        .foregroundColor(.red.opacity(0.8))
+                }
+                
+                if let music = musicData {
+                    HStack(spacing: 12) {
+                        if let coverURL = music.coverArtURL, let url = URL(string: coverURL) {
+                            AsyncImage(url: url) { image in
+                                image
+                                    .resizable()
+                                    .scaledToFill()
+                            } placeholder: {
+                                Rectangle()
+                                    .fill(Color.gray.opacity(0.3))
+                            }
+                            .frame(width: 50, height: 50)
+                            .cornerRadius(8)
+                        } else {
+                            Image(systemName: "music.note")
+                                .font(.title2)
+                                .foregroundColor(.white.opacity(0.6))
+                                .frame(width: 50, height: 50)
+                                .background(Color.gray.opacity(0.3))
+                                .cornerRadius(8)
+                        }
+                        
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(music.title)
+                                .font(.subheadline)
+                                .fontWeight(.semibold)
+                                .foregroundColor(.white)
+                                .lineLimit(1)
+                            
+                            Text(music.artist)
+                                .font(.caption)
+                                .foregroundColor(.white.opacity(0.7))
+                                .lineLimit(1)
+                        }
+                        
+                        Spacer()
+                        
+                        Image(systemName: "checkmark.circle.fill")
+                            .foregroundColor(.green)
+                    }
+                    .padding()
+                    .background(Color.green.opacity(0.1))
+                    .cornerRadius(8)
+                }
+            }
+        }
+        .padding()
+        .background(Color.white.opacity(0.05))
+        .cornerRadius(12)
+    }
+    
+    private func parseMusicLink(_ link: String) {
+        isLoading = true
+        errorMessage = nil
+        
+        // Check if it's Apple Music or Spotify
+        if link.contains("music.apple.com") {
+            parseAppleMusic(link)
+        } else if link.contains("spotify.com") || link.contains("spotify.link") {
+            parseSpotify(link)
+        } else {
+            errorMessage = "Please paste a valid Apple Music or Spotify link"
+            isLoading = false
+        }
+    }
+    
+    private func parseAppleMusic(_ link: String) {
+        // Extract song ID from URL
+        // Format: https://music.apple.com/us/album/song-name/album-id?i=song-id
+        guard let url = URL(string: link) else {
+            errorMessage = "Invalid Apple Music link"
+            isLoading = false
+            return
+        }
+        
+        // For now, we'll extract basic info from the URL path
+        // In production, you'd use Apple Music API
+        let pathComponents = url.pathComponents
+        if pathComponents.count >= 3 {
+            let songName = pathComponents[3].replacingOccurrences(of: "-", with: " ").capitalized
+            musicData = MusicData(
+                title: songName,
+                artist: "Apple Music",
+                url: link,
+                coverArtURL: nil
+            )
+        } else {
+            musicData = MusicData(
+                title: "Apple Music Track",
+                artist: "Unknown Artist",
+                url: link,
+                coverArtURL: nil
+            )
+        }
+        
+        isLoading = false
+    }
+    
+    private func parseSpotify(_ link: String) {
+        // Extract track ID from URL
+        // Format: https://open.spotify.com/track/track-id or https://spotify.link/xxxxx
+        guard let url = URL(string: link) else {
+            errorMessage = "Invalid Spotify link"
+            isLoading = false
+            return
+        }
+        
+        // For now, we'll extract basic info from the URL
+        // In production, you'd use Spotify API
+        if url.pathComponents.contains("track") {
+            let trackIndex = url.pathComponents.firstIndex(of: "track") ?? 0
+            if trackIndex + 1 < url.pathComponents.count {
+                let trackName = url.pathComponents[trackIndex + 1].replacingOccurrences(of: "-", with: " ").capitalized
+                musicData = MusicData(
+                    title: trackName,
+                    artist: "Spotify",
+                    url: link,
+                    coverArtURL: nil
+                )
+            }
+        } else {
+            musicData = MusicData(
+                title: "Spotify Track",
+                artist: "Unknown Artist",
+                url: link,
+                coverArtURL: nil
+            )
+        }
+        
+        isLoading = false
+    }
+}
 
 #Preview {
     DropComposerView()

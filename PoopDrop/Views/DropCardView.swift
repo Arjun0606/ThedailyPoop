@@ -146,12 +146,77 @@ struct DropCardView: View {
                     Spacer()
                 }
                 
+                // NEW: Rating display
+                if let rating = drop.rating {
+                    HStack(spacing: 8) {
+                        Text("⭐")
+                            .font(.title3)
+                        Text("\(rating)/10")
+                            .font(.headline)
+                            .fontWeight(.bold)
+                            .foregroundColor(.orange)
+                        Text("•")
+                            .foregroundColor(.white.opacity(0.5))
+                        Text(drop.ratingDescription)
+                            .font(.subheadline)
+                            .foregroundColor(.orange.opacity(0.9))
+                    }
+                    .padding(.vertical, 8)
+                }
+                
                 // Caption
                 if let caption = drop.caption, !caption.isEmpty {
                     Text(caption)
                         .font(.body)
                         .foregroundColor(.white)
                         .fixedSize(horizontal: false, vertical: true)
+                }
+                
+                // NEW: Music display
+                if let musicTitle = drop.musicTitle, let musicURL = drop.musicURL {
+                    Button(action: {
+                        if let url = URL(string: musicURL) {
+                            UIApplication.shared.open(url)
+                        }
+                    }) {
+                        HStack(spacing: 12) {
+                            Image(systemName: "music.note")
+                                .font(.title3)
+                                .foregroundColor(.green)
+                                .frame(width: 40, height: 40)
+                                .background(Color.green.opacity(0.2))
+                                .cornerRadius(8)
+                            
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("🎵 Listening to")
+                                    .font(.caption2)
+                                    .foregroundColor(.white.opacity(0.6))
+                                
+                                Text(musicTitle)
+                                    .font(.subheadline)
+                                    .fontWeight(.semibold)
+                                    .foregroundColor(.white)
+                                    .lineLimit(1)
+                                
+                                if let artist = drop.musicArtist {
+                                    Text(artist)
+                                        .font(.caption)
+                                        .foregroundColor(.white.opacity(0.7))
+                                        .lineLimit(1)
+                                }
+                            }
+                            
+                            Spacer()
+                            
+                            Image(systemName: "chevron.right")
+                                .font(.caption)
+                                .foregroundColor(.white.opacity(0.5))
+                        }
+                        .padding(12)
+                        .background(Color.white.opacity(0.05))
+                        .cornerRadius(12)
+                    }
+                    .buttonStyle(PlainButtonStyle())
                 }
                 
                 // Sponsored content
