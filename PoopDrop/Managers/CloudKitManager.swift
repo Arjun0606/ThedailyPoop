@@ -506,7 +506,7 @@ class CloudKitManager: ObservableObject {
     // MARK: - Friend Checking (for push notifications)
     
     func isFriend(userID: String) async -> Bool {
-        guard let currentUserID = currentUser?.id else { return false }
+        guard let currentUserID = self.currentUser?.id else { return false }
         
         do {
             // Check if there's an accepted friendship between these users

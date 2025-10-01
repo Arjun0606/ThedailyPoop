@@ -75,11 +75,6 @@ class AuthenticationManager: NSObject, ObservableObject {
         // Clear user-specific cached data (but keep drops)
         CloudKitManager.shared.clearUserCache()
         
-        // Unsubscribe from push notifications
-        Task {
-            await PushNotificationManager.shared.unsubscribeFromPushNotifications()
-        }
-        
         print("✅ Sign out completed")
     }
     
@@ -122,10 +117,6 @@ class AuthenticationManager: NSObject, ObservableObject {
                 // Notify map to reload data
                 NotificationCenter.default.post(name: Notification.Name("USER_SIGNED_IN"), object: nil)
             }
-            
-            // Register for push notifications
-            await PushNotificationManager.shared.registerForPushNotifications()
-            
             return
         }
         

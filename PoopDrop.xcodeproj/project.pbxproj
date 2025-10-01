@@ -53,7 +53,6 @@
 		D9AC1536EA6A48F4FEAFB2CE /* ContactView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27F25651DCDE162B6C18444A /* ContactView.swift */; };
 		9122A731B4202D13CB528ADC /* TermsOfServiceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 119BCB7C76A3A13ECAA1ECFC /* TermsOfServiceView.swift */; };
 		18C93C69C717BE42F314D4B1 /* PrivacyPolicyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4210E055649FE550A178E211 /* PrivacyPolicyView.swift */; };
-		A1000052294A0000000000003 /* PushNotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000053294A0000000000003 /* PushNotificationManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -105,7 +104,6 @@
 		27F25651DCDE162B6C18444A /* ContactView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactView.swift; sourceTree = "<group>"; };
 		119BCB7C76A3A13ECAA1ECFC /* TermsOfServiceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TermsOfServiceView.swift; sourceTree = "<group>"; };
 		4210E055649FE550A178E211 /* PrivacyPolicyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivacyPolicyView.swift; sourceTree = "<group>"; };
-		A1000053294A0000000000003 /* PushNotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -189,7 +187,6 @@
 				A100003C294A0000000000002 /* FriendsManager.swift */,
 				A100003E294A0000000000002 /* NotificationHandler.swift */,
 				A1000040294A0000000000002 /* NotificationManager.swift */,
-				A1000053294A0000000000003 /* PushNotificationManager.swift */,
 				A1000051294A0000000000003 /* SpotifyAPIClient.swift */,
 			);
 			path = Managers;
