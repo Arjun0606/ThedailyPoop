@@ -1204,7 +1204,7 @@ struct MusicLinkInput: View {
                         musicData = MusicData(
                             title: track.trackName,
                             artist: track.artistName,
-                            url: track.trackViewUrl ?? track.collectionViewUrl ?? link,
+                            url: track.trackViewUrl ?? track.collectionViewUrl ?? "",
                             coverArtURL: track.artworkUrl100.replacingOccurrences(of: "100x100", with: "600x600")
                         )
                         isLoading = false
