@@ -27,7 +27,7 @@ struct HowItWorksView: View {
                         FeatureSection(
                             icon: "📍",
                             title: "1. Drop It Like It's Hot",
-                            description: "Every time you poop, tap the big button and log it! Your location is automatically detected (city/state only for privacy). Choose your favorite poop emoji and add an optional caption."
+                            description: "Every time you poop, tap the big button and log it! Your location is automatically detected (city/state only for privacy). Rate your poop from 1-10 with our sliding poop emoji (it grows as you slide!), add what music you're listening to from Spotify or Apple Music, and include an optional caption."
                         )
                         
                         FeatureSection(
@@ -45,7 +45,7 @@ struct HowItWorksView: View {
                         FeatureSection(
                             icon: "👥",
                             title: "4. Connect with Friends",
-                            description: "Add friends to see their poops in your feed and on the map! React to their drops with emojis, view their stats, and compete on the leaderboard. Get notified when friends drop, break streaks, or accept your friend requests."
+                            description: "Add friends to see their poops in your feed and on the map! React to their drops with emojis, see what music they're listening to while pooping, view their poop ratings, check their stats, and compete on the leaderboard. Get notified when friends drop, break streaks, or accept your friend requests."
                         )
                         
                         FeatureSection(
@@ -61,8 +61,14 @@ struct HowItWorksView: View {
                         )
                         
                         FeatureSection(
+                            icon: "🎵",
+                            title: "7. Music & Ratings",
+                            description: "Rate each poop from 1-10 (watch the poop emoji grow!). Share what song you're jamming to by pasting a Spotify or Apple Music link. Friends can tap the music card to listen to the same song. Turn your bathroom breaks into a musical experience!"
+                        )
+                        
+                        FeatureSection(
                             icon: "📱",
-                            title: "7. Share Your Journey",
+                            title: "8. Share Your Journey",
                             description: "Export your stats as a beautiful shareable image for Instagram, Twitter, or Stories. Show off your streak, your poop passport, or your global heatmap!"
                         )
                         

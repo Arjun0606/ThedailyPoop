@@ -7,7 +7,7 @@ class SpotifyAPIClient: ObservableObject {
     
     // MARK: - Spotify Developer credentials
     private let clientID = "3c060a8e9c39489f9928ee998a26b2de"
-    private let clientSecret = "YOUR_CLIENT_SECRET" // ⚠️ Click "View client secret" in Spotify Dashboard and paste it here
+    private let clientSecret = "c042ba1d935e4d6192ca73f28928db4a"
     private let redirectURI = "thedailypoop://spotify-callback"
     
     // Authentication state
