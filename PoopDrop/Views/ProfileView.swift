@@ -595,9 +595,9 @@ struct InfoLegalRow: View {
                 
                 Spacer()
                 
-                Image(systemName: "chevron.right")
+                    Image(systemName: "chevron.right")
                     .foregroundColor(.white.opacity(0.3))
-                    .font(.caption)
+                        .font(.caption)
             }
             .padding()
         }
