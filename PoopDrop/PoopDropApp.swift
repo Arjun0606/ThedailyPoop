@@ -38,15 +38,15 @@ struct TheDailyPoopApp: App {
 #if canImport(GoogleMobileAds)
         MobileAds.shared.start(completionHandler: nil)
         
-        // ALWAYS use test mode until AdMob approves the app
+        #if DEBUG
+        // ONLY use test mode in DEBUG builds (Xcode simulator/testing)
         MobileAds.shared.requestConfiguration.testDeviceIdentifiers = [
             "Simulator"
         ]
-        
-        #if DEBUG
         print("[AdMob] SDK initialized (TEST mode - will show sample ads)")
         #else
-        print("[AdMob] SDK initialized (TEST mode - waiting for AdMob approval)")
+        // Production mode - REAL ads will show once AdMob approves
+        print("[AdMob] SDK initialized (PRODUCTION mode - real ads enabled)")
         #endif
 #endif
         

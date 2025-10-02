@@ -233,6 +233,13 @@ struct DropComposerView: View {
                 
                 await MainActor.run {
                     isDropping = false
+                    
+                    // 💰 Show interstitial ad after drop (monetization)
+                    let adShown = AdManager.shared.showInterstitialAd()
+                    if adShown {
+                        print("💰 Interstitial ad shown after drop!")
+                    }
+                    
                     dismiss()
                     print("🗺️ Posting DID_CREATE_DROP notification to switch to map")
                     // Post notification so MainTabView can switch to Map and center on this drop

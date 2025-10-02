@@ -39,9 +39,14 @@ struct ProfileSetupView: View {
                             .fontWeight(.bold)
                             .foregroundColor(.white)
                         
-                        Text("Just a few more details to get you started!")
+                        Text("Set your username to get started!")
                             .font(.body)
                             .foregroundColor(.white.opacity(0.8))
+                            .multilineTextAlignment(.center)
+                        
+                        Text("(Profile photo, date of birth, and gender are optional)")
+                            .font(.caption)
+                            .foregroundColor(.white.opacity(0.6))
                             .multilineTextAlignment(.center)
                     }
                     .padding(.top, 40)
@@ -114,9 +119,14 @@ struct ProfileSetupView: View {
                         
                         // Date of Birth
                         VStack(alignment: .leading, spacing: 8) {
-                            Text("Date of Birth")
-                                .font(.headline)
-                                .foregroundColor(.white)
+                            HStack {
+                                Text("Date of Birth")
+                                    .font(.headline)
+                                    .foregroundColor(.white)
+                                Text("(Optional)")
+                                    .font(.caption)
+                                    .foregroundColor(.white.opacity(0.6))
+                            }
                             
                             Button(action: {
                                 showingDatePicker.toggle()
@@ -138,9 +148,14 @@ struct ProfileSetupView: View {
                         
                         // Gender selection
                         VStack(alignment: .leading, spacing: 8) {
-                            Text("Gender")
-                                .font(.headline)
-                                .foregroundColor(.white)
+                            HStack {
+                                Text("Gender")
+                                    .font(.headline)
+                                    .foregroundColor(.white)
+                                Text("(Optional)")
+                                    .font(.caption)
+                                    .foregroundColor(.white.opacity(0.6))
+                            }
                             
                             HStack(spacing: 12) {
                                 ForEach(Gender.allCases, id: \.self) { gender in

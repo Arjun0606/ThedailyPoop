@@ -10,8 +10,8 @@ enum Gender: String, Codable, CaseIterable {
 struct User: Identifiable, Codable {
     let id: String
     var username: String // Unique username - serves as both display name and username
-    var dateOfBirth: Date // Required for age verification
-    var gender: Gender // Required for personalization
+    var dateOfBirth: Date? // Optional - for user preference
+    var gender: Gender? // Optional - for user preference
     var customGender: String? // Freeform text when gender == .custom
     var avatarURL: URL?
     var streak: Int
@@ -34,8 +34,8 @@ struct User: Identifiable, Codable {
     
     init(id: String = UUID().uuidString, 
          username: String,
-         dateOfBirth: Date,
-         gender: Gender,
+         dateOfBirth: Date? = nil,
+         gender: Gender? = nil,
          appleUserID: String,
          customGender: String? = nil,
          avatarURL: URL? = nil, 
@@ -70,15 +70,16 @@ extension User {
     
     init?(from record: CKRecord) {
         guard let username = record["username"] as? String,
-              let dateOfBirth = record["dateOfBirth"] as? Date,
-              let genderString = record["gender"] as? String,
-              let gender = Gender(rawValue: genderString),
               let appleUserID = record["appleUserID"] as? String else { return nil }
         
         self.id = record.recordID.recordName
         self.username = username
-        self.dateOfBirth = dateOfBirth
-        self.gender = gender
+        self.dateOfBirth = record["dateOfBirth"] as? Date
+        if let genderString = record["gender"] as? String {
+            self.gender = Gender(rawValue: genderString)
+        } else {
+            self.gender = nil
+        }
         self.appleUserID = appleUserID
         if let custom = record["customGender"] as? String { self.customGender = custom } else { self.customGender = nil }
         if let asset = record["avatar"] as? CKAsset, let url = asset.fileURL {
@@ -131,8 +132,12 @@ extension User {
     func toCKRecord() -> CKRecord {
         let record = CKRecord(recordType: User.recordType, recordID: CKRecord.ID(recordName: id))
         record["username"] = username
-        record["dateOfBirth"] = dateOfBirth
-        record["gender"] = gender.rawValue
+        if let dob = dateOfBirth {
+            record["dateOfBirth"] = dob
+        }
+        if let gender = gender {
+            record["gender"] = gender.rawValue
+        }
         record["appleUserID"] = appleUserID
         record["customGender"] = customGender
         // Store avatar as CKAsset when available
