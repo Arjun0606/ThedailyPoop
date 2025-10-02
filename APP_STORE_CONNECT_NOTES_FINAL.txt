@@ -1,0 +1,44 @@
+DEMO ACCOUNT PROVIDED:
+
+Authentication: Sign in with Apple
+Demo Account Credentials: See "Sign-In Information" above
+Reviewers can create their own test data using the app's drop features.
+
+CHANGES MADE TO ADDRESS REJECTION:
+
+1. Guideline 5.1.1 (Personal Information) - RESOLVED:
+   • Date of Birth is now COMPLETELY OPTIONAL
+     - User can skip it entirely during signup
+     - "Add Date of Birth" button shown if not provided
+     - Can be left empty without blocking profile creation
+   
+   • Gender field has been REMOVED entirely
+     - No longer shown in profile setup
+     - Not saved to user profile
+   
+   • Users can complete signup with username only
+   • Profile creation proceeds with just a username
+
+2. Guideline 2.1 (Demo Account) - RESOLVED:
+   • Demo account credentials provided above
+   • Reviewers can test all features by creating drops themselves
+   • All core features (drops, map, feed, friends, reactions) are fully functional
+
+HOW TO TEST:
+1. Sign in with provided Apple ID credentials
+2. Set any username (e.g., @reviewer)
+3. SKIP date of birth (no longer required)
+4. Grant location permission when prompted
+5. Tap center "💩" button to create a drop
+6. Rate drop 1-10, optionally add music/caption
+7. Tap "Drop It" - pin appears on map
+8. View drops in Feed tab (Friends + My Feed)
+9. Add friends by searching usernames
+10. Test reactions, leaderboard, profile stats
+
+LOCATION PERMISSION:
+Location is required for core map functionality - users see where friends dropped on the map. This is the app's primary feature.
+
+Contact: karjunvarma2001@gmail.com
+Response Time: Within 12 hours
+
