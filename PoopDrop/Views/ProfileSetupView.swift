@@ -18,146 +18,16 @@ struct ProfileSetupView: View {
     
     var body: some View {
         ZStack {
-            // Dark gradient background
-            LinearGradient(
-                colors: [Color.black, Color.brown.opacity(0.4)],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .ignoresSafeArea()
+            backgroundGradient
             
             ScrollView {
                 VStack(spacing: 30) {
-                    // Header
-                    VStack(spacing: 16) {
-                        Text("💩")
-                            .font(.system(size: 80))
-                        
-                        Text("Complete Your Profile")
-                            .font(.largeTitle)
-                            .fontWeight(.bold)
-                            .foregroundColor(.white)
-                        
-                        Text("Set your username to get started!")
-                            .font(.body)
-                            .foregroundColor(.white.opacity(0.8))
-                            .multilineTextAlignment(.center)
-                        
-                        Text("(Profile photo and date of birth are optional)")
-                            .font(.caption)
-                            .foregroundColor(.white.opacity(0.6))
-                            .multilineTextAlignment(.center)
-                    }
-                    .padding(.top, 40)
+                    headerSection
+                    profilePhotoSection
                     
-                    // Profile photo
-                    VStack(spacing: 12) {
-                        ZStack {
-                            if let image = selectedImage {
-                                Image(uiImage: image)
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fill)
-                                    .frame(width: 120, height: 120)
-                                    .clipShape(Circle())
-                                    .overlay(Circle().stroke(Color.white.opacity(0.3), lineWidth: 2))
-                                    .onTapGesture { showingPhotoEditor = true }
-                            } else {
-                                Circle()
-                                    .fill(Color.white.opacity(0.1))
-                                    .frame(width: 120, height: 120)
-                                    .overlay(Text("Tap to add\nphoto").font(.caption).foregroundColor(.white.opacity(0.7)))
-                                    .onTapGesture { showingPhotoEditor = true }
-                            }
-                        }
-                    }
-                    
-                    // Form fields
                     VStack(spacing: 24) {
-                        // Username field
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("Username")
-                                .font(.headline)
-                                .foregroundColor(.white)
-                            
-                            HStack {
-                                Text("@")
-                                    .foregroundColor(.white.opacity(0.7))
-                                    .font(.body)
-                                
-                                TextField("username", text: $username)
-                                    .textFieldStyle(PlainTextFieldStyle())
-                                    .foregroundColor(.white)
-                                    .autocapitalization(.none)
-                                    .disableAutocorrection(true)
-                                    .onChange(of: username) { _ in
-                                        checkUsernameAvailability()
-                                    }
-                                
-                                if checkingUsername {
-                                    ProgressView()
-                                        .scaleEffect(0.8)
-                                } else if !username.isEmpty {
-                                    Image(systemName: usernameAvailable ? "checkmark.circle.fill" : "xmark.circle.fill")
-                                        .foregroundColor(usernameAvailable ? .green : .red)
-                                }
-                            }
-                            .padding()
-                            .background(Color.white.opacity(0.1))
-                            .cornerRadius(12)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .stroke(usernameAvailable ? Color.clear : Color.red, lineWidth: 1)
-                            )
-                            
-                            if !usernameAvailable && !username.isEmpty {
-                                Text("Username not available")
-                                    .font(.caption)
-                                    .foregroundColor(.red)
-                            }
-                        }
-                        
-                        // Date of Birth (Optional - can skip entirely)
-                        VStack(alignment: .leading, spacing: 8) {
-                            HStack {
-                                Text("Date of Birth")
-                                    .font(.headline)
-                                    .foregroundColor(.white)
-                                Text("(Optional - Skip if you prefer)")
-                                    .font(.caption)
-                                    .foregroundColor(.white.opacity(0.6))
-                            }
-                            
-                            if let dob = dateOfBirth {
-                                HStack {
-                                    Button(action: {
-                                        showingDatePicker.toggle()
-                                    }) {
-                                        HStack {
-                                            Text(dob.formatted(date: .abbreviated, time: .omitted))
-                                                .foregroundColor(.white)
-                                            
-                                            Spacer()
-                                            
-                                            Image(systemName: "calendar")
-                                                .foregroundColor(.white.opacity(0.7))
-                                        }
-                                        .padding()
-                                        .background(Color.white.opacity(0.1))
-                                        .cornerRadius(12)
-                                    }
-                                    
-                                    Button(action: {
-                                        dateOfBirth = nil
-                                    }) {
-                                        Image(systemName: "xmark.circle.fill")
-                                            .foregroundColor(.white.opacity(0.7))
-                                            .font(.title3)
-                                    }
-                                }
-                            } else {
-                                addDateOfBirthButton
-                            }
-                        }
+                        usernameField
+                        dateOfBirthField
                     }
                     .padding(.horizontal, 32)
                     
@@ -309,6 +179,148 @@ struct ProfileSetupView: View {
     }
     
     // MARK: - Subviews
+    
+    private var backgroundGradient: some View {
+        LinearGradient(
+            colors: [Color.black, Color.brown.opacity(0.4)],
+            startPoint: .top,
+            endPoint: .bottom
+        )
+        .ignoresSafeArea()
+    }
+    
+    private var headerSection: some View {
+        VStack(spacing: 16) {
+            Text("💩")
+                .font(.system(size: 80))
+            
+            Text("Complete Your Profile")
+                .font(.largeTitle)
+                .fontWeight(.bold)
+                .foregroundColor(.white)
+            
+            Text("Set your username to get started!")
+                .font(.body)
+                .foregroundColor(.white.opacity(0.8))
+                .multilineTextAlignment(.center)
+            
+            Text("(Profile photo and date of birth are optional)")
+                .font(.caption)
+                .foregroundColor(.white.opacity(0.6))
+                .multilineTextAlignment(.center)
+        }
+        .padding(.top, 40)
+    }
+    
+    private var profilePhotoSection: some View {
+        VStack(spacing: 12) {
+            ZStack {
+                if let image = selectedImage {
+                    Image(uiImage: image)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: 120, height: 120)
+                        .clipShape(Circle())
+                        .overlay(Circle().stroke(Color.white.opacity(0.3), lineWidth: 2))
+                        .onTapGesture { showingPhotoEditor = true }
+                } else {
+                    Circle()
+                        .fill(Color.white.opacity(0.1))
+                        .frame(width: 120, height: 120)
+                        .overlay(Text("Tap to add\nphoto").font(.caption).foregroundColor(.white.opacity(0.7)))
+                        .onTapGesture { showingPhotoEditor = true }
+                }
+            }
+        }
+    }
+    
+    private var usernameField: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Username")
+                .font(.headline)
+                .foregroundColor(.white)
+            
+            HStack {
+                Text("@")
+                    .foregroundColor(.white.opacity(0.7))
+                    .font(.body)
+                
+                TextField("username", text: $username)
+                    .textFieldStyle(PlainTextFieldStyle())
+                    .foregroundColor(.white)
+                    .autocapitalization(.none)
+                    .disableAutocorrection(true)
+                    .onChange(of: username) { _ in
+                        checkUsernameAvailability()
+                    }
+                
+                if checkingUsername {
+                    ProgressView()
+                        .scaleEffect(0.8)
+                } else if !username.isEmpty {
+                    Image(systemName: usernameAvailable ? "checkmark.circle.fill" : "xmark.circle.fill")
+                        .foregroundColor(usernameAvailable ? .green : .red)
+                }
+            }
+            .padding()
+            .background(Color.white.opacity(0.1))
+            .cornerRadius(12)
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(usernameAvailable ? Color.clear : Color.red, lineWidth: 1)
+            )
+            
+            if !usernameAvailable && !username.isEmpty {
+                Text("Username not available")
+                    .font(.caption)
+                    .foregroundColor(.red)
+            }
+        }
+    }
+    
+    private var dateOfBirthField: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text("Date of Birth")
+                    .font(.headline)
+                    .foregroundColor(.white)
+                Text("(Optional - Skip if you prefer)")
+                    .font(.caption)
+                    .foregroundColor(.white.opacity(0.6))
+            }
+            
+            if let dob = dateOfBirth {
+                HStack {
+                    Button(action: {
+                        showingDatePicker.toggle()
+                    }) {
+                        HStack {
+                            Text(dob.formatted(date: .abbreviated, time: .omitted))
+                                .foregroundColor(.white)
+                            
+                            Spacer()
+                            
+                            Image(systemName: "calendar")
+                                .foregroundColor(.white.opacity(0.7))
+                        }
+                        .padding()
+                        .background(Color.white.opacity(0.1))
+                        .cornerRadius(12)
+                    }
+                    
+                    Button(action: {
+                        dateOfBirth = nil
+                    }) {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundColor(.white.opacity(0.7))
+                            .font(.title3)
+                    }
+                }
+            } else {
+                addDateOfBirthButton
+            }
+        }
+    }
     
     private var addDateOfBirthButton: some View {
         Button(action: {
