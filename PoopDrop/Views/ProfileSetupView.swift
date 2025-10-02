@@ -155,28 +155,7 @@ struct ProfileSetupView: View {
                                     }
                                 }
                             } else {
-                                Button(action: {
-                                    dateOfBirth = Date()
-                                    showingDatePicker = true
-                                }) {
-                                    HStack {
-                                        Text("Add Date of Birth")
-                                            .foregroundColor(.white.opacity(0.7))
-                                        
-                                        Spacer()
-                                        
-                                        Image(systemName: "plus.circle")
-                                            .foregroundColor(.white.opacity(0.7))
-                                    }
-                                    .padding()
-                                    .background(Color.white.opacity(0.05))
-                                    .cornerRadius(12)
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 12)
-                                            .stroke(style: StrokeStyle(lineWidth: 1, dash: [5, 5]))
-                                            .foregroundColor(Color.white.opacity(0.2))
-                                    )
-                                }
+                                addDateOfBirthButton
                             }
                         }
                     }
@@ -326,6 +305,33 @@ struct ProfileSetupView: View {
                     isLoading = false
                 }
             }
+        }
+    }
+    
+    // MARK: - Subviews
+    
+    private var addDateOfBirthButton: some View {
+        Button(action: {
+            dateOfBirth = Date()
+            showingDatePicker = true
+        }) {
+            HStack {
+                Text("Add Date of Birth")
+                    .foregroundColor(.white.opacity(0.7))
+                
+                Spacer()
+                
+                Image(systemName: "plus.circle")
+                    .foregroundColor(.white.opacity(0.7))
+            }
+            .padding()
+            .background(Color.white.opacity(0.05))
+            .cornerRadius(12)
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .strokeBorder(style: StrokeStyle(lineWidth: 1, dash: [5]))
+                    .foregroundColor(Color.white.opacity(0.2))
+            )
         }
     }
 }
