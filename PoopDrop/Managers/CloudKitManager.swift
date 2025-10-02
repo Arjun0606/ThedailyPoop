@@ -66,10 +66,16 @@ class CloudKitManager: ObservableObject {
             let existing = try await privateDatabase.record(for: recordID)
             // Update fields on existing record
             existing["username"] = user.username
-            existing["dateOfBirth"] = user.dateOfBirth
-            existing["gender"] = user.gender.rawValue
+            if let dob = user.dateOfBirth {
+                existing["dateOfBirth"] = dob
+            }
+            if let gender = user.gender {
+                existing["gender"] = gender.rawValue
+            }
             existing["appleUserID"] = user.appleUserID
-            existing["customGender"] = user.customGender
+            if let customGender = user.customGender {
+                existing["customGender"] = customGender
+            }
             // Store avatar as CKAsset if we have a local file URL
             if let localURL = user.avatarURL, FileManager.default.fileExists(atPath: localURL.path) {
                 existing["avatar"] = CKAsset(fileURL: localURL)

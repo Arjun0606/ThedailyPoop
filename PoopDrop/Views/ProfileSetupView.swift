@@ -3,9 +3,8 @@ import SwiftUI
 struct ProfileSetupView: View {
     @EnvironmentObject var authManager: AuthenticationManager
     @State private var username = ""
-    @State private var dateOfBirth = Date()
-    @State private var selectedGender: Gender = .male
-    @State private var customGenderText: String = ""
+    @State private var dateOfBirth: Date? = nil
+    @State private var showDateOfBirthPicker = false
     @State private var isLoading = false
     @State private var errorMessage: String?
     @State private var showingDatePicker = false
@@ -44,7 +43,7 @@ struct ProfileSetupView: View {
                             .foregroundColor(.white.opacity(0.8))
                             .multilineTextAlignment(.center)
                         
-                        Text("(Profile photo, date of birth, and gender are optional)")
+                        Text("(Profile photo and date of birth are optional)")
                             .font(.caption)
                             .foregroundColor(.white.opacity(0.6))
                             .multilineTextAlignment(.center)
@@ -117,68 +116,67 @@ struct ProfileSetupView: View {
                             }
                         }
                         
-                        // Date of Birth
+                        // Date of Birth (Optional - can skip entirely)
                         VStack(alignment: .leading, spacing: 8) {
                             HStack {
                                 Text("Date of Birth")
                                     .font(.headline)
                                     .foregroundColor(.white)
-                                Text("(Optional)")
+                                Text("(Optional - Skip if you prefer)")
                                     .font(.caption)
                                     .foregroundColor(.white.opacity(0.6))
                             }
                             
-                            Button(action: {
-                                showingDatePicker.toggle()
-                            }) {
+                            if let dob = dateOfBirth {
                                 HStack {
-                                    Text(dateOfBirth.formatted(date: .abbreviated, time: .omitted))
-                                        .foregroundColor(.white)
-                                    
-                                    Spacer()
-                                    
-                                    Image(systemName: "calendar")
-                                        .foregroundColor(.white.opacity(0.7))
-                                }
-                                .padding()
-                                .background(Color.white.opacity(0.1))
-                                .cornerRadius(12)
-                            }
-                        }
-                        
-                        // Gender selection
-                        VStack(alignment: .leading, spacing: 8) {
-                            HStack {
-                                Text("Gender")
-                                    .font(.headline)
-                                    .foregroundColor(.white)
-                                Text("(Optional)")
-                                    .font(.caption)
-                                    .foregroundColor(.white.opacity(0.6))
-                            }
-                            
-                            HStack(spacing: 12) {
-                                ForEach(Gender.allCases, id: \.self) { gender in
                                     Button(action: {
-                                        selectedGender = gender
+                                        showingDatePicker.toggle()
                                     }) {
-                                        Text(gender.rawValue)
-                                            .font(.body)
-                                            .foregroundColor(selectedGender == gender ? .black : .white)
-                                            .padding(.horizontal, 20)
-                                            .padding(.vertical, 12)
-                                            .background(selectedGender == gender ? Color.white : Color.white.opacity(0.1))
-                                            .cornerRadius(20)
+                                        HStack {
+                                            Text(dob.formatted(date: .abbreviated, time: .omitted))
+                                                .foregroundColor(.white)
+                                            
+                                            Spacer()
+                                            
+                                            Image(systemName: "calendar")
+                                                .foregroundColor(.white.opacity(0.7))
+                                        }
+                                        .padding()
+                                        .background(Color.white.opacity(0.1))
+                                        .cornerRadius(12)
+                                    }
+                                    
+                                    Button(action: {
+                                        dateOfBirth = nil
+                                    }) {
+                                        Image(systemName: "xmark.circle.fill")
+                                            .foregroundColor(.white.opacity(0.7))
+                                            .font(.title3)
                                     }
                                 }
-                            }
-                            if selectedGender == .custom {
-                                TextField("Enter your gender", text: $customGenderText)
-                                    .textFieldStyle(PlainTextFieldStyle())
-                                    .foregroundColor(.white)
+                            } else {
+                                Button(action: {
+                                    dateOfBirth = Date()
+                                    showingDatePicker = true
+                                }) {
+                                    HStack {
+                                        Text("Add Date of Birth")
+                                            .foregroundColor(.white.opacity(0.7))
+                                        
+                                        Spacer()
+                                        
+                                        Image(systemName: "plus.circle")
+                                            .foregroundColor(.white.opacity(0.7))
+                                    }
                                     .padding()
-                                    .background(Color.white.opacity(0.1))
+                                    .background(Color.white.opacity(0.05))
                                     .cornerRadius(12)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 12)
+                                            .stroke(style: StrokeStyle(lineWidth: 1, dash: [5, 5]))
+                                            .foregroundColor(Color.white.opacity(0.2))
+                                    )
+                                }
                             }
                         }
                     }
@@ -285,8 +283,9 @@ struct ProfileSetupView: View {
         }
         
         currentUser.username = username
+        // DOB is optional - only save if user provided it
         currentUser.dateOfBirth = dateOfBirth
-        currentUser.gender = selectedGender
+        // Gender removed per Apple guidelines
         if let img = selectedImage {
             // Compress image to stay within CloudKit limits (< 1MB recommended)
             let maxSize: CGFloat = 512 // Max dimension
