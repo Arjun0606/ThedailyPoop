@@ -63,7 +63,15 @@ struct ProfileSetupView: View {
             ProfilePictureEditor(selectedImage: $selectedImage, isPresented: $showingPhotoEditor) { _ in }
         }
         .sheet(isPresented: $showingDatePicker) {
-            DatePickerSheet(selectedDate: $dateOfBirth, isPresented: $showingDatePicker)
+            if let _ = dateOfBirth {
+                DatePickerSheet(
+                    selectedDate: Binding(
+                        get: { dateOfBirth ?? Date() },
+                        set: { dateOfBirth = $0 }
+                    ),
+                    isPresented: $showingDatePicker
+                )
+            }
         }
         .alert("Profile Setup Error", isPresented: $showingError) {
             Button("OK") {
