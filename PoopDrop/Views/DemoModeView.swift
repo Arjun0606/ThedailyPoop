@@ -179,9 +179,23 @@ struct DemoModeView: View {
         // Pre-load demo drops into CloudKit manager
         cloudKitManager.drops = DemoModeManager.shared.demoDrops
         
-        // Force a refresh
+        // Force multiple refreshes to ensure data loads
         Task {
-            try? await Task.sleep(nanoseconds: 100_000_000) // 0.1 seconds
+            // Immediate set
+            await MainActor.run {
+                cloudKitManager.drops = DemoModeManager.shared.demoDrops
+            }
+            
+            // Wait and set again (for views that load on appear)
+            try? await Task.sleep(nanoseconds: 500_000_000) // 0.5 seconds
+            await MainActor.run {
+                cloudKitManager.drops = DemoModeManager.shared.demoDrops
+                // Post notification to force refresh
+                NotificationCenter.default.post(name: Notification.Name("REFRESH_MAP"), object: nil)
+            }
+            
+            // One more time after 1 second
+            try? await Task.sleep(nanoseconds: 500_000_000) // 0.5 seconds
             await MainActor.run {
                 cloudKitManager.drops = DemoModeManager.shared.demoDrops
             }

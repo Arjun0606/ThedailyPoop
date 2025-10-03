@@ -45,6 +45,8 @@ class DemoModeManager: ObservableObject {
         demoUser?.maxDropsInDay = 3
         demoUser?.countriesVisited = ["United States"]
         demoUser?.continentsVisited = ["North America"]
+        // Add friends so FeedView can show their drops
+        demoUser?.friends = ["demo_friend_1", "demo_friend_2", "demo_friend_3"]
     }
     
     private func createDemoFriends() {
