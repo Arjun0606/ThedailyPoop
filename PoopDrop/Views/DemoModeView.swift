@@ -7,17 +7,11 @@ import CoreLocation
 struct DemoModeView: View {
     @EnvironmentObject var demoManager: DemoModeManager
     @StateObject private var authManager = AuthenticationManager()
-    @StateObject private var cloudKitManager = CloudKitManager()
+    @StateObject private var cloudKitManager = DemoCloudKitManager() // Use DemoCloudKitManager!
     @StateObject private var subscriptionManager = SubscriptionManager()
-    @StateObject private var locationManager: LocationManager
+    @StateObject private var locationManager = LocationManager()
     @State private var selectedTab = 0
     @State private var showingDropComposer = false
-    
-    init() {
-        // Initialize with demo location manager (SF location)
-        let demoLoc = LocationManager()
-        _locationManager = StateObject(wrappedValue: demoLoc)
-    }
     
     var body: some View {
         ZStack {
@@ -172,33 +166,16 @@ struct DemoModeView: View {
     }
     
     private func setupDemoMode() {
+        print("🎭 [DEMO MODE] Setting up demo environment")
+        
         // Set demo user in auth manager
         authManager.currentUser = DemoModeManager.shared.demoUser
         authManager.isAuthenticated = true
         
-        // Pre-load demo drops into CloudKit manager
-        cloudKitManager.drops = DemoModeManager.shared.demoDrops
+        print("🎭 [DEMO MODE] Demo user: \(DemoModeManager.shared.demoUser?.username ?? "nil")")
+        print("🎭 [DEMO MODE] Demo drops: \(DemoModeManager.shared.demoDrops.count)")
+        print("🎭 [DEMO MODE] Demo friends: \(DemoModeManager.shared.demoFriends.count)")
         
-        // Force multiple refreshes to ensure data loads
-        Task {
-            // Immediate set
-            await MainActor.run {
-                cloudKitManager.drops = DemoModeManager.shared.demoDrops
-            }
-            
-            // Wait and set again (for views that load on appear)
-            try? await Task.sleep(nanoseconds: 500_000_000) // 0.5 seconds
-            await MainActor.run {
-                cloudKitManager.drops = DemoModeManager.shared.demoDrops
-                // Post notification to force refresh
-                NotificationCenter.default.post(name: Notification.Name("REFRESH_MAP"), object: nil)
-            }
-            
-            // One more time after 1 second
-            try? await Task.sleep(nanoseconds: 500_000_000) // 0.5 seconds
-            await MainActor.run {
-                cloudKitManager.drops = DemoModeManager.shared.demoDrops
-            }
-        }
+        // DemoCloudKitManager automatically returns demo data, no need to manually set
     }
 }
