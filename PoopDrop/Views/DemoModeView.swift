@@ -8,6 +8,7 @@ struct DemoModeView: View {
     @StateObject private var demoAuth = DemoAuthManager()
     @StateObject private var demoCloudKit = DemoCloudKitManager()
     @StateObject private var subscriptionManager = SubscriptionManager()
+    @StateObject private var locationManager = LocationManager()
     @State private var selectedTab = 0
     @State private var showingDropComposer = false
     
@@ -120,13 +121,15 @@ struct DemoModeView: View {
                 .padding(.bottom, 80)
             }
             
-            // Demo Mode Banner at TOP
+            // Demo Mode Banner at BOTTOM (not blocking top)
             VStack {
+                Spacer()
                 HStack {
                     Image(systemName: "eye.fill")
                         .foregroundColor(.white)
-                    Text("DEMO MODE - For App Store Review")
                         .font(.caption)
+                    Text("DEMO MODE")
+                        .font(.caption2)
                         .fontWeight(.semibold)
                         .foregroundColor(.white)
                     Spacer()
@@ -134,28 +137,27 @@ struct DemoModeView: View {
                         demoManager.exitDemoMode()
                     }) {
                         Text("Exit")
-                            .font(.caption)
+                            .font(.caption2)
                             .fontWeight(.semibold)
                             .foregroundColor(.white)
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 6)
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 4)
                             .background(Color.white.opacity(0.2))
-                            .cornerRadius(8)
+                            .cornerRadius(6)
                     }
                 }
-                .padding(.horizontal)
-                .padding(.vertical, 8)
-                .background(Color.blue.opacity(0.9))
-                
-                Spacer()
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
+                .background(Color.blue.opacity(0.85))
+                .padding(.bottom, 96) // Above tab bar
             }
-            .ignoresSafeArea(edges: .top)
         }
         .sheet(isPresented: $showingDropComposer) {
-            DemoDropComposerView()
-                .environmentObject(demoManager)
+            // Use REAL DropComposerView with demo environment
+            DropComposerView()
                 .environmentObject(demoAuth)
                 .environmentObject(demoCloudKit)
+                .environmentObject(locationManager)
         }
     }
 }
@@ -202,18 +204,20 @@ class DemoCloudKitManager: ObservableObject {
     }
     
     func createDrop(_ drop: Drop) async throws -> Drop {
-        DemoModeManager.shared.addDemoDrop(
-            caption: drop.caption ?? "",
-            rating: drop.rating ?? 5,
-            musicTitle: drop.musicTitle,
-            musicArtist: drop.musicArtist,
-            musicURL: drop.musicURL
-        )
+        // Add to demo drops
+        DemoModeManager.shared.demoDrops.insert(drop, at: 0)
+        
+        // Update published property
+        await MainActor.run {
+            self.drops = DemoModeManager.shared.demoDrops
+        }
+        
         return drop
     }
     
     func saveUser(_ user: User) async throws {
-        // Demo - do nothing
+        // Update demo user
+        DemoModeManager.shared.demoUser = user
     }
     
     func fetchUserByAppleUserID(_ appleUserID: String) async throws -> User? {
@@ -241,123 +245,35 @@ class DemoCloudKitManager: ObservableObject {
     }
     
     func addReaction(to dropID: String, emoji: String) async throws {
-        // Demo - do nothing
+        // Demo - find drop and add reaction
+        if let index = DemoModeManager.shared.demoDrops.firstIndex(where: { $0.id == dropID }) {
+            var drop = DemoModeManager.shared.demoDrops[index]
+            drop.reactions[emoji, default: 0] += 1
+            drop.reactionCount += 1
+            DemoModeManager.shared.demoDrops[index] = drop
+            
+            // Update published property
+            await MainActor.run {
+                self.drops = DemoModeManager.shared.demoDrops
+            }
+        }
     }
     
     func removeReaction(from dropID: String, emoji: String) async throws {
-        // Demo - do nothing
-    }
-}
-
-// MARK: - Demo Drop Composer
-struct DemoDropComposerView: View {
-    @EnvironmentObject var demoManager: DemoModeManager
-    @Environment(\.dismiss) var dismiss
-    @State private var caption = ""
-    @State private var rating: Double = 5.0
-    @State private var musicLink = ""
-    
-    var body: some View {
-        NavigationView {
-            ZStack {
-                Color.black.ignoresSafeArea()
-                
-                ScrollView {
-                    VStack(spacing: 24) {
-                        Text("💩")
-                            .font(.system(size: 80))
-                            .padding(.top, 40)
-                        
-                        // Rating Slider
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("Rate Your Drop")
-                                .font(.headline)
-                                .foregroundColor(.white)
-                            
-                            HStack {
-                                Text("💩")
-                                    .font(.system(size: 20 + rating * 2))
-                                Slider(value: $rating, in: 1...10, step: 1)
-                                    .accentColor(.orange)
-                                Text("\(Int(rating))/10")
-                                    .foregroundColor(.orange)
-                                    .fontWeight(.semibold)
-                            }
-                        }
-                        .padding()
-                        .background(Color.white.opacity(0.05))
-                        .cornerRadius(12)
-                        
-                        // Caption
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("Caption (Optional)")
-                                .font(.headline)
-                                .foregroundColor(.white)
-                            
-                            TextField("What's on your mind?", text: $caption)
-                                .textFieldStyle(PlainTextFieldStyle())
-                                .foregroundColor(.white)
-                                .padding()
-                                .background(Color.white.opacity(0.1))
-                                .cornerRadius(12)
-                        }
-                        
-                        // Music Link
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("🎵 Music Link (Optional)")
-                                .font(.headline)
-                                .foregroundColor(.white)
-                            
-                            TextField("Paste Spotify/Apple Music link", text: $musicLink)
-                                .textFieldStyle(PlainTextFieldStyle())
-                                .foregroundColor(.white)
-                                .padding()
-                                .background(Color.white.opacity(0.1))
-                                .cornerRadius(12)
-                                .autocapitalization(.none)
-                        }
-                        
-                        // Location (Fixed for Demo)
-                        HStack {
-                            Image(systemName: "location.fill")
-                                .foregroundColor(.white.opacity(0.7))
-                            Text("📍 San Francisco, CA (Demo)")
-                                .foregroundColor(.white.opacity(0.7))
-                        }
-                        .font(.caption)
-                        
-                        // Drop Button
-                        Button(action: {
-                            demoManager.addDemoDrop(
-                                caption: caption.isEmpty ? "Demo drop" : caption,
-                                rating: Int(rating),
-                                musicTitle: musicLink.isEmpty ? nil : "Demo Song",
-                                musicArtist: musicLink.isEmpty ? nil : "Demo Artist",
-                                musicURL: musicLink.isEmpty ? nil : musicLink
-                            )
-                            dismiss()
-                        }) {
-                            Text("Drop It! 💩")
-                                .fontWeight(.semibold)
-                                .foregroundColor(.black)
-                                .frame(maxWidth: .infinity)
-                                .padding()
-                                .background(Color.white)
-                                .cornerRadius(12)
-                        }
-                        .padding(.top, 20)
-                    }
-                    .padding()
+        // Demo - find drop and remove reaction
+        if let index = DemoModeManager.shared.demoDrops.firstIndex(where: { $0.id == dropID }) {
+            var drop = DemoModeManager.shared.demoDrops[index]
+            if let count = drop.reactions[emoji], count > 0 {
+                drop.reactions[emoji] = count - 1
+                drop.reactionCount -= 1
+                if drop.reactions[emoji] == 0 {
+                    drop.reactions.removeValue(forKey: emoji)
                 }
-            }
-            .navigationTitle("New Drop")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Cancel") {
-                        dismiss()
-                    }
-                    .foregroundColor(.white)
+                DemoModeManager.shared.demoDrops[index] = drop
+                
+                // Update published property
+                await MainActor.run {
+                    self.drops = DemoModeManager.shared.demoDrops
                 }
             }
         }

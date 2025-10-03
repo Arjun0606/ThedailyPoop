@@ -85,93 +85,46 @@ class DemoModeManager: ObservableObject {
     }
     
     private func createDemoDrops() {
-        let calendar = Calendar.current
-        let now = Date()
-        
-        // Demo music data
+        // Only 3 demo drops with specific songs
         let musicSamples: [(String, String, String, String?)] = [
-            ("Blinding Lights", "The Weeknd", "https://open.spotify.com/track/0VjIjW4GlUZAMYd2vXMi3b", nil),
-            ("Shape of You", "Ed Sheeran", "https://open.spotify.com/track/7qiZfU4dY1lWllzX7mPBI", nil),
-            ("Bohemian Rhapsody", "Queen", "https://open.spotify.com/track/4u7EnebtmKWzUH433cf5Qv", nil),
-            ("Anti-Hero", "Taylor Swift", "https://music.apple.com/us/album/anti-hero/1657389517?i=1657389520", nil),
-            ("Heat Waves", "Glass Animals", "https://music.apple.com/us/album/heat-waves/1516582000?i=1516582341", nil)
+            ("Despacito (feat. Justin Bieber) [Remix]", "Luis Fonsi", "https://music.apple.com/in/album/despacito-feat-justin-bieber-remix/1447401519?i=1447401626", nil),
+            ("Wait", "Maroon 5", "https://music.apple.com/in/album/wait/1396381720?i=1396381964", nil),
+            ("Slide Away (Remastered)", "Oasis", "https://music.apple.com/in/album/slide-away-remastered/828329184?i=828329204", nil)
         ]
         
         let captions = [
-            "☕ coffee working its magic",
-            "🌮 spicy burrito revenge",
-            "🏆 legendary drop",
-            "💯 feeling accomplished",
-            "😅 not my best work",
-            "🔥 chef's kiss",
-            "⭐ solid effort",
-            "💩 morning routine",
-            "😬 regret last night's dinner",
-            "✨ smooth operator",
-            "🎯 mission accomplished",
-            "📈 new personal record",
-            "😴 half asleep",
-            "🌶️ paid the price",
-            "⚡ lightning fast"
+            "🎵 vibing to this banger while dropping 💩",
+            "☕ morning coffee routine hits different",
+            "🏆 legendary drop with a legendary song"
+        ]
+        
+        // Scattered locations around San Francisco
+        let locations = [
+            CLLocationCoordinate2D(latitude: 37.7749, longitude: -122.4194), // Downtown SF
+            CLLocationCoordinate2D(latitude: 37.7849, longitude: -122.4094), // North Beach area
+            CLLocationCoordinate2D(latitude: 37.7649, longitude: -122.4294)  // Mission area
         ]
         
         var drops: [Drop] = []
         
-        // Create 15 drops (10 from main user, 5 from friends)
-        for i in 0..<10 {
-            var drop = Drop(
+        // Create only 3 drops - one from each friend
+        for i in 0..<3 {
+            let friend = demoFriends[i]
+            
+            let drop = Drop(
                 id: "demo_drop_\(i)",
-                userID: "demo_user_main",
-                username: "demo_reviewer",
-                location: demoLocation,
+                userID: friend.id,
+                username: friend.username,
+                location: locations[i],
                 city: "San Francisco",
                 country: "United States",
                 continent: "North America",
                 caption: captions[i],
-                rating: Int.random(in: 5...10),
-                musicTitle: i < 5 ? musicSamples[i].0 : nil,
-                musicArtist: i < 5 ? musicSamples[i].1 : nil,
-                musicURL: i < 5 ? musicSamples[i].2 : nil,
+                rating: [8, 7, 9][i],
+                musicTitle: musicSamples[i].0,
+                musicArtist: musicSamples[i].1,
+                musicURL: musicSamples[i].2,
                 musicCoverArt: nil
-            )
-            // Adjust timestamp to simulate older drops
-            let daysAgo = i / 2
-            if daysAgo > 0, let oldDate = calendar.date(byAdding: .day, value: -daysAgo, to: now) {
-                // Create a new drop with adjusted timestamp
-                drop = Drop(
-                    id: drop.id,
-                    userID: drop.userID,
-                    username: drop.username,
-                    location: drop.location,
-                    city: drop.city,
-                    country: drop.country,
-                    continent: drop.continent,
-                    caption: drop.caption,
-                    rating: drop.rating,
-                    musicTitle: drop.musicTitle,
-                    musicArtist: drop.musicArtist,
-                    musicURL: drop.musicURL,
-                    musicCoverArt: drop.musicCoverArt
-                )
-            }
-            drops.append(drop)
-        }
-        
-        // Add 5 drops from friends
-        for i in 0..<5 {
-            let friendIndex = i % 3
-            let friend = demoFriends[friendIndex]
-            
-            let drop = Drop(
-                id: "demo_drop_friend_\(i)",
-                userID: friend.id,
-                username: friend.username,
-                location: demoLocation,
-                city: "San Francisco",
-                country: "United States",
-                continent: "North America",
-                caption: captions[i + 10],
-                rating: Int.random(in: 4...9)
             )
             drops.append(drop)
         }
