@@ -3,6 +3,7 @@ import AuthenticationServices
 
 struct AuthenticationView: View {
     @EnvironmentObject var authManager: AuthenticationManager
+    @StateObject private var demoManager = DemoModeManager.shared
     @State private var showingError = false
     @State private var showingTerms = false
     @State private var showingPrivacy = false
@@ -72,6 +73,27 @@ struct AuthenticationView: View {
                                 .foregroundColor(.white.opacity(0.7))
                         }
                     }
+                    
+                    // Demo Mode button for App Store reviewers
+                    Button(action: {
+                        demoManager.enterDemoMode()
+                    }) {
+                        HStack {
+                            Image(systemName: "eye.fill")
+                            Text("Demo Mode (For App Store Review)")
+                        }
+                        .font(.subheadline)
+                        .foregroundColor(.white.opacity(0.8))
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(Color.white.opacity(0.1))
+                        .cornerRadius(12)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12)
+                                .stroke(Color.white.opacity(0.3), lineWidth: 1)
+                        )
+                    }
+                    .disabled(authManager.isLoading)
                 }
                 .padding(.horizontal, 32)
                 
