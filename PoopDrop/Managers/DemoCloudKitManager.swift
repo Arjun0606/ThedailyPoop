@@ -2,65 +2,65 @@ import Foundation
 import CloudKit
 import CoreLocation
 
-/// Demo CloudKit Manager - Overrides CloudKitManager for demo mode
-/// Returns pre-loaded demo data instead of fetching from CloudKit
+/// Demo CloudKit Manager - Returns pre-loaded demo data instead of fetching from CloudKit
+/// This is NOT a subclass - it's a wrapper that matches CloudKitManager's interface
 @MainActor
-class DemoCloudKitManager: CloudKitManager {
+class DemoCloudKitManager: ObservableObject {
+    @Published var drops: [Drop] = []
+    @Published var users: [User] = []
+    @Published var sponsorCampaigns: [SponsorCampaign] = []
+    @Published var isAvailable = true // Always available in demo mode
     
-    override init() {
-        super.init()
+    init() {
         // Immediately load demo drops
         self.drops = DemoModeManager.shared.demoDrops
+        print("🎭 [DEMO MODE] DemoCloudKitManager initialized with \(self.drops.count) drops")
     }
     
-    // Override all fetch methods to return demo data
-    override func fetchDrops(limit: Int = 100) async throws -> [Drop] {
-        print("🎭 [DEMO MODE] Returning \(DemoModeManager.shared.demoDrops.count) demo drops instead of fetching from CloudKit")
+    // Fetch methods that return demo data
+    func fetchDrops(limit: Int = 50) async throws -> [Drop] {
+        print("🎭 [DEMO MODE] fetchDrops called - returning \(DemoModeManager.shared.demoDrops.count) demo drops")
         self.drops = DemoModeManager.shared.demoDrops
         return DemoModeManager.shared.demoDrops
-    }
-    
-    override func fetchUserDrops(userID: String, limit: Int = 50) async throws -> [Drop] {
-        print("🎭 [DEMO MODE] Returning user drops for \(userID)")
-        let userDrops = DemoModeManager.shared.demoDrops.filter { $0.userID == userID }
-        return userDrops
     }
     
     func fetchUserDrops(for user: User) async throws -> [Drop] {
-        return try await fetchUserDrops(userID: user.id, limit: 50)
+        print("🎭 [DEMO MODE] fetchUserDrops called for user: \(user.username)")
+        let userDrops = DemoModeManager.shared.demoDrops.filter { $0.userID == user.id }
+        return userDrops
     }
     
-    override func fetchNearbyDrops(coordinate: CLLocationCoordinate2D, radiusKm: Double = 50) async throws -> [Drop] {
-        print("🎭 [DEMO MODE] Returning all demo drops as 'nearby' drops")
+    func fetchNearbyDrops(coordinate: CLLocationCoordinate2D, radius: Double = 1000) async throws -> [Drop] {
+        print("🎭 [DEMO MODE] fetchNearbyDrops called - returning all demo drops")
         self.drops = DemoModeManager.shared.demoDrops
         return DemoModeManager.shared.demoDrops
     }
     
-    override func createDrop(_ drop: Drop) async throws -> Drop {
-        print("🎭 [DEMO MODE] Adding new drop to demo data")
+    func createDrop(_ drop: Drop) async throws -> Drop {
+        print("🎭 [DEMO MODE] createDrop called - adding to demo data")
         // Add to demo drops
         DemoModeManager.shared.demoDrops.insert(drop, at: 0)
         self.drops = DemoModeManager.shared.demoDrops
         return drop
     }
     
-    override func saveUser(_ user: User) async throws {
-        print("🎭 [DEMO MODE] Updating demo user")
+    func saveUser(_ user: User) async throws {
+        print("🎭 [DEMO MODE] saveUser called - updating demo user")
         DemoModeManager.shared.demoUser = user
     }
     
-    override func fetchUserByAppleUserID(_ appleUserID: String) async throws -> User? {
-        print("🎭 [DEMO MODE] Returning demo user")
+    func fetchUserByAppleUserID(_ appleUserID: String) async throws -> User? {
+        print("🎭 [DEMO MODE] fetchUserByAppleUserID called - returning demo user")
         return DemoModeManager.shared.demoUser
     }
     
-    override func searchUsers(username: String) async throws -> [User] {
-        print("🎭 [DEMO MODE] Searching demo friends for '\(username)'")
+    func searchUsers(username: String) async throws -> [User] {
+        print("🎭 [DEMO MODE] searchUsers called for '\(username)'")
         return DemoModeManager.shared.demoFriends.filter { $0.username.contains(username) }
     }
     
-    override func addReaction(to dropID: String, emoji: String) async throws {
-        print("🎭 [DEMO MODE] Adding reaction \(emoji) to drop \(dropID)")
+    func addReaction(to dropID: String, emoji: String) async throws {
+        print("🎭 [DEMO MODE] addReaction called: \(emoji) to drop \(dropID)")
         if let index = DemoModeManager.shared.demoDrops.firstIndex(where: { $0.id == dropID }) {
             var drop = DemoModeManager.shared.demoDrops[index]
             drop.reactions[emoji, default: 0] += 1
@@ -70,8 +70,8 @@ class DemoCloudKitManager: CloudKitManager {
         }
     }
     
-    override func removeReaction(from dropID: String, emoji: String) async throws {
-        print("🎭 [DEMO MODE] Removing reaction \(emoji) from drop \(dropID)")
+    func removeReaction(from dropID: String, emoji: String) async throws {
+        print("🎭 [DEMO MODE] removeReaction called: \(emoji) from drop \(dropID)")
         if let index = DemoModeManager.shared.demoDrops.firstIndex(where: { $0.id == dropID }) {
             var drop = DemoModeManager.shared.demoDrops[index]
             if let count = drop.reactions[emoji], count > 0 {
@@ -85,5 +85,27 @@ class DemoCloudKitManager: CloudKitManager {
             }
         }
     }
+    
+    // Stub methods that other parts of the app might call
+    func sendFriendRequest(to userID: String) async throws {
+        print("🎭 [DEMO MODE] sendFriendRequest called (no-op)")
+    }
+    
+    func acceptFriendRequest(from userID: String) async throws {
+        print("🎭 [DEMO MODE] acceptFriendRequest called (no-op)")
+    }
+    
+    func getFriendRequests() async throws -> [User] {
+        print("🎭 [DEMO MODE] getFriendRequests called - returning empty")
+        return []
+    }
+    
+    func getFriends() async throws -> [User] {
+        print("🎭 [DEMO MODE] getFriends called - returning demo friends")
+        return DemoModeManager.shared.demoFriends
+    }
+    
+    func deleteAccount() async throws {
+        print("🎭 [DEMO MODE] deleteAccount called (no-op)")
+    }
 }
-
