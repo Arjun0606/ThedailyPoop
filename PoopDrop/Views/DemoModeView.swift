@@ -1,16 +1,23 @@
 import SwiftUI
 import MapKit
+import CoreLocation
 
-/// Demo Mode View - Uses REAL app views with injected demo data
+/// Demo Mode View - Uses REAL app views with pre-loaded demo data
 /// This ensures Apple reviewers see the EXACT same UI as real users
 struct DemoModeView: View {
     @EnvironmentObject var demoManager: DemoModeManager
-    @StateObject private var demoAuth = DemoAuthManager()
-    @StateObject private var demoCloudKit = DemoCloudKitManager()
+    @StateObject private var authManager = AuthenticationManager()
+    @StateObject private var cloudKitManager = CloudKitManager()
     @StateObject private var subscriptionManager = SubscriptionManager()
-    @StateObject private var locationManager = LocationManager()
+    @StateObject private var locationManager: LocationManager
     @State private var selectedTab = 0
     @State private var showingDropComposer = false
+    
+    init() {
+        // Initialize with demo location manager (SF location)
+        let demoLoc = LocationManager()
+        _locationManager = StateObject(wrappedValue: demoLoc)
+    }
     
     var body: some View {
         ZStack {
@@ -18,8 +25,8 @@ struct DemoModeView: View {
             TabView(selection: $selectedTab) {
                 // Feed Tab - REAL FeedView
                 FeedView()
-                    .environmentObject(demoAuth)
-                    .environmentObject(demoCloudKit)
+                    .environmentObject(authManager)
+                    .environmentObject(cloudKitManager)
                     .tabItem {
                         Image(systemName: selectedTab == 0 ? "house.fill" : "house")
                         Text("Feed")
@@ -28,8 +35,8 @@ struct DemoModeView: View {
                 
                 // Friends Tab - REAL FriendsView
                 FriendsView()
-                    .environmentObject(demoAuth)
-                    .environmentObject(demoCloudKit)
+                    .environmentObject(authManager)
+                    .environmentObject(cloudKitManager)
                     .tabItem {
                         Image(systemName: selectedTab == 1 ? "person.2.fill" : "person.2")
                         Text("Friends")
@@ -46,8 +53,8 @@ struct DemoModeView: View {
                 
                 // Map Tab - REAL SnapchatStyleMapView
                 SnapchatStyleMapView()
-                    .environmentObject(demoAuth)
-                    .environmentObject(demoCloudKit)
+                    .environmentObject(authManager)
+                    .environmentObject(cloudKitManager)
                     .tabItem {
                         Image(systemName: selectedTab == 3 ? "map.fill" : "map")
                         Text("Map")
@@ -56,8 +63,8 @@ struct DemoModeView: View {
                 
                 // Profile Tab - REAL ProfileView
                 ProfileView()
-                    .environmentObject(demoAuth)
-                    .environmentObject(demoCloudKit)
+                    .environmentObject(authManager)
+                    .environmentObject(cloudKitManager)
                     .environmentObject(subscriptionManager)
                     .tabItem {
                         Image(systemName: selectedTab == 4 ? "person.fill" : "person")
@@ -67,6 +74,9 @@ struct DemoModeView: View {
             }
             .accentColor(.white)
             .onAppear {
+                // Set up demo data
+                setupDemoMode()
+                
                 // Configure tab bar appearance for dark mode
                 let appearance = UITabBarAppearance()
                 appearance.configureWithOpaqueBackground()
@@ -128,7 +138,7 @@ struct DemoModeView: View {
                     Image(systemName: "eye.fill")
                         .foregroundColor(.white)
                         .font(.caption)
-                    Text("DEMO MODE")
+                    Text("DEMO MODE - San Francisco")
                         .font(.caption2)
                         .fontWeight(.semibold)
                         .foregroundColor(.white)
@@ -155,126 +165,25 @@ struct DemoModeView: View {
         .sheet(isPresented: $showingDropComposer) {
             // Use REAL DropComposerView with demo environment
             DropComposerView()
-                .environmentObject(demoAuth)
-                .environmentObject(demoCloudKit)
+                .environmentObject(authManager)
+                .environmentObject(cloudKitManager)
                 .environmentObject(locationManager)
         }
     }
-}
-
-// MARK: - Demo Authentication Manager
-/// Mock authentication manager that provides demo user data
-@MainActor
-class DemoAuthManager: ObservableObject {
-    @Published var isAuthenticated = true
-    @Published var currentUser: User?
-    @Published var isLoading = false
-    @Published var errorMessage: String?
     
-    init() {
-        // Set demo user
-        self.currentUser = DemoModeManager.shared.demoUser
-    }
-}
-
-// MARK: - Demo CloudKit Manager
-/// Mock CloudKit manager that provides demo data instead of real CloudKit calls
-@MainActor
-class DemoCloudKitManager: ObservableObject {
-    @Published var drops: [Drop] = []
-    @Published var friends: [User] = []
-    @Published var isLoading = false
-    
-    init() {
-        self.drops = DemoModeManager.shared.demoDrops
-        self.friends = DemoModeManager.shared.demoFriends
-    }
-    
-    // Mock methods that the real views might call
-    func fetchDrops(limit: Int = 100) async throws -> [Drop] {
-        return DemoModeManager.shared.demoDrops
-    }
-    
-    func fetchUserDrops(userID: String, limit: Int = 50) async throws -> [Drop] {
-        return DemoModeManager.shared.demoDrops.filter { $0.userID == userID }
-    }
-    
-    func fetchNearbyDrops(coordinate: CLLocationCoordinate2D, radiusKm: Double = 50) async throws -> [Drop] {
-        return DemoModeManager.shared.demoDrops
-    }
-    
-    func createDrop(_ drop: Drop) async throws -> Drop {
-        // Add to demo drops
-        DemoModeManager.shared.demoDrops.insert(drop, at: 0)
+    private func setupDemoMode() {
+        // Set demo user in auth manager
+        authManager.currentUser = DemoModeManager.shared.demoUser
+        authManager.isAuthenticated = true
         
-        // Update published property
-        await MainActor.run {
-            self.drops = DemoModeManager.shared.demoDrops
-        }
+        // Pre-load demo drops into CloudKit manager
+        cloudKitManager.drops = DemoModeManager.shared.demoDrops
         
-        return drop
-    }
-    
-    func saveUser(_ user: User) async throws {
-        // Update demo user
-        DemoModeManager.shared.demoUser = user
-    }
-    
-    func fetchUserByAppleUserID(_ appleUserID: String) async throws -> User? {
-        return DemoModeManager.shared.demoUser
-    }
-    
-    func searchUsers(username: String) async throws -> [User] {
-        return DemoModeManager.shared.demoFriends.filter { $0.username.contains(username) }
-    }
-    
-    func sendFriendRequest(to userID: String) async throws {
-        // Demo - do nothing
-    }
-    
-    func acceptFriendRequest(from userID: String) async throws {
-        // Demo - do nothing
-    }
-    
-    func getFriendRequests() async throws -> [User] {
-        return []
-    }
-    
-    func getFriends() async throws -> [User] {
-        return DemoModeManager.shared.demoFriends
-    }
-    
-    func addReaction(to dropID: String, emoji: String) async throws {
-        // Demo - find drop and add reaction
-        if let index = DemoModeManager.shared.demoDrops.firstIndex(where: { $0.id == dropID }) {
-            var drop = DemoModeManager.shared.demoDrops[index]
-            drop.reactions[emoji, default: 0] += 1
-            drop.reactionCount += 1
-            DemoModeManager.shared.demoDrops[index] = drop
-            
-            // Update published property
+        // Force a refresh
+        Task {
+            try? await Task.sleep(nanoseconds: 100_000_000) // 0.1 seconds
             await MainActor.run {
-                self.drops = DemoModeManager.shared.demoDrops
-            }
-        }
-    }
-    
-    func removeReaction(from dropID: String, emoji: String) async throws {
-        // Demo - find drop and remove reaction
-        if let index = DemoModeManager.shared.demoDrops.firstIndex(where: { $0.id == dropID }) {
-            var drop = DemoModeManager.shared.demoDrops[index]
-            if let count = drop.reactions[emoji], count > 0 {
-                drop.reactions[emoji] = count - 1
-                drop.reactionCount -= 1
-                if drop.reactions[emoji] == 0 {
-                    drop.reactions.removeValue(forKey: emoji)
-                }
-                DemoModeManager.shared.demoDrops[index] = drop
-                
-                // Update published property
-                await MainActor.run {
-                    self.drops = DemoModeManager.shared.demoDrops
-                }
+                cloudKitManager.drops = DemoModeManager.shared.demoDrops
             }
         }
     }
