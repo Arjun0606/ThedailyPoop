@@ -14,7 +14,11 @@ class DemoCloudKitManager: ObservableObject {
     init() {
         // Immediately load demo drops
         self.drops = DemoModeManager.shared.demoDrops
-        print("🎭 [DEMO MODE] DemoCloudKitManager initialized with \(self.drops.count) drops")
+        print("🎭 [DEMO MODE] ========================================")
+        print("🎭 [DEMO MODE] DemoCloudKitManager initialized")
+        print("🎭 [DEMO MODE] Drops available: \(self.drops.count)")
+        print("🎭 [DEMO MODE] Drop 1: \(self.drops.first?.username ?? "nil") - \(self.drops.first?.caption ?? "nil")")
+        print("🎭 [DEMO MODE] ========================================")
     }
     
     // Fetch methods that return demo data
