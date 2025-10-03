@@ -131,16 +131,11 @@ struct DropComposerView: View {
         }
         // Pro removed
         .alert("Location Required", isPresented: $showingLocationError) {
-            Button("Settings") {
-                if let settingsUrl = URL(string: UIApplication.openSettingsURLString) {
-                    UIApplication.shared.open(settingsUrl)
-                }
-            }
-            Button("Cancel", role: .cancel) {
+            Button("OK") {
                 dismiss()
             }
         } message: {
-            Text("TheDailyPoop needs location access to drop poops. Please enable location access in Settings.")
+            Text("TheDailyPoop needs location access to show your drops on the map. You can enable location access in your device Settings if you change your mind.")
         }
     }
     

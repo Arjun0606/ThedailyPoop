@@ -52,8 +52,6 @@
 			<string>cstr6suwn9.skadnetwork</string>
 		</dict>
 	</array>
-	<key>NSUserTrackingUsageDescription</key>
-	<string>We use your data to show relevant ads and support free features.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Allow access to choose a profile picture.</string>
 	<key>NSCameraUsageDescription</key>
