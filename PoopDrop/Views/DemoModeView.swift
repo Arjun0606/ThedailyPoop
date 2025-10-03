@@ -196,8 +196,8 @@ struct DemoMapView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                Map(coordinateRegion: $region, annotationItems: demoManager.demoDrops) { drop in
-                    MapAnnotation(coordinate: drop.location) {
+                Map(coordinateRegion: $region, annotationItems: demoManager.demoDrops.filter { $0.location != nil }) { drop in
+                    MapAnnotation(coordinate: drop.location!) {
                         Text("💩")
                             .font(.title)
                     }

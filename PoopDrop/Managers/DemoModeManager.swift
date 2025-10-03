@@ -89,7 +89,7 @@ class DemoModeManager: ObservableObject {
         let now = Date()
         
         // Demo music data
-        let musicSamples = [
+        let musicSamples: [(String, String, String, String?)] = [
             ("Blinding Lights", "The Weeknd", "https://open.spotify.com/track/0VjIjW4GlUZAMYd2vXMi3b", nil),
             ("Shape of You", "Ed Sheeran", "https://open.spotify.com/track/7qiZfU4dY1lWllzX7mPBI", nil),
             ("Bohemian Rhapsody", "Queen", "https://open.spotify.com/track/4u7EnebtmKWzUH433cf5Qv", nil),
@@ -119,10 +119,7 @@ class DemoModeManager: ObservableObject {
         
         // Create 15 drops (10 from main user, 5 from friends)
         for i in 0..<10 {
-            let daysAgo = i / 2
-            let timestamp = calendar.date(byAdding: .day, value: -daysAgo, to: now) ?? now
-            
-            let drop = Drop(
+            var drop = Drop(
                 id: "demo_drop_\(i)",
                 userID: "demo_user_main",
                 username: "demo_reviewer",
@@ -130,17 +127,33 @@ class DemoModeManager: ObservableObject {
                 city: "San Francisco",
                 country: "United States",
                 continent: "North America",
-                timestamp: timestamp,
                 caption: captions[i],
-                skinId: nil,
-                isNoPoop: false,
-                isSponsored: false,
                 rating: Int.random(in: 5...10),
                 musicTitle: i < 5 ? musicSamples[i].0 : nil,
                 musicArtist: i < 5 ? musicSamples[i].1 : nil,
                 musicURL: i < 5 ? musicSamples[i].2 : nil,
                 musicCoverArt: nil
             )
+            // Adjust timestamp to simulate older drops
+            let daysAgo = i / 2
+            if daysAgo > 0, let oldDate = calendar.date(byAdding: .day, value: -daysAgo, to: now) {
+                // Create a new drop with adjusted timestamp
+                drop = Drop(
+                    id: drop.id,
+                    userID: drop.userID,
+                    username: drop.username,
+                    location: drop.location,
+                    city: drop.city,
+                    country: drop.country,
+                    continent: drop.continent,
+                    caption: drop.caption,
+                    rating: drop.rating,
+                    musicTitle: drop.musicTitle,
+                    musicArtist: drop.musicArtist,
+                    musicURL: drop.musicURL,
+                    musicCoverArt: drop.musicCoverArt
+                )
+            }
             drops.append(drop)
         }
         
@@ -148,8 +161,6 @@ class DemoModeManager: ObservableObject {
         for i in 0..<5 {
             let friendIndex = i % 3
             let friend = demoFriends[friendIndex]
-            let daysAgo = i
-            let timestamp = calendar.date(byAdding: .day, value: -daysAgo, to: now) ?? now
             
             let drop = Drop(
                 id: "demo_drop_friend_\(i)",
@@ -159,16 +170,8 @@ class DemoModeManager: ObservableObject {
                 city: "San Francisco",
                 country: "United States",
                 continent: "North America",
-                timestamp: timestamp,
                 caption: captions[i + 10],
-                skinId: nil,
-                isNoPoop: false,
-                isSponsored: false,
-                rating: Int.random(in: 4...9),
-                musicTitle: nil,
-                musicArtist: nil,
-                musicURL: nil,
-                musicCoverArt: nil
+                rating: Int.random(in: 4...9)
             )
             drops.append(drop)
         }
@@ -187,11 +190,7 @@ class DemoModeManager: ObservableObject {
             city: "San Francisco",
             country: "United States",
             continent: "North America",
-            timestamp: Date(),
             caption: caption,
-            skinId: nil,
-            isNoPoop: false,
-            isSponsored: false,
             rating: rating,
             musicTitle: musicTitle,
             musicArtist: musicArtist,
