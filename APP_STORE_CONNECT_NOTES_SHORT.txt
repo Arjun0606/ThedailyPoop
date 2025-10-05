@@ -1,0 +1,48 @@
+DEMO MODE: TAP GRAY BUTTON ON SIGN-IN SCREEN
+
+WHERE TO FIND:
+1. Launch app - see sign-in screen
+2. BELOW "Sign in with Apple" is GRAY BUTTON
+3. Says "Demo Mode (For App Store Review)"
+4. TAP IT (not Apple Sign In)
+5. Demo activates instantly - no sign-in needed
+
+HOW TO TEST:
+1. Allow location when prompted
+2. Tap poop button at bottom
+3. Select "I Pooped!" and rate 1-10
+4. Tap "Drop It!"
+5. Map shows your pin
+6. Check My Feed and Profile tabs
+
+REJECTION ISSUES FIXED:
+
+#1 Registration: Demo Mode bypasses all registration. No sign-in needed.
+Real users need accounts because TheDailyPoop is a SOCIAL NETWORK (like Instagram/Snapchat). Users add friends by @username, see friends' feeds, compete on leaderboards. Demo Mode lets reviewers test everything without registration.
+
+#2 Settings Redirect: Removed completely. Alert shows only "OK" button. No redirect.
+Location required because app IS a social map (like Snapchat Map). Without location, map is empty. Location used ONLY for pins, NOT tracking.
+
+#3 Tracking: Removed NSUserTrackingUsageDescription from Info.plist. App does NOT track users, does NOT use IDFA. AdMob uses non-personalized ads. App Privacy set to "No tracking" (CONFIRMED).
+
+#4 Demo Sign-In: Demo Mode bypasses Apple Sign In. No Apple ID needed. Just tap "Demo Mode" button.
+
+CHANGES MADE:
+- Added Demo Mode button (gray, sign-in screen)
+- Removed Settings redirect
+- Removed NSUserTrackingUsageDescription
+- Location alert info only
+- Gender removed
+- DOB optional
+- App Privacy: No tracking
+
+DEMO FEATURES:
+Create drops, view map, rate, add captions/music, view feed, stats, badges, streaks. All work without sign-in.
+
+Only unavailable: Friends Feed (requires friends).
+
+KEY: Demo Mode button ON SIGN-IN SCREEN, GRAY, below Apple Sign In, says "Demo Mode (For App Store Review)". Blue banner appears when active.
+
+Contact: karjunvarma2001@gmail.com
+
+Thank you!

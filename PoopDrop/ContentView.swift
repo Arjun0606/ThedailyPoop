@@ -2,17 +2,12 @@ import SwiftUI
 
 struct ContentView: View {
     @EnvironmentObject var authManager: AuthenticationManager
-    @StateObject private var demoManager = DemoModeManager.shared
     @State private var showOnboarding = !UserDefaults.standard.bool(forKey: "hasSeenOnboarding")
     @State private var showProfileSetup = false
     
     var body: some View {
         Group {
-            if demoManager.isDemoMode {
-                // Demo mode - bypass authentication
-                DemoModeView()
-                    .environmentObject(demoManager)
-            } else if showOnboarding {
+            if showOnboarding {
                 OnboardingView {
                     showOnboarding = false
                     UserDefaults.standard.set(true, forKey: "hasSeenOnboarding")
@@ -27,7 +22,6 @@ struct ContentView: View {
                 AuthenticationView()
             }
         }
-        .animation(.easeInOut(duration: 0.3), value: demoManager.isDemoMode)
         .animation(.easeInOut(duration: 0.3), value: showOnboarding)
         .animation(.easeInOut(duration: 0.3), value: showProfileSetup)
         .animation(.easeInOut(duration: 0.3), value: authManager.isAuthenticated)
