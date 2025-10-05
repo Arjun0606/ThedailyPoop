@@ -452,76 +452,210 @@ struct SponsoredContentView: View {
 struct ShareSheetView: View {
     let drop: Drop
     @Binding var isPresented: Bool
-    
-    var shareText: String {
-        var text = "Check out this poop drop on TheDailyPoop! 💩"
-        
-        if let caption = drop.caption, !caption.isEmpty {
-            text += "\n\n\"\(caption)\""
-        }
-        
-        if let rating = drop.rating {
-            text += "\n⭐ Rating: \(rating)/10"
-        }
-        
-        if let music = drop.musicTitle, let artist = drop.musicArtist {
-            text += "\n🎵 Listening to: \(music) by \(artist)"
-        }
-        
-        text += "\n\nDrop by @\(drop.username)"
-        if let city = drop.city, let country = drop.country {
-            text += " • \(city), \(country)"
-        }
-        
-        text += "\n\nDownload TheDailyPoop: https://apps.apple.com/app/thedailypoop/id6753231171"
-        
-        return text
-    }
+    @State private var shareImage: UIImage?
     
     var body: some View {
-        // Automatically present share sheet on appear
-        Color.clear
-            .onAppear {
-                presentShareSheet()
+        VStack(spacing: 0) {
+            // Header
+            HStack {
+                Button("Done") {
+                    isPresented = false
+                }
+                .foregroundColor(.blue)
+                
+                Spacer()
+                
+                Text("Share Drop")
+                    .font(.headline)
+                    .foregroundColor(.white)
+                
+                Spacer()
+                
+                Color.clear.frame(width: 60) // Balance the layout
             }
+            .padding()
+            .background(Color.black)
+            
+            ScrollView {
+                VStack(spacing: 20) {
+                    // Share card preview
+                    DropShareCard(drop: drop)
+                        .padding(.horizontal, 20)
+                        .padding(.top, 20)
+                    
+                    // Share button
+                    Button(action: shareCard) {
+                        HStack {
+                            Image(systemName: "square.and.arrow.up")
+                                .font(.title3)
+                            Text("Share to Socials")
+                                .fontWeight(.semibold)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.blue)
+                        .foregroundColor(.white)
+                        .cornerRadius(12)
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.bottom, 40)
+                }
+            }
+        }
+        .background(Color.black.ignoresSafeArea())
     }
     
-    private func presentShareSheet() {
-        // Present system share sheet immediately
-        let activityVC = UIActivityViewController(
-            activityItems: [shareText],
-            applicationActivities: nil
-        )
+    private func shareCard() {
+        // Generate image from card
+        let renderer = ImageRenderer(content: DropShareCard(drop: drop))
+        renderer.scale = 3.0 // High resolution
         
-        // For iPad support
-        if let popover = activityVC.popoverPresentationController {
+        if let image = renderer.uiImage {
+            let activityVC = UIActivityViewController(
+                activityItems: [image],
+                applicationActivities: nil
+            )
+            
+            // For iPad support
+            if let popover = activityVC.popoverPresentationController {
+                if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                   let window = windowScene.windows.first {
+                    popover.sourceView = window
+                    popover.sourceRect = CGRect(x: UIScreen.main.bounds.width / 2,
+                                               y: UIScreen.main.bounds.height / 2,
+                                               width: 0, height: 0)
+                    popover.permittedArrowDirections = []
+                }
+            }
+            
+            // Present from the topmost view controller
             if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-               let window = windowScene.windows.first {
-                popover.sourceView = window
-                popover.sourceRect = CGRect(x: UIScreen.main.bounds.width / 2,
-                                           y: UIScreen.main.bounds.height / 2,
-                                           width: 0, height: 0)
-                popover.permittedArrowDirections = []
+               let window = windowScene.windows.first,
+               let rootVC = window.rootViewController {
+                var topVC = rootVC
+                while let presented = topVC.presentedViewController {
+                    topVC = presented
+                }
+                
+                topVC.present(activityVC, animated: true)
             }
         }
-        
-        // Present from the topmost view controller
-        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-           let window = windowScene.windows.first,
-           let rootVC = window.rootViewController {
-            var topVC = rootVC
-            while let presented = topVC.presentedViewController {
-                topVC = presented
+    }
+}
+
+struct DropShareCard: View {
+    let drop: Drop
+    
+    var body: some View {
+        VStack(spacing: 20) {
+            // Header
+            VStack(spacing: 8) {
+                Text("💩")
+                    .font(.system(size: 60))
+                
+                Text("TheDailyPoop")
+                    .font(.title.bold())
+                    .foregroundColor(.white)
+                
+                Text("@\(drop.username)")
+                    .font(.subheadline)
+                    .foregroundColor(.white.opacity(0.7))
             }
             
-            // Dismiss our view and present share sheet
-            topVC.present(activityVC, animated: true)
-            
-            // Close the share sheet view after presenting
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                self.isPresented = false
+            // Drop details
+            VStack(spacing: 16) {
+                // Caption
+                if let caption = drop.caption, !caption.isEmpty {
+                    Text("\"\(caption)\"")
+                        .font(.title3)
+                        .italic()
+                        .foregroundColor(.white)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal)
+                }
+                
+                // Rating
+                if let rating = drop.rating {
+                    HStack(spacing: 8) {
+                        Text("⭐")
+                            .font(.title)
+                        Text("\(rating)/10")
+                            .font(.title.bold())
+                            .foregroundColor(.white)
+                    }
+                }
+                
+                // Music
+                if let music = drop.musicTitle, let artist = drop.musicArtist {
+                    VStack(spacing: 4) {
+                        Text("🎵 Listening to:")
+                            .font(.caption)
+                            .foregroundColor(.white.opacity(0.6))
+                        Text("\(music)")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                        Text("by \(artist)")
+                            .font(.subheadline)
+                            .foregroundColor(.white.opacity(0.8))
+                    }
+                    .padding()
+                    .background(Color.white.opacity(0.1))
+                    .cornerRadius(12)
+                }
+                
+                // Location
+                if let city = drop.city, let country = drop.country {
+                    HStack(spacing: 6) {
+                        Image(systemName: "location.fill")
+                            .font(.caption)
+                        Text("\(city), \(country)")
+                            .font(.subheadline)
+                    }
+                    .foregroundColor(.white.opacity(0.7))
+                }
+                
+                // Time
+                HStack(spacing: 6) {
+                    Image(systemName: "clock.fill")
+                        .font(.caption)
+                    Text(timeAgo)
+                        .font(.caption)
+                }
+                .foregroundColor(.white.opacity(0.5))
             }
+            
+            // Footer
+            VStack(spacing: 8) {
+                Text("Download TheDailyPoop")
+                    .font(.caption.bold())
+                    .foregroundColor(.white.opacity(0.8))
+                
+                Text("apps.apple.com/app/thedailypoop")
+                    .font(.caption2)
+                    .foregroundColor(.white.opacity(0.6))
+            }
+            .padding(.top, 8)
         }
+        .padding(30)
+        .frame(width: 400, height: 600)
+        .background(
+            LinearGradient(
+                colors: [Color.brown.opacity(0.8), Color.brown.opacity(0.5)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        )
+        .cornerRadius(20)
+        .overlay(
+            RoundedRectangle(cornerRadius: 20)
+                .stroke(Color.white.opacity(0.2), lineWidth: 2)
+        )
+    }
+    
+    private var timeAgo: String {
+        let formatter = RelativeDateTimeFormatter()
+        formatter.unitsStyle = .abbreviated
+        return formatter.localizedString(for: drop.timestamp, relativeTo: Date())
     }
 }
 
