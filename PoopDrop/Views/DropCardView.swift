@@ -460,112 +460,49 @@ struct ShareSheetView: View {
             text += "\n\n\"\(caption)\""
         }
         
-        text += "\n\nDrop by \(drop.username)"
-        text += "\n\nDownload TheDailyPoop: [App Store Link]"
+        if let rating = drop.rating {
+            text += "\n⭐ Rating: \(rating)/10"
+        }
+        
+        if let music = drop.musicTitle, let artist = drop.musicArtist {
+            text += "\n🎵 Listening to: \(music) by \(artist)"
+        }
+        
+        text += "\n\nDrop by @\(drop.username)"
+        if let city = drop.city, let country = drop.country {
+            text += " • \(city), \(country)"
+        }
+        
+        text += "\n\nDownload TheDailyPoop: https://apps.apple.com/app/thedailypoop/id6753231171"
         
         return text
     }
     
     var body: some View {
-        VStack(spacing: 20) {
-            Text("Share this Drop")
-                .font(.headline)
-                .foregroundColor(.white)
-            
-            VStack(spacing: 12) {
-                ShareButton(
-                    title: "Share to TikTok",
-                    icon: "music.note",
-                    color: .black,
-                    action: shareToTikTok
-                )
-                
-                ShareButton(
-                    title: "Share to Instagram",
-                    icon: "camera",
-                    color: .purple,
-                    action: shareToInstagram
-                )
-                
-                ShareButton(
-                    title: "Copy Link",
-                    icon: "link",
-                    color: .blue,
-                    action: copyLink
-                )
-                
-                ShareButton(
-                    title: "More Options",
-                    icon: "square.and.arrow.up",
-                    color: .gray,
-                    action: shareMore
-                )
+        // Automatically present share sheet on appear
+        Color.clear
+            .onAppear {
+                presentShareSheet()
             }
-            
-            Button("Cancel") {
-                isPresented = false
-            }
-            .foregroundColor(.white.opacity(0.7))
-            .padding(.top, 8)
-        }
-        .padding(20)
-        .background(Color.black)
-        .cornerRadius(16)
-        .padding(.horizontal, 20)
     }
     
-    private func shareToTikTok() {
-        // TikTok sharing: Open TikTok if installed, otherwise fallback to share sheet
-        let tiktokURL = "tiktok://"
-        if let url = URL(string: tiktokURL), UIApplication.shared.canOpenURL(url) {
-            // TikTok is installed, but can't directly share, so use share sheet
-            shareMore()
-        } else {
-            // TikTok not installed, use share sheet
-            shareMore()
-        }
-    }
-    
-    private func shareToInstagram() {
-        // Instagram sharing: Open Instagram if installed, otherwise fallback to share sheet
-        let instagramURL = "instagram://"
-        if let url = URL(string: instagramURL), UIApplication.shared.canOpenURL(url) {
-            // Instagram is installed, but can't directly share text, so use share sheet
-            shareMore()
-        } else {
-            // Instagram not installed, use share sheet
-            shareMore()
-        }
-    }
-    
-    private func copyLink() {
-        // Copy link to clipboard
-        let appStoreLink = "https://apps.apple.com/app/thedailypoop/id6753231171"
-        let shareableText = "\(shareText)\n\n\(appStoreLink)"
-        UIPasteboard.general.string = shareableText
-        isPresented = false
-        
-        // Show a toast/alert that link was copied (optional)
-        print("✅ Link copied to clipboard!")
-    }
-    
-    private func shareMore() {
-        // Present system share sheet
-        let appStoreLink = "https://apps.apple.com/app/thedailypoop/id6753231171"
-        let fullShareText = "\(shareText)\n\n\(appStoreLink)"
-        
+    private func presentShareSheet() {
+        // Present system share sheet immediately
         let activityVC = UIActivityViewController(
-            activityItems: [fullShareText],
+            activityItems: [shareText],
             applicationActivities: nil
         )
         
         // For iPad support
         if let popover = activityVC.popoverPresentationController {
-            popover.sourceView = UIApplication.shared.windows.first
-            popover.sourceRect = CGRect(x: UIScreen.main.bounds.width / 2,
-                                       y: UIScreen.main.bounds.height / 2,
-                                       width: 0, height: 0)
-            popover.permittedArrowDirections = []
+            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+               let window = windowScene.windows.first {
+                popover.sourceView = window
+                popover.sourceRect = CGRect(x: UIScreen.main.bounds.width / 2,
+                                           y: UIScreen.main.bounds.height / 2,
+                                           width: 0, height: 0)
+                popover.permittedArrowDirections = []
+            }
         }
         
         // Present from the topmost view controller
@@ -577,39 +514,17 @@ struct ShareSheetView: View {
                 topVC = presented
             }
             
-            topVC.present(activityVC, animated: true) {
+            // Dismiss our view and present share sheet
+            topVC.present(activityVC, animated: true)
+            
+            // Close the share sheet view after presenting
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                 self.isPresented = false
             }
         }
     }
 }
 
-struct ShareButton: View {
-    let title: String
-    let icon: String
-    let color: Color
-    let action: () -> Void
-    
-    var body: some View {
-        Button(action: action) {
-            HStack {
-                Image(systemName: icon)
-                    .foregroundColor(color)
-                    .font(.title3)
-                    .frame(width: 24)
-                
-                Text(title)
-                    .foregroundColor(.white)
-                    .fontWeight(.medium)
-                
-                Spacer()
-            }
-            .padding()
-            .background(Color.white.opacity(0.1))
-            .cornerRadius(12)
-        }
-    }
-}
 
 struct ReportView: View {
     let drop: Drop
