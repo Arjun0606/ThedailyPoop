@@ -53,9 +53,6 @@
 		BCDC470159A99D640A798079 /* HowItWorksView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C017F38432C0902A18CF636D /* HowItWorksView.swift */; };
 		D9AC1536EA6A48F4FEAFB2CE /* ContactView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27F25651DCDE162B6C18444A /* ContactView.swift */; };
 		DCD130952E8B3BCE00F717FC /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = DCD130942E8B3BCE00F717FC /* GoogleMobileAds */; };
-		DCD130972E8FDFF200F717FC /* DemoModeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCD130962E8FDFF200F717FC /* DemoModeManager.swift */; };
-		DCD130992E8FE00A00F717FC /* DemoModeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCD130982E8FE00A00F717FC /* DemoModeView.swift */; };
-		DCD1309B2E8FEC3400F717FC /* DemoCloudKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCD1309A2E8FEC3400F717FC /* DemoCloudKitManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -107,9 +104,6 @@
 		A100004E294A0000000000002 /* StreakView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreakView.swift; sourceTree = "<group>"; };
 		A1000051294A0000000000003 /* SpotifyAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpotifyAPIClient.swift; sourceTree = "<group>"; };
 		C017F38432C0902A18CF636D /* HowItWorksView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HowItWorksView.swift; sourceTree = "<group>"; };
-		DCD130962E8FDFF200F717FC /* DemoModeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoModeManager.swift; sourceTree = "<group>"; };
-		DCD130982E8FE00A00F717FC /* DemoModeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoModeView.swift; sourceTree = "<group>"; };
-		DCD1309A2E8FEC3400F717FC /* DemoCloudKitManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoCloudKitManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -184,8 +178,6 @@
 		A1000031294A0000000000888 /* Managers */ = {
 			isa = PBXGroup;
 			children = (
-				DCD1309A2E8FEC3400F717FC /* DemoCloudKitManager.swift */,
-				DCD130962E8FDFF200F717FC /* DemoModeManager.swift */,
 				A1000010294A0000000000001 /* AuthenticationManager.swift */,
 				A1000012294A0000000000001 /* SubscriptionManager.swift */,
 				A1000014294A0000000000001 /* CloudKitManager.swift */,
@@ -203,7 +195,6 @@
 		A1000032294A0000000000888 /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				DCD130982E8FE00A00F717FC /* DemoModeView.swift */,
 				A1000018294A0000000000001 /* MainTabView.swift */,
 				A100001A294A0000000000001 /* FeedView.swift */,
 				A100001C294A0000000000001 /* MapView.swift */,
@@ -323,8 +314,6 @@
 				A1000017294A0000000000001 /* MainTabView.swift in Sources */,
 				A1000019294A0000000000001 /* FeedView.swift in Sources */,
 				A100001B294A0000000000001 /* MapView.swift in Sources */,
-				DCD130992E8FE00A00F717FC /* DemoModeView.swift in Sources */,
-				DCD130972E8FDFF200F717FC /* DemoModeManager.swift in Sources */,
 				A100001D294A0000000000001 /* DropComposerView.swift in Sources */,
 				A100001F294A0000000000001 /* LeaderboardView.swift in Sources */,
 				A1000021294A0000000000001 /* ProfileView.swift in Sources */,
@@ -343,7 +332,6 @@
 				A100003B294A0000000000002 /* FriendsManager.swift in Sources */,
 				A100003D294A0000000000002 /* NotificationHandler.swift in Sources */,
 				A100003F294A0000000000002 /* NotificationManager.swift in Sources */,
-				DCD1309B2E8FEC3400F717FC /* DemoCloudKitManager.swift in Sources */,
 				A1000050294A0000000000003 /* SpotifyAPIClient.swift in Sources */,
 				A1000041294A0000000000002 /* FriendsView.swift in Sources */,
 				A1000043294A0000000000002 /* MapBannerAdView.swift in Sources */,
