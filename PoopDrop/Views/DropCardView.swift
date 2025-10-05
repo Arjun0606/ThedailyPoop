@@ -515,30 +515,72 @@ struct ShareSheetView: View {
     }
     
     private func shareToTikTok() {
-        // Implement TikTok sharing
-        isPresented = false
+        // TikTok sharing: Open TikTok if installed, otherwise fallback to share sheet
+        let tiktokURL = "tiktok://"
+        if let url = URL(string: tiktokURL), UIApplication.shared.canOpenURL(url) {
+            // TikTok is installed, but can't directly share, so use share sheet
+            shareMore()
+        } else {
+            // TikTok not installed, use share sheet
+            shareMore()
+        }
     }
     
     private func shareToInstagram() {
-        // Implement Instagram sharing
-        isPresented = false
+        // Instagram sharing: Open Instagram if installed, otherwise fallback to share sheet
+        let instagramURL = "instagram://"
+        if let url = URL(string: instagramURL), UIApplication.shared.canOpenURL(url) {
+            // Instagram is installed, but can't directly share text, so use share sheet
+            shareMore()
+        } else {
+            // Instagram not installed, use share sheet
+            shareMore()
+        }
     }
     
     private func copyLink() {
-        UIPasteboard.general.string = "https://poopdrop.app/drop/\(drop.id)"
+        // Copy link to clipboard
+        let appStoreLink = "https://apps.apple.com/app/thedailypoop/id6753231171"
+        let shareableText = "\(shareText)\n\n\(appStoreLink)"
+        UIPasteboard.general.string = shareableText
         isPresented = false
+        
+        // Show a toast/alert that link was copied (optional)
+        print("✅ Link copied to clipboard!")
     }
     
     private func shareMore() {
         // Present system share sheet
-        let activityVC = UIActivityViewController(activityItems: [shareText], applicationActivities: nil)
+        let appStoreLink = "https://apps.apple.com/app/thedailypoop/id6753231171"
+        let fullShareText = "\(shareText)\n\n\(appStoreLink)"
         
-        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-           let window = windowScene.windows.first {
-            window.rootViewController?.present(activityVC, animated: true)
+        let activityVC = UIActivityViewController(
+            activityItems: [fullShareText],
+            applicationActivities: nil
+        )
+        
+        // For iPad support
+        if let popover = activityVC.popoverPresentationController {
+            popover.sourceView = UIApplication.shared.windows.first
+            popover.sourceRect = CGRect(x: UIScreen.main.bounds.width / 2,
+                                       y: UIScreen.main.bounds.height / 2,
+                                       width: 0, height: 0)
+            popover.permittedArrowDirections = []
         }
         
-        isPresented = false
+        // Present from the topmost view controller
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let window = windowScene.windows.first,
+           let rootVC = window.rootViewController {
+            var topVC = rootVC
+            while let presented = topVC.presentedViewController {
+                topVC = presented
+            }
+            
+            topVC.present(activityVC, animated: true) {
+                self.isPresented = false
+            }
+        }
     }
 }
 
