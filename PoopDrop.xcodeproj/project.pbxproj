@@ -59,7 +59,7 @@
 		119BCB7C76A3A13ECAA1ECFC /* TermsOfServiceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TermsOfServiceView.swift; sourceTree = "<group>"; };
 		27F25651DCDE162B6C18444A /* ContactView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactView.swift; sourceTree = "<group>"; };
 		4210E055649FE550A178E211 /* PrivacyPolicyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivacyPolicyView.swift; sourceTree = "<group>"; };
-		A1000001294A0000000000000 /* PoopDrop.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; name = PoopDrop.app; path = TheDailyPoop.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A1000001294A0000000000000 /* TheDailyPoop.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TheDailyPoop.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1000002294A0000000000001 /* PoopDropApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PoopDropApp.swift; sourceTree = "<group>"; };
 		A1000003294A0000000000003 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		A1000004294A0000000000001 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -129,7 +129,7 @@
 		A1000002294A0000000000888 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				A1000001294A0000000000000 /* PoopDrop.app */,
+				A1000001294A0000000000000 /* TheDailyPoop.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -245,7 +245,7 @@
 			);
 			name = PoopDrop;
 			productName = PoopDrop;
-			productReference = A1000001294A0000000000000 /* PoopDrop.app */;
+			productReference = A1000001294A0000000000000 /* TheDailyPoop.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -493,7 +493,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.01;
 				PRODUCT_BUNDLE_IDENTIFIER = com.thedailypoop.app;
 				PRODUCT_NAME = TheDailyPoop;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -530,7 +530,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.01;
 				PRODUCT_BUNDLE_IDENTIFIER = com.thedailypoop.app;
 				PRODUCT_NAME = TheDailyPoop;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
