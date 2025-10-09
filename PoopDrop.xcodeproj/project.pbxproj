@@ -52,6 +52,112 @@
 		A1000050294A0000000000003 /* SpotifyAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000051294A0000000000003 /* SpotifyAPIClient.swift */; };
 		BCDC470159A99D640A798079 /* HowItWorksView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C017F38432C0902A18CF636D /* HowItWorksView.swift */; };
 		D9AC1536EA6A48F4FEAFB2CE /* ContactView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27F25651DCDE162B6C18444A /* ContactView.swift */; };
+		A88DC26EBED44E529549C110 /* AdManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7821FB7667B048D59B7910C5 /* AdManager.swift */; };
+		EF6AEE8D56C6431FAE8B86AB /* AnimationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3530E6BCCA4B44A396EC6998 /* AnimationManager.swift */; };
+		1B0037DECBEB4DB49B4234EE /* FriendsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D12B283F418485C8EF5DA2E /* FriendsManager.swift */; };
+		7D1F0633AEF543B48AD2F663 /* NotificationHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = E11A6043B79F421791DED928 /* NotificationHandler.swift */; };
+		0718C3B089C2404692F5CB6A /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB44BEAFB3D84164828CAF80 /* NotificationManager.swift */; };
+		7D58914316894F1B8A337D57 /* Badge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69788627168249EB8CA03DBB /* Badge.swift */; };
+		B6381FFDF471436D913B23D8 /* Friendship.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F88B0289B744F5582811F99 /* Friendship.swift */; };
+		9935AA73C4B54D639EF9DC99 /* Notification.swift in Sources */ = {isa = PBXBuildFile; fileRef = D37FE929F4194E448E258907 /* Notification.swift */; };
+		D98A21A97DE04E73AD247799 /* Reaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4055FE0654544B6B8B32C51 /* Reaction.swift */; };
+		DF356486C7AB44F1AAD49828 /* UserSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BC0E0A05709429498567F16 /* UserSession.swift */; };
+		5F255ED3486B466DB80E2AEA /* FriendsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B59C5A3542B4435389A29CC7 /* FriendsView.swift */; };
+		B46AF8913DB04774B3084FFF /* MapBannerAdView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37B1921D3FC7412C8C136D1F /* MapBannerAdView.swift */; };
+		818DE7ABD5B44FB29F6B9AD2 /* NativeAdCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 512B72D8FC634112BE141312 /* NativeAdCardView.swift */; };
+		14108E066E7B4F09AB4CA4F8 /* ProfilePictureEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8FCB80B1047546779A8684A3 /* ProfilePictureEditor.swift */; };
+		05CBAE8B90614755AAB03D6B /* ProfileSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6632FD3335CF453580BF203C /* ProfileSetupView.swift */; };
+		0700ABC3D1974EB683FC083A /* SnapchatStyleMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DE9135302C14A3B93451172 /* SnapchatStyleMapView.swift */; };
+		1385A1AF0B1043DBBB8FAD41 /* StreakView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 636614D507DC4B629B99B447 /* StreakView.swift */; };
+		D98CEB50B22D409CAEE45CE8 /* TryProView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BFC9ABC2F01418B9B34DCD1 /* TryProView.swift */; };
+		26FA64AE85044CF8BB87A44F /* AdManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 671991DD1760461C9F794AFB /* AdManager.swift */; };
+		937D653C823F4786A674CBAD /* AnimationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3B85483E2964E35A38509AA /* AnimationManager.swift */; };
+		4D2D526A9B374218B482520A /* FriendsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36CB6C765A5A4D668216A802 /* FriendsManager.swift */; };
+		683E75B133D147F2846DFA6F /* NotificationHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7B2E2A5EBC1046A4B4CCE1EF /* NotificationHandler.swift */; };
+		78CE027F18D84B4C92478057 /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7129C9ECBF4A40A5991E1402 /* NotificationManager.swift */; };
+		7042DC34709142BD8227A279 /* Badge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F4107CFB75549358BB08870 /* Badge.swift */; };
+		089D5D3AD3C5485AA99A7267 /* Friendship.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43752C7A60B24EF0B63A7C7B /* Friendship.swift */; };
+		353C021F38DC44EBBDC5A4C9 /* Notification.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B62CBDFC62E4604B16D1321 /* Notification.swift */; };
+		6AA230866E3841D4A6265247 /* Reaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8E6861648D945B6A512183B /* Reaction.swift */; };
+		46F63651385140269BC6D904 /* UserSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDF02772EA50463494E3DA9B /* UserSession.swift */; };
+		596E1125FA92485EB9959E2D /* FriendsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 01B03E3D7BEF49E594775CB6 /* FriendsView.swift */; };
+		A85C94FF2A394803894B1F4F /* MapBannerAdView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B93C12CA7604ACEA4716180 /* MapBannerAdView.swift */; };
+		10C67E6D0C1F4E8BB9A46509 /* NativeAdCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C5BBCE644FD4D6E98B48495 /* NativeAdCardView.swift */; };
+		05E18863CA114FCCAC676CF2 /* ProfilePictureEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65108BABEB124A5EA474C509 /* ProfilePictureEditor.swift */; };
+		C0A20D1A83384D23B35892DA /* ProfileSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 456220ACBBD2420C9D8D9650 /* ProfileSetupView.swift */; };
+		7FB1D85C6DE748D89A20D700 /* SnapchatStyleMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33959DBB2F3F41CFA90BA73D /* SnapchatStyleMapView.swift */; };
+		7071E52B57574B2CBF4ADCB7 /* StreakView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9469C270F8F40F18D0687E0 /* StreakView.swift */; };
+		266BF6EA4579450D8E0A2649 /* TryProView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F10273A96584427813AE2DA /* TryProView.swift */; };
+		863F404512F942038B925EE8 /* AdManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F1CCB7905234E95AF96A318 /* AdManager.swift */; };
+		6AFABC837CD54CC0ACE371B3 /* AnimationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCCBF738611740A5984B9054 /* AnimationManager.swift */; };
+		0FACB45E96214F2F9C433E05 /* FartAttackManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12351ABD17EC4D46ABAC1A0F /* FartAttackManager.swift */; };
+		6F738C8E0A354E98AC7226DE /* FriendsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E0554B23D194CFC93F016EA /* FriendsManager.swift */; };
+		6ABEE0A9DF4F4A16B1FFB98E /* NotificationHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89FB5B12402A45CEBD7AAA80 /* NotificationHandler.swift */; };
+		8A128458549949AEB2017CB5 /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79F1FD1E39794C61B29F3900 /* NotificationManager.swift */; };
+		915A5F76EA4E4C0A8CC105D9 /* Badge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 269F36613F2146C3B50CD6F2 /* Badge.swift */; };
+		F28A684129C14FD2B22D2DBD /* FartAttack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4032E1A5989C49F4BF2FF783 /* FartAttack.swift */; };
+		B1BF2A584DC4421DAE7DF9E5 /* Friendship.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D2187250B5043FAA5337B44 /* Friendship.swift */; };
+		72DA06FBEDA248E792B51F50 /* Notification.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C57DA88E74F4D43B3F7740F /* Notification.swift */; };
+		A00C7ED14FCD4C32B6FE8C44 /* Reaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4A8BA74FA404D4C910A8E9D /* Reaction.swift */; };
+		0BA70338D05041E5A9AF3DBE /* UserSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42FD90BC62F5482C806DE43D /* UserSession.swift */; };
+		DD40E6731A8A4A998FA3CBD6 /* FartAttackReceivedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AAB4C1763A447C3AD025CE8 /* FartAttackReceivedView.swift */; };
+		55845CA1FD714E00B54B4C73 /* FartAttackShopView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F01A855E018C4CDB91FE2AAA /* FartAttackShopView.swift */; };
+		01682F8169E245DCB0640575 /* FriendsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5539F2549B62453FBC03467A /* FriendsView.swift */; };
+		530D37788C324D1C963B73A3 /* MapBannerAdView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 054925E2C0804FBCAA97473E /* MapBannerAdView.swift */; };
+		9CD2F5C17B42496D9D93C4A3 /* NativeAdCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 272F5104C3C64C29A91D0375 /* NativeAdCardView.swift */; };
+		F2478A16939A45B7A1C5E4E2 /* ProfilePictureEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 639603AAABFC467CAA08EEE9 /* ProfilePictureEditor.swift */; };
+		71548E7168F84009B05E5995 /* ProfileSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19C43A4D45A845F183B66076 /* ProfileSetupView.swift */; };
+		A84F987BD6C6426EB2EDCB79 /* SnapchatStyleMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04DBA0A8A9154A98BD5143D7 /* SnapchatStyleMapView.swift */; };
+		05FD82E704CC4925ABDF8190 /* StreakView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E368D387A907401B80040562 /* StreakView.swift */; };
+		D8734E330861448795866DEA /* TryProView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7F5048373643739BB3486F /* TryProView.swift */; };
+		582B51C217964C9C92C680D5 /* AdManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3086F17434A44E77A5A71140 /* AdManager.swift */; };
+		8523366256254CB1B1ED3DD4 /* AnimationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2ACA5D0FE0DA41D6B44EEF99 /* AnimationManager.swift */; };
+		8F9CA4630B8E46C4A26C46C8 /* FartAttackManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5B45AC7BD3941BEB6B6A979 /* FartAttackManager.swift */; };
+		F0835804305C4B0E87D38CEE /* FriendsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95A226732FFE46ED8F146E36 /* FriendsManager.swift */; };
+		56F072314EB44831A819A90F /* NotificationHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D717FE29D284B539A105460 /* NotificationHandler.swift */; };
+		5E88C25103294A928E1AD393 /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7CCEC460D7845CDA52AF8D1 /* NotificationManager.swift */; };
+		6E75D2039F59460B827E026D /* StoreKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C031A90EFC7408CABA127C4 /* StoreKitManager.swift */; };
+		903F5E6AE20B4531B054D323 /* Badge.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2EEAD38BE034A03B80A04CA /* Badge.swift */; };
+		A6F6C2DE92FD47B992FFAAB1 /* FartAttack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4B9D94A51C1B4CFF9541E594 /* FartAttack.swift */; };
+		93C286655CBD42AB80889AD0 /* Friendship.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3BDF331CE90B4CA785A11AAE /* Friendship.swift */; };
+		1CADEBA3487847789695D0E5 /* Notification.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F5F895CE17041F7AD7B5DF3 /* Notification.swift */; };
+		A9F357100864491494596462 /* Reaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0134D2C92B7949DAA232D96A /* Reaction.swift */; };
+		C289473CAECE4CE6A76E1654 /* UserSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34E716DC143740BAB0535EFA /* UserSession.swift */; };
+		965E7EB0120248F9ACA1B0C8 /* FartAttackReceivedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EC2E97C04DA456FB4B65424 /* FartAttackReceivedView.swift */; };
+		B16B2D94C4DB4896911381BC /* FartAttackShopView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 563933FC2C1F4BAEA160CDA6 /* FartAttackShopView.swift */; };
+		1B9C0678A76E489E85F749F5 /* FriendsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15D2A7DFEDE24818BF33AED3 /* FriendsView.swift */; };
+		2A275744B5A442D4837D9F96 /* MapBannerAdView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E4E568E254F4E749E8422DC /* MapBannerAdView.swift */; };
+		65BC1A5150D44107B3F59F42 /* NativeAdCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F60A271CAE7496A9D620621 /* NativeAdCardView.swift */; };
+		0E4408C767CC4A389C085BF7 /* ProfilePictureEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82568A3A19324EB9B7040DBC /* ProfilePictureEditor.swift */; };
+		A1C14AB8C733452184641E15 /* ProfileSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EBD6076D7B04B86983E6299 /* ProfileSetupView.swift */; };
+		47178C1A43A34087A3BC9C98 /* SnapchatStyleMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3884BF9D773D4CFFBF4790EB /* SnapchatStyleMapView.swift */; };
+		6CAA00FD65A04CE59A4FF503 /* StreakView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6598F0814F2049309CF8E5C5 /* StreakView.swift */; };
+		5F1860170699400BBF13CCA7 /* TryProView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10AEFE21A87346ACACF8B4E4 /* TryProView.swift */; };
+		66470D21C4E748C1B3AAD18D /* AdManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 794BDBCBC0EF46EAA115B962 /* AdManager.swift */; };
+		73CFFB7CA9534B078DD19C67 /* AnimationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D27371195EC4F42A6090FD4 /* AnimationManager.swift */; };
+		98891B04875E42C38C5D93C7 /* FartAttackManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19D43ED0890D4DB88A4E0A95 /* FartAttackManager.swift */; };
+		4037D4C45FE9444697E39FAE /* FriendsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67BB5F9485BA40039E01D8CD /* FriendsManager.swift */; };
+		28A13F1A7FA54A16A9436E66 /* NotificationHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = A87ED0DAF69E45268B6AF183 /* NotificationHandler.swift */; };
+		EFAFCC1D4CAE4A7584210CD3 /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5ACDCCA2B9E4CAC8162A78D /* NotificationManager.swift */; };
+		91D223E2F8A546BABFD3CA23 /* StoreKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C977B2BF5ED4076B5966AD5 /* StoreKitManager.swift */; };
+		E557C02A6B0E470094464D8C /* Badge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14D65985B89141508A64FF34 /* Badge.swift */; };
+		089222CC322E4F74B62EED9A /* FartAttack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A32985B0EAA4799A6A44147 /* FartAttack.swift */; };
+		3D480F8913614DDBBDAF7AB6 /* Friendship.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF641B84CB28444D94ED3E20 /* Friendship.swift */; };
+		37C9B165F65348D2A2D61710 /* Notification.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64B39B282EA54E538DE5ABE9 /* Notification.swift */; };
+		08C48C73974E4B09A08DEEC6 /* Reaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = D802FC943ABB422C88710795 /* Reaction.swift */; };
+		8C8B36F5CBC042B194988D32 /* UserSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = B6D36B405BB544B78391CEA7 /* UserSession.swift */; };
+		7044ED2C0C264A9E8AE8AC66 /* FartAttackOnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21850A1F17774C648197F780 /* FartAttackOnboardingView.swift */; };
+		71381258A72F415CAC0E3712 /* FartAttackPromoCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BC1BDCB895E40348F820DBC /* FartAttackPromoCard.swift */; };
+		7423D97080FC438CB1312507 /* FartAttackReceivedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85051EC4DA834F93A1BF75D5 /* FartAttackReceivedView.swift */; };
+		D91D56756D34416EACCE0269 /* FartAttackShopView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB490607EE374E6CA89A1D6B /* FartAttackShopView.swift */; };
+		5DA1DBD3053D4174AAC079D2 /* FriendsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDE2CD76CF9047ED885F76F5 /* FriendsView.swift */; };
+		B2A7055D238C48988A8B82B0 /* MapBannerAdView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93024534B3F24FC4A6B1505D /* MapBannerAdView.swift */; };
+		B7F584EE29274BF583B4C944 /* NativeAdCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA1E7303CD31493DA2E0F203 /* NativeAdCardView.swift */; };
+		A6C51B858FEF462DBBC9F4F8 /* ProfilePictureEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC928D3DD84D47A18276BDF7 /* ProfilePictureEditor.swift */; };
+		9E5C0CFA827A496B984A7416 /* ProfileSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72D50F0C2FD64BC38F267145 /* ProfileSetupView.swift */; };
+		CCAAE53D0FD24AD4A5FECD80 /* SnapchatStyleMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16D20839E17747E880B8E6FB /* SnapchatStyleMapView.swift */; };
+		4597C418809D4AC995A2DDEF /* StreakView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89C415EE57A94CD9861A1FF4 /* StreakView.swift */; };
+		B4B89638436F45C6A9F121CA /* TryProView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13316491E1124DE797FB5EF7 /* TryProView.swift */; };
 		DCD130952E8B3BCE00F717FC /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = DCD130942E8B3BCE00F717FC /* GoogleMobileAds */; };
 /* End PBXBuildFile section */
 
@@ -104,6 +210,112 @@
 		A100004E294A0000000000002 /* StreakView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreakView.swift; sourceTree = "<group>"; };
 		A1000051294A0000000000003 /* SpotifyAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpotifyAPIClient.swift; sourceTree = "<group>"; };
 		C017F38432C0902A18CF636D /* HowItWorksView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HowItWorksView.swift; sourceTree = "<group>"; };
+		7821FB7667B048D59B7910C5 /* AdManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdManager.swift; sourceTree = "<group>"; };
+		3530E6BCCA4B44A396EC6998 /* AnimationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimationManager.swift; sourceTree = "<group>"; };
+		1D12B283F418485C8EF5DA2E /* FriendsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsManager.swift; sourceTree = "<group>"; };
+		E11A6043B79F421791DED928 /* NotificationHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationHandler.swift; sourceTree = "<group>"; };
+		BB44BEAFB3D84164828CAF80 /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
+		69788627168249EB8CA03DBB /* Badge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Badge.swift; sourceTree = "<group>"; };
+		4F88B0289B744F5582811F99 /* Friendship.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Friendship.swift; sourceTree = "<group>"; };
+		D37FE929F4194E448E258907 /* Notification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notification.swift; sourceTree = "<group>"; };
+		F4055FE0654544B6B8B32C51 /* Reaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Reaction.swift; sourceTree = "<group>"; };
+		1BC0E0A05709429498567F16 /* UserSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSession.swift; sourceTree = "<group>"; };
+		B59C5A3542B4435389A29CC7 /* FriendsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsView.swift; sourceTree = "<group>"; };
+		37B1921D3FC7412C8C136D1F /* MapBannerAdView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapBannerAdView.swift; sourceTree = "<group>"; };
+		512B72D8FC634112BE141312 /* NativeAdCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeAdCardView.swift; sourceTree = "<group>"; };
+		8FCB80B1047546779A8684A3 /* ProfilePictureEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilePictureEditor.swift; sourceTree = "<group>"; };
+		6632FD3335CF453580BF203C /* ProfileSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSetupView.swift; sourceTree = "<group>"; };
+		3DE9135302C14A3B93451172 /* SnapchatStyleMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapchatStyleMapView.swift; sourceTree = "<group>"; };
+		636614D507DC4B629B99B447 /* StreakView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreakView.swift; sourceTree = "<group>"; };
+		4BFC9ABC2F01418B9B34DCD1 /* TryProView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TryProView.swift; sourceTree = "<group>"; };
+		671991DD1760461C9F794AFB /* AdManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdManager.swift; sourceTree = "<group>"; };
+		B3B85483E2964E35A38509AA /* AnimationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimationManager.swift; sourceTree = "<group>"; };
+		36CB6C765A5A4D668216A802 /* FriendsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsManager.swift; sourceTree = "<group>"; };
+		7B2E2A5EBC1046A4B4CCE1EF /* NotificationHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationHandler.swift; sourceTree = "<group>"; };
+		7129C9ECBF4A40A5991E1402 /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
+		3F4107CFB75549358BB08870 /* Badge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Badge.swift; sourceTree = "<group>"; };
+		43752C7A60B24EF0B63A7C7B /* Friendship.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Friendship.swift; sourceTree = "<group>"; };
+		4B62CBDFC62E4604B16D1321 /* Notification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notification.swift; sourceTree = "<group>"; };
+		C8E6861648D945B6A512183B /* Reaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Reaction.swift; sourceTree = "<group>"; };
+		EDF02772EA50463494E3DA9B /* UserSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSession.swift; sourceTree = "<group>"; };
+		01B03E3D7BEF49E594775CB6 /* FriendsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsView.swift; sourceTree = "<group>"; };
+		1B93C12CA7604ACEA4716180 /* MapBannerAdView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapBannerAdView.swift; sourceTree = "<group>"; };
+		7C5BBCE644FD4D6E98B48495 /* NativeAdCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeAdCardView.swift; sourceTree = "<group>"; };
+		65108BABEB124A5EA474C509 /* ProfilePictureEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilePictureEditor.swift; sourceTree = "<group>"; };
+		456220ACBBD2420C9D8D9650 /* ProfileSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSetupView.swift; sourceTree = "<group>"; };
+		33959DBB2F3F41CFA90BA73D /* SnapchatStyleMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapchatStyleMapView.swift; sourceTree = "<group>"; };
+		A9469C270F8F40F18D0687E0 /* StreakView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreakView.swift; sourceTree = "<group>"; };
+		9F10273A96584427813AE2DA /* TryProView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TryProView.swift; sourceTree = "<group>"; };
+		6F1CCB7905234E95AF96A318 /* AdManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdManager.swift; sourceTree = "<group>"; };
+		CCCBF738611740A5984B9054 /* AnimationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimationManager.swift; sourceTree = "<group>"; };
+		12351ABD17EC4D46ABAC1A0F /* FartAttackManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttackManager.swift; sourceTree = "<group>"; };
+		9E0554B23D194CFC93F016EA /* FriendsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsManager.swift; sourceTree = "<group>"; };
+		89FB5B12402A45CEBD7AAA80 /* NotificationHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationHandler.swift; sourceTree = "<group>"; };
+		79F1FD1E39794C61B29F3900 /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
+		269F36613F2146C3B50CD6F2 /* Badge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Badge.swift; sourceTree = "<group>"; };
+		4032E1A5989C49F4BF2FF783 /* FartAttack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttack.swift; sourceTree = "<group>"; };
+		6D2187250B5043FAA5337B44 /* Friendship.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Friendship.swift; sourceTree = "<group>"; };
+		8C57DA88E74F4D43B3F7740F /* Notification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notification.swift; sourceTree = "<group>"; };
+		A4A8BA74FA404D4C910A8E9D /* Reaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Reaction.swift; sourceTree = "<group>"; };
+		42FD90BC62F5482C806DE43D /* UserSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSession.swift; sourceTree = "<group>"; };
+		9AAB4C1763A447C3AD025CE8 /* FartAttackReceivedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttackReceivedView.swift; sourceTree = "<group>"; };
+		F01A855E018C4CDB91FE2AAA /* FartAttackShopView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttackShopView.swift; sourceTree = "<group>"; };
+		5539F2549B62453FBC03467A /* FriendsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsView.swift; sourceTree = "<group>"; };
+		054925E2C0804FBCAA97473E /* MapBannerAdView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapBannerAdView.swift; sourceTree = "<group>"; };
+		272F5104C3C64C29A91D0375 /* NativeAdCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeAdCardView.swift; sourceTree = "<group>"; };
+		639603AAABFC467CAA08EEE9 /* ProfilePictureEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilePictureEditor.swift; sourceTree = "<group>"; };
+		19C43A4D45A845F183B66076 /* ProfileSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSetupView.swift; sourceTree = "<group>"; };
+		04DBA0A8A9154A98BD5143D7 /* SnapchatStyleMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapchatStyleMapView.swift; sourceTree = "<group>"; };
+		E368D387A907401B80040562 /* StreakView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreakView.swift; sourceTree = "<group>"; };
+		BB7F5048373643739BB3486F /* TryProView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TryProView.swift; sourceTree = "<group>"; };
+		3086F17434A44E77A5A71140 /* AdManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdManager.swift; sourceTree = "<group>"; };
+		2ACA5D0FE0DA41D6B44EEF99 /* AnimationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimationManager.swift; sourceTree = "<group>"; };
+		F5B45AC7BD3941BEB6B6A979 /* FartAttackManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttackManager.swift; sourceTree = "<group>"; };
+		95A226732FFE46ED8F146E36 /* FriendsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsManager.swift; sourceTree = "<group>"; };
+		8D717FE29D284B539A105460 /* NotificationHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationHandler.swift; sourceTree = "<group>"; };
+		E7CCEC460D7845CDA52AF8D1 /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
+		1C031A90EFC7408CABA127C4 /* StoreKitManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreKitManager.swift; sourceTree = "<group>"; };
+		F2EEAD38BE034A03B80A04CA /* Badge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Badge.swift; sourceTree = "<group>"; };
+		4B9D94A51C1B4CFF9541E594 /* FartAttack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttack.swift; sourceTree = "<group>"; };
+		3BDF331CE90B4CA785A11AAE /* Friendship.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Friendship.swift; sourceTree = "<group>"; };
+		4F5F895CE17041F7AD7B5DF3 /* Notification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notification.swift; sourceTree = "<group>"; };
+		0134D2C92B7949DAA232D96A /* Reaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Reaction.swift; sourceTree = "<group>"; };
+		34E716DC143740BAB0535EFA /* UserSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSession.swift; sourceTree = "<group>"; };
+		3EC2E97C04DA456FB4B65424 /* FartAttackReceivedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttackReceivedView.swift; sourceTree = "<group>"; };
+		563933FC2C1F4BAEA160CDA6 /* FartAttackShopView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttackShopView.swift; sourceTree = "<group>"; };
+		15D2A7DFEDE24818BF33AED3 /* FriendsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsView.swift; sourceTree = "<group>"; };
+		5E4E568E254F4E749E8422DC /* MapBannerAdView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapBannerAdView.swift; sourceTree = "<group>"; };
+		1F60A271CAE7496A9D620621 /* NativeAdCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeAdCardView.swift; sourceTree = "<group>"; };
+		82568A3A19324EB9B7040DBC /* ProfilePictureEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilePictureEditor.swift; sourceTree = "<group>"; };
+		4EBD6076D7B04B86983E6299 /* ProfileSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSetupView.swift; sourceTree = "<group>"; };
+		3884BF9D773D4CFFBF4790EB /* SnapchatStyleMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapchatStyleMapView.swift; sourceTree = "<group>"; };
+		6598F0814F2049309CF8E5C5 /* StreakView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreakView.swift; sourceTree = "<group>"; };
+		10AEFE21A87346ACACF8B4E4 /* TryProView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TryProView.swift; sourceTree = "<group>"; };
+		794BDBCBC0EF46EAA115B962 /* AdManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdManager.swift; sourceTree = "<group>"; };
+		9D27371195EC4F42A6090FD4 /* AnimationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimationManager.swift; sourceTree = "<group>"; };
+		19D43ED0890D4DB88A4E0A95 /* FartAttackManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttackManager.swift; sourceTree = "<group>"; };
+		67BB5F9485BA40039E01D8CD /* FriendsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsManager.swift; sourceTree = "<group>"; };
+		A87ED0DAF69E45268B6AF183 /* NotificationHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationHandler.swift; sourceTree = "<group>"; };
+		A5ACDCCA2B9E4CAC8162A78D /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
+		2C977B2BF5ED4076B5966AD5 /* StoreKitManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreKitManager.swift; sourceTree = "<group>"; };
+		14D65985B89141508A64FF34 /* Badge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Badge.swift; sourceTree = "<group>"; };
+		1A32985B0EAA4799A6A44147 /* FartAttack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttack.swift; sourceTree = "<group>"; };
+		BF641B84CB28444D94ED3E20 /* Friendship.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Friendship.swift; sourceTree = "<group>"; };
+		64B39B282EA54E538DE5ABE9 /* Notification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notification.swift; sourceTree = "<group>"; };
+		D802FC943ABB422C88710795 /* Reaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Reaction.swift; sourceTree = "<group>"; };
+		B6D36B405BB544B78391CEA7 /* UserSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSession.swift; sourceTree = "<group>"; };
+		21850A1F17774C648197F780 /* FartAttackOnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttackOnboardingView.swift; sourceTree = "<group>"; };
+		9BC1BDCB895E40348F820DBC /* FartAttackPromoCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttackPromoCard.swift; sourceTree = "<group>"; };
+		85051EC4DA834F93A1BF75D5 /* FartAttackReceivedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttackReceivedView.swift; sourceTree = "<group>"; };
+		CB490607EE374E6CA89A1D6B /* FartAttackShopView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttackShopView.swift; sourceTree = "<group>"; };
+		EDE2CD76CF9047ED885F76F5 /* FriendsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsView.swift; sourceTree = "<group>"; };
+		93024534B3F24FC4A6B1505D /* MapBannerAdView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapBannerAdView.swift; sourceTree = "<group>"; };
+		CA1E7303CD31493DA2E0F203 /* NativeAdCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeAdCardView.swift; sourceTree = "<group>"; };
+		FC928D3DD84D47A18276BDF7 /* ProfilePictureEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilePictureEditor.swift; sourceTree = "<group>"; };
+		72D50F0C2FD64BC38F267145 /* ProfileSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSetupView.swift; sourceTree = "<group>"; };
+		16D20839E17747E880B8E6FB /* SnapchatStyleMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapchatStyleMapView.swift; sourceTree = "<group>"; };
+		89C415EE57A94CD9861A1FF4 /* StreakView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreakView.swift; sourceTree = "<group>"; };
+		13316491E1124DE797FB5EF7 /* TryProView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TryProView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -171,7 +383,35 @@
 				A1000032294A0000000000002 /* Notification.swift */,
 				A1000034294A0000000000002 /* Reaction.swift */,
 				A1000036294A0000000000002 /* UserSession.swift */,
-			);
+			
+				69788627168249EB8CA03DBB /* Badge.swift */,
+				4F88B0289B744F5582811F99 /* Friendship.swift */,
+				D37FE929F4194E448E258907 /* Notification.swift */,
+				F4055FE0654544B6B8B32C51 /* Reaction.swift */,
+				1BC0E0A05709429498567F16 /* UserSession.swift */,
+				3F4107CFB75549358BB08870 /* Badge.swift */,
+				43752C7A60B24EF0B63A7C7B /* Friendship.swift */,
+				4B62CBDFC62E4604B16D1321 /* Notification.swift */,
+				C8E6861648D945B6A512183B /* Reaction.swift */,
+				EDF02772EA50463494E3DA9B /* UserSession.swift */,
+				269F36613F2146C3B50CD6F2 /* Badge.swift */,
+				4032E1A5989C49F4BF2FF783 /* FartAttack.swift */,
+				6D2187250B5043FAA5337B44 /* Friendship.swift */,
+				8C57DA88E74F4D43B3F7740F /* Notification.swift */,
+				A4A8BA74FA404D4C910A8E9D /* Reaction.swift */,
+				42FD90BC62F5482C806DE43D /* UserSession.swift */,
+				F2EEAD38BE034A03B80A04CA /* Badge.swift */,
+				4B9D94A51C1B4CFF9541E594 /* FartAttack.swift */,
+				3BDF331CE90B4CA785A11AAE /* Friendship.swift */,
+				4F5F895CE17041F7AD7B5DF3 /* Notification.swift */,
+				0134D2C92B7949DAA232D96A /* Reaction.swift */,
+				34E716DC143740BAB0535EFA /* UserSession.swift */,
+				14D65985B89141508A64FF34 /* Badge.swift */,
+				1A32985B0EAA4799A6A44147 /* FartAttack.swift */,
+				BF641B84CB28444D94ED3E20 /* Friendship.swift */,
+				64B39B282EA54E538DE5ABE9 /* Notification.swift */,
+				D802FC943ABB422C88710795 /* Reaction.swift */,
+				B6D36B405BB544B78391CEA7 /* UserSession.swift */,);
 			path = Models;
 			sourceTree = "<group>";
 		};
@@ -188,7 +428,37 @@
 				A100003E294A0000000000002 /* NotificationHandler.swift */,
 				A1000040294A0000000000002 /* NotificationManager.swift */,
 				A1000051294A0000000000003 /* SpotifyAPIClient.swift */,
-			);
+			
+				7821FB7667B048D59B7910C5 /* AdManager.swift */,
+				3530E6BCCA4B44A396EC6998 /* AnimationManager.swift */,
+				1D12B283F418485C8EF5DA2E /* FriendsManager.swift */,
+				E11A6043B79F421791DED928 /* NotificationHandler.swift */,
+				BB44BEAFB3D84164828CAF80 /* NotificationManager.swift */,
+				671991DD1760461C9F794AFB /* AdManager.swift */,
+				B3B85483E2964E35A38509AA /* AnimationManager.swift */,
+				36CB6C765A5A4D668216A802 /* FriendsManager.swift */,
+				7B2E2A5EBC1046A4B4CCE1EF /* NotificationHandler.swift */,
+				7129C9ECBF4A40A5991E1402 /* NotificationManager.swift */,
+				6F1CCB7905234E95AF96A318 /* AdManager.swift */,
+				CCCBF738611740A5984B9054 /* AnimationManager.swift */,
+				12351ABD17EC4D46ABAC1A0F /* FartAttackManager.swift */,
+				9E0554B23D194CFC93F016EA /* FriendsManager.swift */,
+				89FB5B12402A45CEBD7AAA80 /* NotificationHandler.swift */,
+				79F1FD1E39794C61B29F3900 /* NotificationManager.swift */,
+				3086F17434A44E77A5A71140 /* AdManager.swift */,
+				2ACA5D0FE0DA41D6B44EEF99 /* AnimationManager.swift */,
+				F5B45AC7BD3941BEB6B6A979 /* FartAttackManager.swift */,
+				95A226732FFE46ED8F146E36 /* FriendsManager.swift */,
+				8D717FE29D284B539A105460 /* NotificationHandler.swift */,
+				E7CCEC460D7845CDA52AF8D1 /* NotificationManager.swift */,
+				1C031A90EFC7408CABA127C4 /* StoreKitManager.swift */,
+				794BDBCBC0EF46EAA115B962 /* AdManager.swift */,
+				9D27371195EC4F42A6090FD4 /* AnimationManager.swift */,
+				19D43ED0890D4DB88A4E0A95 /* FartAttackManager.swift */,
+				67BB5F9485BA40039E01D8CD /* FriendsManager.swift */,
+				A87ED0DAF69E45268B6AF183 /* NotificationHandler.swift */,
+				A5ACDCCA2B9E4CAC8162A78D /* NotificationManager.swift */,
+				2C977B2BF5ED4076B5966AD5 /* StoreKitManager.swift */,);
 			path = Managers;
 			sourceTree = "<group>";
 		};
@@ -216,7 +486,55 @@
 				27F25651DCDE162B6C18444A /* ContactView.swift */,
 				119BCB7C76A3A13ECAA1ECFC /* TermsOfServiceView.swift */,
 				4210E055649FE550A178E211 /* PrivacyPolicyView.swift */,
-			);
+			
+				B59C5A3542B4435389A29CC7 /* FriendsView.swift */,
+				37B1921D3FC7412C8C136D1F /* MapBannerAdView.swift */,
+				512B72D8FC634112BE141312 /* NativeAdCardView.swift */,
+				8FCB80B1047546779A8684A3 /* ProfilePictureEditor.swift */,
+				6632FD3335CF453580BF203C /* ProfileSetupView.swift */,
+				3DE9135302C14A3B93451172 /* SnapchatStyleMapView.swift */,
+				636614D507DC4B629B99B447 /* StreakView.swift */,
+				4BFC9ABC2F01418B9B34DCD1 /* TryProView.swift */,
+				01B03E3D7BEF49E594775CB6 /* FriendsView.swift */,
+				1B93C12CA7604ACEA4716180 /* MapBannerAdView.swift */,
+				7C5BBCE644FD4D6E98B48495 /* NativeAdCardView.swift */,
+				65108BABEB124A5EA474C509 /* ProfilePictureEditor.swift */,
+				456220ACBBD2420C9D8D9650 /* ProfileSetupView.swift */,
+				33959DBB2F3F41CFA90BA73D /* SnapchatStyleMapView.swift */,
+				A9469C270F8F40F18D0687E0 /* StreakView.swift */,
+				9F10273A96584427813AE2DA /* TryProView.swift */,
+				9AAB4C1763A447C3AD025CE8 /* FartAttackReceivedView.swift */,
+				F01A855E018C4CDB91FE2AAA /* FartAttackShopView.swift */,
+				5539F2549B62453FBC03467A /* FriendsView.swift */,
+				054925E2C0804FBCAA97473E /* MapBannerAdView.swift */,
+				272F5104C3C64C29A91D0375 /* NativeAdCardView.swift */,
+				639603AAABFC467CAA08EEE9 /* ProfilePictureEditor.swift */,
+				19C43A4D45A845F183B66076 /* ProfileSetupView.swift */,
+				04DBA0A8A9154A98BD5143D7 /* SnapchatStyleMapView.swift */,
+				E368D387A907401B80040562 /* StreakView.swift */,
+				BB7F5048373643739BB3486F /* TryProView.swift */,
+				3EC2E97C04DA456FB4B65424 /* FartAttackReceivedView.swift */,
+				563933FC2C1F4BAEA160CDA6 /* FartAttackShopView.swift */,
+				15D2A7DFEDE24818BF33AED3 /* FriendsView.swift */,
+				5E4E568E254F4E749E8422DC /* MapBannerAdView.swift */,
+				1F60A271CAE7496A9D620621 /* NativeAdCardView.swift */,
+				82568A3A19324EB9B7040DBC /* ProfilePictureEditor.swift */,
+				4EBD6076D7B04B86983E6299 /* ProfileSetupView.swift */,
+				3884BF9D773D4CFFBF4790EB /* SnapchatStyleMapView.swift */,
+				6598F0814F2049309CF8E5C5 /* StreakView.swift */,
+				10AEFE21A87346ACACF8B4E4 /* TryProView.swift */,
+				21850A1F17774C648197F780 /* FartAttackOnboardingView.swift */,
+				9BC1BDCB895E40348F820DBC /* FartAttackPromoCard.swift */,
+				85051EC4DA834F93A1BF75D5 /* FartAttackReceivedView.swift */,
+				CB490607EE374E6CA89A1D6B /* FartAttackShopView.swift */,
+				EDE2CD76CF9047ED885F76F5 /* FriendsView.swift */,
+				93024534B3F24FC4A6B1505D /* MapBannerAdView.swift */,
+				CA1E7303CD31493DA2E0F203 /* NativeAdCardView.swift */,
+				FC928D3DD84D47A18276BDF7 /* ProfilePictureEditor.swift */,
+				72D50F0C2FD64BC38F267145 /* ProfileSetupView.swift */,
+				16D20839E17747E880B8E6FB /* SnapchatStyleMapView.swift */,
+				89C415EE57A94CD9861A1FF4 /* StreakView.swift */,
+				13316491E1124DE797FB5EF7 /* TryProView.swift */,);
 			path = Views;
 			sourceTree = "<group>";
 		};
@@ -344,6 +662,13 @@
 				D9AC1536EA6A48F4FEAFB2CE /* ContactView.swift in Sources */,
 				9122A731B4202D13CB528ADC /* TermsOfServiceView.swift in Sources */,
 				18C93C69C717BE42F314D4B1 /* PrivacyPolicyView.swift in Sources */,
+				F28A684129C14FD2B22D2DBD /* FartAttack.swift in Sources */,
+				0FACB45E96214F2F9C433E05 /* FartAttackManager.swift in Sources */,
+				DD40E6731A8A4A998FA3CBD6 /* FartAttackReceivedView.swift in Sources */,
+				55845CA1FD714E00B54B4C73 /* FartAttackShopView.swift in Sources */,
+				7044ED2C0C264A9E8AE8AC66 /* FartAttackOnboardingView.swift in Sources */,
+				71381258A72F415CAC0E3712 /* FartAttackPromoCard.swift in Sources */,
+				6E75D2039F59460B827E026D /* StoreKitManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -152,10 +152,63 @@ struct FriendsTabSelector: View {
 struct FriendsListView: View {
     let friends: [User]
     @EnvironmentObject var authManager: AuthenticationManager
+    @StateObject private var fartAttackManager = FartAttackManager.shared
+    @State private var showCTA = true
+    
+    var attacksAvailable: Int {
+        fartAttackManager.inventory?.availableAttacks ?? 0
+    }
     
     var body: some View {
         ScrollView {
             LazyVStack(spacing: 12) {
+                // Floating CTA pinned at top
+                if showCTA {
+                    FartAttackQuickCTA(attacksAvailable: attacksAvailable) {
+                        if attacksAvailable > 0 {
+                            NotificationCenter.default.post(name: Notification.Name("SWITCH_TO_FRIENDS_TAB"), object: nil)
+                        } else {
+                            NotificationCenter.default.post(name: Notification.Name("SWITCH_TO_ATTACKS_TAB"), object: nil)
+                        }
+                    }
+                }
+                // Fart Attack Banner
+                if attacksAvailable > 0 {
+                    HStack(spacing: 12) {
+                        Text("💨")
+                            .font(.system(size: 36))
+                        
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("You have \(attacksAvailable) fart attack\(attacksAvailable == 1 ? "" : "s")!")
+                                .font(.headline)
+                                .fontWeight(.bold)
+                                .foregroundColor(.white)
+                            
+                            Text("Tap a friend to prank them")
+                                .font(.caption)
+                                .foregroundColor(.gray)
+                        }
+                        
+                        Spacer()
+                        
+                        Image(systemName: "chevron.right")
+                            .foregroundColor(.orange)
+                    }
+                    .padding()
+                    .background(
+                        LinearGradient(
+                            colors: [Color.orange.opacity(0.2), Color.red.opacity(0.1)],
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                    )
+                    .cornerRadius(12)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color.orange.opacity(0.3), lineWidth: 1)
+                    )
+                }
+                
                 if friends.isEmpty {
                     EmptyFriendsView()
                 } else {
@@ -209,6 +262,34 @@ struct InviteFriendsCard: View {
     }
 }
 
+// MARK: - Quick CTA Button
+struct FartAttackQuickCTA: View {
+    let attacksAvailable: Int
+    let action: () -> Void
+    @State private var bounce = false
+    
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 10) {
+                Text("💨")
+                    .font(.title3)
+                    .scaleEffect(bounce ? 1.15 : 1.0)
+                    .animation(.spring(response: 0.5, dampingFraction: 0.4).repeatForever(autoreverses: true), value: bounce)
+                Text(attacksAvailable > 0 ? "Send a fart now" : "Get fart attacks")
+                    .font(.subheadline)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.black)
+                Spacer()
+            }
+            .padding(.vertical, 10)
+            .padding(.horizontal, 14)
+            .background(attacksAvailable > 0 ? Color.yellow : Color.orange)
+            .cornerRadius(12)
+        }
+        .onAppear { bounce = true }
+    }
+}
+
 struct FriendRequestsView: View {
     let requests: [User]
     let onAccept: (String) async -> Void
@@ -239,6 +320,7 @@ struct FriendRowView: View {
     let friend: User
     
     var body: some View {
+        NavigationLink(destination: FriendDetailView(friend: friend)) {
         HStack(spacing: 12) {
             // Profile picture
             Circle()
@@ -297,14 +379,238 @@ struct FriendRowView: View {
             
             Spacer()
             
-            // Friend status indicator
-            Circle()
-                .fill(Color.green)
-                .frame(width: 8, height: 8)
+                // Chevron indicator
+                Image(systemName: "chevron.right")
+                    .font(.caption)
+                    .foregroundColor(.white.opacity(0.5))
+            }
+            .padding()
+            .background(Color.white.opacity(0.05))
+            .cornerRadius(12)
         }
+        .buttonStyle(PlainButtonStyle())
+    }
+}
+
+// MARK: - Friend Detail View
+struct FriendDetailView: View {
+    let friend: User
+    @EnvironmentObject var authManager: AuthenticationManager
+    @StateObject private var fartAttackManager = FartAttackManager.shared
+    @State private var showingPurchaseSheet = false
+    @State private var sendingAttack = false
+    @State private var showingSuccess = false
+    @State private var showingError = false
+    @State private var errorMessage = ""
+    
+    var canSendAttack: Bool {
+        fartAttackManager.canSendAttack(to: friend)
+    }
+    
+    var cooldownRemaining: TimeInterval? {
+        fartAttackManager.getCooldownRemaining(for: friend)
+    }
+    
+    var body: some View {
+        ZStack {
+            Color.black.ignoresSafeArea()
+            
+            ScrollView {
+                VStack(spacing: 24) {
+                    // Profile Header - Compact
+                    VStack(spacing: 12) {
+            Circle()
+                            .fill(
+                                LinearGradient(
+                                    colors: [Color.brown.opacity(0.7), Color.brown],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                            .frame(width: 80, height: 80)
+                            .overlay(
+                                Text(String(friend.username.prefix(1)).uppercased())
+                                    .font(.title)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.white)
+                            )
+                        
+                        Text("@\(friend.username)")
+                            .font(.title3)
+                            .fontWeight(.bold)
+                            .foregroundColor(.white)
+                    }
+                    .padding(.top, 12)
+                    
+                    // FART ATTACK SECTION - MOST PROMINENT
+                    VStack(spacing: 16) {
+                        // Fart Attack Button
+                        if let inventory = fartAttackManager.inventory, inventory.availableAttacks > 0 {
+                            if canSendAttack {
+                                Button(action: {
+                                    sendFartAttack()
+                                }) {
+                                    VStack(spacing: 12) {
+                                        Text("💨")
+                                            .font(.system(size: 60))
+                                        
+                                        Text("Send Fart Attack!")
+                                            .font(.title3)
+                                            .fontWeight(.bold)
+                                        
+                                        Text("Send legendary 4-second fart")
+                                            .font(.subheadline)
+                                            .foregroundColor(.white.opacity(0.8))
+                                        
+                                        Text("Attacks available: \(inventory.availableAttacks)")
+                                            .font(.caption)
+                                            .foregroundColor(.yellow)
+                                            .padding(.top, 4)
+                                    }
+                                    .foregroundColor(.white)
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 24)
+                                    .background(
+                                        LinearGradient(
+                                            colors: [Color.orange, Color.red.opacity(0.8)],
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        )
+                                    )
+                                    .cornerRadius(16)
+                                }
+                                .disabled(sendingAttack)
+                            } else if let remaining = cooldownRemaining {
+                                VStack(spacing: 12) {
+                                    Text("⏰")
+                                        .font(.system(size: 60))
+                                    
+                                    Text("Cooldown Active")
+                                        .font(.title3)
+                                        .fontWeight(.bold)
+                                        .foregroundColor(.white)
+                                    
+                                    Text("Can attack again in:")
+                                        .font(.subheadline)
+                                        .foregroundColor(.white.opacity(0.7))
+                                    
+                                    Text(fartAttackManager.formatCooldownTime(remaining))
+                                        .font(.headline)
+                                        .foregroundColor(.orange)
+                                }
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 24)
+                                .background(Color.white.opacity(0.05))
+                                .cornerRadius(16)
+                            }
+                        } else {
+                            // No attacks available - show buy button
+                            Button(action: {
+                                showingPurchaseSheet = true
+                            }) {
+                                VStack(spacing: 12) {
+                                    Text("💨")
+                                        .font(.system(size: 60))
+                                    
+                                    Text("Get Fart Attacks")
+                                        .font(.title3)
+                                        .fontWeight(.bold)
+                                    
+                                    Text("Buy 3 attacks for $1.99")
+                                        .font(.subheadline)
+                                        .foregroundColor(.white.opacity(0.8))
+                                }
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 24)
+                                .background(
+                                    LinearGradient(
+                                        colors: [Color.yellow.opacity(0.8), Color.orange.opacity(0.6)],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    )
+                                )
+                                .cornerRadius(16)
+                            }
+                        }
+                    }
+                    .padding(.horizontal)
+                    
+                    // Stats Section
+                    HStack(spacing: 24) {
+                        VStack(spacing: 4) {
+                            Text("\(friend.totalDrops)")
+                                .font(.title2)
+                                .fontWeight(.bold)
+                                .foregroundColor(.white)
+                            Text("Drops")
+                                .font(.caption)
+                                .foregroundColor(.white.opacity(0.7))
+                        }
+                        
+                        Divider()
+                            .frame(height: 40)
+                            .background(Color.white.opacity(0.2))
+                        
+                        VStack(spacing: 4) {
+                            Text("\(friend.streak)")
+                                .font(.title2)
+                                .fontWeight(.bold)
+                                .foregroundColor(.orange)
+                            Text("Streak")
+                                .font(.caption)
+                                .foregroundColor(.white.opacity(0.7))
+                        }
+                    }
+                    .frame(maxWidth: .infinity)
         .padding()
         .background(Color.white.opacity(0.05))
         .cornerRadius(12)
+                    .padding(.horizontal)
+                    
+                    Spacer()
+                }
+            }
+        }
+        .navigationBarTitleDisplayMode(.inline)
+        .alert("Fart Attack Sent!", isPresented: $showingSuccess) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text("Your legendary fart will hit @\(friend.username) when they open the app! 💨")
+        }
+        .alert("Failed to Send", isPresented: $showingError) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text(errorMessage)
+        }
+        .sheet(isPresented: $showingPurchaseSheet) {
+            FartAttackShopView()
+        }
+    }
+    
+    private func sendFartAttack() {
+        guard let currentUser = authManager.currentUser else {
+            errorMessage = "Please sign in to send fart attacks."
+            showingError = true
+            return
+        }
+        
+        sendingAttack = true
+        
+        Task {
+            let success = await fartAttackManager.sendAttack(from: currentUser, to: friend)
+            
+            await MainActor.run {
+                sendingAttack = false
+                
+                if success {
+                    showingSuccess = true
+                } else {
+                    errorMessage = "Failed to send fart attack. Please try again."
+                    showingError = true
+                }
+            }
+        }
     }
 }
 

@@ -94,6 +94,10 @@ struct DropComposerView: View {
                             MusicLinkInput(musicLink: $musicLink, musicData: $musicData)
                         }
                         
+                        // Cross-promo to Fart Attacks
+                        FartAttackComposerCard()
+                        
+                        
                         // Pro removed
                         
                         Spacer(minLength: 100)
@@ -806,6 +810,36 @@ struct MusicData {
     let artist: String
     let url: String
     let coverArtURL: String?
+}
+
+// MARK: - Composer Cross-promo Card
+struct FartAttackComposerCard: View {
+    var body: some View {
+        Button(action: {
+            NotificationCenter.default.post(name: Notification.Name("SWITCH_TO_ATTACKS_TAB"), object: nil)
+        }) {
+            HStack(spacing: 12) {
+                Text("💨")
+                    .font(.system(size: 40))
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("Prank a friend instead?")
+                        .font(.headline)
+                        .foregroundColor(.white)
+                    Text("Send a 4s epic fart that plays when they open the app")
+                        .font(.caption)
+                        .foregroundColor(.white.opacity(0.8))
+                }
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .foregroundColor(.white.opacity(0.7))
+            }
+            .padding()
+            .background(
+                LinearGradient(colors: [Color.purple.opacity(0.4), Color.blue.opacity(0.3)], startPoint: .topLeading, endPoint: .bottomTrailing)
+            )
+            .cornerRadius(14)
+        }
+    }
 }
 
 // MARK: - iTunes API Response

@@ -49,6 +49,20 @@ struct FeedView: View {
                     } else {
                         ScrollView {
                             LazyVStack(spacing: 16) {
+                                // Fart Attack Promo Card - Show at top of Friends feed
+                                if selectedFeedType == .friends &&
+                                   !UserDefaults.standard.bool(forKey: "hasDismissedFartAttackPromo") {
+                                    FartAttackPromoCard()
+                                        .padding(.top, 8)
+                                        .padding(.bottom, 8)
+                                }
+                                // Fallback mini-banner when promo dismissed
+                                if selectedFeedType == .friends &&
+                                    UserDefaults.standard.bool(forKey: "hasDismissedFartAttackPromo") {
+                                    FartAttackMiniBanner()
+                                        .padding(.horizontal, 16)
+                                }
+                                
                                 // Drops feed with native ads
                                 ForEach(Array(currentDrops.enumerated()), id: \.element.id) { index, drop in
                                     DropCardView(drop: drop)
@@ -201,6 +215,39 @@ struct FeedView: View {
         }
         
         isRefreshing = false
+    }
+}
+
+// MARK: - Fart Attack Mini Banner
+struct FartAttackMiniBanner: View {
+    @State private var pulsing = false
+    
+    var body: some View {
+        Button(action: {
+            NotificationCenter.default.post(name: Notification.Name("SWITCH_TO_ATTACKS_TAB"), object: nil)
+        }) {
+            HStack(spacing: 10) {
+                Text("💨")
+                    .font(.title3)
+                    .scaleEffect(pulsing ? 1.1 : 1.0)
+                    .animation(.easeInOut(duration: 0.8).repeatForever(autoreverses: true), value: pulsing)
+                Text("Prank a friend now")
+                    .font(.subheadline)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.white)
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .foregroundColor(.white.opacity(0.7))
+            }
+            .padding(12)
+            .background(Color.orange.opacity(0.25))
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(Color.orange.opacity(0.4), lineWidth: 1)
+            )
+            .cornerRadius(12)
+        }
+        .onAppear { pulsing = true }
     }
 }
 

@@ -74,18 +74,25 @@ def main():
         'Managers': [
             'AdManager.swift',
             'AnimationManager.swift', 
+            'FartAttackManager.swift',
             'FriendsManager.swift',
             'NotificationHandler.swift',
-            'NotificationManager.swift'
+            'NotificationManager.swift',
+            'StoreKitManager.swift'
         ],
         'Models': [
             'Badge.swift',
+            'FartAttack.swift',
             'Friendship.swift',
             'Notification.swift',
             'Reaction.swift',
             'UserSession.swift'
         ],
         'Views': [
+            'FartAttackOnboardingView.swift',
+            'FartAttackPromoCard.swift',
+            'FartAttackReceivedView.swift',
+            'FartAttackShopView.swift',
             'FriendsView.swift',
             'MapBannerAdView.swift',
             'NativeAdCardView.swift',
