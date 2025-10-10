@@ -114,12 +114,12 @@ struct AttackReactionSheet: View {
                 )
                 
                 // Send push notification to the sender
-                await notificationManager.notifyDropReaction(
+                await notificationManager.notifyAttackReaction(
                     to: attack.senderID,
                     reactorUsername: currentUser.username,
-                    reactionEmoji: selectedEmoji,
-                    dropID: attack.id,
-                    message: reactionText.isEmpty ? nil : reactionText
+                    attackID: attack.id,
+                    emoji: selectedEmoji,
+                    text: reactionText.isEmpty ? nil : reactionText
                 )
                 
                 await MainActor.run {

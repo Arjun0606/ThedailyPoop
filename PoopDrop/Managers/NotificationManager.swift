@@ -549,6 +549,30 @@ class NotificationManager: ObservableObject {
         try? await UNUserNotificationCenter.current().add(request)
     }
     
+    /// Notify when someone reacts to your fart attack
+    func notifyAttackReaction(to userID: String, reactorUsername: String, attackID: String, emoji: String, text: String?) async {
+        guard isAuthorized else { return }
+        
+        let content = UNMutableNotificationContent()
+        content.title = "\(reactorUsername) reacted to your attack! \(emoji)"
+        if let text = text, !text.isEmpty {
+            content.body = text
+        } else {
+            content.body = "Check out what they said!"
+        }
+        content.sound = UNNotificationSound(named: UNNotificationSoundName("gentle_chime.wav"))
+        content.userInfo = ["type": "attack_reaction", "attackID": attackID, "reactor": reactorUsername]
+        content.badge = 1
+        
+        let request = UNNotificationRequest(
+            identifier: "attack_reaction_\(attackID)_\(Date().timeIntervalSince1970)",
+            content: content,
+            trigger: nil
+        )
+        
+        try? await UNUserNotificationCenter.current().add(request)
+    }
+    
     /// Notify about weekly leaderboard ranking
     func sendWeeklyLeaderboardNotification(to user: User, rank: Int, totalPlayers: Int) async {
         guard isAuthorized else { return }

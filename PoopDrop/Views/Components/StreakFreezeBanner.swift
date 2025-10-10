@@ -35,7 +35,7 @@ struct StreakFreezeBanner: View {
     }
     
     var body: some View {
-        if let user = user, user.pendingStreakFreeze, let expiration = user.streakFreezeExpiration, expiration > Date() {
+        if let user = user, let expiration = user.pendingStreakFreezeUntil, expiration > Date() {
             VStack(spacing: 16) {
                 HStack {
                     Image(systemName: "flame.fill")
@@ -129,8 +129,7 @@ struct StreakFreezeBanner: View {
                 if success {
                     // Restore the streak
                     var updatedUser = user
-                    updatedUser.pendingStreakFreeze = false
-                    updatedUser.streakFreezeExpiration = nil
+                    updatedUser.pendingStreakFreezeUntil = nil
                     
                     try await cloudKitManager.updateUser(updatedUser)
                     
@@ -156,8 +155,7 @@ struct StreakFreezeBanner: View {
         guard var user = user else { return }
         
         // Mark as dismissed (no longer pending)
-        user.pendingStreakFreeze = false
-        user.streakFreezeExpiration = nil
+        user.pendingStreakFreezeUntil = nil
         
         Task {
             do {
