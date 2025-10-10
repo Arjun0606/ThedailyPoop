@@ -7,12 +7,21 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0C5B7BAD8CE8406A89DE0FD2 /* AttackActivityHighlights.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9E4F5A8B71D4B23A5D8E692 /* AttackActivityHighlights.swift */; };
 		0FACB45E96214F2F9C433E05 /* FartAttackManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12351ABD17EC4D46ABAC1A0F /* FartAttackManager.swift */; };
+		117D0A0612B54F5095CC3F0C /* AnalyticsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6D28C18A21A4E45B9E3F7D9 /* AnalyticsManager.swift */; };
 		18C93C69C717BE42F314D4B1 /* PrivacyPolicyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4210E055649FE550A178E211 /* PrivacyPolicyView.swift */; };
+		3435BACDD195443DBD7D44B1 /* SmartPermissionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88CF5B7CCC27421490F9EB8F /* SmartPermissionManager.swift */; };
+		3DE8BF08B1754FFF8E38AC38 /* AttackActivityFeedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CC6095D1B5D48C883000C78 /* AttackActivityFeedView.swift */; };
 		55845CA1FD714E00B54B4C73 /* FartAttackShopView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F01A855E018C4CDB91FE2AAA /* FartAttackShopView.swift */; };
+		6E62D68685EA4831B8F81A93 /* StreakFreezeBanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7D9E8F1A35C4C47B8E7F9A4 /* StreakFreezeBanner.swift */; };
 		6E75D2039F59460B827E026D /* StoreKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C031A90EFC7408CABA127C4 /* StoreKitManager.swift */; };
 		7044ED2C0C264A9E8AE8AC66 /* FartAttackOnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21850A1F17774C648197F780 /* FartAttackOnboardingView.swift */; };
 		71381258A72F415CAC0E3712 /* FartAttackPromoCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BC1BDCB895E40348F820DBC /* FartAttackPromoCard.swift */; };
+		7E0F47E9E6E0411D8B5E57AA /* AttackReactionSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2A7B6C8E93F4D17B4E5F891 /* AttackReactionSheet.swift */; };
+		821647ECCFD44A8BB6B30B76 /* AttackActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1730004771E4254830592C5 /* AttackActivity.swift */; };
+		821F2009646346028DED2A6D /* ExternalFartAttackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C32FA0D010F744ADBC3B823C /* ExternalFartAttackView.swift */; };
+		8D7A41E4D6EE4F809B26C8A3 /* BuyMoreBanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5C8D7E9F24E4B36A9D6F7B3 /* BuyMoreBanner.swift */; };
 		9122A731B4202D13CB528ADC /* TermsOfServiceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 119BCB7C76A3A13ECAA1ECFC /* TermsOfServiceView.swift */; };
 		A1000001294A0000000000001 /* PoopDropApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000002294A0000000000001 /* PoopDropApp.swift */; };
 		A1000002294A0000000000003 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000003294A0000000000003 /* AppDelegate.swift */; };
@@ -53,170 +62,138 @@
 		A100004D294A0000000000002 /* StreakView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100004E294A0000000000002 /* StreakView.swift */; };
 		A1000050294A0000000000003 /* SpotifyAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000051294A0000000000003 /* SpotifyAPIClient.swift */; };
 		BCDC470159A99D640A798079 /* HowItWorksView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C017F38432C0902A18CF636D /* HowItWorksView.swift */; };
+		C7269D96E6414107BA31C66C /* ReferralCredit.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7EDD4DEDFA340C8B637D777 /* ReferralCredit.swift */; };
+		D41D2D21BC9D40498B087397 /* WeeklyLeaderboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3B5A7F2D45C4C92A8F16E84 /* WeeklyLeaderboardView.swift */; };
 		D9AC1536EA6A48F4FEAFB2CE /* ContactView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27F25651DCDE162B6C18444A /* ContactView.swift */; };
 		DD40E6731A8A4A998FA3CBD6 /* FartAttackReceivedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AAB4C1763A447C3AD025CE8 /* FartAttackReceivedView.swift */; };
 		F28A684129C14FD2B22D2DBD /* FartAttack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4032E1A5989C49F4BF2FF783 /* FartAttack.swift */; };
-		29357BDE246441C99317CB96 /* AnimationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B69671F04B414ED1A856B4FE /* AnimationManager.swift */; };
-		9D1987D1CB894B84B8DE2058 /* FartAttackManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CED3DBD7F324B6E85B072A0 /* FartAttackManager.swift */; };
-		648964267BC6493C88C977B1 /* FriendsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF3A16709B9D477996825616 /* FriendsManager.swift */; };
-		1C15378D6C4746AE8CDB35D7 /* NotificationHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20B874AD6C9E4951A6CF8AC5 /* NotificationHandler.swift */; };
-		AA30F9321B0740A6ACCB39AE /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 399575863CAD4E22982E4B9E /* NotificationManager.swift */; };
-		16B11FC50C4A4093937858E4 /* StoreKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD9C291B6415453A84F28E06 /* StoreKitManager.swift */; };
-		2082FA234B2A4B789C6F28A6 /* Badge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 757C2453D4C542F0940F2C9C /* Badge.swift */; };
-		0A4276DD516E43D99C3A9C2E /* FartAttack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3CB5042FD06D4C57B94B91EC /* FartAttack.swift */; };
-		561A3241FE444A169A8CE9DC /* Friendship.swift in Sources */ = {isa = PBXBuildFile; fileRef = 28C770779C084BC090AE787C /* Friendship.swift */; };
-		4E490062147E402787554D28 /* Notification.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67C5158D22A84061A57E6461 /* Notification.swift */; };
-		1B6CCF70B52A4CE3BCCEFEA0 /* Reaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEB2030E4884446C97B3B3D1 /* Reaction.swift */; };
-		FEB591B64D4543FCBE71BBBE /* UserSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D238A41DAFB43E997383073 /* UserSession.swift */; };
-		821F2009646346028DED2A6D /* ExternalFartAttackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C32FA0D010F744ADBC3B823C /* ExternalFartAttackView.swift */; };
-		F1BDA5D51C9A416BA31B7E91 /* FartAttackOnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76F6FFE656C943398F23A706 /* FartAttackOnboardingView.swift */; };
-		91DA57B43BB1467FBFBB2283 /* FartAttackPromoCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32CA2C5339A94EE99F777033 /* FartAttackPromoCard.swift */; };
-		496DC516C9434C33A142BD03 /* FartAttackReceivedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 409BD26E51C44AA09D178F22 /* FartAttackReceivedView.swift */; };
-		48F7A66221EA417D9CD2C922 /* FartAttackShopView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7671B3C182AD4E708D949A41 /* FartAttackShopView.swift */; };
-		163B6091F93A4FA99D1C9081 /* FriendsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BECDE40039A458F9E8A5E61 /* FriendsView.swift */; };
-		D0DB2271CCDB4D5AB2DA03A6 /* ProfilePictureEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 646A0D617107477888A3C2FC /* ProfilePictureEditor.swift */; };
-		DA9C6F8CCF004F71B5BAE321 /* ProfileSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A223E0423EF470BBE2B3805 /* ProfileSetupView.swift */; };
-		4898A3C2F98E492CA8CFD197 /* SnapchatStyleMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AC4D606616C4C1BB8096CC5 /* SnapchatStyleMapView.swift */; };
-		4D42B78EF7F5472C843F6263 /* StreakView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9191F2F1A8994133A0EE35B1 /* StreakView.swift */; };
-		342748A0DF5B437E90721060 /* TryProView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61235A60129C4CDA87A26D55 /* TryProView.swift */; };
-		4DAE3CCAC37F4E10B59F497F /* AdManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3BC073E83E948B8A1B4B496 /* AdManager.swift */; };
-		117D0A0612B54F5095CC3F0C /* AnalyticsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6D28C18A21A4E45B9E3F7D9 /* AnalyticsManager.swift */; };
-		D41D2D21BC9D40498B087397 /* WeeklyLeaderboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3B5A7F2D45C4C92A8F16E84 /* WeeklyLeaderboardView.swift */; };
-		0C5B7BAD8CE8406A89DE0FD2 /* AttackActivityHighlights.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9E4F5A8B71D4B23A5D8E692 /* AttackActivityHighlights.swift */; };
-		7E0F47E9E6E0411D8B5E57AA /* AttackReactionSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2A7B6C8E93F4D17B4E5F891 /* AttackReactionSheet.swift */; };
-		8D7A41E4D6EE4F809B26C8A3 /* BuyMoreBanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5C8D7E9F24E4B36A9D6F7B3 /* BuyMoreBanner.swift */; };
-		6E62D68685EA4831B8F81A93 /* StreakFreezeBanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7D9E8F1A35C4C47B8E7F9A4 /* StreakFreezeBanner.swift */; };
-		88DF13956C4F42E0B8F903BD /* AnimationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90231BDDB0148DBA03022C8 /* AnimationManager.swift */; };
-		D1572A081F33416D80EF5D68 /* FartAttackManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 485B82D90893430BB97F31EF /* FartAttackManager.swift */; };
-		397EB5E62C9744078460B04E /* FriendsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37134B4493D34DBC87C5168F /* FriendsManager.swift */; };
-		283686DEFB1C4014A96A9795 /* NotificationHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6ABCD4BB70AD4BFCAB7CAE71 /* NotificationHandler.swift */; };
-		DD3EDFA6CBE44EFEAF35264B /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B96DEF9595394E50BCA17EB4 /* NotificationManager.swift */; };
-		FE4B21E37F7E4F3D9E51699E /* StoreKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 294C98BBD7CD4F0D9D33E0A4 /* StoreKitManager.swift */; };
-		17961D6DA70249BBB0FB4BF4 /* Badge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9373D0DC63F849DA9B6A5286 /* Badge.swift */; };
-		E2914677CF9A48C095920C03 /* FartAttack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B343409F91C408488D479CA /* FartAttack.swift */; };
-		795AF90504714F5D8340C0E6 /* Friendship.swift in Sources */ = {isa = PBXBuildFile; fileRef = B99718138A7C4487A280FAEF /* Friendship.swift */; };
-		386FE78518DB46A581940420 /* Notification.swift in Sources */ = {isa = PBXBuildFile; fileRef = A67DBFD944454014A5FBD8BF /* Notification.swift */; };
-		EEA65F103EE94EB48A416F10 /* Reaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56FF36BB0D3A45648170CE09 /* Reaction.swift */; };
-		6A45148C97A74ED4B2C43E4B /* UserSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B9931690708407F90809C8D /* UserSession.swift */; };
-		A4AC803D049F4C31BA96D21A /* ExternalFartAttackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 946865E06AA6433E8350EE50 /* ExternalFartAttackView.swift */; };
-		81BEE9EE73DB48B8A50842CF /* FartAttackOnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F068879E83FC4FD38F66E57F /* FartAttackOnboardingView.swift */; };
-		06F01AA160BC475088CD933C /* FartAttackPromoCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC47011342254219B68C97CA /* FartAttackPromoCard.swift */; };
-		0048D93039D5492A85A294D7 /* FartAttackReceivedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AF7F00D0F014D178077667B /* FartAttackReceivedView.swift */; };
-		0CF9E677B8064AAF90795EB0 /* FartAttackShopView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92B9039BCEBE4878ACC95858 /* FartAttackShopView.swift */; };
-		8312134B5AFA446983602A3C /* FriendsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD6D750A1E874B5CA6A8B30E /* FriendsView.swift */; };
-		CD08F57B937848B2B51B90F3 /* MapBannerAdView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C62E5C894DF42EF84D33256 /* MapBannerAdView.swift */; };
-		0D1155FDE5BD43038129D92A /* NativeAdCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 350C38EB0C92402AA7B38626 /* NativeAdCardView.swift */; };
-		9E4596AEB1314E9E872E7E59 /* ProfilePictureEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = D44DDC203EFB40CFBB6E70F4 /* ProfilePictureEditor.swift */; };
-		DA12C60958C044B1889DDA82 /* ProfileSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BFFBC67C0174D8F90224DB7 /* ProfileSetupView.swift */; };
-		38F0FAC52EAA40678180EC1C /* SnapchatStyleMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 060B08347F704217ACE4E3EF /* SnapchatStyleMapView.swift */; };
-		85AF9F93223449D8A68A1BAF /* StreakView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 328BBFAFBD544647920380D1 /* StreakView.swift */; };
-		A29AACD32DCC412FA7BDF80B /* TryProView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CACF19AD9864F1585F34A7F /* TryProView.swift */; };
-		93EE01774FDD459C87D21C7C /* AdManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B1C4CC10B62477CB769EBED /* AdManager.swift */; };
-		5363A094A0C24728B6EF2B08 /* AnalyticsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BEE552248AC4869A61B55A3 /* AnalyticsManager.swift */; };
-		74FC2142A9D4440BBF67E53F /* AnimationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F10B4C873EC4283B2D1366D /* AnimationManager.swift */; };
-		F85BF339AAB24A208B111C8D /* FartAttackManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7163EC6631D4EB0ABE5ADCD /* FartAttackManager.swift */; };
-		120E8D8C2C84482FAD82096E /* FriendsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C3B130987144A5CA901445B /* FriendsManager.swift */; };
-		AC6838BA17E14AF1B20A306B /* NotificationHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D6EF0067BB64D6BB042E73C /* NotificationHandler.swift */; };
-		8CD1DE3659144DAD8AB05922 /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B6817CB60824753BFF6E3D9 /* NotificationManager.swift */; };
-		3435BACDD195443DBD7D44B1 /* SmartPermissionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88CF5B7CCC27421490F9EB8F /* SmartPermissionManager.swift */; };
-		D276EC82B52448CC9413F481 /* StoreKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77E5C88F64F94ED8B2CD8448 /* StoreKitManager.swift */; };
-		821647ECCFD44A8BB6B30B76 /* AttackActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1730004771E4254830592C5 /* AttackActivity.swift */; };
-		F536A1BE926942519E320C1B /* Badge.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBADACFE9A914569AEDA7BC0 /* Badge.swift */; };
-		11D1105E5F8A433988C8CE22 /* FartAttack.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC290E30FD084A8BBF180E53 /* FartAttack.swift */; };
-		8B38D36145704A60AA55FC35 /* Friendship.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15CA6D53DC3C4440BCB42419 /* Friendship.swift */; };
-		3A4D424C88B64349801780F0 /* Notification.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2058EAAFC28F4E9F82367464 /* Notification.swift */; };
-		764312A812A845B78EBDF4CF /* Reaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A8326E730814351A49D0BE3 /* Reaction.swift */; };
-		C7269D96E6414107BA31C66C /* ReferralCredit.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7EDD4DEDFA340C8B637D777 /* ReferralCredit.swift */; };
-		76DD1163190146EA8E72A6CB /* UserSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D9627DE59AB42B5B023D264 /* UserSession.swift */; };
-		3DE8BF08B1754FFF8E38AC38 /* AttackActivityFeedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2CC6095D1B5D48C883000C78 /* AttackActivityFeedView.swift */; };
-		0501F81FB0DB41DCBFF2F2A7 /* ExternalFartAttackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59ECC4EC51C34EBD89CB1B37 /* ExternalFartAttackView.swift */; };
-		BA7372294CB744C6817AD48F /* FartAttackOnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEAF197014F34711A75FC801 /* FartAttackOnboardingView.swift */; };
-		52422969704D493283F1133C /* FartAttackPromoCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BD414737AB14AEC996D49CB /* FartAttackPromoCard.swift */; };
-		1FABF3BDC59A42669398D59D /* FartAttackReceivedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17ED9344DAD14FB78D079D07 /* FartAttackReceivedView.swift */; };
-		31C4ABAD4BB34A8FAE0D246A /* FartAttackShopView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40CC2FAEA7E64720A1E510EB /* FartAttackShopView.swift */; };
-		BFA3E8C3079F409282FB74D4 /* FriendsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD1ACCF0824F48A98B6A77CE /* FriendsView.swift */; };
-		96F41F18629043DA9D02021E /* MapBannerAdView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 178159D1051943099A921C42 /* MapBannerAdView.swift */; };
-		EF945E1BA7804BC0B11B9C8C /* NativeAdCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93BAE3EE27A1452B906E2014 /* NativeAdCardView.swift */; };
-		1335020F8762403497FCA179 /* ProfilePictureEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD4626E7704A4899A7805445 /* ProfilePictureEditor.swift */; };
-		D6C06A8BC20D42D8906C4556 /* ProfileSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FA041459626451B9E69B5B9 /* ProfileSetupView.swift */; };
-		D6E1DE42DF254CEAA6FF9939 /* SnapchatStyleMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3CFED6EE1014F3999A70DB9 /* SnapchatStyleMapView.swift */; };
-		F827A482871D4A16916215A0 /* StreakView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E5393AE4A49431690A0BE77 /* StreakView.swift */; };
-		7DC00CE66FD1400EABD0C65A /* TryProView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6ED813358E0448E5932AE8EA /* TryProView.swift */; };
-		066EE6C6D20843069A247161 /* WeeklyLeaderboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2EB92137063461391661A2E /* WeeklyLeaderboardView.swift */; };
-		BBBA588253AE469582FC415D /* AttackActivityHighlights.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B68B68E483F47C881135602 /* AttackActivityHighlights.swift */; };
-		1817C93B25904A81A22FF143 /* AttackReactionSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3ABCC7CF8E944347A3873B5E /* AttackReactionSheet.swift */; };
-		9A519F839E314F66A3A875CF /* BuyMoreBanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7989AAB0E97C4ED18406880F /* BuyMoreBanner.swift */; };
-		D20598F980664244B17BEBDC /* StreakFreezeBanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D3F7ACDC014967891B9E01 /* StreakFreezeBanner.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		0134D2C92B7949DAA232D96A /* Reaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Reaction.swift; sourceTree = "<group>"; };
 		01B03E3D7BEF49E594775CB6 /* FriendsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsView.swift; sourceTree = "<group>"; };
 		04DBA0A8A9154A98BD5143D7 /* SnapchatStyleMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapchatStyleMapView.swift; sourceTree = "<group>"; };
+		060B08347F704217ACE4E3EF /* SnapchatStyleMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapchatStyleMapView.swift; sourceTree = "<group>"; };
+		0A223E0423EF470BBE2B3805 /* ProfileSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSetupView.swift; sourceTree = "<group>"; };
+		0AF7F00D0F014D178077667B /* FartAttackReceivedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttackReceivedView.swift; sourceTree = "<group>"; };
+		0B6817CB60824753BFF6E3D9 /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
 		10AEFE21A87346ACACF8B4E4 /* TryProView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TryProView.swift; sourceTree = "<group>"; };
 		119BCB7C76A3A13ECAA1ECFC /* TermsOfServiceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TermsOfServiceView.swift; sourceTree = "<group>"; };
 		12351ABD17EC4D46ABAC1A0F /* FartAttackManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttackManager.swift; sourceTree = "<group>"; };
 		13316491E1124DE797FB5EF7 /* TryProView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TryProView.swift; sourceTree = "<group>"; };
 		14D65985B89141508A64FF34 /* Badge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Badge.swift; sourceTree = "<group>"; };
+		15CA6D53DC3C4440BCB42419 /* Friendship.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Friendship.swift; sourceTree = "<group>"; };
 		15D2A7DFEDE24818BF33AED3 /* FriendsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsView.swift; sourceTree = "<group>"; };
 		16D20839E17747E880B8E6FB /* SnapchatStyleMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapchatStyleMapView.swift; sourceTree = "<group>"; };
+		178159D1051943099A921C42 /* MapBannerAdView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapBannerAdView.swift; sourceTree = "<group>"; };
+		17ED9344DAD14FB78D079D07 /* FartAttackReceivedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttackReceivedView.swift; sourceTree = "<group>"; };
 		19C43A4D45A845F183B66076 /* ProfileSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSetupView.swift; sourceTree = "<group>"; };
 		19D43ED0890D4DB88A4E0A95 /* FartAttackManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttackManager.swift; sourceTree = "<group>"; };
 		1A32985B0EAA4799A6A44147 /* FartAttack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttack.swift; sourceTree = "<group>"; };
+		1A8326E730814351A49D0BE3 /* Reaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Reaction.swift; sourceTree = "<group>"; };
+		1B1C4CC10B62477CB769EBED /* AdManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdManager.swift; sourceTree = "<group>"; };
 		1BC0E0A05709429498567F16 /* UserSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSession.swift; sourceTree = "<group>"; };
 		1C031A90EFC7408CABA127C4 /* StoreKitManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreKitManager.swift; sourceTree = "<group>"; };
+		1CACF19AD9864F1585F34A7F /* TryProView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TryProView.swift; sourceTree = "<group>"; };
 		1D12B283F418485C8EF5DA2E /* FriendsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsManager.swift; sourceTree = "<group>"; };
+		1E5393AE4A49431690A0BE77 /* StreakView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreakView.swift; sourceTree = "<group>"; };
+		2058EAAFC28F4E9F82367464 /* Notification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notification.swift; sourceTree = "<group>"; };
+		20B874AD6C9E4951A6CF8AC5 /* NotificationHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationHandler.swift; sourceTree = "<group>"; };
 		21850A1F17774C648197F780 /* FartAttackOnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttackOnboardingView.swift; sourceTree = "<group>"; };
 		269F36613F2146C3B50CD6F2 /* Badge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Badge.swift; sourceTree = "<group>"; };
 		27F25651DCDE162B6C18444A /* ContactView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactView.swift; sourceTree = "<group>"; };
+		28C770779C084BC090AE787C /* Friendship.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Friendship.swift; sourceTree = "<group>"; };
+		294C98BBD7CD4F0D9D33E0A4 /* StoreKitManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreKitManager.swift; sourceTree = "<group>"; };
 		2ACA5D0FE0DA41D6B44EEF99 /* AnimationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimationManager.swift; sourceTree = "<group>"; };
+		2B343409F91C408488D479CA /* FartAttack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttack.swift; sourceTree = "<group>"; };
+		2B9931690708407F90809C8D /* UserSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSession.swift; sourceTree = "<group>"; };
 		2C977B2BF5ED4076B5966AD5 /* StoreKitManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreKitManager.swift; sourceTree = "<group>"; };
+		2CC6095D1B5D48C883000C78 /* AttackActivityFeedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttackActivityFeedView.swift; sourceTree = "<group>"; };
+		328BBFAFBD544647920380D1 /* StreakView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreakView.swift; sourceTree = "<group>"; };
+		32CA2C5339A94EE99F777033 /* FartAttackPromoCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttackPromoCard.swift; sourceTree = "<group>"; };
 		33959DBB2F3F41CFA90BA73D /* SnapchatStyleMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapchatStyleMapView.swift; sourceTree = "<group>"; };
 		34E716DC143740BAB0535EFA /* UserSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSession.swift; sourceTree = "<group>"; };
+		350C38EB0C92402AA7B38626 /* NativeAdCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeAdCardView.swift; sourceTree = "<group>"; };
 		3530E6BCCA4B44A396EC6998 /* AnimationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimationManager.swift; sourceTree = "<group>"; };
 		36CB6C765A5A4D668216A802 /* FriendsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsManager.swift; sourceTree = "<group>"; };
+		37134B4493D34DBC87C5168F /* FriendsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsManager.swift; sourceTree = "<group>"; };
 		3884BF9D773D4CFFBF4790EB /* SnapchatStyleMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapchatStyleMapView.swift; sourceTree = "<group>"; };
+		399575863CAD4E22982E4B9E /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
 		3BDF331CE90B4CA785A11AAE /* Friendship.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Friendship.swift; sourceTree = "<group>"; };
+		3CB5042FD06D4C57B94B91EC /* FartAttack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttack.swift; sourceTree = "<group>"; };
 		3DE9135302C14A3B93451172 /* SnapchatStyleMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapchatStyleMapView.swift; sourceTree = "<group>"; };
 		3EC2E97C04DA456FB4B65424 /* FartAttackReceivedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttackReceivedView.swift; sourceTree = "<group>"; };
 		3F4107CFB75549358BB08870 /* Badge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Badge.swift; sourceTree = "<group>"; };
 		4032E1A5989C49F4BF2FF783 /* FartAttack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttack.swift; sourceTree = "<group>"; };
+		409BD26E51C44AA09D178F22 /* FartAttackReceivedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttackReceivedView.swift; sourceTree = "<group>"; };
+		40CC2FAEA7E64720A1E510EB /* FartAttackShopView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttackShopView.swift; sourceTree = "<group>"; };
 		4210E055649FE550A178E211 /* PrivacyPolicyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivacyPolicyView.swift; sourceTree = "<group>"; };
 		42FD90BC62F5482C806DE43D /* UserSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSession.swift; sourceTree = "<group>"; };
 		43752C7A60B24EF0B63A7C7B /* Friendship.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Friendship.swift; sourceTree = "<group>"; };
 		456220ACBBD2420C9D8D9650 /* ProfileSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSetupView.swift; sourceTree = "<group>"; };
+		485B82D90893430BB97F31EF /* FartAttackManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttackManager.swift; sourceTree = "<group>"; };
 		4B62CBDFC62E4604B16D1321 /* Notification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notification.swift; sourceTree = "<group>"; };
 		4B9D94A51C1B4CFF9541E594 /* FartAttack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttack.swift; sourceTree = "<group>"; };
 		4BFC9ABC2F01418B9B34DCD1 /* TryProView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TryProView.swift; sourceTree = "<group>"; };
+		4D238A41DAFB43E997383073 /* UserSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSession.swift; sourceTree = "<group>"; };
 		4EBD6076D7B04B86983E6299 /* ProfileSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSetupView.swift; sourceTree = "<group>"; };
 		4F5F895CE17041F7AD7B5DF3 /* Notification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notification.swift; sourceTree = "<group>"; };
 		4F88B0289B744F5582811F99 /* Friendship.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Friendship.swift; sourceTree = "<group>"; };
 		5539F2549B62453FBC03467A /* FriendsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsView.swift; sourceTree = "<group>"; };
 		563933FC2C1F4BAEA160CDA6 /* FartAttackShopView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttackShopView.swift; sourceTree = "<group>"; };
+		56FF36BB0D3A45648170CE09 /* Reaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Reaction.swift; sourceTree = "<group>"; };
+		59ECC4EC51C34EBD89CB1B37 /* ExternalFartAttackView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExternalFartAttackView.swift; sourceTree = "<group>"; };
+		5BD414737AB14AEC996D49CB /* FartAttackPromoCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttackPromoCard.swift; sourceTree = "<group>"; };
+		5F10B4C873EC4283B2D1366D /* AnimationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimationManager.swift; sourceTree = "<group>"; };
+		5FA041459626451B9E69B5B9 /* ProfileSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSetupView.swift; sourceTree = "<group>"; };
+		61235A60129C4CDA87A26D55 /* TryProView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TryProView.swift; sourceTree = "<group>"; };
 		636614D507DC4B629B99B447 /* StreakView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreakView.swift; sourceTree = "<group>"; };
 		639603AAABFC467CAA08EEE9 /* ProfilePictureEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilePictureEditor.swift; sourceTree = "<group>"; };
+		646A0D617107477888A3C2FC /* ProfilePictureEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilePictureEditor.swift; sourceTree = "<group>"; };
 		64B39B282EA54E538DE5ABE9 /* Notification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notification.swift; sourceTree = "<group>"; };
 		65108BABEB124A5EA474C509 /* ProfilePictureEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilePictureEditor.swift; sourceTree = "<group>"; };
 		6598F0814F2049309CF8E5C5 /* StreakView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreakView.swift; sourceTree = "<group>"; };
 		6632FD3335CF453580BF203C /* ProfileSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSetupView.swift; sourceTree = "<group>"; };
 		67BB5F9485BA40039E01D8CD /* FriendsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsManager.swift; sourceTree = "<group>"; };
+		67C5158D22A84061A57E6461 /* Notification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notification.swift; sourceTree = "<group>"; };
 		69788627168249EB8CA03DBB /* Badge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Badge.swift; sourceTree = "<group>"; };
+		6ABCD4BB70AD4BFCAB7CAE71 /* NotificationHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationHandler.swift; sourceTree = "<group>"; };
+		6BECDE40039A458F9E8A5E61 /* FriendsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsView.swift; sourceTree = "<group>"; };
 		6D2187250B5043FAA5337B44 /* Friendship.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Friendship.swift; sourceTree = "<group>"; };
+		6D9627DE59AB42B5B023D264 /* UserSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSession.swift; sourceTree = "<group>"; };
+		6ED813358E0448E5932AE8EA /* TryProView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TryProView.swift; sourceTree = "<group>"; };
 		7129C9ECBF4A40A5991E1402 /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
 		72D50F0C2FD64BC38F267145 /* ProfileSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSetupView.swift; sourceTree = "<group>"; };
+		757C2453D4C542F0940F2C9C /* Badge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Badge.swift; sourceTree = "<group>"; };
+		7671B3C182AD4E708D949A41 /* FartAttackShopView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttackShopView.swift; sourceTree = "<group>"; };
+		76F6FFE656C943398F23A706 /* FartAttackOnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttackOnboardingView.swift; sourceTree = "<group>"; };
+		77E5C88F64F94ED8B2CD8448 /* StoreKitManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreKitManager.swift; sourceTree = "<group>"; };
 		79F1FD1E39794C61B29F3900 /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
+		7AC4D606616C4C1BB8096CC5 /* SnapchatStyleMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapchatStyleMapView.swift; sourceTree = "<group>"; };
 		7B2E2A5EBC1046A4B4CCE1EF /* NotificationHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationHandler.swift; sourceTree = "<group>"; };
+		7C3B130987144A5CA901445B /* FriendsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsManager.swift; sourceTree = "<group>"; };
 		82568A3A19324EB9B7040DBC /* ProfilePictureEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilePictureEditor.swift; sourceTree = "<group>"; };
 		85051EC4DA834F93A1BF75D5 /* FartAttackReceivedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttackReceivedView.swift; sourceTree = "<group>"; };
+		88CF5B7CCC27421490F9EB8F /* SmartPermissionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartPermissionManager.swift; sourceTree = "<group>"; };
 		89C415EE57A94CD9861A1FF4 /* StreakView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreakView.swift; sourceTree = "<group>"; };
 		89FB5B12402A45CEBD7AAA80 /* NotificationHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationHandler.swift; sourceTree = "<group>"; };
+		8BFFBC67C0174D8F90224DB7 /* ProfileSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSetupView.swift; sourceTree = "<group>"; };
 		8C57DA88E74F4D43B3F7740F /* Notification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notification.swift; sourceTree = "<group>"; };
+		8C62E5C894DF42EF84D33256 /* MapBannerAdView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapBannerAdView.swift; sourceTree = "<group>"; };
+		8CED3DBD7F324B6E85B072A0 /* FartAttackManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttackManager.swift; sourceTree = "<group>"; };
 		8D717FE29D284B539A105460 /* NotificationHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationHandler.swift; sourceTree = "<group>"; };
 		8FCB80B1047546779A8684A3 /* ProfilePictureEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilePictureEditor.swift; sourceTree = "<group>"; };
+		9191F2F1A8994133A0EE35B1 /* StreakView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreakView.swift; sourceTree = "<group>"; };
+		92B9039BCEBE4878ACC95858 /* FartAttackShopView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttackShopView.swift; sourceTree = "<group>"; };
+		9373D0DC63F849DA9B6A5286 /* Badge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Badge.swift; sourceTree = "<group>"; };
+		93BAE3EE27A1452B906E2014 /* NativeAdCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeAdCardView.swift; sourceTree = "<group>"; };
+		946865E06AA6433E8350EE50 /* ExternalFartAttackView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExternalFartAttackView.swift; sourceTree = "<group>"; };
 		95A226732FFE46ED8F146E36 /* FriendsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsManager.swift; sourceTree = "<group>"; };
 		9AAB4C1763A447C3AD025CE8 /* FartAttackReceivedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttackReceivedView.swift; sourceTree = "<group>"; };
 		9BC1BDCB895E40348F820DBC /* FartAttackPromoCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttackPromoCard.swift; sourceTree = "<group>"; };
+		9BEE552248AC4869A61B55A3 /* AnalyticsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsManager.swift; sourceTree = "<group>"; };
 		9D27371195EC4F42A6090FD4 /* AnimationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimationManager.swift; sourceTree = "<group>"; };
+		9D6EF0067BB64D6BB042E73C /* NotificationHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationHandler.swift; sourceTree = "<group>"; };
 		9E0554B23D194CFC93F016EA /* FriendsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsManager.swift; sourceTree = "<group>"; };
 		9F10273A96584427813AE2DA /* TryProView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TryProView.swift; sourceTree = "<group>"; };
 		A1000001294A0000000000000 /* TheDailyPoop.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TheDailyPoop.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -262,121 +239,60 @@
 		A1000051294A0000000000003 /* SpotifyAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpotifyAPIClient.swift; sourceTree = "<group>"; };
 		A4A8BA74FA404D4C910A8E9D /* Reaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Reaction.swift; sourceTree = "<group>"; };
 		A5ACDCCA2B9E4CAC8162A78D /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
+		A5C8D7E9F24E4B36A9D6F7B3 /* BuyMoreBanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = BuyMoreBanner.swift; path = PoopDrop/Views/Components/BuyMoreBanner.swift; sourceTree = SOURCE_ROOT; };
+		A67DBFD944454014A5FBD8BF /* Notification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notification.swift; sourceTree = "<group>"; };
+		A7163EC6631D4EB0ABE5ADCD /* FartAttackManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttackManager.swift; sourceTree = "<group>"; };
+		A7EDD4DEDFA340C8B637D777 /* ReferralCredit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReferralCredit.swift; sourceTree = "<group>"; };
 		A87ED0DAF69E45268B6AF183 /* NotificationHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationHandler.swift; sourceTree = "<group>"; };
+		A90231BDDB0148DBA03022C8 /* AnimationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimationManager.swift; sourceTree = "<group>"; };
 		A9469C270F8F40F18D0687E0 /* StreakView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreakView.swift; sourceTree = "<group>"; };
+		AD1ACCF0824F48A98B6A77CE /* FriendsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsView.swift; sourceTree = "<group>"; };
+		AF3A16709B9D477996825616 /* FriendsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsManager.swift; sourceTree = "<group>"; };
+		B2EB92137063461391661A2E /* WeeklyLeaderboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeeklyLeaderboardView.swift; sourceTree = "<group>"; };
 		B3B85483E2964E35A38509AA /* AnimationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimationManager.swift; sourceTree = "<group>"; };
 		B59C5A3542B4435389A29CC7 /* FriendsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsView.swift; sourceTree = "<group>"; };
+		B69671F04B414ED1A856B4FE /* AnimationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimationManager.swift; sourceTree = "<group>"; };
 		B6D36B405BB544B78391CEA7 /* UserSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSession.swift; sourceTree = "<group>"; };
+		B7D9E8F1A35C4C47B8E7F9A4 /* StreakFreezeBanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = StreakFreezeBanner.swift; path = PoopDrop/Views/Components/StreakFreezeBanner.swift; sourceTree = SOURCE_ROOT; };
+		B96DEF9595394E50BCA17EB4 /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
+		B99718138A7C4487A280FAEF /* Friendship.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Friendship.swift; sourceTree = "<group>"; };
 		BB44BEAFB3D84164828CAF80 /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
 		BB7F5048373643739BB3486F /* TryProView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TryProView.swift; sourceTree = "<group>"; };
+		BC290E30FD084A8BBF180E53 /* FartAttack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttack.swift; sourceTree = "<group>"; };
 		BF641B84CB28444D94ED3E20 /* Friendship.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Friendship.swift; sourceTree = "<group>"; };
 		C017F38432C0902A18CF636D /* HowItWorksView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HowItWorksView.swift; sourceTree = "<group>"; };
+		C1730004771E4254830592C5 /* AttackActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttackActivity.swift; sourceTree = "<group>"; };
+		C32FA0D010F744ADBC3B823C /* ExternalFartAttackView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExternalFartAttackView.swift; sourceTree = "<group>"; };
+		C3CFED6EE1014F3999A70DB9 /* SnapchatStyleMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapchatStyleMapView.swift; sourceTree = "<group>"; };
 		C8E6861648D945B6A512183B /* Reaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Reaction.swift; sourceTree = "<group>"; };
+		C9E4F5A8B71D4B23A5D8E692 /* AttackActivityHighlights.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AttackActivityHighlights.swift; path = PoopDrop/Views/Components/AttackActivityHighlights.swift; sourceTree = SOURCE_ROOT; };
 		CB490607EE374E6CA89A1D6B /* FartAttackShopView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttackShopView.swift; sourceTree = "<group>"; };
+		CBADACFE9A914569AEDA7BC0 /* Badge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Badge.swift; sourceTree = "<group>"; };
+		CC47011342254219B68C97CA /* FartAttackPromoCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttackPromoCard.swift; sourceTree = "<group>"; };
 		CCCBF738611740A5984B9054 /* AnimationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimationManager.swift; sourceTree = "<group>"; };
+		CD4626E7704A4899A7805445 /* ProfilePictureEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilePictureEditor.swift; sourceTree = "<group>"; };
+		CEB2030E4884446C97B3B3D1 /* Reaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Reaction.swift; sourceTree = "<group>"; };
+		D2A7B6C8E93F4D17B4E5F891 /* AttackReactionSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AttackReactionSheet.swift; path = PoopDrop/Views/Components/AttackReactionSheet.swift; sourceTree = SOURCE_ROOT; };
 		D37FE929F4194E448E258907 /* Notification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notification.swift; sourceTree = "<group>"; };
+		D3BC073E83E948B8A1B4B496 /* AdManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdManager.swift; sourceTree = "<group>"; };
+		D44DDC203EFB40CFBB6E70F4 /* ProfilePictureEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilePictureEditor.swift; sourceTree = "<group>"; };
 		D802FC943ABB422C88710795 /* Reaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Reaction.swift; sourceTree = "<group>"; };
+		DD6D750A1E874B5CA6A8B30E /* FriendsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsView.swift; sourceTree = "<group>"; };
+		DD9C291B6415453A84F28E06 /* StoreKitManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreKitManager.swift; sourceTree = "<group>"; };
 		E11A6043B79F421791DED928 /* NotificationHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationHandler.swift; sourceTree = "<group>"; };
 		E368D387A907401B80040562 /* StreakView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreakView.swift; sourceTree = "<group>"; };
+		E3B5A7F2D45C4C92A8F16E84 /* WeeklyLeaderboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WeeklyLeaderboardView.swift; path = PoopDrop/Views/WeeklyLeaderboardView.swift; sourceTree = SOURCE_ROOT; };
 		E7CCEC460D7845CDA52AF8D1 /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
 		EDE2CD76CF9047ED885F76F5 /* FriendsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsView.swift; sourceTree = "<group>"; };
 		EDF02772EA50463494E3DA9B /* UserSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSession.swift; sourceTree = "<group>"; };
+		EEAF197014F34711A75FC801 /* FartAttackOnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttackOnboardingView.swift; sourceTree = "<group>"; };
 		F01A855E018C4CDB91FE2AAA /* FartAttackShopView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttackShopView.swift; sourceTree = "<group>"; };
+		F068879E83FC4FD38F66E57F /* FartAttackOnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttackOnboardingView.swift; sourceTree = "<group>"; };
 		F2EEAD38BE034A03B80A04CA /* Badge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Badge.swift; sourceTree = "<group>"; };
 		F4055FE0654544B6B8B32C51 /* Reaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Reaction.swift; sourceTree = "<group>"; };
 		F5B45AC7BD3941BEB6B6A979 /* FartAttackManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttackManager.swift; sourceTree = "<group>"; };
-		FC928D3DD84D47A18276BDF7 /* ProfilePictureEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilePictureEditor.swift; sourceTree = "<group>"; };
-		B69671F04B414ED1A856B4FE /* AnimationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimationManager.swift; sourceTree = "<group>"; };
-		8CED3DBD7F324B6E85B072A0 /* FartAttackManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttackManager.swift; sourceTree = "<group>"; };
-		AF3A16709B9D477996825616 /* FriendsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsManager.swift; sourceTree = "<group>"; };
-		20B874AD6C9E4951A6CF8AC5 /* NotificationHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationHandler.swift; sourceTree = "<group>"; };
-		399575863CAD4E22982E4B9E /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
-		DD9C291B6415453A84F28E06 /* StoreKitManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreKitManager.swift; sourceTree = "<group>"; };
-		757C2453D4C542F0940F2C9C /* Badge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Badge.swift; sourceTree = "<group>"; };
-		3CB5042FD06D4C57B94B91EC /* FartAttack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttack.swift; sourceTree = "<group>"; };
-		28C770779C084BC090AE787C /* Friendship.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Friendship.swift; sourceTree = "<group>"; };
-		67C5158D22A84061A57E6461 /* Notification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notification.swift; sourceTree = "<group>"; };
-		CEB2030E4884446C97B3B3D1 /* Reaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Reaction.swift; sourceTree = "<group>"; };
-		4D238A41DAFB43E997383073 /* UserSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSession.swift; sourceTree = "<group>"; };
-		C32FA0D010F744ADBC3B823C /* ExternalFartAttackView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExternalFartAttackView.swift; sourceTree = "<group>"; };
-		76F6FFE656C943398F23A706 /* FartAttackOnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttackOnboardingView.swift; sourceTree = "<group>"; };
-		32CA2C5339A94EE99F777033 /* FartAttackPromoCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttackPromoCard.swift; sourceTree = "<group>"; };
-		409BD26E51C44AA09D178F22 /* FartAttackReceivedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttackReceivedView.swift; sourceTree = "<group>"; };
-		7671B3C182AD4E708D949A41 /* FartAttackShopView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttackShopView.swift; sourceTree = "<group>"; };
-		6BECDE40039A458F9E8A5E61 /* FriendsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsView.swift; sourceTree = "<group>"; };
-		646A0D617107477888A3C2FC /* ProfilePictureEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilePictureEditor.swift; sourceTree = "<group>"; };
-		0A223E0423EF470BBE2B3805 /* ProfileSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSetupView.swift; sourceTree = "<group>"; };
-		7AC4D606616C4C1BB8096CC5 /* SnapchatStyleMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapchatStyleMapView.swift; sourceTree = "<group>"; };
-		9191F2F1A8994133A0EE35B1 /* StreakView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreakView.swift; sourceTree = "<group>"; };
-		61235A60129C4CDA87A26D55 /* TryProView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TryProView.swift; sourceTree = "<group>"; };
-		D3BC073E83E948B8A1B4B496 /* AdManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdManager.swift; sourceTree = "<group>"; };
 		F6D28C18A21A4E45B9E3F7D9 /* AnalyticsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AnalyticsManager.swift; path = PoopDrop/Managers/AnalyticsManager.swift; sourceTree = SOURCE_ROOT; };
-		A90231BDDB0148DBA03022C8 /* AnimationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimationManager.swift; sourceTree = "<group>"; };
-		E3B5A7F2D45C4C92A8F16E84 /* WeeklyLeaderboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WeeklyLeaderboardView.swift; path = PoopDrop/Views/WeeklyLeaderboardView.swift; sourceTree = SOURCE_ROOT; };
-		C9E4F5A8B71D4B23A5D8E692 /* AttackActivityHighlights.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AttackActivityHighlights.swift; path = PoopDrop/Views/Components/AttackActivityHighlights.swift; sourceTree = SOURCE_ROOT; };
-		D2A7B6C8E93F4D17B4E5F891 /* AttackReactionSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AttackReactionSheet.swift; path = PoopDrop/Views/Components/AttackReactionSheet.swift; sourceTree = SOURCE_ROOT; };
-		A5C8D7E9F24E4B36A9D6F7B3 /* BuyMoreBanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = BuyMoreBanner.swift; path = PoopDrop/Views/Components/BuyMoreBanner.swift; sourceTree = SOURCE_ROOT; };
-		B7D9E8F1A35C4C47B8E7F9A4 /* StreakFreezeBanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = StreakFreezeBanner.swift; path = PoopDrop/Views/Components/StreakFreezeBanner.swift; sourceTree = SOURCE_ROOT; };
-		485B82D90893430BB97F31EF /* FartAttackManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttackManager.swift; sourceTree = "<group>"; };
-		37134B4493D34DBC87C5168F /* FriendsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsManager.swift; sourceTree = "<group>"; };
-		6ABCD4BB70AD4BFCAB7CAE71 /* NotificationHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationHandler.swift; sourceTree = "<group>"; };
-		B96DEF9595394E50BCA17EB4 /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
-		294C98BBD7CD4F0D9D33E0A4 /* StoreKitManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreKitManager.swift; sourceTree = "<group>"; };
-		9373D0DC63F849DA9B6A5286 /* Badge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Badge.swift; sourceTree = "<group>"; };
-		2B343409F91C408488D479CA /* FartAttack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttack.swift; sourceTree = "<group>"; };
-		B99718138A7C4487A280FAEF /* Friendship.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Friendship.swift; sourceTree = "<group>"; };
-		A67DBFD944454014A5FBD8BF /* Notification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notification.swift; sourceTree = "<group>"; };
-		56FF36BB0D3A45648170CE09 /* Reaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Reaction.swift; sourceTree = "<group>"; };
-		2B9931690708407F90809C8D /* UserSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSession.swift; sourceTree = "<group>"; };
-		946865E06AA6433E8350EE50 /* ExternalFartAttackView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExternalFartAttackView.swift; sourceTree = "<group>"; };
-		F068879E83FC4FD38F66E57F /* FartAttackOnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttackOnboardingView.swift; sourceTree = "<group>"; };
-		CC47011342254219B68C97CA /* FartAttackPromoCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttackPromoCard.swift; sourceTree = "<group>"; };
-		0AF7F00D0F014D178077667B /* FartAttackReceivedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttackReceivedView.swift; sourceTree = "<group>"; };
-		92B9039BCEBE4878ACC95858 /* FartAttackShopView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttackShopView.swift; sourceTree = "<group>"; };
-		DD6D750A1E874B5CA6A8B30E /* FriendsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsView.swift; sourceTree = "<group>"; };
-		8C62E5C894DF42EF84D33256 /* MapBannerAdView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapBannerAdView.swift; sourceTree = "<group>"; };
-		350C38EB0C92402AA7B38626 /* NativeAdCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeAdCardView.swift; sourceTree = "<group>"; };
-		D44DDC203EFB40CFBB6E70F4 /* ProfilePictureEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilePictureEditor.swift; sourceTree = "<group>"; };
-		8BFFBC67C0174D8F90224DB7 /* ProfileSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSetupView.swift; sourceTree = "<group>"; };
-		060B08347F704217ACE4E3EF /* SnapchatStyleMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapchatStyleMapView.swift; sourceTree = "<group>"; };
-		328BBFAFBD544647920380D1 /* StreakView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreakView.swift; sourceTree = "<group>"; };
-		1CACF19AD9864F1585F34A7F /* TryProView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TryProView.swift; sourceTree = "<group>"; };
-		1B1C4CC10B62477CB769EBED /* AdManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdManager.swift; sourceTree = "<group>"; };
-		9BEE552248AC4869A61B55A3 /* AnalyticsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsManager.swift; sourceTree = "<group>"; };
-		5F10B4C873EC4283B2D1366D /* AnimationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimationManager.swift; sourceTree = "<group>"; };
-		A7163EC6631D4EB0ABE5ADCD /* FartAttackManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttackManager.swift; sourceTree = "<group>"; };
-		7C3B130987144A5CA901445B /* FriendsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsManager.swift; sourceTree = "<group>"; };
-		9D6EF0067BB64D6BB042E73C /* NotificationHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationHandler.swift; sourceTree = "<group>"; };
-		0B6817CB60824753BFF6E3D9 /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
-		88CF5B7CCC27421490F9EB8F /* SmartPermissionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartPermissionManager.swift; sourceTree = "<group>"; };
-		77E5C88F64F94ED8B2CD8448 /* StoreKitManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreKitManager.swift; sourceTree = "<group>"; };
-		C1730004771E4254830592C5 /* AttackActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttackActivity.swift; sourceTree = "<group>"; };
-		CBADACFE9A914569AEDA7BC0 /* Badge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Badge.swift; sourceTree = "<group>"; };
-		BC290E30FD084A8BBF180E53 /* FartAttack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttack.swift; sourceTree = "<group>"; };
-		15CA6D53DC3C4440BCB42419 /* Friendship.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Friendship.swift; sourceTree = "<group>"; };
-		2058EAAFC28F4E9F82367464 /* Notification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notification.swift; sourceTree = "<group>"; };
-		1A8326E730814351A49D0BE3 /* Reaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Reaction.swift; sourceTree = "<group>"; };
-		A7EDD4DEDFA340C8B637D777 /* ReferralCredit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReferralCredit.swift; sourceTree = "<group>"; };
-		6D9627DE59AB42B5B023D264 /* UserSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSession.swift; sourceTree = "<group>"; };
-		2CC6095D1B5D48C883000C78 /* AttackActivityFeedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttackActivityFeedView.swift; sourceTree = "<group>"; };
-		59ECC4EC51C34EBD89CB1B37 /* ExternalFartAttackView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExternalFartAttackView.swift; sourceTree = "<group>"; };
-		EEAF197014F34711A75FC801 /* FartAttackOnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttackOnboardingView.swift; sourceTree = "<group>"; };
-		5BD414737AB14AEC996D49CB /* FartAttackPromoCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttackPromoCard.swift; sourceTree = "<group>"; };
-		17ED9344DAD14FB78D079D07 /* FartAttackReceivedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttackReceivedView.swift; sourceTree = "<group>"; };
-		40CC2FAEA7E64720A1E510EB /* FartAttackShopView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttackShopView.swift; sourceTree = "<group>"; };
-		AD1ACCF0824F48A98B6A77CE /* FriendsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsView.swift; sourceTree = "<group>"; };
-		178159D1051943099A921C42 /* MapBannerAdView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapBannerAdView.swift; sourceTree = "<group>"; };
-		93BAE3EE27A1452B906E2014 /* NativeAdCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeAdCardView.swift; sourceTree = "<group>"; };
-		CD4626E7704A4899A7805445 /* ProfilePictureEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilePictureEditor.swift; sourceTree = "<group>"; };
-		5FA041459626451B9E69B5B9 /* ProfileSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSetupView.swift; sourceTree = "<group>"; };
-		C3CFED6EE1014F3999A70DB9 /* SnapchatStyleMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapchatStyleMapView.swift; sourceTree = "<group>"; };
-		1E5393AE4A49431690A0BE77 /* StreakView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreakView.swift; sourceTree = "<group>"; };
-		6ED813358E0448E5932AE8EA /* TryProView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TryProView.swift; sourceTree = "<group>"; };
-		B2EB92137063461391661A2E /* WeeklyLeaderboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeeklyLeaderboardView.swift; sourceTree = "<group>"; };
-		0B68B68E483F47C881135602 /* AttackActivityHighlights.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttackActivityHighlights.swift; sourceTree = "<group>"; };
-		3ABCC7CF8E944347A3873B5E /* AttackReactionSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttackReactionSheet.swift; sourceTree = "<group>"; };
-		7989AAB0E97C4ED18406880F /* BuyMoreBanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuyMoreBanner.swift; sourceTree = "<group>"; };
-		87D3F7ACDC014967891B9E01 /* StreakFreezeBanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreakFreezeBanner.swift; sourceTree = "<group>"; };
+		FC928D3DD84D47A18276BDF7 /* ProfilePictureEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilePictureEditor.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -395,6 +311,7 @@
 			children = (
 				A1000003294A0000000000888 /* PoopDrop */,
 				A1000002294A0000000000888 /* Products */,
+				DCE86F3A2E9975B5007B1BC0 /* Recovered References */,
 			);
 			sourceTree = "<group>";
 		};
@@ -471,7 +388,6 @@
 				64B39B282EA54E538DE5ABE9 /* Notification.swift */,
 				D802FC943ABB422C88710795 /* Reaction.swift */,
 				B6D36B405BB544B78391CEA7 /* UserSession.swift */,
-			
 				757C2453D4C542F0940F2C9C /* Badge.swift */,
 				3CB5042FD06D4C57B94B91EC /* FartAttack.swift */,
 				28C770779C084BC090AE787C /* Friendship.swift */,
@@ -491,7 +407,8 @@
 				2058EAAFC28F4E9F82367464 /* Notification.swift */,
 				1A8326E730814351A49D0BE3 /* Reaction.swift */,
 				A7EDD4DEDFA340C8B637D777 /* ReferralCredit.swift */,
-				6D9627DE59AB42B5B023D264 /* UserSession.swift */,);
+				6D9627DE59AB42B5B023D264 /* UserSession.swift */,
+			);
 			path = Models;
 			sourceTree = "<group>";
 		};
@@ -532,7 +449,6 @@
 				A87ED0DAF69E45268B6AF183 /* NotificationHandler.swift */,
 				A5ACDCCA2B9E4CAC8162A78D /* NotificationManager.swift */,
 				2C977B2BF5ED4076B5966AD5 /* StoreKitManager.swift */,
-			
 				B69671F04B414ED1A856B4FE /* AnimationManager.swift */,
 				8CED3DBD7F324B6E85B072A0 /* FartAttackManager.swift */,
 				AF3A16709B9D477996825616 /* FriendsManager.swift */,
@@ -554,7 +470,8 @@
 				9D6EF0067BB64D6BB042E73C /* NotificationHandler.swift */,
 				0B6817CB60824753BFF6E3D9 /* NotificationManager.swift */,
 				88CF5B7CCC27421490F9EB8F /* SmartPermissionManager.swift */,
-				77E5C88F64F94ED8B2CD8448 /* StoreKitManager.swift */,);
+				77E5C88F64F94ED8B2CD8448 /* StoreKitManager.swift */,
+			);
 			path = Managers;
 			sourceTree = "<group>";
 		};
@@ -618,7 +535,6 @@
 				16D20839E17747E880B8E6FB /* SnapchatStyleMapView.swift */,
 				89C415EE57A94CD9861A1FF4 /* StreakView.swift */,
 				13316491E1124DE797FB5EF7 /* TryProView.swift */,
-			
 				C32FA0D010F744ADBC3B823C /* ExternalFartAttackView.swift */,
 				76F6FFE656C943398F23A706 /* FartAttackOnboardingView.swift */,
 				32CA2C5339A94EE99F777033 /* FartAttackPromoCard.swift */,
@@ -657,7 +573,8 @@
 				C3CFED6EE1014F3999A70DB9 /* SnapchatStyleMapView.swift */,
 				1E5393AE4A49431690A0BE77 /* StreakView.swift */,
 				6ED813358E0448E5932AE8EA /* TryProView.swift */,
-				B2EB92137063461391661A2E /* WeeklyLeaderboardView.swift */,);
+				B2EB92137063461391661A2E /* WeeklyLeaderboardView.swift */,
+			);
 			path = Views;
 			sourceTree = "<group>";
 		};
@@ -667,6 +584,19 @@
 				A1000028294A0000000000001 /* StringExtensions.swift */,
 			);
 			path = Extensions;
+			sourceTree = "<group>";
+		};
+		DCE86F3A2E9975B5007B1BC0 /* Recovered References */ = {
+			isa = PBXGroup;
+			children = (
+				F6D28C18A21A4E45B9E3F7D9 /* AnalyticsManager.swift */,
+				E3B5A7F2D45C4C92A8F16E84 /* WeeklyLeaderboardView.swift */,
+				C9E4F5A8B71D4B23A5D8E692 /* AttackActivityHighlights.swift */,
+				D2A7B6C8E93F4D17B4E5F891 /* AttackReactionSheet.swift */,
+				A5C8D7E9F24E4B36A9D6F7B3 /* BuyMoreBanner.swift */,
+				B7D9E8F1A35C4C47B8E7F9A4 /* StreakFreezeBanner.swift */,
+			);
+			name = "Recovered References";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -697,7 +627,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1500;
-				LastUpgradeCheck = 1500;
+				LastUpgradeCheck = 2600;
 				TargetAttributes = {
 					A1000000294A0000000000000 = {
 						CreatedOnToolsVersion = 15.0;
@@ -840,6 +770,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = UDGYWMMVJS;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -863,6 +794,7 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
@@ -903,6 +835,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = UDGYWMMVJS;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -919,6 +852,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				VALIDATE_PRODUCT = YES;
 			};
@@ -934,7 +868,6 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"PoopDrop/Preview Content\"";
-				DEVELOPMENT_TEAM = UDGYWMMVJS;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = PoopDrop/Info.plist;
@@ -971,7 +904,6 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"PoopDrop/Preview Content\"";
-				DEVELOPMENT_TEAM = UDGYWMMVJS;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = PoopDrop/Info.plist;
@@ -1020,12 +952,6 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
-
-/* Begin XCRemoteSwiftPackageReference section */
-/* End XCRemoteSwiftPackageReference section */
-
-/* Begin XCSwiftPackageProductDependency section */
-/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = A0FFFFFF294A0000000000777 /* Project object */;
 }
