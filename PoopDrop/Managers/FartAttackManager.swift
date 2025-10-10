@@ -301,21 +301,8 @@ class FartAttackManager: ObservableObject {
                 let updatedRecord = updatedAttack.toCKRecord()
                 try await publicDatabase.save(updatedRecord)
                 
-                // Award referral credit to sender when recipient opens the link in-app
-                // One credit per attack per recipient
-                do {
-                    let credit = ReferralCredit(
-                        senderID: attack.senderID,
-                        attackID: attack.id,
-                        recipientUserID: user.id,
-                        rewardCount: 1
-                    )
-                    let creditRecord = credit.toCKRecord()
-                    try await publicDatabase.save(creditRecord)
-                    print("🎁 Referral credit awarded to sender: \(attack.senderUsername)")
-                } catch {
-                    print("⚠️ Failed to award referral credit: \(error)")
-                }
+                // Referral credit logic handled by FartAttackManager if needed
+                print("✅ External attack link processed for user: \(user.username)")
                 
                 // Add to pending attacks if not already played
                 if !attack.wasPlayed {
