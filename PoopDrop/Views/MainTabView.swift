@@ -22,7 +22,7 @@ struct MainTabView: View {
                     .tag(0)
                 
                 // Friends Tab
-                FriendsView(selectedTab: $selectedTab)
+                FriendsView()
                     .tabItem {
                         Image(systemName: selectedTab == 1 ? "person.2.fill" : "person.2")
                         Text("Friends")

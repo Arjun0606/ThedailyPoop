@@ -21,7 +21,7 @@ struct FriendsView: View {
                     // Content based on selected tab
                     TabView(selection: $selectedTab) {
                         // Friends list
-                        FriendsListView(friends: friendsManager.friends)
+                        FriendsListView(friends: friendsManager.friends, selectedTab: $selectedTab)
                             .tag(0)
                         
                         // Friend requests
