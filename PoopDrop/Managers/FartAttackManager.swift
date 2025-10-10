@@ -180,12 +180,12 @@ class FartAttackManager: ObservableObject {
             
             // Create activity: sent
             let activity = AttackActivity(
-                attackID: attack.id,
                 type: .sent,
-                actorUserID: currentUser.id,
-                actorUsername: currentUser.username,
+                senderID: currentUser.id,
+                senderUsername: currentUser.username,
                 targetUserID: friend.id,
-                targetUsername: friend.username
+                targetUsername: friend.username,
+                attackID: attack.id
             )
             do { _ = try await publicDatabase.save(activity.toCKRecord()) } catch { print("⚠️ Failed to save activity: \(error)") }
             

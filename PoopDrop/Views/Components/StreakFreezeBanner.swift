@@ -16,8 +16,7 @@ struct StreakFreezeBanner: View {
     
     var timeRemaining: String {
         guard let user = user,
-              user.pendingStreakFreeze,
-              let expiration = user.streakFreezeExpiration else {
+              let expiration = user.pendingStreakFreezeUntil else {
             return ""
         }
         
