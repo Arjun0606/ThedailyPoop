@@ -260,8 +260,8 @@ struct FriendsListView: View {
                 if friends.isEmpty {
                     EmptyFriendsView()
                 } else {
-                    ForEach(friends) { friend in
-                        FriendRowView(friend: friend)
+                        ForEach(friends) { friend in
+                            FriendRowView(friend: friend, selectedTab: $selectedTab)
                     }
                 }
             }
