@@ -153,6 +153,7 @@ struct FriendsListView: View {
     let friends: [User]
     @EnvironmentObject var authManager: AuthenticationManager
     @StateObject private var fartAttackManager = FartAttackManager.shared
+    @Binding var selectedTab: Int
     @State private var showCTA = true
     @State private var showingExternalShare = false
     
@@ -369,10 +370,11 @@ struct FriendRequestsView: View {
 
 struct FriendRowView: View {
     let friend: User
+    @Binding var selectedTab: Int
     
     var body: some View {
-                        NavigationLink(destination: FriendDetailView(friend: friend, selectedTab: $selectedTab)) {
-        HStack(spacing: 12) {
+        NavigationLink(destination: FriendDetailView(friend: friend, selectedTab: $selectedTab)) {
+            HStack(spacing: 12) {
             // Profile picture
             Circle()
                 .fill(
@@ -448,6 +450,7 @@ struct FriendDetailView: View {
     let friend: User
     @EnvironmentObject var authManager: AuthenticationManager
     @StateObject private var fartAttackManager = FartAttackManager.shared
+    @Binding var selectedTab: Int
     @State private var showingPurchaseSheet = false
     @State private var showingInvite = false
     @State private var sendingAttack = false
