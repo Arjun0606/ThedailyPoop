@@ -128,7 +128,12 @@ struct AttackActivityFeedView: View {
             } catch {
                 print("Error loading activities: \(error)")
                 await MainActor.run {
-                    self.errorMessage = "Failed to load activity feed"
+                    // Check if it's a schema issue
+                    if let ckError = error as? CKError, ckError.code == .unknownItem {
+                        self.errorMessage = "Activity feed will be available after you set up CloudKit schema"
+                    } else {
+                        self.errorMessage = "Failed to load activity feed"
+                    }
                     self.isLoading = false
                 }
             }
