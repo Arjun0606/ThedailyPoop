@@ -42,14 +42,11 @@
 		A1000031294A0000000000002 /* Notification.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000032294A0000000000002 /* Notification.swift */; };
 		A1000033294A0000000000002 /* Reaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000034294A0000000000002 /* Reaction.swift */; };
 		A1000035294A0000000000002 /* UserSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000036294A0000000000002 /* UserSession.swift */; };
-		A1000037294A0000000000002 /* AdManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000038294A0000000000002 /* AdManager.swift */; };
 		A1000039294A0000000000002 /* AnimationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100003A294A0000000000002 /* AnimationManager.swift */; };
 		A100003B294A0000000000002 /* FriendsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100003C294A0000000000002 /* FriendsManager.swift */; };
 		A100003D294A0000000000002 /* NotificationHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100003E294A0000000000002 /* NotificationHandler.swift */; };
 		A100003F294A0000000000002 /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000040294A0000000000002 /* NotificationManager.swift */; };
 		A1000041294A0000000000002 /* FriendsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000042294A0000000000002 /* FriendsView.swift */; };
-		A1000043294A0000000000002 /* MapBannerAdView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000044294A0000000000002 /* MapBannerAdView.swift */; };
-		A1000045294A0000000000002 /* NativeAdCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000046294A0000000000002 /* NativeAdCardView.swift */; };
 		A1000047294A0000000000002 /* ProfilePictureEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000048294A0000000000002 /* ProfilePictureEditor.swift */; };
 		A1000049294A0000000000002 /* ProfileSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100004A294A0000000000002 /* ProfileSetupView.swift */; };
 		A100004B294A0000000000002 /* SnapchatStyleMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100004C294A0000000000002 /* SnapchatStyleMapView.swift */; };
@@ -60,7 +57,6 @@
 		DCD130952E8B3BCE00F717FC /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = DCD130942E8B3BCE00F717FC /* GoogleMobileAds */; };
 		DD40E6731A8A4A998FA3CBD6 /* FartAttackReceivedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AAB4C1763A447C3AD025CE8 /* FartAttackReceivedView.swift */; };
 		F28A684129C14FD2B22D2DBD /* FartAttack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4032E1A5989C49F4BF2FF783 /* FartAttack.swift */; };
-		8F599109A493494E8557A8F9 /* AdManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F37B6DE270D4761903C2275 /* AdManager.swift */; };
 		29357BDE246441C99317CB96 /* AnimationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B69671F04B414ED1A856B4FE /* AnimationManager.swift */; };
 		9D1987D1CB894B84B8DE2058 /* FartAttackManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CED3DBD7F324B6E85B072A0 /* FartAttackManager.swift */; };
 		648964267BC6493C88C977B1 /* FriendsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AF3A16709B9D477996825616 /* FriendsManager.swift */; };
@@ -79,8 +75,6 @@
 		496DC516C9434C33A142BD03 /* FartAttackReceivedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 409BD26E51C44AA09D178F22 /* FartAttackReceivedView.swift */; };
 		48F7A66221EA417D9CD2C922 /* FartAttackShopView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7671B3C182AD4E708D949A41 /* FartAttackShopView.swift */; };
 		163B6091F93A4FA99D1C9081 /* FriendsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BECDE40039A458F9E8A5E61 /* FriendsView.swift */; };
-		EE28AF2402604328BD0CD4B9 /* MapBannerAdView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9222733790C34B31BDE40641 /* MapBannerAdView.swift */; };
-		280570E517E24BDDB4AF8707 /* NativeAdCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73DDFD9BD160448B97269BC0 /* NativeAdCardView.swift */; };
 		D0DB2271CCDB4D5AB2DA03A6 /* ProfilePictureEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 646A0D617107477888A3C2FC /* ProfilePictureEditor.swift */; };
 		DA9C6F8CCF004F71B5BAE321 /* ProfileSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A223E0423EF470BBE2B3805 /* ProfileSetupView.swift */; };
 		4898A3C2F98E492CA8CFD197 /* SnapchatStyleMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AC4D606616C4C1BB8096CC5 /* SnapchatStyleMapView.swift */; };
@@ -92,7 +86,6 @@
 		0134D2C92B7949DAA232D96A /* Reaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Reaction.swift; sourceTree = "<group>"; };
 		01B03E3D7BEF49E594775CB6 /* FriendsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsView.swift; sourceTree = "<group>"; };
 		04DBA0A8A9154A98BD5143D7 /* SnapchatStyleMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapchatStyleMapView.swift; sourceTree = "<group>"; };
-		054925E2C0804FBCAA97473E /* MapBannerAdView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapBannerAdView.swift; sourceTree = "<group>"; };
 		10AEFE21A87346ACACF8B4E4 /* TryProView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TryProView.swift; sourceTree = "<group>"; };
 		119BCB7C76A3A13ECAA1ECFC /* TermsOfServiceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TermsOfServiceView.swift; sourceTree = "<group>"; };
 		12351ABD17EC4D46ABAC1A0F /* FartAttackManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttackManager.swift; sourceTree = "<group>"; };
@@ -103,23 +96,18 @@
 		19C43A4D45A845F183B66076 /* ProfileSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSetupView.swift; sourceTree = "<group>"; };
 		19D43ED0890D4DB88A4E0A95 /* FartAttackManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttackManager.swift; sourceTree = "<group>"; };
 		1A32985B0EAA4799A6A44147 /* FartAttack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttack.swift; sourceTree = "<group>"; };
-		1B93C12CA7604ACEA4716180 /* MapBannerAdView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapBannerAdView.swift; sourceTree = "<group>"; };
 		1BC0E0A05709429498567F16 /* UserSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSession.swift; sourceTree = "<group>"; };
 		1C031A90EFC7408CABA127C4 /* StoreKitManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreKitManager.swift; sourceTree = "<group>"; };
 		1D12B283F418485C8EF5DA2E /* FriendsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsManager.swift; sourceTree = "<group>"; };
-		1F60A271CAE7496A9D620621 /* NativeAdCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeAdCardView.swift; sourceTree = "<group>"; };
 		21850A1F17774C648197F780 /* FartAttackOnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttackOnboardingView.swift; sourceTree = "<group>"; };
 		269F36613F2146C3B50CD6F2 /* Badge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Badge.swift; sourceTree = "<group>"; };
-		272F5104C3C64C29A91D0375 /* NativeAdCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeAdCardView.swift; sourceTree = "<group>"; };
 		27F25651DCDE162B6C18444A /* ContactView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactView.swift; sourceTree = "<group>"; };
 		2ACA5D0FE0DA41D6B44EEF99 /* AnimationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimationManager.swift; sourceTree = "<group>"; };
 		2C977B2BF5ED4076B5966AD5 /* StoreKitManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreKitManager.swift; sourceTree = "<group>"; };
-		3086F17434A44E77A5A71140 /* AdManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdManager.swift; sourceTree = "<group>"; };
 		33959DBB2F3F41CFA90BA73D /* SnapchatStyleMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapchatStyleMapView.swift; sourceTree = "<group>"; };
 		34E716DC143740BAB0535EFA /* UserSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSession.swift; sourceTree = "<group>"; };
 		3530E6BCCA4B44A396EC6998 /* AnimationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimationManager.swift; sourceTree = "<group>"; };
 		36CB6C765A5A4D668216A802 /* FriendsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsManager.swift; sourceTree = "<group>"; };
-		37B1921D3FC7412C8C136D1F /* MapBannerAdView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapBannerAdView.swift; sourceTree = "<group>"; };
 		3884BF9D773D4CFFBF4790EB /* SnapchatStyleMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapchatStyleMapView.swift; sourceTree = "<group>"; };
 		3BDF331CE90B4CA785A11AAE /* Friendship.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Friendship.swift; sourceTree = "<group>"; };
 		3DE9135302C14A3B93451172 /* SnapchatStyleMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapchatStyleMapView.swift; sourceTree = "<group>"; };
@@ -136,28 +124,21 @@
 		4EBD6076D7B04B86983E6299 /* ProfileSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSetupView.swift; sourceTree = "<group>"; };
 		4F5F895CE17041F7AD7B5DF3 /* Notification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notification.swift; sourceTree = "<group>"; };
 		4F88B0289B744F5582811F99 /* Friendship.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Friendship.swift; sourceTree = "<group>"; };
-		512B72D8FC634112BE141312 /* NativeAdCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeAdCardView.swift; sourceTree = "<group>"; };
 		5539F2549B62453FBC03467A /* FriendsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsView.swift; sourceTree = "<group>"; };
 		563933FC2C1F4BAEA160CDA6 /* FartAttackShopView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttackShopView.swift; sourceTree = "<group>"; };
-		5E4E568E254F4E749E8422DC /* MapBannerAdView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapBannerAdView.swift; sourceTree = "<group>"; };
 		636614D507DC4B629B99B447 /* StreakView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreakView.swift; sourceTree = "<group>"; };
 		639603AAABFC467CAA08EEE9 /* ProfilePictureEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilePictureEditor.swift; sourceTree = "<group>"; };
 		64B39B282EA54E538DE5ABE9 /* Notification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notification.swift; sourceTree = "<group>"; };
 		65108BABEB124A5EA474C509 /* ProfilePictureEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilePictureEditor.swift; sourceTree = "<group>"; };
 		6598F0814F2049309CF8E5C5 /* StreakView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreakView.swift; sourceTree = "<group>"; };
 		6632FD3335CF453580BF203C /* ProfileSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSetupView.swift; sourceTree = "<group>"; };
-		671991DD1760461C9F794AFB /* AdManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdManager.swift; sourceTree = "<group>"; };
 		67BB5F9485BA40039E01D8CD /* FriendsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsManager.swift; sourceTree = "<group>"; };
 		69788627168249EB8CA03DBB /* Badge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Badge.swift; sourceTree = "<group>"; };
 		6D2187250B5043FAA5337B44 /* Friendship.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Friendship.swift; sourceTree = "<group>"; };
-		6F1CCB7905234E95AF96A318 /* AdManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdManager.swift; sourceTree = "<group>"; };
 		7129C9ECBF4A40A5991E1402 /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
 		72D50F0C2FD64BC38F267145 /* ProfileSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSetupView.swift; sourceTree = "<group>"; };
-		7821FB7667B048D59B7910C5 /* AdManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdManager.swift; sourceTree = "<group>"; };
-		794BDBCBC0EF46EAA115B962 /* AdManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdManager.swift; sourceTree = "<group>"; };
 		79F1FD1E39794C61B29F3900 /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
 		7B2E2A5EBC1046A4B4CCE1EF /* NotificationHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationHandler.swift; sourceTree = "<group>"; };
-		7C5BBCE644FD4D6E98B48495 /* NativeAdCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeAdCardView.swift; sourceTree = "<group>"; };
 		82568A3A19324EB9B7040DBC /* ProfilePictureEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilePictureEditor.swift; sourceTree = "<group>"; };
 		85051EC4DA834F93A1BF75D5 /* FartAttackReceivedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttackReceivedView.swift; sourceTree = "<group>"; };
 		89C415EE57A94CD9861A1FF4 /* StreakView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreakView.swift; sourceTree = "<group>"; };
@@ -165,7 +146,6 @@
 		8C57DA88E74F4D43B3F7740F /* Notification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notification.swift; sourceTree = "<group>"; };
 		8D717FE29D284B539A105460 /* NotificationHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationHandler.swift; sourceTree = "<group>"; };
 		8FCB80B1047546779A8684A3 /* ProfilePictureEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilePictureEditor.swift; sourceTree = "<group>"; };
-		93024534B3F24FC4A6B1505D /* MapBannerAdView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapBannerAdView.swift; sourceTree = "<group>"; };
 		95A226732FFE46ED8F146E36 /* FriendsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsManager.swift; sourceTree = "<group>"; };
 		9AAB4C1763A447C3AD025CE8 /* FartAttackReceivedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttackReceivedView.swift; sourceTree = "<group>"; };
 		9BC1BDCB895E40348F820DBC /* FartAttackPromoCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttackPromoCard.swift; sourceTree = "<group>"; };
@@ -203,14 +183,11 @@
 		A1000032294A0000000000002 /* Notification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notification.swift; sourceTree = "<group>"; };
 		A1000034294A0000000000002 /* Reaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Reaction.swift; sourceTree = "<group>"; };
 		A1000036294A0000000000002 /* UserSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSession.swift; sourceTree = "<group>"; };
-		A1000038294A0000000000002 /* AdManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdManager.swift; sourceTree = "<group>"; };
 		A100003A294A0000000000002 /* AnimationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimationManager.swift; sourceTree = "<group>"; };
 		A100003C294A0000000000002 /* FriendsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsManager.swift; sourceTree = "<group>"; };
 		A100003E294A0000000000002 /* NotificationHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationHandler.swift; sourceTree = "<group>"; };
 		A1000040294A0000000000002 /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
 		A1000042294A0000000000002 /* FriendsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsView.swift; sourceTree = "<group>"; };
-		A1000044294A0000000000002 /* MapBannerAdView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapBannerAdView.swift; sourceTree = "<group>"; };
-		A1000046294A0000000000002 /* NativeAdCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeAdCardView.swift; sourceTree = "<group>"; };
 		A1000048294A0000000000002 /* ProfilePictureEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilePictureEditor.swift; sourceTree = "<group>"; };
 		A100004A294A0000000000002 /* ProfileSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSetupView.swift; sourceTree = "<group>"; };
 		A100004C294A0000000000002 /* SnapchatStyleMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapchatStyleMapView.swift; sourceTree = "<group>"; };
@@ -228,7 +205,6 @@
 		BF641B84CB28444D94ED3E20 /* Friendship.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Friendship.swift; sourceTree = "<group>"; };
 		C017F38432C0902A18CF636D /* HowItWorksView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HowItWorksView.swift; sourceTree = "<group>"; };
 		C8E6861648D945B6A512183B /* Reaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Reaction.swift; sourceTree = "<group>"; };
-		CA1E7303CD31493DA2E0F203 /* NativeAdCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeAdCardView.swift; sourceTree = "<group>"; };
 		CB490607EE374E6CA89A1D6B /* FartAttackShopView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttackShopView.swift; sourceTree = "<group>"; };
 		CCCBF738611740A5984B9054 /* AnimationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimationManager.swift; sourceTree = "<group>"; };
 		D37FE929F4194E448E258907 /* Notification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Notification.swift; sourceTree = "<group>"; };
@@ -243,7 +219,6 @@
 		F4055FE0654544B6B8B32C51 /* Reaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Reaction.swift; sourceTree = "<group>"; };
 		F5B45AC7BD3941BEB6B6A979 /* FartAttackManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttackManager.swift; sourceTree = "<group>"; };
 		FC928D3DD84D47A18276BDF7 /* ProfilePictureEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilePictureEditor.swift; sourceTree = "<group>"; };
-		6F37B6DE270D4761903C2275 /* AdManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdManager.swift; sourceTree = "<group>"; };
 		B69671F04B414ED1A856B4FE /* AnimationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimationManager.swift; sourceTree = "<group>"; };
 		8CED3DBD7F324B6E85B072A0 /* FartAttackManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttackManager.swift; sourceTree = "<group>"; };
 		AF3A16709B9D477996825616 /* FriendsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsManager.swift; sourceTree = "<group>"; };
@@ -262,8 +237,6 @@
 		409BD26E51C44AA09D178F22 /* FartAttackReceivedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttackReceivedView.swift; sourceTree = "<group>"; };
 		7671B3C182AD4E708D949A41 /* FartAttackShopView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttackShopView.swift; sourceTree = "<group>"; };
 		6BECDE40039A458F9E8A5E61 /* FriendsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsView.swift; sourceTree = "<group>"; };
-		9222733790C34B31BDE40641 /* MapBannerAdView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapBannerAdView.swift; sourceTree = "<group>"; };
-		73DDFD9BD160448B97269BC0 /* NativeAdCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeAdCardView.swift; sourceTree = "<group>"; };
 		646A0D617107477888A3C2FC /* ProfilePictureEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilePictureEditor.swift; sourceTree = "<group>"; };
 		0A223E0423EF470BBE2B3805 /* ProfileSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSetupView.swift; sourceTree = "<group>"; };
 		7AC4D606616C4C1BB8096CC5 /* SnapchatStyleMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapchatStyleMapView.swift; sourceTree = "<group>"; };
@@ -381,36 +354,30 @@
 				A1000012294A0000000000001 /* SubscriptionManager.swift */,
 				A1000014294A0000000000001 /* CloudKitManager.swift */,
 				A1000016294A0000000000001 /* LocationManager.swift */,
-				A1000038294A0000000000002 /* AdManager.swift */,
 				A100003A294A0000000000002 /* AnimationManager.swift */,
 				A100003C294A0000000000002 /* FriendsManager.swift */,
 				A100003E294A0000000000002 /* NotificationHandler.swift */,
 				A1000040294A0000000000002 /* NotificationManager.swift */,
 				A1000051294A0000000000003 /* SpotifyAPIClient.swift */,
-				7821FB7667B048D59B7910C5 /* AdManager.swift */,
 				3530E6BCCA4B44A396EC6998 /* AnimationManager.swift */,
 				1D12B283F418485C8EF5DA2E /* FriendsManager.swift */,
 				E11A6043B79F421791DED928 /* NotificationHandler.swift */,
 				BB44BEAFB3D84164828CAF80 /* NotificationManager.swift */,
-				671991DD1760461C9F794AFB /* AdManager.swift */,
 				B3B85483E2964E35A38509AA /* AnimationManager.swift */,
 				36CB6C765A5A4D668216A802 /* FriendsManager.swift */,
 				7B2E2A5EBC1046A4B4CCE1EF /* NotificationHandler.swift */,
 				7129C9ECBF4A40A5991E1402 /* NotificationManager.swift */,
-				6F1CCB7905234E95AF96A318 /* AdManager.swift */,
 				CCCBF738611740A5984B9054 /* AnimationManager.swift */,
 				12351ABD17EC4D46ABAC1A0F /* FartAttackManager.swift */,
 				9E0554B23D194CFC93F016EA /* FriendsManager.swift */,
 				89FB5B12402A45CEBD7AAA80 /* NotificationHandler.swift */,
 				79F1FD1E39794C61B29F3900 /* NotificationManager.swift */,
-				3086F17434A44E77A5A71140 /* AdManager.swift */,
 				2ACA5D0FE0DA41D6B44EEF99 /* AnimationManager.swift */,
 				F5B45AC7BD3941BEB6B6A979 /* FartAttackManager.swift */,
 				95A226732FFE46ED8F146E36 /* FriendsManager.swift */,
 				8D717FE29D284B539A105460 /* NotificationHandler.swift */,
 				E7CCEC460D7845CDA52AF8D1 /* NotificationManager.swift */,
 				1C031A90EFC7408CABA127C4 /* StoreKitManager.swift */,
-				794BDBCBC0EF46EAA115B962 /* AdManager.swift */,
 				9D27371195EC4F42A6090FD4 /* AnimationManager.swift */,
 				19D43ED0890D4DB88A4E0A95 /* FartAttackManager.swift */,
 				67BB5F9485BA40039E01D8CD /* FriendsManager.swift */,
@@ -418,7 +385,6 @@
 				A5ACDCCA2B9E4CAC8162A78D /* NotificationManager.swift */,
 				2C977B2BF5ED4076B5966AD5 /* StoreKitManager.swift */,
 			
-				6F37B6DE270D4761903C2275 /* AdManager.swift */,
 				B69671F04B414ED1A856B4FE /* AnimationManager.swift */,
 				8CED3DBD7F324B6E85B072A0 /* FartAttackManager.swift */,
 				AF3A16709B9D477996825616 /* FriendsManager.swift */,
@@ -442,8 +408,6 @@
 				A100002A294A0000000000001 /* AuthenticationView.swift */,
 				A100002C294A0000000000001 /* OnboardingView.swift */,
 				A1000042294A0000000000002 /* FriendsView.swift */,
-				A1000044294A0000000000002 /* MapBannerAdView.swift */,
-				A1000046294A0000000000002 /* NativeAdCardView.swift */,
 				A1000048294A0000000000002 /* ProfilePictureEditor.swift */,
 				A100004A294A0000000000002 /* ProfileSetupView.swift */,
 				A100004C294A0000000000002 /* SnapchatStyleMapView.swift */,
@@ -453,16 +417,12 @@
 				119BCB7C76A3A13ECAA1ECFC /* TermsOfServiceView.swift */,
 				4210E055649FE550A178E211 /* PrivacyPolicyView.swift */,
 				B59C5A3542B4435389A29CC7 /* FriendsView.swift */,
-				37B1921D3FC7412C8C136D1F /* MapBannerAdView.swift */,
-				512B72D8FC634112BE141312 /* NativeAdCardView.swift */,
 				8FCB80B1047546779A8684A3 /* ProfilePictureEditor.swift */,
 				6632FD3335CF453580BF203C /* ProfileSetupView.swift */,
 				3DE9135302C14A3B93451172 /* SnapchatStyleMapView.swift */,
 				636614D507DC4B629B99B447 /* StreakView.swift */,
 				4BFC9ABC2F01418B9B34DCD1 /* TryProView.swift */,
 				01B03E3D7BEF49E594775CB6 /* FriendsView.swift */,
-				1B93C12CA7604ACEA4716180 /* MapBannerAdView.swift */,
-				7C5BBCE644FD4D6E98B48495 /* NativeAdCardView.swift */,
 				65108BABEB124A5EA474C509 /* ProfilePictureEditor.swift */,
 				456220ACBBD2420C9D8D9650 /* ProfileSetupView.swift */,
 				33959DBB2F3F41CFA90BA73D /* SnapchatStyleMapView.swift */,
@@ -471,8 +431,6 @@
 				9AAB4C1763A447C3AD025CE8 /* FartAttackReceivedView.swift */,
 				F01A855E018C4CDB91FE2AAA /* FartAttackShopView.swift */,
 				5539F2549B62453FBC03467A /* FriendsView.swift */,
-				054925E2C0804FBCAA97473E /* MapBannerAdView.swift */,
-				272F5104C3C64C29A91D0375 /* NativeAdCardView.swift */,
 				639603AAABFC467CAA08EEE9 /* ProfilePictureEditor.swift */,
 				19C43A4D45A845F183B66076 /* ProfileSetupView.swift */,
 				04DBA0A8A9154A98BD5143D7 /* SnapchatStyleMapView.swift */,
@@ -481,8 +439,6 @@
 				3EC2E97C04DA456FB4B65424 /* FartAttackReceivedView.swift */,
 				563933FC2C1F4BAEA160CDA6 /* FartAttackShopView.swift */,
 				15D2A7DFEDE24818BF33AED3 /* FriendsView.swift */,
-				5E4E568E254F4E749E8422DC /* MapBannerAdView.swift */,
-				1F60A271CAE7496A9D620621 /* NativeAdCardView.swift */,
 				82568A3A19324EB9B7040DBC /* ProfilePictureEditor.swift */,
 				4EBD6076D7B04B86983E6299 /* ProfileSetupView.swift */,
 				3884BF9D773D4CFFBF4790EB /* SnapchatStyleMapView.swift */,
@@ -493,8 +449,6 @@
 				85051EC4DA834F93A1BF75D5 /* FartAttackReceivedView.swift */,
 				CB490607EE374E6CA89A1D6B /* FartAttackShopView.swift */,
 				EDE2CD76CF9047ED885F76F5 /* FriendsView.swift */,
-				93024534B3F24FC4A6B1505D /* MapBannerAdView.swift */,
-				CA1E7303CD31493DA2E0F203 /* NativeAdCardView.swift */,
 				FC928D3DD84D47A18276BDF7 /* ProfilePictureEditor.swift */,
 				72D50F0C2FD64BC38F267145 /* ProfileSetupView.swift */,
 				16D20839E17747E880B8E6FB /* SnapchatStyleMapView.swift */,
@@ -507,8 +461,6 @@
 				409BD26E51C44AA09D178F22 /* FartAttackReceivedView.swift */,
 				7671B3C182AD4E708D949A41 /* FartAttackShopView.swift */,
 				6BECDE40039A458F9E8A5E61 /* FriendsView.swift */,
-				9222733790C34B31BDE40641 /* MapBannerAdView.swift */,
-				73DDFD9BD160448B97269BC0 /* NativeAdCardView.swift */,
 				646A0D617107477888A3C2FC /* ProfilePictureEditor.swift */,
 				0A223E0423EF470BBE2B3805 /* ProfileSetupView.swift */,
 				7AC4D606616C4C1BB8096CC5 /* SnapchatStyleMapView.swift */,
@@ -624,15 +576,12 @@
 				A1000031294A0000000000002 /* Notification.swift in Sources */,
 				A1000033294A0000000000002 /* Reaction.swift in Sources */,
 				A1000035294A0000000000002 /* UserSession.swift in Sources */,
-				A1000037294A0000000000002 /* AdManager.swift in Sources */,
 				A1000039294A0000000000002 /* AnimationManager.swift in Sources */,
 				A100003B294A0000000000002 /* FriendsManager.swift in Sources */,
 				A100003D294A0000000000002 /* NotificationHandler.swift in Sources */,
 				A100003F294A0000000000002 /* NotificationManager.swift in Sources */,
 				A1000050294A0000000000003 /* SpotifyAPIClient.swift in Sources */,
 				A1000041294A0000000000002 /* FriendsView.swift in Sources */,
-				A1000043294A0000000000002 /* MapBannerAdView.swift in Sources */,
-				A1000045294A0000000000002 /* NativeAdCardView.swift in Sources */,
 				A1000047294A0000000000002 /* ProfilePictureEditor.swift in Sources */,
 				A1000049294A0000000000002 /* ProfileSetupView.swift in Sources */,
 				A100004B294A0000000000002 /* SnapchatStyleMapView.swift in Sources */,
