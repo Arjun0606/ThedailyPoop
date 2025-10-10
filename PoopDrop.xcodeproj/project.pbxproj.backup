@@ -54,6 +54,7 @@
 		A1000050294A0000000000003 /* SpotifyAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000051294A0000000000003 /* SpotifyAPIClient.swift */; };
 		BCDC470159A99D640A798079 /* HowItWorksView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C017F38432C0902A18CF636D /* HowItWorksView.swift */; };
 		D9AC1536EA6A48F4FEAFB2CE /* ContactView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27F25651DCDE162B6C18444A /* ContactView.swift */; };
+		DCD130952E8B3BCE00F717FC /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = DCD130942E8B3BCE00F717FC /* GoogleMobileAds */; };
 		DD40E6731A8A4A998FA3CBD6 /* FartAttackReceivedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AAB4C1763A447C3AD025CE8 /* FartAttackReceivedView.swift */; };
 		F28A684129C14FD2B22D2DBD /* FartAttack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4032E1A5989C49F4BF2FF783 /* FartAttack.swift */; };
 		29357BDE246441C99317CB96 /* AnimationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B69671F04B414ED1A856B4FE /* AnimationManager.swift */; };
@@ -372,6 +373,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DCD130952E8B3BCE00F717FC /* GoogleMobileAds in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1012,8 +1014,10 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		DCD130942E8B3BCE00F717FC /* GoogleMobileAds */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = DCD130932E8B3BCE00F717FC /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */;
+			productName = GoogleMobileAds;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
