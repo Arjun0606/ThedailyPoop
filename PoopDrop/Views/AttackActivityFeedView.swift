@@ -75,28 +75,54 @@ struct AttackActivityFeedView: View {
             do {
                 // Get list of friend IDs
                 let friendIDs = friendsManager.friends.map { $0.id }
+                var allIDs = friendIDs
+                allIDs.append(currentUserID)
                 
                 // Query AttackActivity for activities involving friends
                 let container = CKContainer.default()
                 let database = container.publicCloudDatabase
                 
-                // Create predicates for sender or target being a friend or current user
-                var allIDs = friendIDs
-                allIDs.append(currentUserID)
+                // Query 1: Activities where sender is in the list
+                let senderPredicate = NSPredicate(format: "senderID IN %@", allIDs)
+                let senderQuery = CKQuery(recordType: AttackActivity.recordType, predicate: senderPredicate)
+                senderQuery.sortDescriptors = [NSSortDescriptor(key: "timestamp", ascending: false)]
                 
-                let predicate = NSPredicate(format: "senderID IN %@ OR targetUserID IN %@", allIDs, allIDs)
-                let query = CKQuery(recordType: AttackActivity.recordType, predicate: predicate)
-                query.sortDescriptors = [NSSortDescriptor(key: "timestamp", ascending: false)]
+                // Query 2: Activities where target is in the list
+                let targetPredicate = NSPredicate(format: "targetUserID IN %@", allIDs)
+                let targetQuery = CKQuery(recordType: AttackActivity.recordType, predicate: targetPredicate)
+                targetQuery.sortDescriptors = [NSSortDescriptor(key: "timestamp", ascending: false)]
                 
-                let results = try await database.records(matching: query, resultsLimit: 50)
+                // Execute both queries
+                let senderResults = try await database.records(matching: senderQuery, resultsLimit: 50)
+                let targetResults = try await database.records(matching: targetQuery, resultsLimit: 50)
                 
-                let fetchedActivities = results.matchResults.compactMap { _, result -> AttackActivity? in
-                    guard case .success(let record) = result else { return nil }
-                    return AttackActivity(from: record)
+                // Combine results
+                var allActivities: [AttackActivity] = []
+                var seenIDs = Set<String>()
+                
+                // Process sender results
+                for (_, result) in senderResults.matchResults {
+                    guard case .success(let record) = result,
+                          let activity = AttackActivity(from: record),
+                          !seenIDs.contains(activity.id) else { continue }
+                    allActivities.append(activity)
+                    seenIDs.insert(activity.id)
                 }
                 
+                // Process target results
+                for (_, result) in targetResults.matchResults {
+                    guard case .success(let record) = result,
+                          let activity = AttackActivity(from: record),
+                          !seenIDs.contains(activity.id) else { continue }
+                    allActivities.append(activity)
+                    seenIDs.insert(activity.id)
+                }
+                
+                // Sort by timestamp
+                allActivities.sort { $0.timestamp > $1.timestamp }
+                
                 await MainActor.run {
-                    self.activities = fetchedActivities
+                    self.activities = Array(allActivities.prefix(50))
                     self.isLoading = false
                 }
             } catch {
