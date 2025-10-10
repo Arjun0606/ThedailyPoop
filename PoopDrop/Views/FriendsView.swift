@@ -500,7 +500,7 @@ struct FriendDetailView: View {
                     // FART ATTACK SECTION - MOST PROMINENT
                     VStack(spacing: 16) {
                         // Low inventory banner
-                        BuyMoreBanner()
+                        BuyMoreBanner(selectedTab: $selectedTab)
                         // Fart Attack Button
                         if let inventory = fartAttackManager.inventory, inventory.availableAttacks > 0 {
                             if canSendAttack {
