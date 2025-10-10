@@ -47,6 +47,37 @@ class AppDelegate: NSObject, UIApplicationDelegate {
             completionHandler(.noData)
         }
     }
+    
+    // MARK: - Universal Links
+    
+    /// Handle Universal Links (e.g., https://thedailypoop.app/fart/[attackID])
+    func application(_ application: UIApplication, continue userActivity: NSUserActivity, restorationHandler: @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool {
+        guard userActivity.activityType == NSUserActivityTypeBrowsingWeb,
+              let incomingURL = userActivity.webpageURL else {
+            return false
+        }
+        
+        print("💨 Received Universal Link: \(incomingURL.absoluteString)")
+        
+        // Parse fart attack URL: https://thedailypoop.app/fart/[attackID]
+        if incomingURL.pathComponents.count >= 3,
+           incomingURL.pathComponents[1] == "fart" {
+            let attackID = incomingURL.pathComponents[2]
+            
+            print("💨 Processing fart attack: \(attackID)")
+            
+            // Post notification to handle fart attack
+            NotificationCenter.default.post(
+                name: Notification.Name("OPEN_FART_ATTACK"),
+                object: nil,
+                userInfo: ["attackID": attackID]
+            )
+            
+            return true
+        }
+        
+        return false
+    }
 }
 
 // MARK: - UNUserNotificationCenterDelegate

@@ -1,9 +1,6 @@
 import SwiftUI
 import CloudKit
 import UserNotifications
-#if canImport(GoogleMobileAds)
-import GoogleMobileAds
-#endif
 
 @main
 struct TheDailyPoopApp: App {
@@ -34,38 +31,6 @@ struct TheDailyPoopApp: App {
     }
     
     private func setupApp() {
-        // Initialize Google Mobile Ads if SDK is linked
-#if canImport(GoogleMobileAds)
-        MobileAds.shared.start { status in
-            print("[AdMob] SDK initialized: \(status.adapterStatusesByClassName)")
-            
-            // Pre-load ads for better UX
-            Task { @MainActor in
-                AdManager.shared.loadNativeAd()
-                AdManager.shared.loadInterstitialAd()
-                print("[AdMob] Pre-loaded first native and interstitial ads")
-            }
-        }
-        
-        #if DEBUG
-        // ONLY use test mode in DEBUG builds (Xcode simulator/testing)
-        MobileAds.shared.requestConfiguration.testDeviceIdentifiers = [
-            "Simulator"
-        ]
-        print("[AdMob] SDK initialized (TEST mode - will show sample ads)")
-        #else
-        // Production mode - REAL ads will show once AdMob approves
-        print("[AdMob] SDK initialized (PRODUCTION mode - real ads enabled)")
-        #endif
-#else
-        // If AdMob SDK is not linked, still pre-load mock ads
-        print("[AdMob] SDK not linked - using mock ads for testing")
-        Task { @MainActor in
-            AdManager.shared.loadNativeAd()
-            AdManager.shared.loadInterstitialAd()
-        }
-#endif
-        
         // Setup notification handler
         notificationHandler.setup()
         

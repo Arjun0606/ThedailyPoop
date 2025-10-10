@@ -82,12 +82,14 @@ struct TermsOfServiceView: View {
                             BodyText(text: """
                             Your privacy is important to us. Our Privacy Policy (available in-app) explains how we collect, use, and protect your data. By using TheDailyPoop, you agree to our Privacy Policy.
                             
-                            We do not sell your personal information to third parties. We use CloudKit for secure data storage and Google AdMob for advertising.
+                            We do not sell your personal information to third parties. We use CloudKit for secure data storage and Apple services for push notifications.
                             """)
                             
-                            SectionHeader(title: "7. Advertising")
+                            SectionHeader(title: "7. In-App Purchases")
                             BodyText(text: """
-                            TheDailyPoop displays advertisements through Google AdMob. By using the App, you agree to see ads. Advertisers may collect data about your device and usage for targeted advertising. See our Privacy Policy for details.
+                            TheDailyPoop offers optional in-app purchases (such as Fart Attack packs). All purchases are processed through Apple's App Store. Refunds are subject to Apple's refund policy.
+                            
+                            Consumable purchases (like Fart Attacks) cannot be refunded once used. See our FAQ or contact support for assistance.
                             """)
                             
                             SectionHeader(title: "8. Intellectual Property")
@@ -119,7 +121,7 @@ struct TermsOfServiceView: View {
                             • Indirect, incidental, or consequential damages
                             • Loss of data, profits, or goodwill
                             • Damages resulting from unauthorized account access
-                            • Issues arising from third-party services (CloudKit, AdMob)
+                            • Issues arising from third-party services (CloudKit, Apple services)
                             
                             Our total liability shall not exceed $100 USD or the amount you paid us (if any).
                             """)

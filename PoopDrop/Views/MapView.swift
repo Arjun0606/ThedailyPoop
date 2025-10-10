@@ -64,19 +64,6 @@ struct MapView: View {
                     }
                 }
                 .mapStyle(mapTheme.mapStyle)
-                
-                // Seamless Map Banner Ad Overlay
-                VStack {
-                    HStack {
-                        Spacer()
-                        MapBannerAdView()
-                            .padding(.top, 10)
-                            .padding(.trailing, 16)
-                        Spacer()
-                            .frame(width: 60) // Space for map controls
-                    }
-                    Spacer()
-                }
                 .onAppear {
                     centerOnUserLocation()
                     loadNearbyDrops()

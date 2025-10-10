@@ -89,6 +89,7 @@ def main():
             'UserSession.swift'
         ],
         'Views': [
+            'ExternalFartAttackView.swift',
             'FartAttackOnboardingView.swift',
             'FartAttackPromoCard.swift',
             'FartAttackReceivedView.swift',

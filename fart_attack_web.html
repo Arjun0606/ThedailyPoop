@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>💨 You've Been Fart Attacked!</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            overflow: hidden;
+        }
+        
+        .container {
+            text-align: center;
+            padding: 20px;
+            max-width: 500px;
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        
+        .emoji {
+            font-size: 150px;
+            animation: bounce 1s infinite;
+            display: inline-block;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-20px) scale(1.1); }
+        }
+        
+        h1 {
+            font-size: 48px;
+            font-weight: 900;
+            margin: 20px 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .sender {
+            font-size: 24px;
+            font-weight: 700;
+            color: #FFD700;
+            margin-bottom: 30px;
+        }
+        
+        .message {
+            font-size: 18px;
+            line-height: 1.6;
+            margin-bottom: 40px;
+            opacity: 0.9;
+        }
+        
+        .cta-button {
+            display: inline-block;
+            background: #FFD700;
+            color: #000;
+            padding: 18px 40px;
+            border-radius: 30px;
+            font-size: 20px;
+            font-weight: 700;
+            text-decoration: none;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+            transition: all 0.3s ease;
+            margin: 10px;
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 215, 0, 0.6);
+        }
+        
+        .secondary-button {
+            background: transparent;
+            border: 2px solid white;
+            color: white;
+        }
+        
+        .secondary-button:hover {
+            background: rgba(255,255,255,0.1);
+        }
+        
+        .features {
+            margin-top: 40px;
+            text-align: left;
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .feature {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+        }
+        
+        .feature-icon {
+            font-size: 24px;
+            margin-right: 15px;
+        }
+        
+        .feature-text {
+            font-size: 16px;
+            line-height: 1.4;
+        }
+        
+        .footer {
+            margin-top: 40px;
+            font-size: 14px;
+            opacity: 0.7;
+        }
+        
+        /* Confetti animation */
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background: #FFD700;
+            position: fixed;
+            animation: confetti-fall 3s linear infinite;
+        }
+        
+        @keyframes confetti-fall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+            }
+        }
+        
+        #audioPlayer {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="emoji">💨</div>
+        <h1>FART ATTACKED!</h1>
+        <div class="sender">by <span id="senderName">@prankster</span></div>
+        
+        <div class="message">
+            You just got pranked with an epic 4-second fart! 😂<br>
+            Want to get revenge? Download the app!
+        </div>
+        
+        <a href="https://apps.apple.com/app/thedailypoop/id6739120902" class="cta-button" id="downloadBtn">
+            📱 Download TheDailyPoop
+        </a>
+        
+        <a href="#" class="cta-button secondary-button" id="replayBtn">
+            🔊 Replay Fart
+        </a>
+        
+        <div class="features">
+            <div class="feature">
+                <div class="feature-icon">💨</div>
+                <div class="feature-text">Send unlimited fart attacks to friends</div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">📍</div>
+                <div class="feature-text">Track your poops on a map</div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🏆</div>
+                <div class="feature-text">Compete with friends on leaderboards</div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🔥</div>
+                <div class="feature-text">Build your streak and earn badges</div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            TheDailyPoop - Track, Share, Compete 💩
+        </div>
+    </div>
+    
+    <!-- Audio player for fart sound -->
+    <audio id="audioPlayer" preload="auto">
+        <source src="https://thedailypoop.app/sounds/fart_long_epidemic.wav" type="audio/wav">
+    </audio>
+    
+    <script>
+        // Parse URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const attackID = urlParams.get('id') || window.location.pathname.split('/').pop();
+        const senderUsername = urlParams.get('sender') || 'prankster';
+        
+        // Update sender name
+        document.getElementById('senderName').textContent = '@' + senderUsername;
+        
+        // Play fart sound automatically on page load
+        window.addEventListener('load', function() {
+            const audio = document.getElementById('audioPlayer');
+            
+            // Try to play immediately (works on most mobile browsers)
+            audio.play().catch(function(error) {
+                console.log('Autoplay prevented, waiting for user interaction:', error);
+                
+                // If autoplay is blocked, play on first click
+                document.body.addEventListener('click', function playOnce() {
+                    audio.play();
+                    document.body.removeEventListener('click', playOnce);
+                }, { once: true });
+            });
+            
+            // Create confetti effect
+            createConfetti();
+        });
+        
+        // Replay button
+        document.getElementById('replayBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            const audio = document.getElementById('audioPlayer');
+            audio.currentTime = 0;
+            audio.play();
+        });
+        
+        // Download button tracking
+        document.getElementById('downloadBtn').addEventListener('click', function() {
+            // Track conversion (you can add analytics here)
+            console.log('User clicked download from fart attack:', attackID);
+            
+            // Report to CloudKit that user clicked the link
+            reportClick(attackID);
+        });
+        
+        // Create confetti animation
+        function createConfetti() {
+            const colors = ['#FFD700', '#FFA500', '#FF6347', '#32CD32', '#1E90FF', '#FF69B4'];
+            for (let i = 0; i < 50; i++) {
+                setTimeout(function() {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * 100 + 'vw';
+                    confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.animationDelay = Math.random() * 3 + 's';
+                    confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                    document.body.appendChild(confetti);
+                    
+                    // Remove after animation
+                    setTimeout(() => confetti.remove(), 5000);
+                }, i * 50);
+            }
+        }
+        
+        // Report click to backend (optional - for analytics)
+        function reportClick(attackID) {
+            // You can implement CloudKit reporting here if needed
+            // For now, just log it
+            console.log('Reporting click for attack:', attackID);
+        }
+        
+        // Deep link handling - try to open app if installed
+        setTimeout(function() {
+            // Try to open the app via custom URL scheme
+            const deepLink = 'thedailypoop://fart/' + attackID;
+            window.location.href = deepLink;
+            
+            // If app doesn't open in 2 seconds, user doesn't have it installed
+            // (Page will still be visible with download button)
+        }, 1000);
+    </script>
+</body>
+</html>
+

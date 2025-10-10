@@ -4,7 +4,6 @@ struct FeedView: View {
     @EnvironmentObject var cloudKitManager: CloudKitManager
     @EnvironmentObject var authManager: AuthenticationManager
     @StateObject private var friendsManager = FriendsManager()
-    @StateObject private var adManager = AdManager.shared
     @State private var selectedFeedType: FeedType = .friends
     @State private var friendDrops: [Drop] = []
     @State private var myDrops: [Drop] = []
@@ -63,8 +62,8 @@ struct FeedView: View {
                                         .padding(.horizontal, 16)
                                 }
                                 
-                                // Drops feed with native ads
-                                ForEach(Array(currentDrops.enumerated()), id: \.element.id) { index, drop in
+                                // Drops feed
+                                ForEach(currentDrops) { drop in
                                     DropCardView(drop: drop)
                                         .onAppear {
                                             // Load more drops when approaching end
@@ -74,17 +73,6 @@ struct FeedView: View {
                                                 }
                                             }
                                         }
-                                    
-                                    // Insert native ad every 2 drops
-                                    if (index + 1) % 2 == 0,
-                                       let nativeAd = adManager.nativeAd {
-                                        NativeAdCardView(adViewModel: nativeAd)
-                                            .transition(.opacity)
-                                            .onAppear {
-                                                // Load a new ad for the next placement
-                                                adManager.loadNativeAd()
-                                            }
-                                    }
                                 }
                                 
                                 // Loading indicator

@@ -6,12 +6,18 @@ struct FartAttack: Identifiable, Codable {
     let id: String
     let senderID: String
     let senderUsername: String
-    let targetUserID: String
+    let targetUserID: String // Empty string for external shares
     let targetUsername: String
     let timestamp: Date
     let soundFileName: String
     var wasPlayed: Bool
     var playedAt: Date?
+    
+    // External sharing fields
+    let isExternal: Bool // true if sent outside app
+    let recipientIdentifier: String? // Hashed phone/email for cooldown tracking
+    var clickedAt: Date? // When the link was clicked
+    var installedApp: Bool // Whether recipient installed after clicking
     
     init(id: String = UUID().uuidString,
          senderID: String,
@@ -21,7 +27,11 @@ struct FartAttack: Identifiable, Codable {
          timestamp: Date = Date(),
          soundFileName: String = "fart_long_epidemic",
          wasPlayed: Bool = false,
-         playedAt: Date? = nil) {
+         playedAt: Date? = nil,
+         isExternal: Bool = false,
+         recipientIdentifier: String? = nil,
+         clickedAt: Date? = nil,
+         installedApp: Bool = false) {
         self.id = id
         self.senderID = senderID
         self.senderUsername = senderUsername
@@ -31,6 +41,10 @@ struct FartAttack: Identifiable, Codable {
         self.soundFileName = soundFileName
         self.wasPlayed = wasPlayed
         self.playedAt = playedAt
+        self.isExternal = isExternal
+        self.recipientIdentifier = recipientIdentifier
+        self.clickedAt = clickedAt
+        self.installedApp = installedApp
     }
 }
 
@@ -57,6 +71,10 @@ extension FartAttack {
         self.soundFileName = soundFileName
         self.wasPlayed = (record["wasPlayed"] as? Int) == 1
         self.playedAt = record["playedAt"] as? Date
+        self.isExternal = (record["isExternal"] as? Int) == 1
+        self.recipientIdentifier = record["recipientIdentifier"] as? String
+        self.clickedAt = record["clickedAt"] as? Date
+        self.installedApp = (record["installedApp"] as? Int) == 1
     }
     
     func toCKRecord() -> CKRecord {
@@ -69,6 +87,10 @@ extension FartAttack {
         record["soundFileName"] = soundFileName
         record["wasPlayed"] = wasPlayed ? 1 : 0
         record["playedAt"] = playedAt
+        record["isExternal"] = isExternal ? 1 : 0
+        record["recipientIdentifier"] = recipientIdentifier
+        record["clickedAt"] = clickedAt
+        record["installedApp"] = installedApp ? 1 : 0
         return record
     }
 }
@@ -82,14 +104,27 @@ struct FartAttackInventory: Codable {
     // Track cooldowns: [friendUserID: lastAttackTimestamp]
     var cooldowns: [String: Date]
     
+    // Track external share cooldowns: [recipientHash: lastAttackTimestamp]
+    var externalCooldowns: [String: Date]
+    
+    // Daily limit for external shares (prevent spam)
+    var externalSharesToday: Int
+    var lastExternalShareDate: Date
+    
     init(userID: String,
          availableAttacks: Int = 0,
          lastUpdated: Date = Date(),
-         cooldowns: [String: Date] = [:]) {
+         cooldowns: [String: Date] = [:],
+         externalCooldowns: [String: Date] = [:],
+         externalSharesToday: Int = 0,
+         lastExternalShareDate: Date = Date(timeIntervalSince1970: 0)) {
         self.userID = userID
         self.availableAttacks = availableAttacks
         self.lastUpdated = lastUpdated
         self.cooldowns = cooldowns
+        self.externalCooldowns = externalCooldowns
+        self.externalSharesToday = externalSharesToday
+        self.lastExternalShareDate = lastExternalShareDate
     }
     
     // Check if can attack a specific friend (24hr cooldown)
@@ -102,9 +137,44 @@ struct FartAttackInventory: Codable {
         return hoursSinceLastAttack >= 24
     }
     
+    // Check if can attack an external recipient (24hr cooldown)
+    func canAttackExternal(recipientHash: String) -> Bool {
+        guard let lastAttack = externalCooldowns[recipientHash] else {
+            return true // Never attacked this recipient
+        }
+        
+        let hoursSinceLastAttack = Date().timeIntervalSince(lastAttack) / 3600
+        return hoursSinceLastAttack >= 24
+    }
+    
+    // Check daily limit for external shares (max 20 per day)
+    mutating func canShareExternally() -> Bool {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        let lastShareDay = calendar.startOfDay(for: lastExternalShareDate)
+        
+        // Reset counter if it's a new day
+        if today > lastShareDay {
+            externalSharesToday = 0
+        }
+        
+        return externalSharesToday < 20 // Max 20 external shares per day
+    }
+    
     // Get time remaining until can attack again
     func cooldownRemaining(friendID: String) -> TimeInterval? {
         guard let lastAttack = cooldowns[friendID] else {
+            return nil // No cooldown
+        }
+        
+        let elapsed = Date().timeIntervalSince(lastAttack)
+        let remaining = (24 * 3600) - elapsed
+        return remaining > 0 ? remaining : nil
+    }
+    
+    // Get time remaining for external recipient
+    func externalCooldownRemaining(recipientHash: String) -> TimeInterval? {
+        guard let lastAttack = externalCooldowns[recipientHash] else {
             return nil // No cooldown
         }
         
@@ -119,7 +189,7 @@ struct FartAttackInventory: Codable {
         lastUpdated = Date()
     }
     
-    // Use an attack
+    // Use an attack (in-app friend)
     mutating func useAttack(targetFriendID: String) -> Bool {
         guard availableAttacks > 0, canAttack(friendID: targetFriendID) else {
             return false
@@ -127,6 +197,33 @@ struct FartAttackInventory: Codable {
         
         availableAttacks -= 1
         cooldowns[targetFriendID] = Date()
+        lastUpdated = Date()
+        return true
+    }
+    
+    // Use an attack (external recipient)
+    mutating func useExternalAttack(recipientHash: String) -> Bool {
+        guard availableAttacks > 0, 
+              canAttackExternal(recipientHash: recipientHash),
+              canShareExternally() else {
+            return false
+        }
+        
+        availableAttacks -= 1
+        externalCooldowns[recipientHash] = Date()
+        
+        // Update daily counter
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        let lastShareDay = calendar.startOfDay(for: lastExternalShareDate)
+        
+        if today > lastShareDay {
+            externalSharesToday = 1
+        } else {
+            externalSharesToday += 1
+        }
+        
+        lastExternalShareDate = Date()
         lastUpdated = Date()
         return true
     }
@@ -149,6 +246,16 @@ extension FartAttackInventory {
         } else {
             self.cooldowns = [:]
         }
+        
+        // Decode external cooldowns dictionary
+        if let externalCooldownsData = record["externalCooldowns"] as? Data {
+            self.externalCooldowns = (try? JSONDecoder().decode([String: Date].self, from: externalCooldownsData)) ?? [:]
+        } else {
+            self.externalCooldowns = [:]
+        }
+        
+        self.externalSharesToday = record["externalSharesToday"] as? Int ?? 0
+        self.lastExternalShareDate = record["lastExternalShareDate"] as? Date ?? Date(timeIntervalSince1970: 0)
     }
     
     func toCKRecord() -> CKRecord {
@@ -161,6 +268,14 @@ extension FartAttackInventory {
         if let cooldownsData = try? JSONEncoder().encode(cooldowns) {
             record["cooldowns"] = cooldownsData
         }
+        
+        // Encode external cooldowns dictionary
+        if let externalCooldownsData = try? JSONEncoder().encode(externalCooldowns) {
+            record["externalCooldowns"] = externalCooldownsData
+        }
+        
+        record["externalSharesToday"] = externalSharesToday
+        record["lastExternalShareDate"] = lastExternalShareDate
         
         return record
     }

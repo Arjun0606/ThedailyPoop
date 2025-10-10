@@ -19,12 +19,16 @@ Stores individual fart attacks sent between users.
 |------------|------------|---------|----------|-------|
 | senderID | String | ✅ Yes | ✅ Yes | User who sent the attack |
 | senderUsername | String | ✅ Yes | ✅ Yes | Username of sender (denormalized) |
-| targetUserID | String | ✅ Yes | ✅ Yes | User who will receive the attack |
+| targetUserID | String | ✅ Yes | ✅ Yes | User who will receive the attack (empty for external) |
 | targetUsername | String | ❌ No | ✅ Yes | Username of target (denormalized) |
 | timestamp | Date/Time | ✅ Yes | ✅ Yes | When attack was sent |
 | soundFileName | String | ❌ No | ✅ Yes | Sound file to play (default: "fart_long_epidemic") |
 | wasPlayed | Int64 | ✅ Yes | ✅ Yes | 0=pending, 1=played |
 | playedAt | Date/Time | ❌ No | ❌ No | When attack was played |
+| isExternal | Int64 | ❌ No | ❌ No | 0=in-app, 1=external share (v1.03+) |
+| recipientIdentifier | String | ❌ No | ❌ No | Hashed phone/email for external cooldown (v1.03+) |
+| clickedAt | Date/Time | ❌ No | ❌ No | When external link was clicked (v1.03+) |
+| installedApp | Int64 | ❌ No | ❌ No | 0=no, 1=yes - if recipient installed after click (v1.03+) |
 
 **Indexes**:
 - `senderID` (Queryable)
@@ -52,6 +56,9 @@ Tracks how many attacks each user has available and cooldowns.
 | availableAttacks | Int64 | ❌ No | ✅ Yes | Number of attacks remaining |
 | lastUpdated | Date/Time | ✅ Yes | ✅ Yes | Last modification time |
 | cooldowns | Bytes | ❌ No | ❌ No | JSON dictionary [friendID: Date] |
+| externalCooldowns | Bytes | ❌ No | ❌ No | JSON dictionary [recipientHash: Date] for external shares (v1.03+) |
+| externalSharesToday | Int64 | ❌ No | ❌ No | Count of external shares today (max 20/day, spam prevention) (v1.03+) |
+| lastExternalShareDate | Date/Time | ❌ No | ❌ No | Last external share timestamp (for daily reset) (v1.03+) |
 
 **Indexes**:
 - `userID` (Queryable) - **CRITICAL for loading user's inventory**

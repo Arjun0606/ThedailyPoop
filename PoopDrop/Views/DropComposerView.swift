@@ -239,14 +239,6 @@ struct DropComposerView: View {
                     NotificationCenter.default.post(name: Notification.Name("DID_CREATE_DROP"), object: nil, userInfo: ["drop": drop])
                     // Post notification to refresh profile stats
                     NotificationCenter.default.post(name: Notification.Name("USER_STATS_UPDATED"), object: nil)
-                    
-                    // 💰 Show interstitial ad after every 3rd drop (monetization)
-                    if user.totalDrops % 3 == 0 {
-                        let adShown = AdManager.shared.showInterstitialAd()
-                        if adShown {
-                            print("💰 Showed interstitial ad after drop #\(user.totalDrops)")
-                        }
-                    }
                 }
                 
             } catch {

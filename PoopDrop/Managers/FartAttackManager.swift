@@ -2,6 +2,7 @@ import Foundation
 import AVFoundation
 import CloudKit
 import SwiftUI
+import CryptoKit
 
 @MainActor
 class FartAttackManager: ObservableObject {
@@ -124,6 +125,132 @@ class FartAttackManager: ObservableObject {
             // Revert inventory on failure
             inventory?.addAttacks(1)
             print("❌ Failed to send attack: \(error)")
+            return false
+        }
+    }
+    
+    // MARK: - External Sharing
+    
+    /// Hash a phone number or identifier for privacy
+    private func hashIdentifier(_ identifier: String) -> String {
+        let inputData = Data(identifier.utf8)
+        let hashedData = SHA256.hash(data: inputData)
+        return hashedData.compactMap { String(format: "%02x", $0) }.joined()
+    }
+    
+    /// Check if can send external attack to a specific recipient
+    func canSendExternalAttack(to recipientIdentifier: String) -> Bool {
+        guard var currentInventory = inventory else { return false }
+        guard currentInventory.availableAttacks > 0 else { return false }
+        
+        let hash = hashIdentifier(recipientIdentifier)
+        return currentInventory.canAttackExternal(recipientHash: hash) && currentInventory.canShareExternally()
+    }
+    
+    /// Get cooldown remaining for external recipient
+    func getExternalCooldownRemaining(for recipientIdentifier: String) -> TimeInterval? {
+        let hash = hashIdentifier(recipientIdentifier)
+        return inventory?.externalCooldownRemaining(recipientHash: hash)
+    }
+    
+    /// Create external fart attack and generate shareable link
+    func createExternalAttack(from currentUser: User, recipientName: String, recipientIdentifier: String) async -> (success: Bool, shareURL: URL?, attackID: String?) {
+        guard var currentInventory = inventory else {
+            print("❌ No inventory")
+            return (false, nil, nil)
+        }
+        
+        let hash = hashIdentifier(recipientIdentifier)
+        
+        // Check if can attack
+        guard currentInventory.useExternalAttack(recipientHash: hash) else {
+            print("❌ Cannot attack: no attacks available, cooldown active, or daily limit reached")
+            return (false, nil, nil)
+        }
+        
+        // Update local inventory
+        inventory = currentInventory
+        
+        // Create external attack
+        let attackID = UUID().uuidString
+        let attack = FartAttack(
+            id: attackID,
+            senderID: currentUser.id,
+            senderUsername: currentUser.username,
+            targetUserID: "", // External - no user ID yet
+            targetUsername: recipientName,
+            soundFileName: "fart_long_epidemic",
+            isExternal: true,
+            recipientIdentifier: hash
+        )
+        
+        // Save to CloudKit
+        do {
+            let record = attack.toCKRecord()
+            try await publicDatabase.save(record)
+            print("💨 External fart attack created!")
+            
+            // Save updated inventory
+            await saveInventory()
+            
+            // Generate share URL (Universal Link)
+            // Format: https://thedailypoop.app/fart/[attackID]
+            if let shareURL = URL(string: "https://thedailypoop.app/fart/\(attackID)") {
+                return (true, shareURL, attackID)
+            }
+            
+            return (true, nil, attackID)
+        } catch {
+            // Revert inventory on failure
+            inventory?.addAttacks(1)
+            print("❌ Failed to create external attack: \(error)")
+            return (false, nil, nil)
+        }
+    }
+    
+    /// Process incoming external attack (from Universal Link)
+    func processExternalAttackLink(attackID: String, currentUser: User?) async -> Bool {
+        do {
+            // Fetch attack from CloudKit
+            let recordID = CKRecord.ID(recordName: attackID)
+            let record = try await publicDatabase.record(for: recordID)
+            
+            guard var attack = FartAttack(from: record) else {
+                print("❌ Invalid attack record")
+                return false
+            }
+            
+            // Update click timestamp
+            attack.clickedAt = Date()
+            
+            // If user is logged in, associate the attack with them
+            if let user = currentUser {
+                var updatedAttack = attack
+                updatedAttack.installedApp = true
+                
+                // Save updated attack
+                let updatedRecord = updatedAttack.toCKRecord()
+                try await publicDatabase.save(updatedRecord)
+                
+                // Add to pending attacks if not already played
+                if !attack.wasPlayed {
+                    await MainActor.run {
+                        self.pendingAttacks.append(updatedAttack)
+                        if !self.showingAttackOverlay {
+                            self.playNextAttack()
+                        }
+                    }
+                }
+            } else {
+                // User not logged in - just update click timestamp
+                let updatedRecord = attack.toCKRecord()
+                try await publicDatabase.save(updatedRecord)
+            }
+            
+            print("✅ Processed external attack link")
+            return true
+        } catch {
+            print("❌ Failed to process external attack: \(error)")
             return false
         }
     }

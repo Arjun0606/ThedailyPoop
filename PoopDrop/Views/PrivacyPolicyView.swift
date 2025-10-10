@@ -55,7 +55,7 @@ struct PrivacyPolicyView: View {
                             
                             D. Device Information:
                             • Device model and operating system version
-                            • Unique device identifiers (for analytics and advertising)
+                            • Unique device identifiers (for app functionality)
                             • App version and language settings
                             """)
                             
@@ -88,7 +88,6 @@ struct PrivacyPolicyView: View {
                             
                             B. With Service Providers:
                             • Apple CloudKit (for secure data storage and sync)
-                            • Google AdMob (for advertising; see Advertising section below)
                             • Apple Push Notification Service (for notifications)
                             
                             C. For Legal Reasons:
@@ -100,17 +99,15 @@ struct PrivacyPolicyView: View {
                             • If TheDailyPoop is acquired or merged, your data may be transferred to the new entity
                             """)
                             
-                            SectionHeader(title: "4. Advertising and Third-Party Services")
+                            SectionHeader(title: "4. Third-Party Services")
                             BodyText(text: """
-                            TheDailyPoop uses Google AdMob to display advertisements. AdMob may collect:
-                            • Device identifiers (IDFA on iOS)
-                            • IP address and general location
-                            • Ad interaction data (views, clicks)
+                            TheDailyPoop uses the following third-party services:
+                            • Apple CloudKit (for secure data storage and synchronization)
+                            • Apple Push Notification Service (for notifications)
                             
-                            AdMob uses this data for targeted advertising. You can opt out of personalized ads in your iOS Settings:
-                            Settings > Privacy > Tracking > Disable "Allow Apps to Request to Track"
+                            We do not use advertising networks or tracking services. We do not sell your data to third parties.
                             
-                            Learn more at: https://policies.google.com/privacy
+                            Learn more about Apple's privacy practices at: https://www.apple.com/privacy
                             """)
                             
                             SectionHeader(title: "5. Data Storage and Security")
@@ -189,9 +186,9 @@ struct PrivacyPolicyView: View {
                             
                             SectionHeader(title: "11. Cookies and Tracking")
                             BodyText(text: """
-                            TheDailyPoop does not use cookies (it's a native iOS app, not a website). However, third-party services like AdMob may use similar tracking technologies for advertising purposes.
+                            TheDailyPoop does not use cookies or tracking technologies. As a native iOS app, we do not track you for advertising or analytics purposes beyond what is necessary for app functionality.
                             
-                            You can control tracking in iOS Settings > Privacy > Tracking.
+                            We respect your privacy and do not sell your data to third parties.
                             """)
                             
                             SectionHeader(title: "12. Changes to This Policy")
@@ -243,8 +240,7 @@ struct PrivacyPolicyView: View {
                             • Collection and use of your information as described
                             • Display of your drops and profile to friends
                             • Use of location data for map and stats features
-                            • Display of advertisements powered by AdMob
-                            • Transfer of data to service providers (CloudKit, AdMob)
+                            • Transfer of data to service providers (CloudKit, Apple Push Notifications)
                             
                             You can withdraw consent by deleting your account or discontinuing use of the App.
                             """)

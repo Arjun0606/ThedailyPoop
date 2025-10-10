@@ -203,6 +203,26 @@ This document outlines the CloudKit schema setup required for TheDailyPoop. **Up
 **Security Roles**:
 - Creator readable/writable
 
+### 8. UserFartPackPurchases Record Type ⭐ NEW (v1.02)
+
+**Record Type Name**: `UserFartPackPurchases`
+**Database**: Private Database
+
+| Field Name | Field Type | Indexed | Required | Notes |
+|------------|------------|---------|----------|-------|
+| userID | String | Yes | Yes | User who purchased packs |
+| purchasedPackIDs | Bytes | No | Yes | JSON-encoded Set<String> of pack IDs |
+| lastUpdated | Date/Time | Yes | Yes | Last purchase timestamp |
+
+**Indexes**:
+- `userID` (Queryable)
+- `lastUpdated` (Sortable)
+
+**Security Roles**:
+- Creator readable/writable
+
+**Purpose**: Track which fart packs each user has purchased (consumable IAP). Syncs across devices via CloudKit.
+
 ## Subscriptions
 
 ### Drop Subscription
@@ -261,6 +281,7 @@ This document outlines the CloudKit schema setup required for TheDailyPoop. **Up
 - Friendship
 - Notification
 - UserSession
+- UserFartPackPurchases
 
 ### 3. Indexes Configuration
 
@@ -279,7 +300,7 @@ Drop, SponsorCampaign, Reaction:
 
 #### Private Database Records
 ```
-User, Friendship, Notification, UserSession:
+User, Friendship, Notification, UserSession, UserFartPackPurchases:
 - Creator: Readable, Writable
 ```
 
