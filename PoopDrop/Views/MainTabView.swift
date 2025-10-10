@@ -59,7 +59,7 @@ struct MainTabView: View {
                     VStack {
                         Spacer()
                         // Inline low inventory banner on the attacks tab as well
-                        HStack { BuyMoreBanner() }
+                        HStack { BuyMoreBanner(selectedTab: $selectedTab) }
                             .padding(.horizontal)
                             .padding(.bottom, 90)
                     }

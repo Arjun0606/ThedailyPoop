@@ -5,7 +5,7 @@ struct WeeklyLeaderboardView: View {
     @EnvironmentObject var authManager: AuthenticationManager
     @EnvironmentObject var friendsManager: FriendsManager
     
-    @State private var leaderboard: [LeaderboardEntry] = []
+    @State private var leaderboard: [WeeklyLeaderboardEntry] = []
     @State private var isLoading = false
     @State private var currentUserRank: Int?
     
@@ -82,7 +82,7 @@ struct WeeklyLeaderboardView: View {
                             // Top 10
                             VStack(spacing: 8) {
                                 ForEach(Array(leaderboard.prefix(10).enumerated()), id: \.element.id) { index, entry in
-                                    LeaderboardRow(
+                                    WeeklyLeaderboardRow(
                                         rank: index + 1,
                                         entry: entry,
                                         isCurrentUser: entry.userID == authManager.currentUser?.id
@@ -165,7 +165,7 @@ struct WeeklyLeaderboardView: View {
             
             // Convert to leaderboard entries and sort
             let entries = attackCounts.map { userID, data in
-                LeaderboardEntry(
+                WeeklyLeaderboardEntry(
                     userID: userID,
                     username: data.username,
                     attacksSent: data.count
@@ -192,20 +192,20 @@ struct WeeklyLeaderboardView: View {
     }
 }
 
-// MARK: - Leaderboard Entry
+// MARK: - Weekly Leaderboard Entry
 
-struct LeaderboardEntry: Identifiable {
+struct WeeklyLeaderboardEntry: Identifiable {
     let id = UUID()
     let userID: String
     let username: String
     let attacksSent: Int
 }
 
-// MARK: - Leaderboard Row
+// MARK: - Weekly Leaderboard Row
 
-struct LeaderboardRow: View {
+struct WeeklyLeaderboardRow: View {
     let rank: Int
-    let entry: LeaderboardEntry
+    let entry: WeeklyLeaderboardEntry
     let isCurrentUser: Bool
     
     var rankEmoji: String {
@@ -265,7 +265,7 @@ struct LeaderboardRow: View {
 
 #Preview {
     WeeklyLeaderboardView()
-        .environmentObject(AuthenticationManager.shared)
-        .environmentObject(FriendsManager.shared)
+        .environmentObject(AuthenticationManager())
+        .environmentObject(FriendsManager())
 }
 

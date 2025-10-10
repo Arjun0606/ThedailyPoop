@@ -463,5 +463,26 @@ class FartAttackManager: ObservableObject {
             return "\(minutes)m"
         }
     }
+    
+    // MARK: - Attack Reactions
+    
+    func reactToAttack(attack: FartAttack, reactor: User, emoji: String, text: String?) async throws {
+        // Create activity for the reaction
+        let activity = AttackActivity(
+            type: .reacted,
+            senderID: reactor.id,
+            senderUsername: reactor.username,
+            targetUserID: attack.senderID,
+            targetUsername: attack.senderUsername,
+            attackID: attack.id,
+            reactionEmoji: emoji,
+            reactionText: text
+        )
+        
+        // Save to CloudKit
+        let record = activity.toCKRecord()
+        try await publicDatabase.save(record)
+        print("👍 Reaction saved!")
+    }
 }
 

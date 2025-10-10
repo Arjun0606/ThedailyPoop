@@ -47,7 +47,7 @@ class StoreKitManager: ObservableObject {
                 }
                 
                 // Fart attack pack purchased
-                if transaction.productID == await self.fartAttackProductID {
+                if transaction.productID == self.fartAttackProductID {
                     print("✅ Fart attack pack transaction verified: \(transaction.productID)")
                 }
                     

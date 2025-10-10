@@ -80,6 +80,12 @@
 		4D42B78EF7F5472C843F6263 /* StreakView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9191F2F1A8994133A0EE35B1 /* StreakView.swift */; };
 		342748A0DF5B437E90721060 /* TryProView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61235A60129C4CDA87A26D55 /* TryProView.swift */; };
 		4DAE3CCAC37F4E10B59F497F /* AdManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3BC073E83E948B8A1B4B496 /* AdManager.swift */; };
+		117D0A0612B54F5095CC3F0C /* AnalyticsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6D28C18A21A4E45B9E3F7D9 /* AnalyticsManager.swift */; };
+		D41D2D21BC9D40498B087397 /* WeeklyLeaderboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3B5A7F2D45C4C92A8F16E84 /* WeeklyLeaderboardView.swift */; };
+		0C5B7BAD8CE8406A89DE0FD2 /* AttackActivityHighlights.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9E4F5A8B71D4B23A5D8E692 /* AttackActivityHighlights.swift */; };
+		7E0F47E9E6E0411D8B5E57AA /* AttackReactionSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2A7B6C8E93F4D17B4E5F891 /* AttackReactionSheet.swift */; };
+		8D7A41E4D6EE4F809B26C8A3 /* BuyMoreBanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5C8D7E9F24E4B36A9D6F7B3 /* BuyMoreBanner.swift */; };
+		6E62D68685EA4831B8F81A93 /* StreakFreezeBanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7D9E8F1A35C4C47B8E7F9A4 /* StreakFreezeBanner.swift */; };
 		88DF13956C4F42E0B8F903BD /* AnimationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90231BDDB0148DBA03022C8 /* AnimationManager.swift */; };
 		D1572A081F33416D80EF5D68 /* FartAttackManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 485B82D90893430BB97F31EF /* FartAttackManager.swift */; };
 		397EB5E62C9744078460B04E /* FriendsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37134B4493D34DBC87C5168F /* FriendsManager.swift */; };
@@ -304,7 +310,13 @@
 		9191F2F1A8994133A0EE35B1 /* StreakView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreakView.swift; sourceTree = "<group>"; };
 		61235A60129C4CDA87A26D55 /* TryProView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TryProView.swift; sourceTree = "<group>"; };
 		D3BC073E83E948B8A1B4B496 /* AdManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdManager.swift; sourceTree = "<group>"; };
+		F6D28C18A21A4E45B9E3F7D9 /* AnalyticsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AnalyticsManager.swift; path = PoopDrop/Managers/AnalyticsManager.swift; sourceTree = SOURCE_ROOT; };
 		A90231BDDB0148DBA03022C8 /* AnimationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimationManager.swift; sourceTree = "<group>"; };
+		E3B5A7F2D45C4C92A8F16E84 /* WeeklyLeaderboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WeeklyLeaderboardView.swift; path = PoopDrop/Views/WeeklyLeaderboardView.swift; sourceTree = SOURCE_ROOT; };
+		C9E4F5A8B71D4B23A5D8E692 /* AttackActivityHighlights.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AttackActivityHighlights.swift; path = PoopDrop/Views/Components/AttackActivityHighlights.swift; sourceTree = SOURCE_ROOT; };
+		D2A7B6C8E93F4D17B4E5F891 /* AttackReactionSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AttackReactionSheet.swift; path = PoopDrop/Views/Components/AttackReactionSheet.swift; sourceTree = SOURCE_ROOT; };
+		A5C8D7E9F24E4B36A9D6F7B3 /* BuyMoreBanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = BuyMoreBanner.swift; path = PoopDrop/Views/Components/BuyMoreBanner.swift; sourceTree = SOURCE_ROOT; };
+		B7D9E8F1A35C4C47B8E7F9A4 /* StreakFreezeBanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = StreakFreezeBanner.swift; path = PoopDrop/Views/Components/StreakFreezeBanner.swift; sourceTree = SOURCE_ROOT; };
 		485B82D90893430BB97F31EF /* FartAttackManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttackManager.swift; sourceTree = "<group>"; };
 		37134B4493D34DBC87C5168F /* FriendsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsManager.swift; sourceTree = "<group>"; };
 		6ABCD4BB70AD4BFCAB7CAE71 /* NotificationHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationHandler.swift; sourceTree = "<group>"; };

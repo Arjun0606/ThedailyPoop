@@ -14,6 +14,7 @@ struct ExternalFartAttackView: View {
     @State private var showingError = false
     @State private var errorMessage = ""
     @State private var showingSuccess = false
+    @State private var selectedTab: Int = 0
     
     var attacksAvailable: Int {
         fartAttackManager.inventory?.availableAttacks ?? 0
@@ -27,7 +28,7 @@ struct ExternalFartAttackView: View {
                 ScrollView {
                     VStack(spacing: 24) {
                         // Low inventory banner
-                        BuyMoreBanner()
+                        BuyMoreBanner(selectedTab: $selectedTab)
                         // Header
                         VStack(spacing: 12) {
                             Text("💨")
