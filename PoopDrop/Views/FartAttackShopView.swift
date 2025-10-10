@@ -124,68 +124,71 @@ struct FartAttackShopView: View {
                             .padding(.top, 20)
                         }
                         
-                        // Product Card
-                        VStack(spacing: 0) {
-                            // Top section with emoji and price
-                            VStack(spacing: 16) {
-                                Text("⭐")
-                                    .font(.system(size: 80))
-                                
-                                Text("3 Fart Attacks")
-                                    .font(.title)
-                                    .fontWeight(.bold)
-                                    .foregroundColor(.white)
-                                
-                                Text("$1.99")
-                                    .font(.system(size: 48, weight: .black))
-                                    .foregroundColor(.yellow)
-                            }
-                            .padding(.vertical, 30)
-                            
-                            // Features
-                            VStack(alignment: .leading, spacing: 16) {
-                                FeatureRow(icon: "💨", text: "Send 3 legendary fart attacks")
-                                FeatureRow(icon: "🎵", text: "4 seconds of epic audio")
-                                FeatureRow(icon: "⚡", text: "Instant delivery to friends")
-                                FeatureRow(icon: "🤣", text: "Plays when they open app")
-                                FeatureRow(icon: "🔁", text: "Buy multiple packs")
-                            }
-                            .padding(.horizontal, 24)
-                            .padding(.vertical, 20)
-                            .background(Color.white.opacity(0.05))
-                        }
-                        .background(Color.white.opacity(0.05))
-                        .cornerRadius(20)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 20)
-                                .stroke(Color.yellow.opacity(0.3), lineWidth: 2)
-                        )
-                        .padding(.horizontal)
-                        
-                        // Purchase Button
-                        Button(action: {
-                            purchase()
-                        }) {
-                            HStack(spacing: 12) {
-                                if purchasing {
-                                    ProgressView()
-                                        .tint(.black)
-                                } else {
-                                    Image(systemName: "cart.fill")
-                                        .font(.title3)
-                                    Text("Buy 3 Attacks for $1.99")
-                                        .font(.headline)
+                        // Single Product Card
+                        if let product = storeKitManager.getFartAttackProduct() {
+                            VStack(spacing: 0) {
+                                VStack(spacing: 16) {
+                                    Text("💨")
+                                        .font(.system(size: 80))
+                                    
+                                    Text("\(FartAttackPack.attacksPerPack) Fart Attacks")
+                                        .font(.title)
                                         .fontWeight(.bold)
+                                        .foregroundColor(.white)
+                                    
+                                    Text(product.displayPrice)
+                                        .font(.system(size: 40, weight: .black))
+                                        .foregroundColor(.yellow)
                                 }
+                                .padding(.vertical, 24)
+                                
+                                VStack(alignment: .leading, spacing: 16) {
+                                    FeatureRow(icon: "💨", text: "Send \(FartAttackPack.attacksPerPack) legendary fart attacks")
+                                    FeatureRow(icon: "🎵", text: "4 seconds of epic audio")
+                                    FeatureRow(icon: "⚡", text: "Instant delivery to friends")
+                                    FeatureRow(icon: "🤣", text: "Plays when they open app")
+                                }
+                                .padding(.horizontal, 24)
+                                .padding(.vertical, 20)
+                                .background(Color.white.opacity(0.05))
                             }
-                            .foregroundColor(.black)
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color.yellow)
-                            .cornerRadius(16)
+                            .background(Color.white.opacity(0.05))
+                            .cornerRadius(20)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 20)
+                                    .stroke(Color.yellow.opacity(0.3), lineWidth: 2)
+                            )
+                            .padding(.horizontal)
+                            
+                            Button(action: {
+                                purchase()
+                            }) {
+                                HStack(spacing: 12) {
+                                    if purchasing {
+                                        ProgressView()
+                                            .tint(.black)
+                                    } else {
+                                        Image(systemName: "cart.fill")
+                                            .font(.title3)
+                                        Text("Buy \(FartAttackPack.attacksPerPack) Attacks for \(product.displayPrice)")
+                                            .font(.headline)
+                                            .fontWeight(.bold)
+                                    }
+                                }
+                                .foregroundColor(.black)
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(Color.yellow)
+                                .cornerRadius(16)
+                            }
+                            .disabled(purchasing || storeKitManager.isLoading)
+                            .padding(.horizontal)
+                        } else {
+                            // Loading products
+                            ProgressView("Loading...")
+                                .tint(.white)
+                                .padding()
                         }
-                        .disabled(purchasing || storeKitManager.isLoading)
-                        .padding(.horizontal)
                         
                         // Info text
                         VStack(spacing: 8) {
@@ -212,24 +215,21 @@ struct FartAttackShopView: View {
     }
     
     private func purchase() {
+        guard let product = storeKitManager.getFartAttackProduct() else {
+            errorMessage = "Product not available"
+            showingError = true
+            return
+        }
+        
         purchasing = true
         
         Task {
-            guard let product = storeKitManager.getFartAttackProduct() else {
-                await MainActor.run {
-                    errorMessage = "Product not found. Please try again."
-                    showingError = true
-                    purchasing = false
-                }
-                return
-            }
-            
             do {
                 let success = try await storeKitManager.purchase(product)
                 
                 if success, let currentUser = authManager.currentUser {
                     // Add attacks to inventory after successful purchase
-                    await fartAttackManager.addAttacksFromPurchase(for: currentUser)
+                    await fartAttackManager.addAttacksFromPurchase(for: currentUser, count: FartAttackPack.attacksPerPack)
                 }
                 
                 await MainActor.run {

@@ -21,6 +21,11 @@ struct FeedView: View {
                 Color.black.ignoresSafeArea()
                 
                 VStack(spacing: 0) {
+                    // Streak Freeze banner if available
+                    StreakFreezeBanner()
+                        .padding(.horizontal, 16)
+                        .padding(.top, 8)
+                    
                     // Segmented Picker for Friends Feed / My Feed
                     Picker("Feed Type", selection: $selectedFeedType) {
                         Text("Friends").tag(FeedType.friends)
@@ -48,6 +53,12 @@ struct FeedView: View {
                     } else {
                         ScrollView {
                             LazyVStack(spacing: 16) {
+                                // Attack Activity Highlights - top of Friends feed
+                                if selectedFeedType == .friends {
+                                    AttackActivityHighlights()
+                                        .padding(.top, 8)
+                                }
+
                                 // Fart Attack Promo Card - Show at top of Friends feed
                                 if selectedFeedType == .friends &&
                                    !UserDefaults.standard.bool(forKey: "hasDismissedFartAttackPromo") {

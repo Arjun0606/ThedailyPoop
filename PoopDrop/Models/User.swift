@@ -28,6 +28,11 @@ struct User: Identifiable, Codable {
     var isActive: Bool // Account status
     var lastSeen: Date? // Last app activity
     
+    // Streak rewards and freeze
+    var awardedStreakMilestones: Set<Int> // e.g., [7,30,100]
+    var pendingStreakFreezeUntil: Date? // if user chooses to restore within 24h
+    var streakBeforeBreak: Int? // streak value before break for restore context
+    
     // Travel tracking for badges
     var countriesVisited: Set<String> // Countries where user has dropped
     var continentsVisited: Set<String> // Continents where user has dropped
@@ -59,6 +64,9 @@ struct User: Identifiable, Codable {
         self.lastStreakDate = nil
         self.isActive = true
         self.lastSeen = Date()
+        self.awardedStreakMilestones = []
+        self.pendingStreakFreezeUntil = nil
+        self.streakBeforeBreak = nil
         self.countriesVisited = []
         self.continentsVisited = []
     }
@@ -127,6 +135,13 @@ extension User {
         } else {
             self.continentsVisited = []
         }
+        if let milestonesData = record["awardedStreakMilestones"] as? Data {
+            self.awardedStreakMilestones = (try? JSONDecoder().decode(Set<Int>.self, from: milestonesData)) ?? []
+        } else {
+            self.awardedStreakMilestones = []
+        }
+        self.pendingStreakFreezeUntil = record["pendingStreakFreezeUntil"] as? Date
+        self.streakBeforeBreak = record["streakBeforeBreak"] as? Int
     }
     
     func toCKRecord() -> CKRecord {
@@ -174,6 +189,11 @@ extension User {
         if let continentsData = try? JSONEncoder().encode(continentsVisited) {
             record["continentsVisited"] = continentsData
         }
+        if let milestonesData = try? JSONEncoder().encode(awardedStreakMilestones) {
+            record["awardedStreakMilestones"] = milestonesData
+        }
+        record["pendingStreakFreezeUntil"] = pendingStreakFreezeUntil
+        record["streakBeforeBreak"] = streakBeforeBreak
         
         return record
     }

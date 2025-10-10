@@ -4,6 +4,11 @@ struct FartAttackReceivedView: View {
     let attack: FartAttack
     let onDismiss: () -> Void
     
+    @EnvironmentObject var authManager: AuthenticationManager
+    @State private var showingReactionSheet = false
+    @State private var selectedEmoji: String? = nil
+    @State private var customText: String = ""
+    @State private var isSubmitting = false
     @State private var canDismiss = false
     @State private var animationPhase = 0
     
@@ -78,12 +83,11 @@ struct FartAttackReceivedView: View {
                         .padding(.horizontal, 40)
                         
                         Button(action: {
-                            // TODO: Navigate to shop to buy revenge
-                            onDismiss()
+                            showingReactionSheet = true
                         }) {
                             HStack(spacing: 8) {
                                 Text("💨")
-                                Text("Get Revenge?")
+                                Text("React / Get Revenge?")
                                     .fontWeight(.semibold)
                             }
                             .foregroundColor(.white.opacity(0.9))
@@ -112,6 +116,12 @@ struct FartAttackReceivedView: View {
                     canDismiss = true
                 }
             }
+        }
+        .sheet(isPresented: $showingReactionSheet) {
+            AttackReactionSheet(attack: attack, onSubmitted: {
+                showingReactionSheet = false
+                onDismiss()
+            })
         }
     }
 }

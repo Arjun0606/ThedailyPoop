@@ -39,15 +39,59 @@ class FartAttackManager: ObservableObject {
                     self.inventory = loadedInventory
                 }
             }
+            
+            // After loading inventory, claim any unclaimed referral credits
+            await claimReferralCreditsIfAny(for: user)
         } catch {
             // First time - create new inventory
             print("No inventory found, creating new one")
             await MainActor.run {
                 self.inventory = FartAttackInventory(userID: user.id, availableAttacks: 0)
             }
+            
+            // Even for new inventory, claim any credits
+            await claimReferralCreditsIfAny(for: user)
         }
         
         isLoading = false
+    }
+
+    // MARK: - Referral Credits
+    private func claimReferralCreditsIfAny(for user: User) async {
+        do {
+            // Query ReferralCredit where senderID == current user and claimed == 0
+            let predicate = NSPredicate(format: "senderID == %@ AND claimed == 0", user.id)
+            let query = CKQuery(recordType: ReferralCredit.recordType, predicate: predicate)
+            let results = try await publicDatabase.records(matching: query)
+            var totalReward = 0
+            var recordsToUpdate: [CKRecord] = []
+            
+            for (_, result) in results.matchResults {
+                if case .success(let record) = result, let credit = ReferralCredit(from: record) {
+                    totalReward += max(0, credit.rewardCount)
+                    // mark as claimed
+                    record["claimed"] = 1
+                    record["claimedAt"] = Date()
+                    recordsToUpdate.append(record)
+                }
+            }
+            
+            if totalReward > 0 {
+                if inventory == nil { inventory = FartAttackInventory(userID: user.id) }
+                inventory?.addAttacks(totalReward)
+                await saveInventory()
+                print("🎉 Claimed referral rewards: +\(totalReward) attacks")
+            }
+            
+            // Save updated credit records
+            for record in recordsToUpdate {
+                do { _ = try await publicDatabase.save(record) } catch {
+                    print("⚠️ Failed to update referral credit as claimed: \(error)")
+                }
+            }
+        } catch {
+            print("⚠️ Failed to check referral credits: \(error)")
+        }
     }
     
     func saveInventory() async {
@@ -65,7 +109,7 @@ class FartAttackManager: ObservableObject {
     
     // MARK: - Purchase Handling
     
-    func addAttacksFromPurchase(for user: User, count: Int = FartAttackPack.attacksPerPack) async {
+    func addAttacksFromPurchase(for user: User, count: Int) async {
         if inventory == nil {
             inventory = FartAttackInventory(userID: user.id)
         }
@@ -74,6 +118,19 @@ class FartAttackManager: ObservableObject {
         await saveInventory()
         
         print("💨 Added \(count) fart attacks! Total: \(inventory?.availableAttacks ?? 0)")
+    }
+
+    // Award free attacks for streak milestones (7/30/100), only once each
+    func maybeAwardStreakMilestone(for user: inout User) async {
+        let milestones = [7, 30, 100]
+        for milestone in milestones where user.streak == milestone && !user.awardedStreakMilestones.contains(milestone) {
+            if inventory == nil { inventory = FartAttackInventory(userID: user.id) }
+            let reward = milestone == 7 ? 1 : (milestone == 30 ? 3 : 10)
+            inventory?.addAttacks(reward)
+            await saveInventory()
+            user.awardedStreakMilestones.insert(milestone)
+            print("🎁 Awarded \(reward) attacks for reaching \(milestone)-day streak")
+        }
     }
     
     // MARK: - Sending Attacks
@@ -120,6 +177,17 @@ class FartAttackManager: ObservableObject {
             
             // Save updated inventory
             await saveInventory()
+            
+            // Create activity: sent
+            let activity = AttackActivity(
+                attackID: attack.id,
+                type: .sent,
+                actorUserID: currentUser.id,
+                actorUsername: currentUser.username,
+                targetUserID: friend.id,
+                targetUsername: friend.username
+            )
+            do { _ = try await publicDatabase.save(activity.toCKRecord()) } catch { print("⚠️ Failed to save activity: \(error)") }
             
             return true
         } catch {
@@ -232,6 +300,22 @@ class FartAttackManager: ObservableObject {
                 // Save updated attack
                 let updatedRecord = updatedAttack.toCKRecord()
                 try await publicDatabase.save(updatedRecord)
+                
+                // Award referral credit to sender when recipient opens the link in-app
+                // One credit per attack per recipient
+                do {
+                    let credit = ReferralCredit(
+                        senderID: attack.senderID,
+                        attackID: attack.id,
+                        recipientUserID: user.id,
+                        rewardCount: 1
+                    )
+                    let creditRecord = credit.toCKRecord()
+                    try await publicDatabase.save(creditRecord)
+                    print("🎁 Referral credit awarded to sender: \(attack.senderUsername)")
+                } catch {
+                    print("⚠️ Failed to award referral credit: \(error)")
+                }
                 
                 // Add to pending attacks if not already played
                 if !attack.wasPlayed {

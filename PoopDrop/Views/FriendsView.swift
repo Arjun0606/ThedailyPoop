@@ -173,6 +173,9 @@ struct FriendsListView: View {
                         }
                     }
                 }
+
+                // Low inventory banner
+                BuyMoreBanner()
                 
                 // External Share Button - NEW
                 if attacksAvailable > 0 {
@@ -446,6 +449,7 @@ struct FriendDetailView: View {
     @EnvironmentObject var authManager: AuthenticationManager
     @StateObject private var fartAttackManager = FartAttackManager.shared
     @State private var showingPurchaseSheet = false
+    @State private var showingInvite = false
     @State private var sendingAttack = false
     @State private var showingSuccess = false
     @State private var showingError = false
@@ -492,6 +496,8 @@ struct FriendDetailView: View {
                     
                     // FART ATTACK SECTION - MOST PROMINENT
                     VStack(spacing: 16) {
+                        // Low inventory banner
+                        BuyMoreBanner()
                         // Fart Attack Button
                         if let inventory = fartAttackManager.inventory, inventory.availableAttacks > 0 {
                             if canSendAttack {
@@ -553,32 +559,44 @@ struct FriendDetailView: View {
                             }
                         } else {
                             // No attacks available - show buy button
-                            Button(action: {
-                                showingPurchaseSheet = true
-                            }) {
-                                VStack(spacing: 12) {
-                                    Text("💨")
-                                        .font(.system(size: 60))
-                                    
-                                    Text("Get Fart Attacks")
-                                        .font(.title3)
-                                        .fontWeight(.bold)
-                                    
-                                    Text("Buy 3 attacks for $1.99")
-                                        .font(.subheadline)
-                                        .foregroundColor(.white.opacity(0.8))
-                                }
-                                .foregroundColor(.white)
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 24)
-                                .background(
-                                    LinearGradient(
-                                        colors: [Color.yellow.opacity(0.8), Color.orange.opacity(0.6)],
-                                        startPoint: .topLeading,
-                                        endPoint: .bottomTrailing
+                            VStack(spacing: 12) {
+                                Button(action: { showingPurchaseSheet = true }) {
+                                    VStack(spacing: 12) {
+                                        Text("💨")
+                                            .font(.system(size: 60))
+                                        Text("Get Fart Attacks")
+                                            .font(.title3)
+                                            .fontWeight(.bold)
+                                        Text("Pick a pack: 3 / 10 / 25")
+                                            .font(.subheadline)
+                                            .foregroundColor(.white.opacity(0.8))
+                                    }
+                                    .foregroundColor(.white)
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 24)
+                                    .background(
+                                        LinearGradient(
+                                            colors: [Color.yellow.opacity(0.8), Color.orange.opacity(0.6)],
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        )
                                     )
-                                )
-                                .cornerRadius(16)
+                                    .cornerRadius(16)
+                                }
+                                
+                                // Secondary CTA: Invite friends to keep virality high
+                                Button(action: { showingInvite = true }) {
+                                    HStack(spacing: 8) {
+                                        Image(systemName: "square.and.arrow.up")
+                                        Text("Invite friends while you wait")
+                                            .fontWeight(.semibold)
+                                    }
+                                    .foregroundColor(.white)
+                                    .frame(maxWidth: .infinity)
+                                    .padding()
+                                    .background(Color.white.opacity(0.08))
+                                    .cornerRadius(12)
+                                }
                             }
                         }
                     }
@@ -633,6 +651,9 @@ struct FriendDetailView: View {
         }
         .sheet(isPresented: $showingPurchaseSheet) {
             FartAttackShopView()
+        }
+        .sheet(isPresented: $showingInvite) {
+            InviteFriendsView()
         }
     }
     

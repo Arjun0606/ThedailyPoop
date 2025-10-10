@@ -45,22 +45,39 @@ struct MainTabView: View {
                     }
                     .tag(3)
                 
-                // Fart Attacks Tab
-                FartAttackShopView()
+                // Activity Tab
+                AttackActivityFeedView()
                     .tabItem {
-                        Image(systemName: selectedTab == 4 ? "burst.fill" : "burst")
-                        Text("Attacks")
+                        Image(systemName: selectedTab == 4 ? "bolt.fill" : "bolt")
+                        Text("Activity")
                     }
                     .tag(4)
+
+                // Fart Attacks Tab
+                ZStack {
+                    FartAttackShopView()
+                    VStack {
+                        Spacer()
+                        // Inline low inventory banner on the attacks tab as well
+                        HStack { BuyMoreBanner() }
+                            .padding(.horizontal)
+                            .padding(.bottom, 90)
+                    }
+                }
+                    .tabItem {
+                        Image(systemName: selectedTab == 5 ? "burst.fill" : "burst")
+                        Text("Attacks")
+                    }
+                    .tag(5)
                     .badge(fartAttackManager.inventory?.availableAttacks ?? 0)
                 
                 // Profile Tab
                 ProfileView()
                     .tabItem {
-                        Image(systemName: selectedTab == 5 ? "person.fill" : "person")
+                        Image(systemName: selectedTab == 6 ? "person.fill" : "person")
                         Text("Profile")
                     }
-                    .tag(5)
+                    .tag(6)
             }
             .accentColor(.white)
             .onAppear {
@@ -92,7 +109,7 @@ struct MainTabView: View {
                 selectedTab = 1 // Switch to Friends tab
             }
             .onReceive(NotificationCenter.default.publisher(for: Notification.Name("SWITCH_TO_ATTACKS_TAB"))) { _ in
-                selectedTab = 4 // Switch to Attacks tab
+                selectedTab = 5 // Switch to Attacks tab (after adding Activity tab)
             }
             .onReceive(NotificationCenter.default.publisher(for: Notification.Name("OPEN_FART_ATTACK"))) { notification in
                 // Handle incoming fart attack from Universal Link
@@ -204,7 +221,7 @@ struct MainTabView: View {
                 // After onboarding, highlight the Attacks tab
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     withAnimation {
-                        selectedTab = 4 // Attacks tab
+                        selectedTab = 5 // Attacks tab (after adding Activity tab)
                     }
                 }
             }

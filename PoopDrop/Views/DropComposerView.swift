@@ -323,6 +323,9 @@ struct DropComposerView: View {
             } else {
                 // Streak broken, reset to 1
                 user.streak = 1
+                // Clear pending freeze on successful new start
+                user.pendingStreakFreezeUntil = nil
+                user.streakBeforeBreak = nil
             }
         } else {
             // First drop, start streak
@@ -343,6 +346,9 @@ struct DropComposerView: View {
         
         do {
             try await cloudKitManager.saveUser(user)
+            // Award streak milestone rewards after successful save
+            await FartAttackManager.shared.maybeAwardStreakMilestone(for: &user)
+            try? await cloudKitManager.saveUser(user)
             await MainActor.run {
                 authManager.currentUser = user
                 print("✅ User stats saved to CloudKit and updated in authManager")
@@ -361,38 +367,30 @@ struct DropComposerView: View {
     
     private func calculateLongestNoPoopStreak(userDrops: [Drop], user: inout User) {
         let calendar = Calendar.current
-        let sortedDrops = userDrops.sorted { $0.timestamp < $1.timestamp }
+        let sorted = userDrops.sorted { $0.timestamp < $1.timestamp }
+        // Count consecutive explicit no-poop entries only
+        var longest = 0
+        var current = 0
+        var lastNoPoopDay: Date? = nil
         
-        var longestStreak = 0
-        var currentStreak = 0
-        var lastDate: Date?
-        
-        for drop in sortedDrops {
-            let dropDate = drop.timestamp
-            
-            if let last = lastDate {
-                let daysDifference = calendar.dateComponents([.day], from: last, to: dropDate).day ?? 0
-                
-                if daysDifference > 1 && !drop.isNoPoop {
-                    // Gap found and it's a real poop (not no-poop)
-                    currentStreak = daysDifference - 1
-                    longestStreak = max(longestStreak, currentStreak)
-                    currentStreak = 0
+        for drop in sorted where drop.isNoPoop {
+            let day = calendar.startOfDay(for: drop.timestamp)
+            if let last = lastNoPoopDay {
+                let diff = calendar.dateComponents([.day], from: last, to: day).day ?? 0
+                if diff == 1 {
+                    current += 1
+                } else if diff == 0 {
+                    // multiple entries same day -> ignore
+                } else {
+                    current = 1
                 }
+            } else {
+                current = 1
             }
-            
-            lastDate = dropDate
+            longest = max(longest, current)
+            lastNoPoopDay = day
         }
-        
-        // Check current gap from last drop to today
-        if let lastDate = lastDate {
-            let daysSinceLastDrop = calendar.dateComponents([.day], from: lastDate, to: Date()).day ?? 0
-            if daysSinceLastDrop > 0 {
-                longestStreak = max(longestStreak, daysSinceLastDrop)
-            }
-        }
-        
-        user.longestNoPoopStreak = max(user.longestNoPoopStreak, longestStreak)
+        user.longestNoPoopStreak = longest
     }
     
     private func updateTravelStats(for user: inout User, location: CLLocation) async {

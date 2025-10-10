@@ -26,6 +26,8 @@ struct ExternalFartAttackView: View {
                 
                 ScrollView {
                     VStack(spacing: 24) {
+                        // Low inventory banner
+                        BuyMoreBanner()
                         // Header
                         VStack(spacing: 12) {
                             Text("💨")
@@ -118,7 +120,15 @@ struct ExternalFartAttackView: View {
                         .padding(.horizontal)
                         
                         // Send button
-                        Button(action: createAndShare) {
+                        Button(action: {
+                            if attacksAvailable == 0 {
+                                // Present shop when empty to keep flow unblocked
+                                showingShareSheet = false
+                                // Use Notification to open shop via any listener or present inline modal later
+                            } else {
+                                createAndShare()
+                            }
+                        }) {
                             if isCreatingAttack {
                                 ProgressView()
                                     .progressViewStyle(CircularProgressViewStyle(tint: .black))
@@ -141,7 +151,7 @@ struct ExternalFartAttackView: View {
                                 .cornerRadius(16)
                             }
                         }
-                        .disabled(isCreatingAttack || attacksAvailable == 0 || recipientName.isEmpty)
+                        .disabled(isCreatingAttack || recipientName.isEmpty)
                         .padding(.horizontal)
                         
                         Spacer(minLength: 40)
@@ -170,7 +180,7 @@ struct ExternalFartAttackView: View {
             .sheet(isPresented: $showingShareSheet) {
                 if let shareURL = shareURL {
                     ShareSheet(items: [
-                        "You've been fart attacked! 💨😂 Click here: \(shareURL.absoluteString)"
+                        "🤫 Tap to see a message from \(authManager.currentUser?.username ?? "a friend")... \(shareURL.absoluteString)"
                     ])
                 }
             }

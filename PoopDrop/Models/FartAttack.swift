@@ -284,11 +284,9 @@ extension FartAttackInventory {
 
 // MARK: - Fart Attack Pack Product
 struct FartAttackPack {
-    static let productID = "com.thedailypoop.fartattack.pack"
+    static let productID = "com.thedailypoop.fartattack.pack" // Single $1.99 pack
     static let attacksPerPack = 3
-    static let price = 1.99
     static let name = "Fart Attack Pack"
-    static let description = "Send 3 legendary fart attacks to your friends! 💨"
     static let emoji = "💨"
 }
 

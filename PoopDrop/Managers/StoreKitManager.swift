@@ -13,10 +13,15 @@ class StoreKitManager: ObservableObject {
     
     private var updateListenerTask: Task<Void, Error>?
     
-    // All fart attack pack product IDs
-    private let fartAttackProductIDs = [
-        "com.thedailypoop.fartattack.pack"
-    ]
+    // Single fart attack pack product ID
+    private let fartAttackProductID = FartAttackPack.productID
+
+    // Streak Freeze one-time product
+    private let streakFreezeProductID = "com.thedailypoop.streak.freeze"
+
+    private var allProductIDs: [String] {
+        [fartAttackProductID, streakFreezeProductID]
+    }
     
     private init() {
         updateListenerTask = listenForTransactions()
@@ -42,9 +47,8 @@ class StoreKitManager: ObservableObject {
                 }
                 
                 // Fart attack pack purchased
-                // Note: Inventory is updated in the UI layer where we have access to current user
-                if transaction.productID == "com.thedailypoop.fartattack.pack" {
-                    print("✅ Fart attack pack transaction verified")
+                if transaction.productID == await self.fartAttackProductID {
+                    print("✅ Fart attack pack transaction verified: \(transaction.productID)")
                 }
                     
                     await transaction.finish()
@@ -61,7 +65,7 @@ class StoreKitManager: ObservableObject {
         errorMessage = nil
         
         do {
-            let storeProducts = try await Product.products(for: fartAttackProductIDs)
+            let storeProducts = try await Product.products(for: allProductIDs)
             
             await MainActor.run {
                 self.availableProducts = storeProducts.sorted { $0.price < $1.price }
@@ -98,9 +102,8 @@ class StoreKitManager: ObservableObject {
                 }
                 
                 // Fart attack pack purchased
-                // Note: Inventory is updated in the UI layer where we have access to current user
-                if transaction.productID == "com.thedailypoop.fartattack.pack" {
-                    print("✅ Fart attack pack transaction verified")
+                if transaction.productID == fartAttackProductID {
+                    print("✅ Fart attack pack transaction verified: \(transaction.productID)")
                 }
                 
                 await transaction.finish()
@@ -190,7 +193,11 @@ class StoreKitManager: ObservableObject {
     }
     
     func getFartAttackProduct() -> Product? {
-        return availableProducts.first { $0.id == "com.thedailypoop.fartattack.pack" }
+        return availableProducts.first { $0.id == fartAttackProductID }
+    }
+
+    func getStreakFreezeProduct() -> Product? {
+        return availableProducts.first { $0.id == streakFreezeProductID }
     }
 }
 

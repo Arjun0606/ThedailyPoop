@@ -488,6 +488,95 @@ class NotificationManager: ObservableObject {
         }
     }
     
+    // MARK: - Comeback/Retention Notifications
+    
+    /// Send "comeback" notification when user hasn't opened app in 24+ hours
+    func sendComebackNotification(to user: User, friendsActive: Int = 0) async {
+        guard isAuthorized else { return }
+        
+        let content = UNMutableNotificationContent()
+        
+        if friendsActive > 0 {
+            content.title = "Your friends miss you! 👋"
+            content.body = "\(friendsActive) friends are active today. Don't miss out on the fun!"
+        } else {
+            content.title = "Come back! 💩"
+            content.body = "Your streak is waiting. Keep it alive!"
+        }
+        
+        content.sound = UNNotificationSound(named: UNNotificationSoundName("gentle_chime.wav"))
+        content.userInfo = ["type": "comeback"]
+        content.badge = 1
+        
+        // Trigger in 1 minute (for testing, would be 24-48 hours in production)
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 60, repeats: false)
+        
+        let request = UNNotificationRequest(
+            identifier: "comeback_\(user.id)_\(Date().timeIntervalSince1970)",
+            content: content,
+            trigger: trigger
+        )
+        
+        try? await UNUserNotificationCenter.current().add(request)
+        print("🔔 Comeback notification scheduled for \(user.username)")
+    }
+    
+    /// Notify when friends are online (creates urgency)
+    func sendFriendsActiveNotification(to user: User, activeFriends: [User]) async {
+        guard isAuthorized, activeFriends.count > 0 else { return }
+        
+        let content = UNMutableNotificationContent()
+        content.title = "Friends are online now! 🟢"
+        
+        if activeFriends.count == 1 {
+            content.body = "\(activeFriends[0].username) is dropping poops right now. Join them!"
+        } else if activeFriends.count == 2 {
+            content.body = "\(activeFriends[0].username) and \(activeFriends[1].username) are active. Join the party!"
+        } else {
+            content.body = "\(activeFriends.count) friends are active. Don't miss out!"
+        }
+        
+        content.sound = UNNotificationSound(named: UNNotificationSoundName("gentle_chime.wav"))
+        content.userInfo = ["type": "friends_active", "count": activeFriends.count]
+        content.badge = 1
+        
+        let request = UNNotificationRequest(
+            identifier: "friends_active_\(user.id)_\(Date().timeIntervalSince1970)",
+            content: content,
+            trigger: nil
+        )
+        
+        try? await UNUserNotificationCenter.current().add(request)
+    }
+    
+    /// Notify about weekly leaderboard ranking
+    func sendWeeklyLeaderboardNotification(to user: User, rank: Int, totalPlayers: Int) async {
+        guard isAuthorized else { return }
+        
+        let content = UNMutableNotificationContent()
+        content.title = "Weekly Leaderboard Update! 🏆"
+        
+        if rank <= 3 {
+            content.body = "You're #\(rank)! Stay on top by sending more attacks!"
+        } else if rank <= 10 {
+            content.body = "You're #\(rank). Keep climbing to reach the top 3!"
+        } else {
+            content.body = "You're #\(rank) of \(totalPlayers). Buy attacks to climb faster!"
+        }
+        
+        content.sound = UNNotificationSound(named: UNNotificationSoundName("celebration.wav"))
+        content.userInfo = ["type": "leaderboard", "rank": rank]
+        content.badge = 1
+        
+        let request = UNNotificationRequest(
+            identifier: "leaderboard_\(user.id)_\(Date().timeIntervalSince1970)",
+            content: content,
+            trigger: nil
+        )
+        
+        try? await UNUserNotificationCenter.current().add(request)
+    }
+    
     // MARK: - Badge Management
     
     func updateAppBadge(count: Int) {

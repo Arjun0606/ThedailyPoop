@@ -51,7 +51,8 @@ def add_file_to_project(content, file_path, group_name):
     group_patterns = {
         'Models': r'(/\* Models \*/ = \{[^}]+children = \([^)]+)(\);)',
         'Managers': r'(/\* Managers \*/ = \{[^}]+children = \([^)]+)(\);)',
-        'Views': r'(/\* Views \*/ = \{[^}]+children = \([^)]+)(\);)'
+        'Views': r'(/\* Views \*/ = \{[^}]+children = \([^)]+)(\);)',
+        'Components': r'(/\* Components \*/ = \{[^}]+children = \([^)]+)(\);)'
     }
     
     if group_name in group_patterns:
@@ -73,22 +74,27 @@ def main():
     missing_files = {
         'Managers': [
             'AdManager.swift',
+            'AnalyticsManager.swift',
             'AnimationManager.swift', 
             'FartAttackManager.swift',
             'FriendsManager.swift',
             'NotificationHandler.swift',
             'NotificationManager.swift',
+            'SmartPermissionManager.swift',
             'StoreKitManager.swift'
         ],
         'Models': [
+            'AttackActivity.swift',
             'Badge.swift',
             'FartAttack.swift',
             'Friendship.swift',
             'Notification.swift',
             'Reaction.swift',
+            'ReferralCredit.swift',
             'UserSession.swift'
         ],
         'Views': [
+            'AttackActivityFeedView.swift',
             'ExternalFartAttackView.swift',
             'FartAttackOnboardingView.swift',
             'FartAttackPromoCard.swift',
@@ -101,7 +107,14 @@ def main():
             'ProfileSetupView.swift',
             'SnapchatStyleMapView.swift',
             'StreakView.swift',
-            'TryProView.swift'
+            'TryProView.swift',
+            'WeeklyLeaderboardView.swift'
+        ],
+        'Components': [
+            'AttackActivityHighlights.swift',
+            'AttackReactionSheet.swift',
+            'BuyMoreBanner.swift',
+            'StreakFreezeBanner.swift'
         ]
     }
     
@@ -111,7 +124,12 @@ def main():
     # Add each missing file
     for group, files in missing_files.items():
         for file_name in files:
-            file_path = f"PoopDrop/{group}/{file_name}" if group != 'Views' else f"PoopDrop/Views/{file_name}"
+            if group == 'Components':
+                file_path = f"PoopDrop/Views/Components/{file_name}"
+            elif group == 'Views':
+                file_path = f"PoopDrop/Views/{file_name}"
+            else:
+                file_path = f"PoopDrop/{group}/{file_name}"
             print(f"Adding {file_name} to {group} group...")
             content = add_file_to_project(content, file_path, group)
     
