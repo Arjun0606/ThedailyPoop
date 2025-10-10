@@ -46,7 +46,7 @@ struct StreakFreezeBanner: View {
                             .font(.headline.bold())
                             .foregroundColor(.primary)
                         
-                        Text("Save your \(user.currentStreak)-day streak with a Streak Freeze")
+                        Text("Save your streak with a Streak Freeze")
                             .font(.subheadline)
                             .foregroundColor(.secondary)
                         
