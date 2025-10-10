@@ -193,9 +193,9 @@ class FartAttackManager: ObservableObject {
             // Save updated inventory
             await saveInventory()
             
-            // Generate share URL (Universal Link)
-            // Format: https://thedailypoop.app/fart/[attackID]
-            if let shareURL = URL(string: "https://thedailypoop.app/fart/\(attackID)") {
+            // Generate share URL (GitHub Pages)
+            // Format: https://arjun0606.github.io/ThedailyPoop/fart/?id=[attackID]&sender=[username]
+            if let shareURL = URL(string: "https://arjun0606.github.io/ThedailyPoop/fart/?id=\(attackID)&sender=\(currentUser.username)") {
                 return (true, shareURL, attackID)
             }
             
