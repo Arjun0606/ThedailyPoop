@@ -176,7 +176,7 @@ struct FriendsListView: View {
                 }
 
                 // Low inventory banner
-                BuyMoreBanner()
+                BuyMoreBanner(selectedTab: $selectedTab)
                 
                 // External Share Button - NEW
                 if attacksAvailable > 0 {
