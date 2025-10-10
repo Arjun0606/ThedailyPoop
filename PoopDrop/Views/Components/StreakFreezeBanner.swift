@@ -130,7 +130,7 @@ struct StreakFreezeBanner: View {
                     var updatedUser = user
                     updatedUser.pendingStreakFreezeUntil = nil
                     
-                    try await cloudKitManager.updateUser(updatedUser)
+                    try await cloudKitManager.saveUser(updatedUser)
                     
                     await MainActor.run {
                         authManager.currentUser = updatedUser
@@ -158,7 +158,7 @@ struct StreakFreezeBanner: View {
         
         Task {
             do {
-                try await cloudKitManager.updateUser(user)
+                try await cloudKitManager.saveUser(user)
                 await MainActor.run {
                     authManager.currentUser = user
                 }

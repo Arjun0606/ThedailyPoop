@@ -118,10 +118,11 @@ struct FartAttackReceivedView: View {
             }
         }
         .sheet(isPresented: $showingReactionSheet) {
-            AttackReactionSheet(attack: attack, onSubmitted: {
-                showingReactionSheet = false
-                onDismiss()
-            })
+            AttackReactionSheet(attack: attack)
+                .onDisappear {
+                    showingReactionSheet = false
+                    onDismiss()
+                }
         }
     }
 }
