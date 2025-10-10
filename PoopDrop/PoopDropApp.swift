@@ -10,6 +10,7 @@ struct TheDailyPoopApp: App {
     @StateObject private var cloudKitManager = CloudKitManager()
     @StateObject private var locationManager = LocationManager()
     @StateObject private var fartAttackManager = FartAttackManager.shared
+    @StateObject private var friendsManager = FriendsManager()
     private let notificationHandler = NotificationHandler()
     
     init() {
@@ -25,6 +26,7 @@ struct TheDailyPoopApp: App {
                 .environmentObject(cloudKitManager)
                 .environmentObject(locationManager)
                 .environmentObject(fartAttackManager)
+                .environmentObject(friendsManager)
                 .preferredColorScheme(.dark) // Dark-mode first
                 .onAppear {
                     setupApp()
