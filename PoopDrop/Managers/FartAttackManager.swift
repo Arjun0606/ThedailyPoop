@@ -30,7 +30,8 @@ class FartAttackManager: ObservableObject {
         isLoading = true
         
         do {
-            let recordID = CKRecord.ID(recordName: user.id)
+            // Use "inventory_" prefix to avoid conflict with User records
+            let recordID = CKRecord.ID(recordName: "inventory_\(user.id)")
             let record = try await privateDatabase.record(for: recordID)
             
             if let loadedInventory = FartAttackInventory(from: record) {

@@ -259,7 +259,8 @@ extension FartAttackInventory {
     }
     
     func toCKRecord() -> CKRecord {
-        let record = CKRecord(recordType: FartAttackInventory.recordType, recordID: CKRecord.ID(recordName: userID))
+        // Use "inventory_" prefix to avoid conflict with User records
+        let record = CKRecord(recordType: FartAttackInventory.recordType, recordID: CKRecord.ID(recordName: "inventory_\(userID)"))
         record["userID"] = userID
         record["availableAttacks"] = availableAttacks
         record["lastUpdated"] = lastUpdated
