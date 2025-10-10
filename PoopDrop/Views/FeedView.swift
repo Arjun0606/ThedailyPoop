@@ -114,9 +114,6 @@ struct FeedView: View {
         .onAppear {
             loadInitialFriendDrops()
             loadMyDrops()
-            
-            adManager.loadNativeAd()
-            adManager.loadInterstitialAd() // Preload interstitial
         }
         .onReceive(NotificationCenter.default.publisher(for: Notification.Name("USER_STATS_UPDATED"))) { _ in
             // Refresh my drops when user creates a new drop
