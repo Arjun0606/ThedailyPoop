@@ -371,7 +371,7 @@ struct FriendRowView: View {
     let friend: User
     
     var body: some View {
-        NavigationLink(destination: FriendDetailView(friend: friend)) {
+                        NavigationLink(destination: FriendDetailView(friend: friend, selectedTab: $selectedTab)) {
         HStack(spacing: 12) {
             // Profile picture
             Circle()
