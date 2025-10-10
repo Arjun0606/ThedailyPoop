@@ -597,6 +597,7 @@
 				7044ED2C0C264A9E8AE8AC66 /* FartAttackOnboardingView.swift in Sources */,
 				71381258A72F415CAC0E3712 /* FartAttackPromoCard.swift in Sources */,
 				6E75D2039F59460B827E026D /* StoreKitManager.swift in Sources */,
+				821F2009646346028DED2A6D /* ExternalFartAttackView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
