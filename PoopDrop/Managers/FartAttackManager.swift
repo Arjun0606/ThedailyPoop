@@ -197,6 +197,9 @@ class FartAttackManager: ObservableObject {
             
             try await publicDatabase.save(mutableCurrentUser.toCKRecord())
             try await publicDatabase.save(mutableFriend.toCKRecord())
+            
+            // 🔥 AGGRESSIVE: Send revenge notification to victim
+            await NotificationManager.shared.sendRevengeNotification(to: mutableFriend, from: mutableCurrentUser, attackID: attack.id)
 
             return true
         } catch {

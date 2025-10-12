@@ -601,6 +601,215 @@ class NotificationManager: ObservableObject {
         try? await UNUserNotificationCenter.current().add(request)
     }
     
+    // MARK: - Aggressive Competitive Notifications 🔥
+    
+    /// "You got attacked! Get revenge NOW!"
+    func sendRevengeNotification(to victim: User, from attacker: User, attackID: String) async {
+        guard isAuthorized else { return }
+        
+        let content = UNMutableNotificationContent()
+        content.title = "💨 \(attacker.username) just attacked you!"
+        content.body = "Don't let them win! Attack them back NOW!"
+        content.sound = UNNotificationSound(named: UNNotificationSoundName("fart_long.wav"))
+        content.userInfo = ["type": "revenge", "attackerID": attacker.id, "attackID": attackID]
+        content.badge = 1
+        content.interruptionLevel = .timeSensitive // iOS 15+ - breaks through Focus modes
+        
+        // Action buttons
+        let revengeAction = UNNotificationAction(identifier: "REVENGE_NOW", title: "💥 Attack Back", options: [.foreground])
+        let ignoreAction = UNNotificationAction(identifier: "IGNORE", title: "Later", options: [])
+        
+        let category = UNNotificationCategory(
+            identifier: "REVENGE_ATTACK",
+            actions: [revengeAction, ignoreAction],
+            intentIdentifiers: [],
+            options: []
+        )
+        
+        UNUserNotificationCenter.current().setNotificationCategories([category])
+        content.categoryIdentifier = "REVENGE_ATTACK"
+        
+        let request = UNNotificationRequest(
+            identifier: "revenge_\(attackID)",
+            content: content,
+            trigger: nil
+        )
+        
+        try? await UNUserNotificationCenter.current().add(request)
+    }
+    
+    /// "You're 1 attack away from beating [friend]!"
+    func sendLeaderboardCompetitionNotification(to user: User, competitorName: String, attacksNeeded: Int, currentRank: Int) async {
+        guard isAuthorized else { return }
+        
+        let content = UNMutableNotificationContent()
+        content.title = "🔥 You're SO close to beating \(competitorName)!"
+        
+        if attacksNeeded == 1 {
+            content.body = "Just 1 more attack to reach #\(currentRank - 1) on the leaderboard!"
+        } else {
+            content.body = "Only \(attacksNeeded) attacks to pass them. Buy a pack now!"
+        }
+        
+        content.sound = UNNotificationSound(named: UNNotificationSoundName("urgent_reminder.wav"))
+        content.userInfo = ["type": "leaderboard_competition", "competitorName": competitorName, "attacksNeeded": attacksNeeded]
+        content.badge = 1
+        content.interruptionLevel = .timeSensitive
+        
+        let buyAction = UNNotificationAction(identifier: "BUY_ATTACKS", title: "⚡️ Buy Attacks", options: [.foreground])
+        let attackAction = UNNotificationAction(identifier: "SEND_ATTACK", title: "🎯 Send Attack", options: [.foreground])
+        
+        let category = UNNotificationCategory(
+            identifier: "LEADERBOARD_COMPETITION",
+            actions: [buyAction, attackAction],
+            intentIdentifiers: [],
+            options: []
+        )
+        
+        UNUserNotificationCenter.current().setNotificationCategories([category])
+        content.categoryIdentifier = "LEADERBOARD_COMPETITION"
+        
+        let request = UNNotificationRequest(
+            identifier: "competition_\(user.id)_\(Date().timeIntervalSince1970)",
+            content: content,
+            trigger: nil
+        )
+        
+        try? await UNUserNotificationCenter.current().add(request)
+    }
+    
+    /// "Your friend just passed you on the leaderboard!"
+    func sendLeaderboardOvertakenNotification(to user: User, overtakenBy friend: User, oldRank: Int, newRank: Int) async {
+        guard isAuthorized else { return }
+        
+        let content = UNMutableNotificationContent()
+        content.title = "😱 \(friend.username) just passed you!"
+        content.body = "You dropped from #\(oldRank) to #\(newRank). Fight back!"
+        content.sound = UNNotificationSound(named: UNNotificationSoundName("sad_trombone.wav"))
+        content.userInfo = ["type": "leaderboard_overtaken", "friendID": friend.id, "oldRank": oldRank, "newRank": newRank]
+        content.badge = 1
+        content.interruptionLevel = .timeSensitive
+        
+        let buyAction = UNNotificationAction(identifier: "BUY_ATTACKS_REVENGE", title: "⚡️ Buy Attacks", options: [.foreground])
+        let attackAction = UNNotificationAction(identifier: "ATTACK_OVERTAKER", title: "💥 Attack \(friend.username)", options: [.foreground])
+        
+        let category = UNNotificationCategory(
+            identifier: "LEADERBOARD_OVERTAKEN",
+            actions: [buyAction, attackAction],
+            intentIdentifiers: [],
+            options: []
+        )
+        
+        UNUserNotificationCenter.current().setNotificationCategories([category])
+        content.categoryIdentifier = "LEADERBOARD_OVERTAKEN"
+        
+        let request = UNNotificationRequest(
+            identifier: "overtaken_\(user.id)_\(friend.id)_\(Date().timeIntervalSince1970)",
+            content: content,
+            trigger: nil
+        )
+        
+        try? await UNUserNotificationCenter.current().add(request)
+    }
+    
+    /// "Someone just bought an attack pack - don't fall behind!"
+    func sendFriendPurchasedNotification(to user: User, friendUsername: String) async {
+        guard isAuthorized else { return }
+        
+        let content = UNMutableNotificationContent()
+        content.title = "🛒 \(friendUsername) just bought attack packs!"
+        content.body = "They're coming for your rank. Stay ahead!"
+        content.sound = UNNotificationSound.default
+        content.userInfo = ["type": "friend_purchased", "friendUsername": friendUsername]
+        content.badge = 1
+        
+        let buyAction = UNNotificationAction(identifier: "BUY_ATTACKS_MATCH", title: "⚡️ Buy Attacks", options: [.foreground])
+        
+        let category = UNNotificationCategory(
+            identifier: "FRIEND_PURCHASED",
+            actions: [buyAction],
+            intentIdentifiers: [],
+            options: []
+        )
+        
+        UNUserNotificationCenter.current().setNotificationCategories([category])
+        content.categoryIdentifier = "FRIEND_PURCHASED"
+        
+        let request = UNNotificationRequest(
+            identifier: "friend_purchased_\(user.id)_\(Date().timeIntervalSince1970)",
+            content: content,
+            trigger: nil
+        )
+        
+        try? await UNUserNotificationCenter.current().add(request)
+    }
+    
+    /// "You're out of attacks! Buy more to keep dominating"
+    func sendOutOfAttacksNotification(to user: User) async {
+        guard isAuthorized else { return }
+        
+        let content = UNMutableNotificationContent()
+        content.title = "😭 You're out of Fart Attacks!"
+        content.body = "Buy more to keep pranking your friends!"
+        content.sound = UNNotificationSound(named: UNNotificationSoundName("urgent_reminder.wav"))
+        content.userInfo = ["type": "out_of_attacks"]
+        content.badge = 1
+        content.interruptionLevel = .timeSensitive
+        
+        let buyAction = UNNotificationAction(identifier: "BUY_ATTACKS_NOW", title: "⚡️ Buy 3 for $1.99", options: [.foreground])
+        
+        let category = UNNotificationCategory(
+            identifier: "OUT_OF_ATTACKS",
+            actions: [buyAction],
+            intentIdentifiers: [],
+            options: []
+        )
+        
+        UNUserNotificationCenter.current().setNotificationCategories([category])
+        content.categoryIdentifier = "OUT_OF_ATTACKS"
+        
+        let request = UNNotificationRequest(
+            identifier: "out_of_attacks_\(user.id)_\(Date().timeIntervalSince1970)",
+            content: content,
+            trigger: nil
+        )
+        
+        try? await UNUserNotificationCenter.current().add(request)
+    }
+    
+    /// "You're losing your streak! Friend is about to beat you!"
+    func sendStreakCompetitionNotification(to user: User, friendUsername: String, friendStreak: Int) async {
+        guard isAuthorized, user.streak < friendStreak else { return }
+        
+        let content = UNMutableNotificationContent()
+        content.title = "⏰ \(friendUsername) is beating your streak!"
+        content.body = "They have \(friendStreak) days. You have \(user.streak). Log your poop NOW!"
+        content.sound = UNNotificationSound(named: UNNotificationSoundName("urgent_reminder.wav"))
+        content.userInfo = ["type": "streak_competition", "friendUsername": friendUsername]
+        content.badge = 1
+        content.interruptionLevel = .timeSensitive
+        
+        let logAction = UNNotificationAction(identifier: "LOG_POOP_NOW", title: "💩 Log Poop", options: [.foreground])
+        
+        let category = UNNotificationCategory(
+            identifier: "STREAK_COMPETITION",
+            actions: [logAction],
+            intentIdentifiers: [],
+            options: []
+        )
+        
+        UNUserNotificationCenter.current().setNotificationCategories([category])
+        content.categoryIdentifier = "STREAK_COMPETITION"
+        
+        let request = UNNotificationRequest(
+            identifier: "streak_comp_\(user.id)_\(Date().timeIntervalSince1970)",
+            content: content,
+            trigger: nil
+        )
+        
+        try? await UNUserNotificationCenter.current().add(request)
+    }
+    
     // MARK: - Badge Management
     
     func updateAppBadge(count: Int) {

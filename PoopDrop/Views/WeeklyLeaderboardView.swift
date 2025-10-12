@@ -46,6 +46,13 @@ struct WeeklyLeaderboardView: View {
                             .padding(.top, 20)
                             .padding(.bottom, 30)
                             
+                            // Competitive messaging banner
+                            if let rank = currentUserRank, rank > 1 {
+                                competitiveMessageBanner(rank: rank)
+                                    .padding(.horizontal)
+                                    .padding(.bottom, 16)
+                            }
+                            
                             // Your rank (if not in top 10)
                             if let rank = currentUserRank, rank > 10 {
                                 HStack {
@@ -92,22 +99,43 @@ struct WeeklyLeaderboardView: View {
                             .padding(.horizontal)
                             
                             // CTA to buy more attacks
-                            VStack(spacing: 12) {
-                                Text("Climb the ranks faster")
-                                    .font(.headline)
+                            VStack(spacing: 16) {
+                                // Social proof
+                                HStack(spacing: 4) {
+                                    Text("⚡️")
+                                    Text("Top pranksters buy attack packs")
+                                        .font(.caption)
+                                        .foregroundColor(.gray)
+                                }
+                                
+                                Text("Dominate the Leaderboard")
+                                    .font(.title3.bold())
                                     .foregroundColor(.white)
                                 
                                 NavigationLink(destination: FartAttackShopView()) {
-                                    HStack {
-                                        Image(systemName: "cart.fill")
-                                        Text("Get More Attacks")
-                                            .fontWeight(.bold)
+                                    VStack(spacing: 8) {
+                                        HStack(spacing: 8) {
+                                            Image(systemName: "bolt.fill")
+                                            Text("Get 3 Attacks for $1.99")
+                                                .fontWeight(.bold)
+                                        }
+                                        .font(.headline)
+                                        
+                                        Text("🔥 Instantly climb the ranks")
+                                            .font(.caption)
                                     }
                                     .foregroundColor(.black)
                                     .frame(maxWidth: .infinity)
                                     .padding()
-                                    .background(Color.yellow)
+                                    .background(
+                                        LinearGradient(
+                                            colors: [Color.yellow, Color.orange],
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        )
+                                    )
                                     .cornerRadius(12)
+                                    .shadow(color: Color.yellow.opacity(0.3), radius: 10, x: 0, y: 5)
                                 }
                             }
                             .padding(.horizontal)
@@ -127,53 +155,95 @@ struct WeeklyLeaderboardView: View {
         }
     }
     
+    // MARK: - Competitive Messaging
+    
+    @ViewBuilder
+    private func competitiveMessageBanner(rank: Int) -> some View {
+        if let currentEntry = leaderboard.first(where: { $0.userID == authManager.currentUser?.id }),
+           rank > 1,
+           let nextPersonUp = leaderboard.first(where: { leaderboard.firstIndex(where: { $0.userID == $0.userID }) == rank - 2 }) {
+            
+            let attacksNeeded = nextPersonUp.attacksSent - currentEntry.attacksSent + 1
+            
+            VStack(spacing: 12) {
+                HStack(spacing: 8) {
+                    Text("🔥")
+                        .font(.title2)
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("You're #\(rank)!")
+                            .font(.headline.bold())
+                            .foregroundColor(.white)
+                        if attacksNeeded <= 5 {
+                            Text("Send \(attacksNeeded) more attack\(attacksNeeded == 1 ? "" : "s") to beat \(nextPersonUp.username)!")
+                                .font(.subheadline)
+                                .foregroundColor(.orange)
+                        } else {
+                            Text("\(nextPersonUp.username) is ahead by \(attacksNeeded) attacks")
+                                .font(.subheadline)
+                                .foregroundColor(.gray)
+                        }
+                    }
+                    Spacer()
+                }
+                
+                // Inline CTA if close to next rank
+                if attacksNeeded <= 5 {
+                    NavigationLink(destination: FartAttackShopView()) {
+                        HStack(spacing: 8) {
+                            Image(systemName: "bolt.fill")
+                            Text("Get 3 Attacks Now")
+                                .fontWeight(.bold)
+                        }
+                        .font(.subheadline)
+                        .foregroundColor(.black)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 10)
+                        .background(
+                            LinearGradient(
+                                colors: [Color.yellow, Color.orange],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                        )
+                        .cornerRadius(8)
+                    }
+                }
+            }
+            .padding()
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color.orange.opacity(0.15))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color.orange.opacity(0.5), lineWidth: 2)
+                    )
+            )
+        }
+    }
+    
     private func loadLeaderboard() async {
-        guard let currentUserID = authManager.currentUser?.id else { return }
+        guard let currentUser = authManager.currentUser else { return }
         
         isLoading = true
         
         do {
-            // Get list of friend IDs + current user
-            var userIDs = friendsManager.friends.map { $0.id }
-            userIDs.append(currentUserID)
+            // Fetch all friends from CloudKit
+            let friends = try await CloudKitManager.shared.fetchFriends(for: currentUser)
             
-            // Query AttackActivity for "sent" events in the last 7 days
-            let weekAgo = Calendar.current.date(byAdding: .day, value: -7, to: Date()) ?? Date()
-            let predicate = NSPredicate(format: "type == %@ AND senderID IN %@ AND timestamp >= %@", 
-                                       "sent", userIDs, weekAgo as NSDate)
-            let query = CKQuery(recordType: "AttackActivity", predicate: predicate)
+            // Create entries from friends + current user
+            var allUsers = friends
+            allUsers.append(currentUser)
             
-            let container = CKContainer.default()
-            let database = container.publicCloudDatabase
-            let results = try await database.records(matching: query, resultsLimit: 500)
-            
-            // Count attacks per user
-            var attackCounts: [String: (username: String, count: Int)] = [:]
-            
-            for (_, result) in results.matchResults {
-                if case .success(let record) = result,
-                   let senderID = record["senderID"] as? String,
-                   let senderUsername = record["senderUsername"] as? String {
-                    
-                    if let existing = attackCounts[senderID] {
-                        attackCounts[senderID] = (senderUsername, existing.count + 1)
-                    } else {
-                        attackCounts[senderID] = (senderUsername, 1)
-                    }
-                }
-            }
-            
-            // Convert to leaderboard entries and sort
-            let entries = attackCounts.map { userID, data in
+            let entries = allUsers.map { user in
                 WeeklyLeaderboardEntry(
-                    userID: userID,
-                    username: data.username,
-                    attacksSent: data.count
+                    userID: user.id,
+                    username: user.username,
+                    attacksSent: user.attacksSent
                 )
             }.sorted { $0.attacksSent > $1.attacksSent }
             
             // Find current user's rank
-            if let userRank = entries.firstIndex(where: { $0.userID == currentUserID }) {
+            if let userRank = entries.firstIndex(where: { $0.userID == currentUser.id }) {
                 await MainActor.run {
                     self.currentUserRank = userRank + 1
                 }

@@ -5,6 +5,7 @@ struct InviteFriendsView: View {
     @EnvironmentObject var authManager: AuthenticationManager
     @State private var copied = false
     @State private var showingShareSheet = false
+    @State private var friendsInvited: Int = 0 // Track via UserDefaults or CloudKit
     
     var inviteLink: String {
         "https://poopdrop.app/invite?ref=\(authManager.currentUser?.id ?? "app")"
@@ -12,9 +13,9 @@ struct InviteFriendsView: View {
     
     var inviteMessage: String {
         """
-        Hey! Join me on TheDailyPoop 💩
+        💩 I dare you to join me on TheDailyPoop!
         
-        Track your bathroom breaks, compete with friends, and earn badges!
+        Track your drops, prank friends with Fart Attacks, and compete on leaderboards!
         
         Download now: \(inviteLink)
         """
@@ -23,75 +24,224 @@ struct InviteFriendsView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                Color.black.ignoresSafeArea()
+                // Gradient background for excitement
+                LinearGradient(
+                    colors: [Color.black, Color.purple.opacity(0.3), Color.black],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+                .ignoresSafeArea()
                 
-                VStack(spacing: 24) {
-                    // Icon
-                    Text("💩")
-                        .font(.system(size: 80))
-                    
-                    // Title
-                    VStack(spacing: 8) {
-                        Text("Invite Your Friends!")
-                            .font(.title2)
-                            .fontWeight(.bold)
-                            .foregroundColor(.white)
-                        
-                        Text("Share TheDailyPoop and compete with friends!")
-                            .font(.subheadline)
-                            .foregroundColor(.white.opacity(0.7))
-                            .multilineTextAlignment(.center)
-                            .padding(.horizontal)
-                    }
-                    
-                    Spacer()
-                    
-                    // Buttons
-                    VStack(spacing: 12) {
-                        ShareLink(item: inviteMessage) {
-                            HStack(spacing: 8) {
-                                Image(systemName: "square.and.arrow.up")
-                                Text("Share Invite Link")
-                                    .fontWeight(.semibold)
-                            }
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color.blue)
-                            .cornerRadius(12)
+                ScrollView {
+                    VStack(spacing: 32) {
+                        // Massive reward header
+                        VStack(spacing: 16) {
+                            Text("💰")
+                                .font(.system(size: 80))
+                            
+                            Text("Get FREE Fart Attacks!")
+                                .font(.largeTitle.bold())
+                                .foregroundColor(.yellow)
+                                .multilineTextAlignment(.center)
+                            
+                            Text("Invite friends and dominate the leaderboard")
+                                .font(.subheadline)
+                                .foregroundColor(.white.opacity(0.8))
+                                .multilineTextAlignment(.center)
                         }
+                        .padding(.top, 20)
                         
-                        Button(action: {
-                            copyToClipboard()
-                        }) {
-                            HStack(spacing: 8) {
-                                Image(systemName: copied ? "checkmark" : "doc.on.doc")
-                                Text(copied ? "Copied!" : "Copy Link")
-                                    .fontWeight(.semibold)
-                            }
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color.white.opacity(0.1))
-                            .cornerRadius(12)
+                        // Reward breakdown (THE KILLER FEATURE)
+                        VStack(spacing: 16) {
+                            rewardCard(
+                                emoji: "🎁",
+                                title: "5 FREE Attacks",
+                                subtitle: "For every friend who joins",
+                                color: .green
+                            )
+                            
+                            rewardCard(
+                                emoji: "🔥",
+                                title: "Unlimited Rewards",
+                                subtitle: "No limit! Invite 10 friends = 50 attacks",
+                                color: .orange
+                            )
+                            
+                            rewardCard(
+                                emoji: "👑",
+                                title: "Dominate the Leaderboard",
+                                subtitle: "More attacks = higher rank",
+                                color: .purple
+                            )
                         }
+                        .padding(.horizontal)
+                        
+                        // Progress tracker
+                        VStack(spacing: 12) {
+                            HStack {
+                                Text("Your Progress")
+                                    .font(.headline)
+                                    .foregroundColor(.white)
+                                Spacer()
+                                Text("\(friendsInvited) friends invited")
+                                    .font(.subheadline)
+                                    .foregroundColor(.yellow)
+                            }
+                            
+                            // Progress bar
+                            ZStack(alignment: .leading) {
+                                RoundedRectangle(cornerRadius: 8)
+                                    .fill(Color.white.opacity(0.1))
+                                    .frame(height: 12)
+                                
+                                RoundedRectangle(cornerRadius: 8)
+                                    .fill(
+                                        LinearGradient(
+                                            colors: [.green, .yellow],
+                                            startPoint: .leading,
+                                            endPoint: .trailing
+                                        )
+                                    )
+                                    .frame(width: progressWidth, height: 12)
+                            }
+                            
+                            HStack {
+                                Text("🎯 Next: \(5 - (friendsInvited % 5)) friends = 5 attacks")
+                                    .font(.caption)
+                                    .foregroundColor(.gray)
+                                Spacer()
+                            }
+                        }
+                        .padding()
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color.white.opacity(0.05))
+                        )
+                        .padding(.horizontal)
+                        
+                        // Share buttons
+                        VStack(spacing: 16) {
+                            Text("Start Inviting Now!")
+                                .font(.headline)
+                                .foregroundColor(.white)
+                            
+                            ShareLink(item: inviteMessage) {
+                                HStack(spacing: 12) {
+                                    Image(systemName: "megaphone.fill")
+                                        .font(.title3)
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text("Share Invite Link")
+                                            .fontWeight(.bold)
+                                        Text("5 attacks per friend")
+                                            .font(.caption)
+                                    }
+                                }
+                                .foregroundColor(.black)
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(
+                                    LinearGradient(
+                                        colors: [Color.yellow, Color.orange],
+                                        startPoint: .leading,
+                                        endPoint: .trailing
+                                    )
+                                )
+                                .cornerRadius(12)
+                                .shadow(color: Color.yellow.opacity(0.4), radius: 10, x: 0, y: 5)
+                            }
+                            
+                            Button(action: {
+                                copyToClipboard()
+                            }) {
+                                HStack(spacing: 8) {
+                                    Image(systemName: copied ? "checkmark.circle.fill" : "doc.on.doc.fill")
+                                    Text(copied ? "Copied!" : "Copy Link")
+                                        .fontWeight(.semibold)
+                                }
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(Color.white.opacity(0.15))
+                                .cornerRadius(12)
+                            }
+                        }
+                        .padding(.horizontal)
+                        
+                        // Social proof
+                        VStack(spacing: 8) {
+                            HStack(spacing: 4) {
+                                Text("⚡️")
+                                Text("Top pranksters invited 10+ friends")
+                                    .font(.caption)
+                                    .foregroundColor(.gray)
+                            }
+                        }
+                        .padding(.bottom, 20)
                     }
-                    .padding(.horizontal)
+                    .padding(.vertical, 20)
                 }
-                .padding(.vertical, 32)
             }
-            .navigationTitle("Invite Friends")
+            .navigationTitle("Free Attacks")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Done") {
                         dismiss()
                     }
-                    .foregroundColor(.white)
+                    .foregroundColor(.yellow)
+                    .fontWeight(.bold)
                 }
             }
         }
         .preferredColorScheme(.dark)
+        .onAppear {
+            loadInviteProgress()
+        }
+    }
+    
+    // MARK: - Reward Card
+    
+    @ViewBuilder
+    private func rewardCard(emoji: String, title: String, subtitle: String, color: Color) -> some View {
+        HStack(spacing: 16) {
+            Text(emoji)
+                .font(.system(size: 50))
+            
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title)
+                    .font(.headline.bold())
+                    .foregroundColor(.white)
+                Text(subtitle)
+                    .font(.caption)
+                    .foregroundColor(.white.opacity(0.7))
+            }
+            
+            Spacer()
+        }
+        .padding()
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(color.opacity(0.2))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(color.opacity(0.5), lineWidth: 2)
+                )
+        )
+    }
+    
+    // MARK: - Progress Width
+    
+    private var progressWidth: CGFloat {
+        let screenWidth = UIScreen.main.bounds.width - 64 // Account for padding
+        let progress = CGFloat(friendsInvited % 5) / 5.0
+        return screenWidth * progress
+    }
+    
+    // MARK: - Load Invite Progress
+    
+    private func loadInviteProgress() {
+        // Load from UserDefaults or CloudKit
+        friendsInvited = UserDefaults.standard.integer(forKey: "friendsInvited_\(authManager.currentUser?.id ?? "")")
     }
     
     private func copyToClipboard() {
