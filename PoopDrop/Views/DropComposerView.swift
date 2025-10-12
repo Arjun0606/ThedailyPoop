@@ -805,9 +805,16 @@ struct MusicData {
 
 // MARK: - Composer Cross-promo Card
 struct FartAttackComposerCard: View {
+    @Environment(\.dismiss) private var dismiss
+    
     var body: some View {
         Button(action: {
-            NotificationCenter.default.post(name: Notification.Name("SWITCH_TO_ATTACKS_TAB"), object: nil)
+            // Dismiss the composer first
+            dismiss()
+            // Then switch to attacks tab
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                NotificationCenter.default.post(name: Notification.Name("SWITCH_TO_ATTACKS_TAB"), object: nil)
+            }
         }) {
             HStack(spacing: 12) {
                 Text("💨")
