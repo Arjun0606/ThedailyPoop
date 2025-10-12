@@ -313,29 +313,30 @@ struct DropComposerView: View {
             }
         }
         
-        // Update streak
-        if let lastDropDate = user.lastDropDate {
-            if calendar.isDate(lastDropDate, inSameDayAs: today) {
-                // Same day, don't change streak
-            } else if calendar.isDate(lastDropDate, equalTo: calendar.date(byAdding: .day, value: -1, to: today) ?? today, toGranularity: .day) {
-                // Yesterday, increment streak
-                user.streak += 1
-            } else {
-                // Streak broken, reset to 1
-                user.streak = 1
-                // Clear pending freeze on successful new start
-                user.pendingStreakFreezeUntil = nil
-                user.streakBeforeBreak = nil
-            }
-        } else {
-            // First drop, start streak
-            user.streak = 1
-        }
-        
-        user.lastDropDate = today
+        // Update streak - ONLY for actual poops, not "No Poop" entries
         if !isNoPoop {
+            if let lastDropDate = user.lastDropDate {
+                if calendar.isDate(lastDropDate, inSameDayAs: today) {
+                    // Same day, don't change streak
+                } else if calendar.isDate(lastDropDate, equalTo: calendar.date(byAdding: .day, value: -1, to: today) ?? today, toGranularity: .day) {
+                    // Yesterday, increment streak
+                    user.streak += 1
+                } else {
+                    // Streak broken, reset to 1
+                    user.streak = 1
+                    // Clear pending freeze on successful new start
+                    user.pendingStreakFreezeUntil = nil
+                    user.streakBeforeBreak = nil
+                }
+            } else {
+                // First drop, start streak
+                user.streak = 1
+            }
+            
+            user.lastDropDate = today
             user.lastRealDropDate = today
         }
+        // For "No Poop" entries, don't update lastDropDate or streak at all
         
         // Update travel tracking if location is available
         if !isNoPoop, let location = currentLocation {

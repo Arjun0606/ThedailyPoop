@@ -1,80 +1,120 @@
 import SwiftUI
-import Contacts
 
 struct InviteFriendsView: View {
     @Environment(\.dismiss) private var dismiss
-    @StateObject private var contactsManager = ContactsManager()
-    @State private var searchText = ""
+    @EnvironmentObject var authManager: AuthenticationManager
+    @State private var copied = false
+    
+    var inviteLink: String {
+        "https://poopdrop.app/invite?ref=\(authManager.currentUser?.id ?? "app")"
+    }
+    
+    var inviteMessage: String {
+        """
+        Hey! Join me on TheDailyPoop 💩
+        
+        Track your bathroom breaks, compete with friends, and earn badges!
+        
+        Download now: \(inviteLink)
+        """
+    }
     
     var body: some View {
         NavigationView {
             ZStack {
                 Color.black.ignoresSafeArea()
                 
-                VStack {
-                    // Search Bar
-                    HStack {
-                        Image(systemName: "magnifyingglass")
-                        TextField("Search Contacts", text: $searchText)
-                    }
-                    .padding()
-                    .background(Color(.secondarySystemBackground))
-                    .cornerRadius(10)
-                    .padding(.horizontal)
+                VStack(spacing: 24) {
+                    // Icon
+                    Text("💩")
+                        .font(.system(size: 80))
                     
-                    // Contacts List
-                    List(contactsManager.contacts.filter { searchText.isEmpty ? true : $0.givenName.contains(searchText) }) { contact in
-                        HStack {
-                            Text(contact.givenName)
-                            Spacer()
-                            Button("Invite") {
-                                // TODO: Implement sending invite
+                    // Title
+                    VStack(spacing: 8) {
+                        Text("Invite Your Friends!")
+                            .font(.title2)
+                            .fontWeight(.bold)
+                            .foregroundColor(.white)
+                        
+                        Text("Share TheDailyPoop and compete with friends!")
+                            .font(.subheadline)
+                            .foregroundColor(.white.opacity(0.7))
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal)
+                    }
+                    
+                    Spacer()
+                    
+                    // Buttons
+                    VStack(spacing: 12) {
+                        Button(action: {
+                            shareInvite()
+                        }) {
+                            HStack(spacing: 8) {
+                                Image(systemName: "square.and.arrow.up")
+                                Text("Share Invite Link")
+                                    .fontWeight(.semibold)
                             }
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.blue)
+                            .cornerRadius(12)
+                        }
+                        
+                        Button(action: {
+                            copyToClipboard()
+                        }) {
+                            HStack(spacing: 8) {
+                                Image(systemName: copied ? "checkmark" : "doc.on.doc")
+                                Text(copied ? "Copied!" : "Copy Link")
+                                    .fontWeight(.semibold)
+                            }
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.white.opacity(0.1))
+                            .cornerRadius(12)
                         }
                     }
+                    .padding(.horizontal)
                 }
-                .navigationTitle("Invite Friends")
-                .navigationBarItems(trailing: Button("Done") {
-                    dismiss()
-                })
-                .onAppear {
-                    contactsManager.requestAccess()
+                .padding(.vertical, 32)
+            }
+            .navigationTitle("Invite Friends")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Done") {
+                        dismiss()
+                    }
+                    .foregroundColor(.white)
                 }
             }
         }
-    }
-}
-
-class ContactsManager: ObservableObject {
-    @Published var contacts = [CNContact]()
-    
-    func requestAccess() {
-        let store = CNContactStore()
-        store.requestAccess(for: .contacts) { (granted, error) in
-            if let error = error {
-                print("Failed to request access", error)
-                return
-            }
-            if granted {
-                self.fetchContacts()
-            } else {
-                print("Access denied")
-            }
-        }
+        .preferredColorScheme(.dark)
     }
     
-    private func fetchContacts() {
-        let keys = [CNContactGivenNameKey, CNContactFamilyNameKey, CNContactPhoneNumbersKey]
-        let request = CNContactFetchRequest(keysToFetch: keys as [CNKeyDescriptor])
+    private func shareInvite() {
+        let activityVC = UIActivityViewController(
+            activityItems: [inviteMessage],
+            applicationActivities: nil
+        )
         
-        do {
-            try CNContactStore().enumerateContacts(with: request) { (contact, stop) in
-                DispatchQueue.main.async {
-                    self.contacts.append(contact)
-                }
-            }
-        } catch {
-            print("Failed to fetch contacts", error)
+        if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let root = scene.windows.first?.rootViewController {
+            activityVC.popoverPresentationController?.sourceView = root.view
+            root.present(activityVC, animated: true)
+        }
+    }
+    
+    private func copyToClipboard() {
+        UIPasteboard.general.string = inviteLink
+        copied = true
+        
+        // Reset after 2 seconds
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            copied = false
         }
     }
 }

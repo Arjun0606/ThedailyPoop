@@ -44,14 +44,6 @@ struct MainTabView: View {
                         Text("Map")
                     }
                     .tag(3)
-                
-                // Activity Tab
-                AttackActivityFeedView()
-                    .tabItem {
-                        Image(systemName: selectedTab == 4 ? "bolt.fill" : "bolt")
-                        Text("Activity")
-                    }
-                    .tag(4)
 
                 // Fart Attacks Tab
                 ZStack {
@@ -65,19 +57,19 @@ struct MainTabView: View {
                     }
                 }
                     .tabItem {
-                        Image(systemName: selectedTab == 5 ? "burst.fill" : "burst")
+                        Image(systemName: selectedTab == 4 ? "burst.fill" : "burst")
                         Text("Attacks")
                     }
-                    .tag(5)
+                    .tag(4)
                     .badge(fartAttackManager.inventory?.availableAttacks ?? 0)
                 
                 // Profile Tab
                 ProfileView()
                     .tabItem {
-                        Image(systemName: selectedTab == 6 ? "person.fill" : "person")
+                        Image(systemName: selectedTab == 5 ? "person.fill" : "person")
                         Text("Profile")
                     }
-                    .tag(6)
+                    .tag(5)
             }
             .accentColor(.white)
             .onAppear {
@@ -109,7 +101,7 @@ struct MainTabView: View {
                 selectedTab = 1 // Switch to Friends tab
             }
             .onReceive(NotificationCenter.default.publisher(for: Notification.Name("SWITCH_TO_ATTACKS_TAB"))) { _ in
-                selectedTab = 5 // Switch to Attacks tab (after adding Activity tab)
+                selectedTab = 4 // Switch to Attacks tab
             }
             .onReceive(NotificationCenter.default.publisher(for: Notification.Name("DID_CREATE_DROP"))) { notification in
                 print("📱 MainTabView received DID_CREATE_DROP notification")
@@ -212,7 +204,7 @@ struct MainTabView: View {
                 // After onboarding, highlight the Attacks tab
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     withAnimation {
-                        selectedTab = 5 // Attacks tab (after adding Activity tab)
+                        selectedTab = 4 // Attacks tab
                     }
                 }
             }

@@ -154,7 +154,6 @@ struct FriendsListView: View {
     @EnvironmentObject var authManager: AuthenticationManager
     @StateObject private var fartAttackManager = FartAttackManager.shared
     @Binding var selectedTab: Int
-    @State private var showCTA = true
     @State private var showingInvite = false
     
     var attacksAvailable: Int {
@@ -164,17 +163,6 @@ struct FriendsListView: View {
     var body: some View {
         ScrollView {
             LazyVStack(spacing: 12) {
-                // Floating CTA pinned at top
-                if showCTA {
-                    FartAttackQuickCTA(attacksAvailable: attacksAvailable) {
-                        if attacksAvailable > 0 {
-                            NotificationCenter.default.post(name: Notification.Name("SWITCH_TO_FRIENDS_TAB"), object: nil)
-                        } else {
-                            NotificationCenter.default.post(name: Notification.Name("SWITCH_TO_ATTACKS_TAB"), object: nil)
-                        }
-                    }
-                }
-
                 // Invite Friends Card
                 InviteFriendsCard(showingInvite: $showingInvite)
 
@@ -272,34 +260,6 @@ struct InviteFriendsCard: View {
             )
             .cornerRadius(16)
         }
-    }
-}
-
-// MARK: - Quick CTA Button
-struct FartAttackQuickCTA: View {
-    let attacksAvailable: Int
-    let action: () -> Void
-    @State private var bounce = false
-    
-    var body: some View {
-        Button(action: action) {
-            HStack(spacing: 10) {
-                Text("💨")
-                    .font(.title3)
-                    .scaleEffect(bounce ? 1.15 : 1.0)
-                    .animation(.spring(response: 0.5, dampingFraction: 0.4).repeatForever(autoreverses: true), value: bounce)
-                Text(attacksAvailable > 0 ? "Send a fart now" : "Get fart attacks")
-                    .font(.subheadline)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.black)
-                Spacer()
-            }
-            .padding(.vertical, 10)
-            .padding(.horizontal, 14)
-            .background(attacksAvailable > 0 ? Color.yellow : Color.orange)
-            .cornerRadius(12)
-        }
-        .onAppear { bounce = true }
     }
 }
 

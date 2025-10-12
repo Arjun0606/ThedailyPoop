@@ -53,12 +53,6 @@ struct FeedView: View {
                     } else {
                         ScrollView {
                             LazyVStack(spacing: 16) {
-                                // Attack Activity Highlights - top of Friends feed
-                                if selectedFeedType == .friends {
-                                    AttackActivityHighlights()
-                                        .padding(.top, 8)
-                                }
-
                                 // Fart Attack Promo Card - Show at top of Friends feed
                                 if selectedFeedType == .friends &&
                                    !UserDefaults.standard.bool(forKey: "hasDismissedFartAttackPromo") {
