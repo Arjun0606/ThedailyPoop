@@ -720,8 +720,6 @@ struct EmptyFriendsView: View {
                     .font(.body)
                     .foregroundColor(.white.opacity(0.8))
                     .multilineTextAlignment(.center)
-                
-                InviteFriendsCard(showingInvite: .constant(false)) // Preview doesn't show sheet
             }
         }
         .padding(.horizontal, 32)

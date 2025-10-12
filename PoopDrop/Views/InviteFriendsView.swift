@@ -4,6 +4,7 @@ struct InviteFriendsView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var authManager: AuthenticationManager
     @State private var copied = false
+    @State private var showingShareSheet = false
     
     var inviteLink: String {
         "https://poopdrop.app/invite?ref=\(authManager.currentUser?.id ?? "app")"
@@ -47,9 +48,7 @@ struct InviteFriendsView: View {
                     
                     // Buttons
                     VStack(spacing: 12) {
-                        Button(action: {
-                            shareInvite()
-                        }) {
+                        ShareLink(item: inviteMessage) {
                             HStack(spacing: 8) {
                                 Image(systemName: "square.and.arrow.up")
                                 Text("Share Invite Link")
@@ -93,19 +92,6 @@ struct InviteFriendsView: View {
             }
         }
         .preferredColorScheme(.dark)
-    }
-    
-    private func shareInvite() {
-        let activityVC = UIActivityViewController(
-            activityItems: [inviteMessage],
-            applicationActivities: nil
-        )
-        
-        if let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-           let root = scene.windows.first?.rootViewController {
-            activityVC.popoverPresentationController?.sourceView = root.view
-            root.present(activityVC, animated: true)
-        }
     }
     
     private func copyToClipboard() {
