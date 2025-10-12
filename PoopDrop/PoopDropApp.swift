@@ -11,6 +11,7 @@ struct TheDailyPoopApp: App {
     @StateObject private var locationManager = LocationManager()
     @StateObject private var fartAttackManager = FartAttackManager.shared
     @StateObject private var friendsManager = FriendsManager()
+    @StateObject private var streakManager = StreakManager()
     private let notificationHandler = NotificationHandler()
     
     init() {
@@ -27,6 +28,18 @@ struct TheDailyPoopApp: App {
                 .environmentObject(locationManager)
                 .environmentObject(fartAttackManager)
                 .environmentObject(friendsManager)
+                .environmentObject(streakManager)
+                .onReceive(NotificationCenter.default.publisher(for: UIScene.willEnterForegroundNotification)) { _ in
+                    // App is becoming active, check streak status
+                    if var user = authManager.currentUser {
+                        streakManager.checkAndUpdateStreak(for: &user)
+                        authManager.currentUser = user
+                        // Persist the changes
+                        Task {
+                            try? await cloudKitManager.saveUser(user)
+                        }
+                    }
+                }
                 .preferredColorScheme(.dark) // Dark-mode first
                 .onAppear {
                     setupApp()

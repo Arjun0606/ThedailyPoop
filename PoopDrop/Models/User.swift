@@ -23,16 +23,19 @@ struct User: Identifiable, Codable {
     var longestNoPoopStreak: Int // Most days gone without pooping
     var friends: [String] // Array of friend user IDs
     var friendRequests: [String] // Pending friend request IDs
-    var lastStreakDate: Date? // Track when streak was last maintained
+    var lastStreakLogDate: Date? // Last date a poop was logged for the streak
+    var longestStreak: Int // All-time best streak
     var appleUserID: String // Link to Apple ID authentication
     var isActive: Bool // Account status
     var lastSeen: Date? // Last app activity
     
-    // Streak rewards and freeze
+    // Streak rewards
     var awardedStreakMilestones: Set<Int> // e.g., [7,30,100]
-    var pendingStreakFreezeUntil: Date? // if user chooses to restore within 24h
-    var streakBeforeBreak: Int? // streak value before break for restore context
     
+    // Social / Fart Attack Stats
+    var attacksSent: Int
+    var attacksReceived: Int
+
     // Travel tracking for badges
     var countriesVisited: Set<String> // Countries where user has dropped
     var continentsVisited: Set<String> // Continents where user has dropped
@@ -61,12 +64,13 @@ struct User: Identifiable, Codable {
         self.longestNoPoopStreak = 0
         self.friends = []
         self.friendRequests = []
-        self.lastStreakDate = nil
+        self.lastStreakLogDate = nil
+        self.longestStreak = 0
         self.isActive = true
         self.lastSeen = Date()
         self.awardedStreakMilestones = []
-        self.pendingStreakFreezeUntil = nil
-        self.streakBeforeBreak = nil
+        self.attacksSent = 0
+        self.attacksReceived = 0
         self.countriesVisited = []
         self.continentsVisited = []
     }
@@ -104,34 +108,26 @@ extension User {
         self.totalDrops = record["totalDrops"] as? Int ?? 0
         self.maxDropsInDay = record["maxDropsInDay"] as? Int ?? 0
         self.longestNoPoopStreak = record["longestNoPoopStreak"] as? Int ?? 0
-        self.isActive = (record["isActive"] as? Int) == 1
-        self.lastSeen = record["lastSeen"] as? Date
+        self.friends = record["friends"] as? [String] ?? []
+        self.friendRequests = record["friendRequests"] as? [String] ?? []
+        self.lastStreakLogDate = record["lastStreakLogDate"] as? Date
+        self.longestStreak = record["longestStreak"] as? Int ?? 0
+        self.isActive = (record["isActive"] as? Int ?? 1) == 1
+        self.lastSeen = record["lastSeen"] as? Date ?? Date()
+        self.awardedStreakMilestones = Set(record["awardedStreakMilestones"] as? [Int] ?? [])
         
-        // Decode friends array from CloudKit
-        if let friendsData = record["friends"] as? Data {
-            self.friends = (try? JSONDecoder().decode([String].self, from: friendsData)) ?? []
-        } else {
-            self.friends = []
-        }
-        
-        // Decode friend requests array from CloudKit
-        if let requestsData = record["friendRequests"] as? Data {
-            self.friendRequests = (try? JSONDecoder().decode([String].self, from: requestsData)) ?? []
-        } else {
-            self.friendRequests = []
-        }
-        
-        self.lastStreakDate = record["lastStreakDate"] as? Date
-        
+        self.attacksSent = record["attacksSent"] as? Int ?? 0
+        self.attacksReceived = record["attacksReceived"] as? Int ?? 0
+
         // Decode travel sets from CloudKit
-        if let countriesData = record["countriesVisited"] as? Data {
-            self.countriesVisited = (try? JSONDecoder().decode(Set<String>.self, from: countriesData)) ?? []
+        if let countriesData = record["countriesVisited"] as? [String] {
+            self.countriesVisited = Set(countriesData)
         } else {
             self.countriesVisited = []
         }
         
-        if let continentsData = record["continentsVisited"] as? Data {
-            self.continentsVisited = (try? JSONDecoder().decode(Set<String>.self, from: continentsData)) ?? []
+        if let continentsData = record["continentsVisited"] as? [String] {
+            self.continentsVisited = Set(continentsData)
         } else {
             self.continentsVisited = []
         }
@@ -140,8 +136,6 @@ extension User {
         } else {
             self.awardedStreakMilestones = []
         }
-        self.pendingStreakFreezeUntil = record["pendingStreakFreezeUntil"] as? Date
-        self.streakBeforeBreak = record["streakBeforeBreak"] as? Int
     }
     
     func toCKRecord() -> CKRecord {
@@ -167,35 +161,32 @@ extension User {
         record["totalDrops"] = totalDrops
         record["maxDropsInDay"] = maxDropsInDay
         record["longestNoPoopStreak"] = longestNoPoopStreak
+        record["friends"] = friends
+        record["friendRequests"] = friendRequests
+        record["lastStreakLogDate"] = lastStreakLogDate
+        record["longestStreak"] = longestStreak
         record["isActive"] = isActive ? 1 : 0
         record["lastSeen"] = lastSeen
-        record["lastStreakDate"] = lastStreakDate
+        record["awardedStreakMilestones"] = Array(awardedStreakMilestones)
         
-        // Encode friends array for CloudKit
-        if let friendsData = try? JSONEncoder().encode(friends) {
-            record["friends"] = friendsData
-        }
-        
-        // Encode friend requests array for CloudKit
-        if let requestsData = try? JSONEncoder().encode(friendRequests) {
-            record["friendRequests"] = requestsData
-        }
-        
-        // Encode travel sets for CloudKit
-        if let countriesData = try? JSONEncoder().encode(countriesVisited) {
-            record["countriesVisited"] = countriesData
-        }
-        
-        if let continentsData = try? JSONEncoder().encode(continentsVisited) {
-            record["continentsVisited"] = continentsData
-        }
-        if let milestonesData = try? JSONEncoder().encode(awardedStreakMilestones) {
-            record["awardedStreakMilestones"] = milestonesData
-        }
-        record["pendingStreakFreezeUntil"] = pendingStreakFreezeUntil
-        record["streakBeforeBreak"] = streakBeforeBreak
+        record["attacksSent"] = attacksSent
+        record["attacksReceived"] = attacksReceived
+
+        // Save sets as arrays
+        record["countriesVisited"] = Array(countriesVisited)
+        record["continentsVisited"] = Array(continentsVisited)
         
         return record
+    }
+    
+    // Remove old streak date property
+    private enum CodingKeys: String, CodingKey {
+        case id, username, dateOfBirth, gender, customGender, avatarURL, streak, createdAt,
+             lastDropDate, lastRealDropDate, totalDrops, maxDropsInDay, longestNoPoopStreak,
+             friends, friendRequests, lastStreakLogDate, longestStreak, appleUserID, isActive, lastSeen,
+             awardedStreakMilestones,
+             attacksSent, attacksReceived,
+             countriesVisited, continentsVisited
     }
 }
 

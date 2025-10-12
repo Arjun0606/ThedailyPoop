@@ -235,6 +235,20 @@ struct StatsSection: View {
                     value: "\(user.streak)",
                     color: .orange
                 )
+
+                StatCard(
+                    icon: "💨",
+                    title: "Attacks Sent",
+                    value: "\(user.attacksSent)",
+                    color: .purple
+                )
+
+                StatCard(
+                    icon: "🛡️",
+                    title: "Attacks Received",
+                    value: "\(user.attacksReceived)",
+                    color: .red
+                )
             
                 StatCard(
                     icon: "📈",

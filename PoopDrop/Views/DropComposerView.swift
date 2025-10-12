@@ -9,6 +9,7 @@ struct DropComposerView: View {
     @EnvironmentObject var cloudKitManager: CloudKitManager
     @EnvironmentObject var locationManager: LocationManager
     @EnvironmentObject var friendsManager: FriendsManager
+    @EnvironmentObject var streakManager: StreakManager
     
     @State private var caption: String = ""
     @State private var selectedSkinId: String? = nil
@@ -260,7 +261,12 @@ struct DropComposerView: View {
     private func updateUserStats() async {
         guard var user = authManager.currentUser else { return }
         
-        print("📊 Updating user stats: totalDrops was \(user.totalDrops), streak was \(user.streak)")
+        print("📊 Updating user stats...")
+        
+        // Let StreakManager handle streak logic if it's a real poop
+        if !isNoPoop {
+            streakManager.logPoop(for: &user)
+        }
         
         // Update total drops
         user.totalDrops += 1
@@ -302,8 +308,7 @@ struct DropComposerView: View {
             user.maxDropsInDay = maxInAnyDay
             print("📊 Set maxDropsInDay to \(maxInAnyDay)")
             
-            // Calculate longest no-poop streak
-            calculateLongestNoPoopStreak(userDrops: userDrops, user: &user)
+            // Old streak logic is now removed and handled by StreakManager
             
         } catch {
             print("❌ Failed to fetch user drops for stats: \(error)")
@@ -313,30 +318,7 @@ struct DropComposerView: View {
             }
         }
         
-        // Update streak - ONLY for actual poops, not "No Poop" entries
-        if !isNoPoop {
-            if let lastDropDate = user.lastDropDate {
-                if calendar.isDate(lastDropDate, inSameDayAs: today) {
-                    // Same day, don't change streak
-                } else if calendar.isDate(lastDropDate, equalTo: calendar.date(byAdding: .day, value: -1, to: today) ?? today, toGranularity: .day) {
-                    // Yesterday, increment streak
-                    user.streak += 1
-                } else {
-                    // Streak broken, reset to 1
-                    user.streak = 1
-                    // Clear pending freeze on successful new start
-                    user.pendingStreakFreezeUntil = nil
-                    user.streakBeforeBreak = nil
-                }
-            } else {
-                // First drop, start streak
-                user.streak = 1
-            }
-            
-            user.lastDropDate = today
-            user.lastRealDropDate = today
-        }
-        // For "No Poop" entries, don't update lastDropDate or streak at all
+        // Old streak logic is now removed and handled by StreakManager
         
         // Update travel tracking if location is available
         if !isNoPoop, let location = currentLocation {

@@ -189,6 +189,15 @@ class FartAttackManager: ObservableObject {
             )
             do { _ = try await publicDatabase.save(activity.toCKRecord()) } catch { print("⚠️ Failed to save activity: \(error)") }
             
+            // Update user stats for social validation
+            var mutableCurrentUser = currentUser
+            mutableCurrentUser.attacksSent += 1
+            var mutableFriend = friend
+            mutableFriend.attacksReceived += 1
+            
+            try await publicDatabase.save(mutableCurrentUser.toCKRecord())
+            try await publicDatabase.save(mutableFriend.toCKRecord())
+
             return true
         } catch {
             // Revert inventory on failure
