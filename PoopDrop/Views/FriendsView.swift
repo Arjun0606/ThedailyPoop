@@ -178,48 +178,6 @@ struct FriendsListView: View {
                 // Low inventory banner
                 BuyMoreBanner(selectedTab: $selectedTab)
                 
-                // External Share Button - NEW
-                if attacksAvailable > 0 {
-                    Button(action: {
-                        showingExternalShare = true
-                    }) {
-                        HStack(spacing: 12) {
-                            Image(systemName: "arrow.up.right.circle.fill")
-                                .font(.system(size: 28))
-                                .foregroundColor(.purple)
-                            
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text("Send to Anyone!")
-                                    .font(.headline)
-                                    .fontWeight(.bold)
-                                    .foregroundColor(.white)
-                                
-                                Text("Even if they don't have the app")
-                                    .font(.caption)
-                                    .foregroundColor(.white.opacity(0.7))
-                            }
-                            
-                            Spacer()
-                            
-                            Image(systemName: "chevron.right")
-                                .foregroundColor(.purple)
-                        }
-                        .padding()
-                        .background(
-                            LinearGradient(
-                                colors: [Color.purple.opacity(0.3), Color.blue.opacity(0.2)],
-                                startPoint: .leading,
-                                endPoint: .trailing
-                            )
-                        )
-                        .cornerRadius(12)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 12)
-                                .stroke(Color.purple.opacity(0.3), lineWidth: 1)
-                        )
-                    }
-                }
-                
                 // Fart Attack Banner
                 if attacksAvailable > 0 {
                     HStack(spacing: 12) {
@@ -267,10 +225,6 @@ struct FriendsListView: View {
             }
             .padding(.horizontal, 16)
             .padding(.top, 16)
-        }
-        .sheet(isPresented: $showingExternalShare) {
-            ExternalFartAttackView()
-                .environmentObject(authManager)
         }
     }
 }
