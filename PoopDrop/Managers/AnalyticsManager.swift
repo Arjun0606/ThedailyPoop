@@ -62,41 +62,13 @@ class AnalyticsManager: ObservableObject {
         saveEvent(event)
     }
     
-    /// Track external link clicks (attribution for referrals)
-    func trackExternalLinkClick(attackID: String, senderID: String) {
-        let event = AnalyticsEvent(
-            type: .externalLinkClick,
-            userID: "anonymous", // Not installed yet
-            properties: [
-                "attack_id": attackID,
-                "sender_id": senderID
-            ]
-        )
-        saveEvent(event)
-    }
-    
-    /// Track when user opens app from external link
-    func trackExternalLinkOpen(attackID: String, senderID: String, installedApp: Bool) {
-        let event = AnalyticsEvent(
-            type: .externalLinkOpen,
-            userID: getUserID(),
-            properties: [
-                "attack_id": attackID,
-                "sender_id": senderID,
-                "installed_app": installedApp ? "true" : "false"
-            ]
-        )
-        saveEvent(event)
-    }
-    
     /// Track fart attack sent
-    func trackAttackSent(to targetUserID: String, isExternal: Bool) {
+    func trackAttackSent(to targetUserID: String) {
         let event = AnalyticsEvent(
             type: .attackSent,
             userID: getUserID(),
             properties: [
-                "target_id": targetUserID,
-                "is_external": isExternal ? "true" : "false"
+                "target_id": targetUserID
             ]
         )
         saveEvent(event)

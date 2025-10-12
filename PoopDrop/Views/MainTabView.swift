@@ -111,15 +111,6 @@ struct MainTabView: View {
             .onReceive(NotificationCenter.default.publisher(for: Notification.Name("SWITCH_TO_ATTACKS_TAB"))) { _ in
                 selectedTab = 5 // Switch to Attacks tab (after adding Activity tab)
             }
-            .onReceive(NotificationCenter.default.publisher(for: Notification.Name("OPEN_FART_ATTACK"))) { notification in
-                // Handle incoming fart attack from Universal Link
-                if let attackID = notification.userInfo?["attackID"] as? String,
-                   let currentUser = authManager.currentUser {
-                    Task {
-                        await fartAttackManager.processExternalAttackLink(attackID: attackID, currentUser: currentUser)
-                    }
-                }
-            }
             .onReceive(NotificationCenter.default.publisher(for: Notification.Name("DID_CREATE_DROP"))) { notification in
                 print("📱 MainTabView received DID_CREATE_DROP notification")
                 if let drop = notification.userInfo?["drop"] as? Drop, let coord = drop.location {
