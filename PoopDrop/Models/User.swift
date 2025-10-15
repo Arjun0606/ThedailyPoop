@@ -184,13 +184,21 @@ extension User {
         record["totalDrops"] = totalDrops
         record["maxDropsInDay"] = maxDropsInDay
         record["longestNoPoopStreak"] = longestNoPoopStreak
-        record["friends"] = friends
-        record["friendRequests"] = friendRequests
+        
+        // Only save arrays if not empty (CloudKit doesn't allow empty lists for new fields)
+        if !friends.isEmpty {
+            record["friends"] = friends
+        }
+        if !friendRequests.isEmpty {
+            record["friendRequests"] = friendRequests
+        }
+        
         record["lastStreakLogDate"] = lastStreakLogDate
         record["longestStreak"] = longestStreak
         record["isActive"] = isActive ? 1 : 0
         record["lastSeen"] = lastSeen
-        // Only save awardedStreakMilestones if it has values (CloudKit doesn't allow empty arrays for new fields)
+        
+        // Only save awardedStreakMilestones if it has values
         if !awardedStreakMilestones.isEmpty {
             record["awardedStreakMilestones"] = Array(awardedStreakMilestones)
         }
