@@ -8,42 +8,13 @@ struct FriendsView: View {
     @State private var selectedTab = 0
     
     var body: some View {
-        NavigationView {
-            ZStack {
-                Color.black.ignoresSafeArea()
-                
-                VStack(spacing: 0) {
-                    // Tab selector - closer to top
-                    FriendsTabSelector(selectedTab: $selectedTab)
-                        .padding(.horizontal)
-                        .padding(.top, 4)
-                        .padding(.bottom, 4)
-                    
-                    // Content based on selected tab
-                    TabView(selection: $selectedTab) {
-                        // Friends list
-                        FriendsListView(friends: friendsManager.friends, selectedTab: $selectedTab)
-                            .tag(0)
-                        
-                        // Friend requests
-                        FriendRequestsView(
-                            requests: friendsManager.friendRequests,
-                            onAccept: { userId in
-                                await acceptFriendRequest(userId)
-                            },
-                            onReject: { userId in
-                                await rejectFriendRequest(userId)
-                            }
-                        )
-                        .tag(1)
-                    }
-                    .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
-                }
-            }
-            .navigationTitle("👥 Friends")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
+        ZStack {
+            Color.black.ignoresSafeArea()
+            
+            VStack(spacing: 0) {
+                // Top bar with buttons and title
+                HStack {
+                    // Ranks button
                     NavigationLink(destination: DailyLeaderboardView()) {
                         HStack(spacing: 4) {
                             Text("🏆")
@@ -52,17 +23,59 @@ struct FriendsView: View {
                                 .fontWeight(.semibold)
                         }
                         .foregroundColor(.yellow)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
+                        .background(Color.yellow.opacity(0.15))
+                        .cornerRadius(20)
                     }
-                }
-                
-                ToolbarItem(placement: .navigationBarTrailing) {
+                    
+                    Spacer()
+                    
+                    // Title
+                    Text("👥 Friends")
+                        .font(.headline)
+                        .foregroundColor(.white)
+                    
+                    Spacer()
+                    
+                    // Add friend button
                     Button(action: {
                         showingAddFriend = true
                     }) {
                         Image(systemName: "person.badge.plus")
                             .foregroundColor(.white)
+                            .padding(8)
+                            .background(Color.white.opacity(0.15))
+                            .clipShape(Circle())
                     }
                 }
+                .padding(.horizontal)
+                .padding(.top, 8)
+                .padding(.bottom, 8)
+                
+                // Tab selector
+                FriendsTabSelector(selectedTab: $selectedTab)
+                    .padding(.horizontal)
+                
+                // Content based on selected tab
+                TabView(selection: $selectedTab) {
+                    // Friends list
+                    FriendsListView(friends: friendsManager.friends, selectedTab: $selectedTab)
+                        .tag(0)
+                    
+                    // Friend requests
+                    FriendRequestsView(
+                        requests: friendsManager.friendRequests,
+                        onAccept: { userId in
+                            await acceptFriendRequest(userId)
+                        },
+                        onReject: { userId in
+                            await rejectFriendRequest(userId)
+                        }
+                    )
+                    .tag(1)
+                }
+                .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
             }
         }
         .sheet(isPresented: $showingAddFriend) {
