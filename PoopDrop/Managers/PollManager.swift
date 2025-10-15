@@ -37,40 +37,25 @@ class PollManager: ObservableObject {
                 // Check if user has voted
                 await checkIfUserVoted(userID: user.id, pollID: poll.id)
             } else {
-                // No poll today - create one
-                await createDailyPoll()
+                // No poll today - users can create one
+                print("📊 No poll found for today")
             }
         } catch {
             print("❌ Error loading today's poll: \(error)")
         }
     }
     
-    // MARK: - Create Daily Poll
+    // MARK: - Create User Poll
     
-    func createDailyPoll() async {
-        let questions = [
-            "Who has the funniest bathroom stories?",
-            "Who's most likely to forget to flush?",
-            "Who's the poop champion?",
-            "Who takes the longest bathroom breaks?",
-            "Who's most likely to clog the toilet?",
-            "Who has the most interesting bathroom reading?",
-            "Who's most likely to sing in the bathroom?",
-            "Who would survive longest without a bathroom?",
-            "Who's most likely to drop anywhere?",
-            "Who has the best bathroom humor?"
-        ]
-        
-        let randomQuestion = questions.randomElement() ?? questions[0]
-        
+    func createPoll(creator: User, questionText: String) async {
         // Calculate end of day
         let calendar = Calendar.current
         let endOfDay = calendar.date(bySettingHour: 23, minute: 59, second: 59, of: Date()) ?? Date()
         
         let poll = Poll(
-            creatorID: "system",
-            creatorUsername: "TheDailyPoop",
-            questionText: randomQuestion,
+            creatorID: creator.id,
+            creatorUsername: creator.username,
+            questionText: questionText,
             pollType: .prediction,
             endsAt: endOfDay
         )
@@ -82,9 +67,9 @@ class PollManager: ObservableObject {
             _ = try await database.save(record)
             
             self.todaysPoll = poll
-            print("✅ Created daily poll: \(randomQuestion)")
+            print("✅ Created poll by \(creator.username): \(questionText)")
         } catch {
-            print("❌ Error creating daily poll: \(error)")
+            print("❌ Error creating poll: \(error)")
         }
     }
     

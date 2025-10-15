@@ -10,6 +10,8 @@ struct DailyPollView: View {
     @State private var showingResults = false
     @State private var results: [(userID: String, votes: Int)] = []
     @State private var selectedFriends: Set<String> = []
+    @State private var showingCreatePoll = false
+    @State private var newPollQuestion = ""
     
     var body: some View {
         NavigationView {
@@ -106,11 +108,33 @@ struct DailyPollView: View {
                         .padding()
                     }
                 } else {
-                    VStack(spacing: 16) {
-                        ProgressView()
-                            .tint(.white)
-                        Text("Loading today's poll...")
+                    // No poll today - show create poll button
+                    VStack(spacing: 24) {
+                        Text("💭")
+                            .font(.system(size: 80))
+                        
+                        Text("No Poll Today")
+                            .font(.title.bold())
+                            .foregroundColor(.white)
+                        
+                        Text("Be the first to create today's poll!")
+                            .font(.subheadline)
                             .foregroundColor(.gray)
+                            .multilineTextAlignment(.center)
+                        
+                        Button(action: { showingCreatePoll = true }) {
+                            HStack {
+                                Image(systemName: "plus.circle.fill")
+                                Text("Create Poll")
+                            }
+                            .font(.headline)
+                            .foregroundColor(.black)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.yellow)
+                            .cornerRadius(12)
+                        }
+                        .padding(.horizontal, 40)
                     }
                 }
             }
@@ -120,6 +144,18 @@ struct DailyPollView: View {
                 PollResultsView(
                     poll: pollManager.todaysPoll!,
                     results: results
+                )
+            }
+            .sheet(isPresented: $showingCreatePoll) {
+                CreatePollView(
+                    pollQuestion: $newPollQuestion,
+                    onCreate: { question in
+                        guard let currentUser = authManager.currentUser else { return }
+                        Task {
+                            await pollManager.createPoll(creator: currentUser, questionText: question)
+                        }
+                        showingCreatePoll = false
+                    }
                 )
             }
             .task {
@@ -427,5 +463,113 @@ struct HiddenResultCard: View {
     DailyPollView()
         .environmentObject(AuthenticationManager())
         .environmentObject(FriendsManager())
+}
+
+// MARK: - Create Poll View
+
+struct CreatePollView: View {
+    @Environment(\.dismiss) private var dismiss
+    @Binding var pollQuestion: String
+    let onCreate: (String) -> Void
+    
+    @State private var questionText = ""
+    
+    var body: some View {
+        NavigationView {
+            ZStack {
+                Color.black.ignoresSafeArea()
+                
+                VStack(spacing: 32) {
+                    // Header
+                    VStack(spacing: 16) {
+                        Text("💭")
+                            .font(.system(size: 80))
+                        
+                        Text("Create Today's Poll")
+                            .font(.title2.bold())
+                            .foregroundColor(.white)
+                        
+                        Text("Ask your friends a fun question!")
+                            .font(.subheadline)
+                            .foregroundColor(.gray)
+                    }
+                    .padding(.top, 40)
+                    
+                    // Question input
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("Your Question:")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                        
+                        TextEditor(text: $questionText)
+                            .frame(height: 120)
+                            .padding(12)
+                            .background(Color.white.opacity(0.1))
+                            .cornerRadius(12)
+                            .foregroundColor(.white)
+                            .font(.body)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(Color.yellow.opacity(0.3), lineWidth: 1)
+                            )
+                        
+                        Text("\(questionText.count) / 100 characters")
+                            .font(.caption)
+                            .foregroundColor(questionText.count > 100 ? .red : .gray)
+                    }
+                    .padding(.horizontal)
+                    
+                    // Example questions
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("Examples:")
+                            .font(.subheadline.bold())
+                            .foregroundColor(.gray)
+                        
+                        ForEach([
+                            "Who's most likely to forget to flush?",
+                            "Who has the funniest bathroom stories?",
+                            "Who takes the longest bathroom breaks?"
+                        ], id: \.self) { example in
+                            Button(action: { questionText = example }) {
+                                Text("• \(example)")
+                                    .font(.caption)
+                                    .foregroundColor(.blue)
+                                    .multilineTextAlignment(.leading)
+                            }
+                        }
+                    }
+                    .padding(.horizontal)
+                    
+                    Spacer()
+                    
+                    // Create button
+                    Button(action: {
+                        onCreate(questionText)
+                    }) {
+                        Text("Create Poll")
+                            .font(.headline)
+                            .foregroundColor(.black)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(questionText.count > 0 && questionText.count <= 100 ? Color.yellow : Color.gray)
+                            .cornerRadius(12)
+                    }
+                    .disabled(questionText.isEmpty || questionText.count > 100)
+                    .padding(.horizontal)
+                    .padding(.bottom, 40)
+                }
+            }
+            .navigationTitle("New Poll")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Cancel") {
+                        dismiss()
+                    }
+                    .foregroundColor(.white)
+                }
+            }
+        }
+    }
 }
 
