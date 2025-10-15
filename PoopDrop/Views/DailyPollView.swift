@@ -41,13 +41,13 @@ struct DailyPollView: View {
                             if !pollManager.hasVotedToday {
                                 // Voting Section
                                 VStack(alignment: .leading, spacing: 16) {
-                                    Text("Vote for 3 friends:")
+                                    Text("Vote for 1 friend:")
                                         .font(.headline)
                                         .foregroundColor(.white)
                                     
-                                    Text("\(selectedFriends.count) / 3 selected")
+                                    Text(selectedFriends.isEmpty ? "Tap to select" : "✓ Selected")
                                         .font(.subheadline)
-                                        .foregroundColor(.gray)
+                                        .foregroundColor(selectedFriends.isEmpty ? .gray : .green)
                                     
                                     ForEach(friendsManager.friends) { friend in
                                         FriendVoteCard(
@@ -59,9 +59,9 @@ struct DailyPollView: View {
                                         )
                                     }
                                     
-                                    if selectedFriends.count == 3 {
+                                    if selectedFriends.count == 1 {
                                         Button(action: submitVotes) {
-                                            Text("Submit Votes")
+                                            Text("Submit Vote")
                                                 .font(.headline)
                                                 .foregroundColor(.black)
                                                 .frame(maxWidth: .infinity)
@@ -168,7 +168,9 @@ struct DailyPollView: View {
     private func toggleFriendSelection(_ friendID: String) {
         if selectedFriends.contains(friendID) {
             selectedFriends.remove(friendID)
-        } else if selectedFriends.count < 3 {
+        } else {
+            // Only allow 1 selection - clear previous and add new
+            selectedFriends.removeAll()
             selectedFriends.insert(friendID)
         }
     }
@@ -176,7 +178,7 @@ struct DailyPollView: View {
     private func submitVotes() {
         guard let currentUser = authManager.currentUser,
               let poll = pollManager.todaysPoll,
-              selectedFriends.count == 3 else { return }
+              selectedFriends.count == 1 else { return }
         
         Task {
             for friendID in selectedFriends {

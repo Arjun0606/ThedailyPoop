@@ -139,39 +139,48 @@ struct MainTabView: View {
                 }
             }
             
-            // Profile Button (top-right corner)
+            // Profile Button (top-left corner, aligned with nav bar)
             VStack {
                 HStack {
-                    Spacer()
-                    
                     Button(action: {
                         showingProfile = true
                     }) {
                         ZStack {
                             Circle()
-                                .fill(Color.white.opacity(0.1))
-                                .frame(width: 44, height: 44)
-                                .overlay(
-                                    Circle()
-                                        .stroke(Color.white.opacity(0.3), lineWidth: 2)
-                                )
+                                .fill(Color.clear)
+                                .frame(width: 36, height: 36)
                             
                             if let avatarURL = authManager.currentUser?.avatarURL,
                                let image = UIImage(contentsOfFile: avatarURL.path) {
                                 Image(uiImage: image)
                                     .resizable()
                                     .scaledToFill()
-                                    .frame(width: 40, height: 40)
+                                    .frame(width: 36, height: 36)
                                     .clipShape(Circle())
+                                    .overlay(
+                                        Circle()
+                                            .stroke(Color.white.opacity(0.3), lineWidth: 1.5)
+                                    )
                             } else {
-                                Image(systemName: "person.fill")
-                                    .font(.system(size: 20))
-                                    .foregroundColor(.white)
+                                Circle()
+                                    .fill(Color.white.opacity(0.1))
+                                    .frame(width: 36, height: 36)
+                                    .overlay(
+                                        Circle()
+                                            .stroke(Color.white.opacity(0.3), lineWidth: 1.5)
+                                    )
+                                    .overlay(
+                                        Image(systemName: "person.fill")
+                                            .font(.system(size: 16))
+                                            .foregroundColor(.white)
+                                    )
                             }
                         }
                     }
-                    .padding(.top, 60) // Below status bar
-                    .padding(.trailing, 20)
+                    .padding(.top, 55) // Align with nav bar
+                    .padding(.leading, 16)
+                    
+                    Spacer()
                 }
                 
                 Spacer()
