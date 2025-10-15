@@ -69,8 +69,6 @@
 		D41D2D21BC9D40498B087397 /* WeeklyLeaderboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3B5A7F2D45C4C92A8F16E84 /* WeeklyLeaderboardView.swift */; };
 		D9AC1536EA6A48F4FEAFB2CE /* ContactView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27F25651DCDE162B6C18444A /* ContactView.swift */; };
 		DCE86F4B2E9BE433007B1BC0 /* StreakManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE86F4A2E9BE433007B1BC0 /* StreakManager.swift */; };
-		DCE86F4F2EA00AB0007B1BC0 /* PollManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE86F4E2EA00AB0007B1BC0 /* PollManager.swift */; };
-		DCE86F512EA00ABE007B1BC0 /* DailyPollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE86F502EA00ABE007B1BC0 /* DailyPollView.swift */; };
 		DD40E6731A8A4A998FA3CBD6 /* FartAttackReceivedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AAB4C1763A447C3AD025CE8 /* FartAttackReceivedView.swift */; };
 		F28A684129C14FD2B22D2DBD /* FartAttack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4032E1A5989C49F4BF2FF783 /* FartAttack.swift */; };
 		STREAK_MGR_BUILD /* (null) in Sources */ = {isa = PBXBuildFile; };
@@ -286,8 +284,6 @@
 		D44DDC203EFB40CFBB6E70F4 /* ProfilePictureEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilePictureEditor.swift; sourceTree = "<group>"; };
 		D802FC943ABB422C88710795 /* Reaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Reaction.swift; sourceTree = "<group>"; };
 		DCE86F4A2E9BE433007B1BC0 /* StreakManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreakManager.swift; sourceTree = "<group>"; };
-		DCE86F4E2EA00AB0007B1BC0 /* PollManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PollManager.swift; sourceTree = "<group>"; };
-		DCE86F502EA00ABE007B1BC0 /* DailyPollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyPollView.swift; sourceTree = "<group>"; };
 		DD6D750A1E874B5CA6A8B30E /* FriendsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsView.swift; sourceTree = "<group>"; };
 		DD9C291B6415453A84F28E06 /* StoreKitManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreKitManager.swift; sourceTree = "<group>"; };
 		E11A6043B79F421791DED928 /* NotificationHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationHandler.swift; sourceTree = "<group>"; };
@@ -427,7 +423,6 @@
 		A1000031294A0000000000888 /* Managers */ = {
 			isa = PBXGroup;
 			children = (
-				DCE86F4E2EA00AB0007B1BC0 /* PollManager.swift */,
 				DCE86F4A2E9BE433007B1BC0 /* StreakManager.swift */,
 				A1000010294A0000000000001 /* AuthenticationManager.swift */,
 				A1000012294A0000000000001 /* SubscriptionManager.swift */,
@@ -493,7 +488,6 @@
 		A1000032294A0000000000888 /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				DCE86F502EA00ABE007B1BC0 /* DailyPollView.swift */,
 				A1000018294A0000000000001 /* MainTabView.swift */,
 				A100001A294A0000000000001 /* FeedView.swift */,
 				A100001C294A0000000000001 /* MapView.swift */,
@@ -707,7 +701,6 @@
 				A1000027294A0000000000001 /* StringExtensions.swift in Sources */,
 				A1000029294A0000000000001 /* AuthenticationView.swift in Sources */,
 				A100002B294A0000000000001 /* OnboardingView.swift in Sources */,
-				DCE86F512EA00ABE007B1BC0 /* DailyPollView.swift in Sources */,
 				A100002D294A0000000000002 /* Badge.swift in Sources */,
 				A100002F294A0000000000002 /* Friendship.swift in Sources */,
 				A1000031294A0000000000002 /* Notification.swift in Sources */,
@@ -749,7 +742,6 @@
 				5976345BBD08B8F225ECB9E1 /* PointsManager.swift in Sources */,
 				32E089EE8D57F0712943B5A7 /* DailyLeaderboardView.swift in Sources */,
 				38140D1FE2569790737387FA /* Poll.swift in Sources */,
-				DCE86F4F2EA00AB0007B1BC0 /* PollManager.swift in Sources */,
 				B2849EE6E780317F0EA5EBDB /* GhostAttackShopView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

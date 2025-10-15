@@ -29,31 +29,39 @@ struct MainTabView: View {
                     }
                     .tag(1)
                 
+                // Poll Tab
+                DailyPollView()
+                    .tabItem {
+                        Image(systemName: selectedTab == 2 ? "chart.bar.fill" : "chart.bar")
+                        Text("Poll")
+                    }
+                    .tag(2)
+                
                 // Map Tab
                 SnapchatStyleMapView()
                     .tabItem {
-                        Image(systemName: selectedTab == 2 ? "map.fill" : "map")
+                        Image(systemName: selectedTab == 3 ? "map.fill" : "map")
                         Text("Map")
                     }
-                    .tag(2)
+                    .tag(3)
                 
                 // Shop Tab
                 NavigationView {
                     GhostAttackShopView()
                 }
                 .tabItem {
-                    Image(systemName: selectedTab == 3 ? "cart.fill" : "cart")
+                    Image(systemName: selectedTab == 4 ? "cart.fill" : "cart")
                     Text("Shop")
                 }
-                .tag(3)
+                .tag(4)
                 
                 // Profile Tab
                 ProfileView()
                     .tabItem {
-                        Image(systemName: selectedTab == 4 ? "person.fill" : "person")
+                        Image(systemName: selectedTab == 5 ? "person.fill" : "person")
                         Text("Profile")
                     }
-                    .tag(4)
+                    .tag(5)
             }
             .accentColor(.white)
             .onAppear {
@@ -79,7 +87,7 @@ struct MainTabView: View {
                 UITabBar.appearance().scrollEdgeAppearance = appearance
             }
             .onReceive(NotificationCenter.default.publisher(for: Notification.Name("SWITCH_TO_MAP_TAB"))) { _ in
-                selectedTab = 2 // Switch to Map tab
+                selectedTab = 3 // Switch to Map tab (now at index 3)
             }
             .onReceive(NotificationCenter.default.publisher(for: Notification.Name("SWITCH_TO_FRIENDS_TAB"))) { _ in
                 selectedTab = 1 // Switch to Friends tab
@@ -88,7 +96,7 @@ struct MainTabView: View {
                 selectedTab = 1 // Switch to Friends tab (where attacks are sent from)
             }
             .onReceive(NotificationCenter.default.publisher(for: Notification.Name("SWITCH_TO_SHOP_TAB"))) { _ in
-                selectedTab = 3 // Switch to Shop tab
+                selectedTab = 4 // Switch to Shop tab (now at index 4)
             }
             .onReceive(NotificationCenter.default.publisher(for: Notification.Name("DID_CREATE_DROP"))) { notification in
                 print("📱 MainTabView received DID_CREATE_DROP notification")
@@ -96,7 +104,7 @@ struct MainTabView: View {
                     print("📍 Switching to Map tab and centering on: \(coord)")
                     // Switch to Map tab and remember coordinate
                     pendingCenterCoordinate = coord
-                    selectedTab = 2  // Map tab
+                    selectedTab = 3  // Map tab (now at index 3)
                     // Forward full drop to map on next runloop so the view is ready
                     DispatchQueue.main.async {
                         NotificationCenter.default.post(name: Notification.Name("CENTER_MAP"), object: nil, userInfo: ["coordinate": coord, "drop": drop])
@@ -142,7 +150,7 @@ struct MainTabView: View {
             DropComposerView()
         }
         .onChange(of: selectedTab) { newTab in
-            if newTab == 2 {  // Map tab
+            if newTab == 3 {  // Map tab (now at index 3)
                 // Always refresh map when switching to it (to handle app restart scenario)
                 print("🗺️ Switching to Map tab, posting REFRESH_MAP")
                 NotificationCenter.default.post(name: Notification.Name("REFRESH_MAP"), object: nil)
