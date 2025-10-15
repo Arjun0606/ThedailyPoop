@@ -152,6 +152,7 @@ struct FriendsTabSelector: View {
 struct FriendsListView: View {
     let friends: [User]
     @EnvironmentObject var authManager: AuthenticationManager
+    @EnvironmentObject var pointsManager: PointsManager
     @StateObject private var fartAttackManager = FartAttackManager.shared
     @Binding var selectedTab: Int
     @State private var showingInvite = false
@@ -429,6 +430,7 @@ struct FriendRowView: View {
 struct FriendDetailView: View {
     let friend: User
     @EnvironmentObject var authManager: AuthenticationManager
+    @EnvironmentObject var pointsManager: PointsManager
     @StateObject private var fartAttackManager = FartAttackManager.shared
     @Binding var selectedTab: Int
     @State private var showingPurchaseSheet = false
@@ -650,7 +652,7 @@ struct FriendDetailView: View {
         sendingAttack = true
         
         Task {
-            let success = await fartAttackManager.sendAttack(from: currentUser, to: friend)
+            let success = await fartAttackManager.sendAttack(from: currentUser, to: friend, pointsManager: pointsManager)
             
             await MainActor.run {
                 sendingAttack = false

@@ -10,6 +10,7 @@ struct DropComposerView: View {
     @EnvironmentObject var locationManager: LocationManager
     @EnvironmentObject var friendsManager: FriendsManager
     @EnvironmentObject var streakManager: StreakManager
+    @EnvironmentObject var pointsManager: PointsManager
     
     @State private var caption: String = ""
     @State private var selectedSkinId: String? = nil
@@ -314,6 +315,10 @@ struct DropComposerView: View {
             // Award streak milestone rewards after successful save
             await FartAttackManager.shared.maybeAwardStreakMilestone(for: &user)
             try? await cloudKitManager.saveUser(user)
+            
+            // 🎯 AWARD POINTS FOR DROPPING
+            await pointsManager.awardPoints(to: &user, for: .dropPoop)
+            
             await MainActor.run {
                 authManager.currentUser = user
                 print("✅ User stats saved to CloudKit and updated in authManager")

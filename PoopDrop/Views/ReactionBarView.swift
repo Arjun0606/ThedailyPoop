@@ -4,6 +4,7 @@ struct ReactionBarView: View {
     let drop: Drop
     @EnvironmentObject var cloudKitManager: CloudKitManager
     @EnvironmentObject var authManager: AuthenticationManager
+    @EnvironmentObject var pointsManager: PointsManager
     @State private var localReactions: [String: Int]
     @State private var showingEmojiPicker = false
     @State private var userReactions: Set<String> = [] // Track what user has reacted to
@@ -71,7 +72,8 @@ struct ReactionBarView: View {
                     emoji: emoji,
                     increment: !hasReacted,
                     reactingUser: currentUser,
-                    dropOwner: dropOwner
+                    dropOwner: dropOwner,
+                    pointsManager: pointsManager
                 )
             } catch {
                 // Revert local changes on error

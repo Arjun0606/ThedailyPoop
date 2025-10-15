@@ -145,7 +145,7 @@ class FartAttackManager: ObservableObject {
         return inventory?.cooldownRemaining(friendID: friend.id)
     }
     
-    func sendAttack(from currentUser: User, to friend: User) async -> Bool {
+    func sendAttack(from currentUser: User, to friend: User, pointsManager: PointsManager) async -> Bool {
         guard var currentInventory = inventory else {
             print("❌ No inventory")
             return false
@@ -197,6 +197,12 @@ class FartAttackManager: ObservableObject {
             
             try await publicDatabase.save(mutableCurrentUser.toCKRecord())
             try await publicDatabase.save(mutableFriend.toCKRecord())
+            
+            // 🎯 AWARD POINTS FOR SENDING ATTACK
+            await pointsManager.awardPoints(to: &mutableCurrentUser, for: .sendAttack)
+            
+            // 🎯 AWARD POINTS FOR RECEIVING ATTACK (to victim)
+            await pointsManager.awardPoints(to: &mutableFriend, for: .receiveAttack)
             
             // 🔥 AGGRESSIVE: Send revenge notification to victim
             await NotificationManager.shared.sendRevengeNotification(to: mutableFriend, from: mutableCurrentUser, attackID: attack.id)

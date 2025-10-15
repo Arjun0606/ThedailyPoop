@@ -337,7 +337,7 @@ class CloudKitManager: ObservableObject {
         return filtered
     }
     
-    func updateDropReaction(_ dropId: String, emoji: String, increment: Bool, reactingUser: User, dropOwner: User) async throws {
+    func updateDropReaction(_ dropId: String, emoji: String, increment: Bool, reactingUser: User, dropOwner: User, pointsManager: PointsManager?) async throws {
         let recordID = CKRecord.ID(recordName: dropId)
         let record = try await publicDatabase.record(for: recordID)
         
@@ -360,6 +360,18 @@ class CloudKitManager: ObservableObject {
                     emoji: emoji,
                     dropId: dropId
                 )
+                
+                // 🎯 AWARD POINTS FOR REACTIONS
+                if let pointsManager = pointsManager {
+                    var mutableReactingUser = reactingUser
+                    var mutableDropOwner = dropOwner
+                    
+                    // Person reacting gets points
+                    await pointsManager.awardPoints(to: &mutableReactingUser, for: .reactToFriend)
+                    
+                    // Drop owner gets points for receiving reaction
+                    await pointsManager.awardPoints(to: &mutableDropOwner, for: .receiveReaction)
+                }
             }
         } else {
             reactions[emoji] = max(0, currentCount - 1)
