@@ -205,9 +205,13 @@ extension User {
         record["pointsBoostActive"] = pointsBoostActive ? 1 : 0
         record["pointsBoostExpiresAt"] = pointsBoostExpiresAt
 
-        // Save sets as arrays
-        record["countriesVisited"] = Array(countriesVisited)
-        record["continentsVisited"] = Array(continentsVisited)
+        // Save sets as arrays (only if not empty - CloudKit doesn't allow empty lists for new fields)
+        if !countriesVisited.isEmpty {
+            record["countriesVisited"] = Array(countriesVisited)
+        }
+        if !continentsVisited.isEmpty {
+            record["continentsVisited"] = Array(continentsVisited)
+        }
         
         return record
     }
