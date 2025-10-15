@@ -190,7 +190,10 @@ extension User {
         record["longestStreak"] = longestStreak
         record["isActive"] = isActive ? 1 : 0
         record["lastSeen"] = lastSeen
-        record["awardedStreakMilestones"] = Array(awardedStreakMilestones)
+        // Only save awardedStreakMilestones if it has values (CloudKit doesn't allow empty arrays for new fields)
+        if !awardedStreakMilestones.isEmpty {
+            record["awardedStreakMilestones"] = Array(awardedStreakMilestones)
+        }
         
         record["attacksSent"] = attacksSent
         record["attacksReceived"] = attacksReceived

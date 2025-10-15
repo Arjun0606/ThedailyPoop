@@ -55,7 +55,7 @@ struct OnboardingView: View {
                     
                     VStack(spacing: 16) {
                         Text(pages[currentPage].title)
-                            .font(.largeTitle)
+                            .font(.title)
                             .fontWeight(.bold)
                             .foregroundColor(.white)
                             .multilineTextAlignment(.center)
