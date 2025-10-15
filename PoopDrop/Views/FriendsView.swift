@@ -13,10 +13,11 @@ struct FriendsView: View {
                 Color.black.ignoresSafeArea()
                 
                 VStack(spacing: 0) {
-                    // Tab selector
+                    // Tab selector - closer to top
                     FriendsTabSelector(selectedTab: $selectedTab)
                         .padding(.horizontal)
-                        .padding(.top, 8)
+                        .padding(.top, 4)
+                        .padding(.bottom, 4)
                     
                     // Content based on selected tab
                     TabView(selection: $selectedTab) {
@@ -124,7 +125,7 @@ struct FriendsTabSelector: View {
                 }
                 .foregroundColor(selectedTab == 0 ? .white : .white.opacity(0.6))
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, 12)
+                .padding(.vertical, 8)
             }
             
             Button(action: {
@@ -141,7 +142,7 @@ struct FriendsTabSelector: View {
                 }
                 .foregroundColor(selectedTab == 1 ? .white : .white.opacity(0.6))
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, 12)
+                .padding(.vertical, 8)
             }
         }
         .background(Color.white.opacity(0.05))
