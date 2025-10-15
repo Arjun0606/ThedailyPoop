@@ -2,20 +2,17 @@ import SwiftUI
 
 struct InviteFriendsView: View {
     @Environment(\.dismiss) private var dismiss
-    @EnvironmentObject var authManager: AuthenticationManager
     @State private var copied = false
-    @State private var showingShareSheet = false
-    @State private var friendsInvited: Int = 0 // Track via UserDefaults or CloudKit
     
     var inviteLink: String {
-        "https://poopdrop.app/invite?ref=\(authManager.currentUser?.id ?? "app")"
+        "https://apps.apple.com/app/thedailypoop/id123456789" // Replace with actual App Store link
     }
     
     var inviteMessage: String {
         """
-        💩 I dare you to join me on TheDailyPoop!
+        💩 Join me on TheDailyPoop!
         
-        Track your drops, prank friends with Ghost Attacks, and compete on leaderboards!
+        Track your bathroom adventures, prank friends with Ghost Attacks, compete on leaderboards, and vote in daily polls!
         
         Download now: \(inviteLink)
         """
@@ -24,7 +21,7 @@ struct InviteFriendsView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                // Gradient background for excitement
+                // Gradient background
                 LinearGradient(
                     colors: [Color.black, Color.purple.opacity(0.3), Color.black],
                     startPoint: .topLeading,
@@ -34,94 +31,52 @@ struct InviteFriendsView: View {
                 
                 ScrollView {
                     VStack(spacing: 32) {
-                        // Massive reward header
+                        // Header
                         VStack(spacing: 16) {
-                            Text("💰")
+                            Text("💩")
                                 .font(.system(size: 80))
                             
-                            Text("Get FREE Ghost Attacks!")
+                            Text("Invite Your Friends!")
                                 .font(.largeTitle.bold())
-                                .foregroundColor(.yellow)
+                                .foregroundColor(.white)
                                 .multilineTextAlignment(.center)
                             
-                            Text("Invite friends and dominate the leaderboard")
+                            Text("Share TheDailyPoop and make bathroom time social")
                                 .font(.subheadline)
                                 .foregroundColor(.white.opacity(0.8))
                                 .multilineTextAlignment(.center)
+                                .padding(.horizontal)
                         }
                         .padding(.top, 20)
                         
-                        // Reward breakdown (THE KILLER FEATURE)
+                        // Features
                         VStack(spacing: 16) {
-                            rewardCard(
-                                emoji: "🎁",
-                                title: "3 FREE Attacks",
-                                subtitle: "For every friend who joins",
-                                color: .green
-                            )
-                            
-                            rewardCard(
-                                emoji: "🔥",
-                                title: "Unlimited Rewards",
-                                subtitle: "No limit! Invite 10 friends = 30 attacks",
-                                color: .orange
-                            )
-                            
-                            rewardCard(
-                                emoji: "👑",
-                                title: "Dominate the Leaderboard",
-                                subtitle: "More attacks = higher rank",
+                            featureCard(
+                                emoji: "👻",
+                                title: "Ghost Attacks",
+                                subtitle: "Send anonymous fart attacks",
                                 color: .purple
                             )
-                        }
-                        .padding(.horizontal)
-                        
-                        // Progress tracker
-                        VStack(spacing: 12) {
-                            HStack {
-                                Text("Your Progress")
-                                    .font(.headline)
-                                    .foregroundColor(.white)
-                                Spacer()
-                                Text("\(friendsInvited) friends invited")
-                                    .font(.subheadline)
-                                    .foregroundColor(.yellow)
-                            }
                             
-                            // Progress bar
-                            ZStack(alignment: .leading) {
-                                RoundedRectangle(cornerRadius: 8)
-                                    .fill(Color.white.opacity(0.1))
-                                    .frame(height: 12)
-                                
-                                RoundedRectangle(cornerRadius: 8)
-                                    .fill(
-                                        LinearGradient(
-                                            colors: [.green, .yellow],
-                                            startPoint: .leading,
-                                            endPoint: .trailing
-                                        )
-                                    )
-                                    .frame(width: progressWidth, height: 12)
-                            }
+                            featureCard(
+                                emoji: "📊",
+                                title: "Daily Polls",
+                                subtitle: "Vote for your friends",
+                                color: .blue
+                            )
                             
-                            HStack {
-                                Text("🎯 Next: \(3 - (friendsInvited % 3)) friends = 3 attacks")
-                                    .font(.caption)
-                                    .foregroundColor(.gray)
-                                Spacer()
-                            }
+                            featureCard(
+                                emoji: "🏆",
+                                title: "Leaderboards",
+                                subtitle: "Compete for daily rankings",
+                                color: .yellow
+                            )
                         }
-                        .padding()
-                        .background(
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(Color.white.opacity(0.05))
-                        )
                         .padding(.horizontal)
                         
                         // Share buttons
                         VStack(spacing: 16) {
-                            Text("Start Inviting Now!")
+                            Text("Share the App")
                                 .font(.headline)
                                 .foregroundColor(.white)
                             
@@ -129,12 +84,8 @@ struct InviteFriendsView: View {
                                 HStack(spacing: 12) {
                                     Image(systemName: "megaphone.fill")
                                         .font(.title3)
-                                    VStack(alignment: .leading, spacing: 2) {
-                                        Text("Share Invite Link")
-                                            .fontWeight(.bold)
-                                        Text("3 attacks per friend")
-                                            .font(.caption)
-                                    }
+                                    Text("Share Invite Link")
+                                        .fontWeight(.bold)
                                 }
                                 .foregroundColor(.black)
                                 .frame(maxWidth: .infinity)
@@ -170,8 +121,8 @@ struct InviteFriendsView: View {
                         // Social proof
                         VStack(spacing: 8) {
                             HStack(spacing: 4) {
-                                Text("⚡️")
-                                Text("Top pranksters invited 10+ friends")
+                                Text("🌟")
+                                Text("Join thousands tracking their daily drops")
                                     .font(.caption)
                                     .foregroundColor(.gray)
                             }
@@ -181,7 +132,7 @@ struct InviteFriendsView: View {
                     .padding(.vertical, 20)
                 }
             }
-            .navigationTitle("Free Attacks")
+            .navigationTitle("Invite Friends")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -194,15 +145,12 @@ struct InviteFriendsView: View {
             }
         }
         .preferredColorScheme(.dark)
-        .onAppear {
-            loadInviteProgress()
-        }
     }
     
-    // MARK: - Reward Card
+    // MARK: - Feature Card
     
     @ViewBuilder
-    private func rewardCard(emoji: String, title: String, subtitle: String, color: Color) -> some View {
+    private func featureCard(emoji: String, title: String, subtitle: String, color: Color) -> some View {
         HStack(spacing: 16) {
             Text(emoji)
                 .font(.system(size: 50))
@@ -227,21 +175,6 @@ struct InviteFriendsView: View {
                         .stroke(color.opacity(0.5), lineWidth: 2)
                 )
         )
-    }
-    
-    // MARK: - Progress Width
-    
-    private var progressWidth: CGFloat {
-        let screenWidth = UIScreen.main.bounds.width - 64 // Account for padding
-        let progress = CGFloat(friendsInvited % 5) / 5.0
-        return screenWidth * progress
-    }
-    
-    // MARK: - Load Invite Progress
-    
-    private func loadInviteProgress() {
-        // Load from UserDefaults or CloudKit
-        friendsInvited = UserDefaults.standard.integer(forKey: "friendsInvited_\(authManager.currentUser?.id ?? "")")
     }
     
     private func copyToClipboard() {
