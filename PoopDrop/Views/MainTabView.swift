@@ -13,11 +13,11 @@ struct MainTabView: View {
     var body: some View {
         ZStack {
             TabView(selection: $selectedTab) {
-                // Feed & Friends Tab (Snapchat-style combined)
+                // Feed Tab (consolidated)
                 FeedView()
                     .tabItem {
-                        Image(systemName: selectedTab == 0 ? "message.fill" : "message")
-                        Text("Chat")
+                        Image(systemName: selectedTab == 0 ? "house.fill" : "house")
+                        Text("Feed")
                     }
                     .tag(0)
                 

@@ -4,15 +4,9 @@ struct FeedView: View {
     @EnvironmentObject var cloudKitManager: CloudKitManager
     @EnvironmentObject var authManager: AuthenticationManager
     @StateObject private var friendsManager = FriendsManager()
-    @State private var selectedFeedType: FeedType = .friends
-    @State private var friendDrops: [Drop] = []
-    @State private var myDrops: [Drop] = []
+    @State private var allDrops: [Drop] = []
     @State private var isRefreshing = false
-    
-    enum FeedType {
-        case friends
-        case my
-    }
+    @State private var showingFriendsManager = false
     
     var body: some View {
         NavigationView {
@@ -21,58 +15,28 @@ struct FeedView: View {
                 Color.black.ignoresSafeArea()
                 
                 VStack(spacing: 0) {
-                    // Segmented Picker for Friends Feed / My Feed
-                    Picker("Feed Type", selection: $selectedFeedType) {
-                        Text("Friends").tag(FeedType.friends)
-                        Text("My Feed").tag(FeedType.my)
-                    }
-                    .pickerStyle(SegmentedPickerStyle())
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 8)
-                    .background(Color.black)
-                    .onChange(of: selectedFeedType) { newType in
-                        if newType == .my {
-                            loadMyDrops()
-                        } else {
-                            loadInitialFriendDrops()
-                        }
-                    }
                     
                     // Feed Content
-                    if currentDrops.isEmpty && !friendsManager.isLoading {
-                        if selectedFeedType == .friends {
-                            EmptyFriendsDropsView()
-                        } else {
-                            EmptyMyDropsView()
-                        }
+                    if allDrops.isEmpty && !friendsManager.isLoading {
+                        EmptyFeedView()
                     } else {
                         ScrollView {
                             LazyVStack(spacing: 16) {
-                                // Ghost Attack Promo Card - Show at top of Friends feed
-                                if selectedFeedType == .friends &&
-                                   !UserDefaults.standard.bool(forKey: "hasDismissedFartAttackPromo") {
+                                // Ghost Attack Promo Card
+                                if !UserDefaults.standard.bool(forKey: "hasDismissedFartAttackPromo") {
                                     FartAttackPromoCard()
                                         .padding(.top, 8)
                                         .padding(.bottom, 8)
                                 }
                                 // Fallback mini-banner when promo dismissed
-                                if selectedFeedType == .friends &&
-                                    UserDefaults.standard.bool(forKey: "hasDismissedFartAttackPromo") {
+                                if UserDefaults.standard.bool(forKey: "hasDismissedFartAttackPromo") {
                                     FartAttackMiniBanner()
                                         .padding(.horizontal, 16)
                                 }
                                 
                                 // Drops feed
-                                ForEach(currentDrops) { drop in
+                                ForEach(allDrops) { drop in
                                     DropCardView(drop: drop)
-                                        .onAppear {
-                                            // Load more drops when approaching end
-                                            if drop.id == currentDrops.last?.id {
-                                                if selectedFeedType == .friends {
-                                                    loadMoreFriendDrops()
-                                                }
-                                            }
-                                        }
                                 }
                                 
                                 // Loading indicator
@@ -110,95 +74,67 @@ struct FeedView: View {
                     }
                 }
             }
+            .navigationTitle("💩 Feed")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(action: {
+                        showingFriendsManager = true
+                    }) {
+                        HStack(spacing: 4) {
+                            Image(systemName: "person.2.fill")
+                            Text("Friends")
+                        }
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(Color.white.opacity(0.15))
+                        .cornerRadius(20)
+                    }
+                }
+            }
+        }
+        .sheet(isPresented: $showingFriendsManager) {
+            NavigationView {
+                FriendsView()
+            }
         }
         .onAppear {
-            loadInitialFriendDrops()
-            loadMyDrops()
+            loadAllDrops()
         }
         .onReceive(NotificationCenter.default.publisher(for: Notification.Name("USER_STATS_UPDATED"))) { _ in
-            // Refresh my drops when user creates a new drop
-            if selectedFeedType == .my {
-                loadMyDrops()
-            }
+            loadAllDrops()
         }
     }
     
-    // Computed property to get current drops based on selected feed type
-    private var currentDrops: [Drop] {
-        selectedFeedType == .friends ? friendDrops : myDrops
-    }
-    
-    private func loadMyDrops() {
+    private func loadAllDrops() {
         guard let user = authManager.currentUser else { return }
         
         Task {
             do {
-                let drops = try await cloudKitManager.fetchUserDrops(for: user)
+                // Load both friend drops and user's own drops
+                let friendDropsList = try await friendsManager.getFriendDrops(for: user)
+                let myDropsList = try await cloudKitManager.fetchUserDrops(for: user)
+                
+                // Combine and sort by timestamp
+                let combined = (friendDropsList + myDropsList)
+                    .filter { $0.isCurrentlyVisible }
+                    .sorted { $0.timestamp > $1.timestamp }
+                
                 await MainActor.run {
-                    self.myDrops = drops.filter { $0.isCurrentlyVisible }
+                    self.allDrops = combined
                 }
             } catch {
-                print("Failed to load my drops: \(error)")
+                print("Failed to load drops: \(error)")
             }
         }
     }
     
-    private func loadInitialFriendDrops() {
-        guard let user = authManager.currentUser else { return }
-        
-        Task {
-            do {
-                let drops = try await friendsManager.getFriendDrops(for: user)
-                await MainActor.run {
-                    // Filter out user's own drops from Friends Feed
-                    self.friendDrops = drops.filter { $0.userID != user.id }
-                }
-            } catch {
-                print("Failed to load friend drops: \(error)")
-            }
-        }
-    }
-    
-    private func loadMoreFriendDrops() {
-        // Implement pagination if needed
-        guard let user = authManager.currentUser else { return }
-        
-        Task {
-            do {
-                let drops = try await friendsManager.getFriendDrops(for: user)
-                await MainActor.run {
-                    // Filter out user's own drops from Friends Feed
-                    self.friendDrops = drops.filter { $0.userID != user.id }
-                }
-            } catch {
-                print("Failed to load more friend drops: \(error)")
-            }
-        }
-    }
     
     @MainActor
     private func refreshFeed() async {
-        guard let user = authManager.currentUser else { return }
-        
-        isRefreshing = true
-        
-        if selectedFeedType == .my {
-            do {
-                let drops = try await cloudKitManager.fetchUserDrops(for: user)
-                myDrops = drops.filter { $0.isCurrentlyVisible }
-            } catch {
-                print("Failed to refresh my drops: \(error)")
-            }
-        } else {
-            do {
-                let drops = try await friendsManager.getFriendDrops(for: user)
-                // Filter out user's own drops from Friends Feed
-                friendDrops = drops.filter { $0.userID != user.id }
-            } catch {
-                print("Failed to refresh friend feed: \(error)")
-            }
-        }
-        
+        loadAllDrops()
         isRefreshing = false
     }
 }
@@ -260,19 +196,19 @@ struct EmptyMyDropsView: View {
     }
 }
 
-struct EmptyFriendsDropsView: View {
+struct EmptyFeedView: View {
     var body: some View {
         VStack(spacing: 24) {
             Text("👥")
                 .font(.system(size: 80))
             
             VStack(spacing: 12) {
-                Text("No Friend Drops Yet!")
+                Text("No Drops Yet!")
                     .font(.title2)
                     .fontWeight(.bold)
                     .foregroundColor(.white)
                 
-                Text("Add friends to see their poop drops! When your friends drop poops (or have no poop days), they'll appear here.")
+                Text("Add friends to see their poop drops, or drop your own to get started!")
                     .font(.body)
                     .foregroundColor(.white.opacity(0.8))
                     .multilineTextAlignment(.center)
@@ -297,47 +233,6 @@ struct EmptyFriendsDropsView: View {
             .padding(.horizontal, 32)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-    }
-}
-
-struct EmptyFeedView: View {
-    var body: some View {
-        VStack(spacing: 24) {
-            Text("💩")
-                .font(.system(size: 80))
-                .scaleEffect(1.0)
-                .animation(.easeInOut(duration: 2).repeatForever(autoreverses: true), value: true)
-            
-            VStack(spacing: 12) {
-                Text("No Drops Yet!")
-                    .font(.title2)
-                    .fontWeight(.bold)
-                    .foregroundColor(.white)
-                
-                Text("Be the first to drop a poop in your area! Tap the 💩 button to get started.")
-                    .font(.body)
-                    .foregroundColor(.white.opacity(0.8))
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 32)
-            }
-            
-            VStack(spacing: 16) {
-                Text("Tips for your first drop:")
-                    .font(.headline)
-                    .foregroundColor(.white)
-                
-                VStack(alignment: .leading, spacing: 8) {
-                    TipRow(icon: "📍", text: "Make sure location is enabled")
-                    TipRow(icon: "✍️", text: "Add a fun caption (up to 50 characters)")
-                    TipRow(icon: "🎨", text: "Choose your poop style")
-                    TipRow(icon: "🚀", text: "Upgrade to Pro for more features!")
-                }
-            }
-            .padding()
-            .background(Color.white.opacity(0.05))
-            .cornerRadius(16)
-            .padding(.horizontal, 32)
-        }
     }
 }
 
