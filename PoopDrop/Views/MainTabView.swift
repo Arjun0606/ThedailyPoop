@@ -9,52 +9,51 @@ struct MainTabView: View {
     @State private var showingDropComposer = false
     @State private var pendingCenterCoordinate: CLLocationCoordinate2D? = nil
     @State private var showingFartAttackOnboarding = false
-    @State private var showingProfile = false
     
     var body: some View {
         ZStack {
             TabView(selection: $selectedTab) {
-                // Feed Tab (Friends only)
+                // Feed & Friends Tab (Snapchat-style combined)
                 FeedView()
                     .tabItem {
-                        Image(systemName: selectedTab == 0 ? "house.fill" : "house")
-                        Text("Feed")
+                        Image(systemName: selectedTab == 0 ? "message.fill" : "message")
+                        Text("Chat")
                     }
                     .tag(0)
-                
-                // Friends Tab
-                FriendsView()
-                    .tabItem {
-                        Image(systemName: selectedTab == 1 ? "person.2.fill" : "person.2")
-                        Text("Friends")
-                    }
-                    .tag(1)
                 
                 // Poll Tab
                 DailyPollView()
                     .tabItem {
-                        Image(systemName: selectedTab == 2 ? "chart.bar.fill" : "chart.bar")
+                        Image(systemName: selectedTab == 1 ? "chart.bar.fill" : "chart.bar")
                         Text("Poll")
                     }
-                    .tag(2)
+                    .tag(1)
                 
                 // Map Tab
                 SnapchatStyleMapView()
                     .tabItem {
-                        Image(systemName: selectedTab == 3 ? "map.fill" : "map")
+                        Image(systemName: selectedTab == 2 ? "map.fill" : "map")
                         Text("Map")
                     }
-                    .tag(3)
+                    .tag(2)
                 
-                // Shop Tab (was "More")
+                // Shop Tab
                 NavigationView {
                     GhostAttackShopView()
                 }
                 .tabItem {
-                    Image(systemName: selectedTab == 4 ? "cart.fill" : "cart")
+                    Image(systemName: selectedTab == 3 ? "cart.fill" : "cart")
                     Text("Shop")
                 }
-                .tag(4)
+                .tag(3)
+                
+                // Profile Tab
+                ProfileView()
+                    .tabItem {
+                        Image(systemName: selectedTab == 4 ? "person.fill" : "person")
+                        Text("Profile")
+                    }
+                    .tag(4)
             }
             .accentColor(.white)
             .onAppear {
@@ -80,16 +79,16 @@ struct MainTabView: View {
                 UITabBar.appearance().scrollEdgeAppearance = appearance
             }
             .onReceive(NotificationCenter.default.publisher(for: Notification.Name("SWITCH_TO_MAP_TAB"))) { _ in
-                selectedTab = 3 // Switch to Map tab (now at index 3)
+                selectedTab = 2 // Switch to Map tab (now at index 2)
             }
             .onReceive(NotificationCenter.default.publisher(for: Notification.Name("SWITCH_TO_FRIENDS_TAB"))) { _ in
-                selectedTab = 1 // Switch to Friends tab
+                selectedTab = 0 // Switch to Chat tab (Feed/Friends combined)
             }
             .onReceive(NotificationCenter.default.publisher(for: Notification.Name("SWITCH_TO_ATTACKS_TAB"))) { _ in
-                selectedTab = 1 // Switch to Friends tab (where attacks are sent from)
+                selectedTab = 0 // Switch to Chat tab (where attacks are sent from)
             }
             .onReceive(NotificationCenter.default.publisher(for: Notification.Name("SWITCH_TO_SHOP_TAB"))) { _ in
-                selectedTab = 4 // Switch to Shop tab (now at index 4)
+                selectedTab = 3 // Switch to Shop tab (now at index 3)
             }
             .onReceive(NotificationCenter.default.publisher(for: Notification.Name("DID_CREATE_DROP"))) { notification in
                 print("📱 MainTabView received DID_CREATE_DROP notification")
@@ -97,7 +96,7 @@ struct MainTabView: View {
                     print("📍 Switching to Map tab and centering on: \(coord)")
                     // Switch to Map tab and remember coordinate
                     pendingCenterCoordinate = coord
-                    selectedTab = 3  // Map tab (now at index 3)
+                    selectedTab = 2  // Map tab (now at index 2)
                     // Forward full drop to map on next runloop so the view is ready
                     DispatchQueue.main.async {
                         NotificationCenter.default.post(name: Notification.Name("CENTER_MAP"), object: nil, userInfo: ["coordinate": coord, "drop": drop])
@@ -138,64 +137,12 @@ struct MainTabView: View {
                     .padding(.bottom, 90) // Above tab bar
                 }
             }
-            
-            // Profile Button (top-left corner, aligned with nav bar)
-            VStack {
-                HStack {
-                    Button(action: {
-                        showingProfile = true
-                    }) {
-                        ZStack {
-                            Circle()
-                                .fill(Color.clear)
-                                .frame(width: 36, height: 36)
-                            
-                            if let avatarURL = authManager.currentUser?.avatarURL,
-                               let image = UIImage(contentsOfFile: avatarURL.path) {
-                                Image(uiImage: image)
-                                    .resizable()
-                                    .scaledToFill()
-                                    .frame(width: 36, height: 36)
-                                    .clipShape(Circle())
-                                    .overlay(
-                                        Circle()
-                                            .stroke(Color.white.opacity(0.3), lineWidth: 1.5)
-                                    )
-                            } else {
-                                Circle()
-                                    .fill(Color.white.opacity(0.1))
-                                    .frame(width: 36, height: 36)
-                                    .overlay(
-                                        Circle()
-                                            .stroke(Color.white.opacity(0.3), lineWidth: 1.5)
-                                    )
-                                    .overlay(
-                                        Image(systemName: "person.fill")
-                                            .font(.system(size: 16))
-                                            .foregroundColor(.white)
-                                    )
-                            }
-                        }
-                    }
-                    .padding(.top, 55) // Align with nav bar
-                    .padding(.leading, 16)
-                    
-                    Spacer()
-                }
-                
-                Spacer()
-            }
         }
         .sheet(isPresented: $showingDropComposer) {
             DropComposerView()
         }
-        .sheet(isPresented: $showingProfile) {
-            NavigationView {
-                ProfileView()
-            }
-        }
         .onChange(of: selectedTab) { newTab in
-            if newTab == 3 {  // Map tab (now at index 3)
+            if newTab == 2 {  // Map tab (now at index 2)
                 // Always refresh map when switching to it (to handle app restart scenario)
                 print("🗺️ Switching to Map tab, posting REFRESH_MAP")
                 NotificationCenter.default.post(name: Notification.Name("REFRESH_MAP"), object: nil)
