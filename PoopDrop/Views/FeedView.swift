@@ -21,11 +21,6 @@ struct FeedView: View {
                 Color.black.ignoresSafeArea()
                 
                 VStack(spacing: 0) {
-                    // Streak Freeze banner if available
-                    StreakFreezeBanner()
-                        .padding(.horizontal, 16)
-                        .padding(.top, 8)
-                    
                     // Segmented Picker for Friends Feed / My Feed
                     Picker("Feed Type", selection: $selectedFeedType) {
                         Text("Friends").tag(FeedType.friends)
@@ -53,7 +48,7 @@ struct FeedView: View {
                     } else {
                         ScrollView {
                             LazyVStack(spacing: 16) {
-                                // Fart Attack Promo Card - Show at top of Friends feed
+                                // Ghost Attack Promo Card - Show at top of Friends feed
                                 if selectedFeedType == .friends &&
                                    !UserDefaults.standard.bool(forKey: "hasDismissedFartAttackPromo") {
                                     FartAttackPromoCard()
@@ -208,7 +203,7 @@ struct FeedView: View {
     }
 }
 
-// MARK: - Fart Attack Mini Banner
+// MARK: - Ghost Attack Mini Banner
 struct FartAttackMiniBanner: View {
     @State private var pulsing = false
     
@@ -293,7 +288,7 @@ struct EmptyFriendsDropsView: View {
                     TipRow(icon: "👥", text: "Go to Friends tab to add friends")
                     TipRow(icon: "💩", text: "Drop your own poop to get started")
                     TipRow(icon: "📱", text: "Friends get notified when you drop")
-                    TipRow(icon: "🔥", text: "Keep streaks alive with 'No Poop' option")
+                    TipRow(icon: "💩", text: "Track your daily drops and compete with friends")
                 }
             }
             .padding()

@@ -2,6 +2,7 @@ import SwiftUI
 
 struct FartAttackOnboardingView: View {
     @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject var authManager: AuthenticationManager
     @State private var currentPage = 0
     let onComplete: () -> Void
     
@@ -25,7 +26,7 @@ struct FartAttackOnboardingView: View {
                     VStack(spacing: 0) {
                         OnboardingPageContent(
                             emoji: "💨",
-                            title: "Introducing\nFart Attacks!",
+                            title: "Introducing\nGhost Attacks!",
                             subtitle: "Prank your friends with legendary fart sounds",
                             description: "Send a 4-second epic fart that plays when they open the app. It's hilarious, unexpected, and totally unforgettable!",
                             buttonText: "Continue",
@@ -39,8 +40,8 @@ struct FartAttackOnboardingView: View {
                         OnboardingPageContent(
                             emoji: "🎁",
                             title: "Get Your First\nFREE Attack!",
-                            subtitle: "We're giving you 1 free fart attack to try",
-                            description: "Go to Friends → Pick someone → Tap Send Fart Attack. When they open the app... BOOM! 💨\n\nThen buy packs of 3 for just $1.99",
+                            subtitle: "We're giving you 1 free ghost attack to try",
+                            description: "Go to Friends → Pick someone → Tap Send Ghost Attack. When they open the app... BOOM! 💨\n\nThen buy packs of 3 for just $1.99",
                             buttonText: "Show Me How",
                             buttonAction: { currentPage = 2 }
                         )
@@ -69,7 +70,10 @@ struct FartAttackOnboardingView: View {
     }
     
     private func completeOnboarding() {
-        UserDefaults.standard.set(true, forKey: "hasSeenFartAttackOnboarding")
+        // Mark as seen for this specific user
+        if let userID = authManager.currentUser?.id {
+            UserDefaults.standard.set(true, forKey: "hasSeenFartAttackOnboarding_\(userID)")
+        }
         onComplete()
         dismiss()
     }

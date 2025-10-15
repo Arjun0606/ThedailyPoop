@@ -13,6 +13,12 @@ struct FartAttack: Identifiable, Codable {
     var wasPlayed: Bool
     var playedAt: Date?
     
+    // Ghost Mode (anonymous attacks)
+    var isGhost: Bool
+    var ghostGuesses: [String] // IDs of users the target guessed
+    var ghostRevealed: Bool // If target purchased full reveal
+    var ghostHintPurchased: Bool // If target purchased narrow-down hint
+    
     init(id: String = UUID().uuidString,
          senderID: String,
          senderUsername: String,
@@ -21,7 +27,11 @@ struct FartAttack: Identifiable, Codable {
          timestamp: Date = Date(),
          soundFileName: String = "fart_long_epidemic",
          wasPlayed: Bool = false,
-         playedAt: Date? = nil) {
+         playedAt: Date? = nil,
+         isGhost: Bool = false,
+         ghostGuesses: [String] = [],
+         ghostRevealed: Bool = false,
+         ghostHintPurchased: Bool = false) {
         self.id = id
         self.senderID = senderID
         self.senderUsername = senderUsername
@@ -31,6 +41,10 @@ struct FartAttack: Identifiable, Codable {
         self.soundFileName = soundFileName
         self.wasPlayed = wasPlayed
         self.playedAt = playedAt
+        self.isGhost = isGhost
+        self.ghostGuesses = ghostGuesses
+        self.ghostRevealed = ghostRevealed
+        self.ghostHintPurchased = ghostHintPurchased
     }
 }
 
@@ -57,6 +71,12 @@ extension FartAttack {
         self.soundFileName = soundFileName
         self.wasPlayed = (record["wasPlayed"] as? Int) == 1
         self.playedAt = record["playedAt"] as? Date
+        
+        // Ghost Mode fields
+        self.isGhost = (record["isGhost"] as? Int) == 1
+        self.ghostGuesses = record["ghostGuesses"] as? [String] ?? []
+        self.ghostRevealed = (record["ghostRevealed"] as? Int) == 1
+        self.ghostHintPurchased = (record["ghostHintPurchased"] as? Int) == 1
     }
     
     func toCKRecord() -> CKRecord {
@@ -69,6 +89,13 @@ extension FartAttack {
         record["soundFileName"] = soundFileName
         record["wasPlayed"] = wasPlayed ? 1 : 0
         record["playedAt"] = playedAt
+        
+        // Ghost Mode fields
+        record["isGhost"] = isGhost ? 1 : 0
+        record["ghostGuesses"] = ghostGuesses
+        record["ghostRevealed"] = ghostRevealed ? 1 : 0
+        record["ghostHintPurchased"] = ghostHintPurchased ? 1 : 0
+        
         return record
     }
 }
@@ -76,7 +103,7 @@ extension FartAttack {
 // MARK: - Fart Attack Inventory
 struct FartAttackInventory: Codable {
     let userID: String
-    var availableAttacks: Int
+    var availableAttacks: Int // All attacks are ghost attacks now!
     var lastUpdated: Date
     
     // Track cooldowns: [friendUserID: lastAttackTimestamp]
@@ -119,13 +146,17 @@ struct FartAttackInventory: Codable {
         lastUpdated = Date()
     }
     
-    // Use an attack on a friend
+    // Use an attack on a friend (all attacks are ghost now)
     mutating func useAttack(targetFriendID: String) -> Bool {
-        guard availableAttacks > 0, canAttack(friendID: targetFriendID) else {
+        // Check cooldown
+        guard canAttack(friendID: targetFriendID) else {
             return false
         }
         
+        // Check inventory
+        guard availableAttacks > 0 else { return false }
         availableAttacks -= 1
+        
         cooldowns[targetFriendID] = Date()
         lastUpdated = Date()
         return true
@@ -167,11 +198,25 @@ extension FartAttackInventory {
     }
 }
 
-// MARK: - Fart Attack Pack Product
-struct FartAttackPack {
-    static let productID = "com.thedailypoop.fartattack.pack" // Single $1.99 pack
-    static let attacksPerPack = 3
-    static let name = "Fart Attack Pack"
-    static let emoji = "💨"
+// MARK: - IAP Product IDs
+struct IAPProducts {
+    // Ghost Attack Pack (ONLY ONE PACK - $2.99 for 3 attacks)
+    static let ghostAttackPack3 = "com.thedailypoop.ghostattackpack3" // $2.99
+    
+    // Poll Features
+    static let pollReveal = "com.thedailypoop.pollreveal" // $0.99
+    
+    // Ghost Attack Hints (narrow-down is FREE, reveal is $0.99)
+    static let ghostHintReveal = "com.thedailypoop.ghostreveal" // $0.99
+    
+    // Points Boost
+    static let pointsBoost24h = "com.thedailypoop.pointsboost24h" // $1.99
+    
+    // All product IDs (4 total - SUPER simplified!)
+    static let allProducts = [
+        ghostAttackPack3,
+        pollReveal,
+        ghostHintReveal,
+        pointsBoost24h
+    ]
 }
-

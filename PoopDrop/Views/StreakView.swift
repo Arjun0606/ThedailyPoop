@@ -3,38 +3,47 @@ import SwiftUI
 struct StreakView: View {
     let user: User
     let fontSize: Font
+    @StateObject private var streakManager = StreakManager()
     
     init(user: User, fontSize: Font = .caption) {
         self.user = user
         self.fontSize = fontSize
     }
     
-    private var constipatedDays: Int {
-        // Count full days since last REAL poop
-        guard let lastReal = user.lastRealDropDate else { return 0 }
-        let days = Calendar.current.dateComponents([.day], from: lastReal, to: Date()).day ?? 0
-        return max(0, days)
+    private var daysSinceLastPoop: Int {
+        return streakManager.daysSinceLastPoop(for: user)
+    }
+    
+    private var poopEmoji: String {
+        switch daysSinceLastPoop {
+        case 0:
+            return "💩" // Just pooped
+        case 1...2:
+            return "💩" // Recent
+        case 3...6:
+            return "😬" // Getting concerning
+        default:
+            return "😵‍💫" // Very constipated
+        }
     }
     
     var body: some View {
-        if user.streak > 0 {
-            HStack(spacing: 6) {
-                // Flame emoji
-                Text("🔥")
-                    .font(fontSize)
-                
-                // Streak number
-                Text("\(user.streak)")
-                    .font(fontSize)
-                    .foregroundColor(.orange)
-                
-                // Constipated counter (days without a real poop)
-                if constipatedDays >= 1 {
-                    Text("😵‍💫 \(constipatedDays)")
-                        .font(fontSize)
-                        .foregroundColor(.white)
-                }
-            }
+        HStack(spacing: 6) {
+            // Poop emoji
+            Text(poopEmoji)
+                .font(fontSize)
+            
+            // Days since last poop
+            Text("\(daysSinceLastPoop)")
+                .font(fontSize)
+                .foregroundColor(daysSinceLastPoop == 0 ? .green : (daysSinceLastPoop <= 2 ? .yellow : .orange))
+            
+            // Total drops badge
+            Text("💰")
+                .font(fontSize)
+            Text("\(user.totalDrops)")
+                .font(fontSize)
+                .foregroundColor(.yellow)
         }
     }
 }

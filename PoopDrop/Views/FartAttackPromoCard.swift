@@ -24,7 +24,7 @@ struct FartAttackPromoCard: View {
                             .background(Color.yellow)
                             .cornerRadius(4)
                         
-                        Text("💨 Fart Attacks")
+                        Text("💨 Ghost Attacks")
                             .font(.headline)
                             .fontWeight(.bold)
                             .foregroundColor(.white)
@@ -52,7 +52,7 @@ struct FartAttackPromoCard: View {
                         Text("🎉")
                             .font(.system(size: 60))
                         
-                        Text("You have \(attacksAvailable) Fart Attack\(attacksAvailable == 1 ? "" : "s")!")
+                        Text("You have \(attacksAvailable) Ghost Attack\(attacksAvailable == 1 ? "" : "s")!")
                             .font(.title3)
                             .fontWeight(.bold)
                             .foregroundColor(.white)
@@ -93,7 +93,7 @@ struct FartAttackPromoCard: View {
                                     .fontWeight(.bold)
                                     .foregroundColor(.white)
                                 
-                                Text("Send legendary fart attacks\n1st attack FREE! 🎁")
+                                Text("Send legendary ghost attacks\n1st attack FREE! 🎁")
                                     .font(.subheadline)
                                     .foregroundColor(.white.opacity(0.8))
                                     .fixedSize(horizontal: false, vertical: true)

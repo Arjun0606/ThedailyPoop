@@ -18,6 +18,7 @@ struct User: Identifiable, Codable {
     var createdAt: Date
     var lastDropDate: Date?
     var lastRealDropDate: Date? // Last actual poop (excludes no-poop entries)
+    var lastPoopDate: Date? // For new constipation tracking system
     var totalDrops: Int
     var maxDropsInDay: Int // Highest number of poops in a single day
     var longestNoPoopStreak: Int // Most days gone without pooping
@@ -35,6 +36,13 @@ struct User: Identifiable, Codable {
     // Social / Fart Attack Stats
     var attacksSent: Int
     var attacksReceived: Int
+    
+    // Points System for Daily Leaderboard
+    var dailyPoints: Int // Resets at midnight
+    var dailyPointsResetDate: Date? // Track when points were last reset
+    var totalLifetimePoints: Int // Never resets (for all-time stats)
+    var pointsBoostActive: Bool // 2X points multiplier active
+    var pointsBoostExpiresAt: Date? // When 2X boost ends
 
     // Travel tracking for badges
     var countriesVisited: Set<String> // Countries where user has dropped
@@ -59,6 +67,7 @@ struct User: Identifiable, Codable {
         self.createdAt = Date()
         self.lastDropDate = nil
         self.lastRealDropDate = nil
+        self.lastPoopDate = nil
         self.totalDrops = 0
         self.maxDropsInDay = 0
         self.longestNoPoopStreak = 0
@@ -71,6 +80,11 @@ struct User: Identifiable, Codable {
         self.awardedStreakMilestones = []
         self.attacksSent = 0
         self.attacksReceived = 0
+        self.dailyPoints = 0
+        self.dailyPointsResetDate = Date()
+        self.totalLifetimePoints = 0
+        self.pointsBoostActive = false
+        self.pointsBoostExpiresAt = nil
         self.countriesVisited = []
         self.continentsVisited = []
     }
@@ -105,6 +119,7 @@ extension User {
         self.createdAt = record["createdAt"] as? Date ?? Date()
         self.lastDropDate = record["lastDropDate"] as? Date
         self.lastRealDropDate = record["lastRealDropDate"] as? Date
+        self.lastPoopDate = record["lastPoopDate"] as? Date
         self.totalDrops = record["totalDrops"] as? Int ?? 0
         self.maxDropsInDay = record["maxDropsInDay"] as? Int ?? 0
         self.longestNoPoopStreak = record["longestNoPoopStreak"] as? Int ?? 0
@@ -118,6 +133,13 @@ extension User {
         
         self.attacksSent = record["attacksSent"] as? Int ?? 0
         self.attacksReceived = record["attacksReceived"] as? Int ?? 0
+        
+        // Points System
+        self.dailyPoints = record["dailyPoints"] as? Int ?? 0
+        self.dailyPointsResetDate = record["dailyPointsResetDate"] as? Date
+        self.totalLifetimePoints = record["totalLifetimePoints"] as? Int ?? 0
+        self.pointsBoostActive = (record["pointsBoostActive"] as? Int ?? 0) == 1
+        self.pointsBoostExpiresAt = record["pointsBoostExpiresAt"] as? Date
 
         // Decode travel sets from CloudKit
         if let countriesData = record["countriesVisited"] as? [String] {
@@ -158,6 +180,7 @@ extension User {
         record["createdAt"] = createdAt
         record["lastDropDate"] = lastDropDate
         record["lastRealDropDate"] = lastRealDropDate
+        record["lastPoopDate"] = lastPoopDate
         record["totalDrops"] = totalDrops
         record["maxDropsInDay"] = maxDropsInDay
         record["longestNoPoopStreak"] = longestNoPoopStreak
@@ -171,6 +194,13 @@ extension User {
         
         record["attacksSent"] = attacksSent
         record["attacksReceived"] = attacksReceived
+        
+        // Points System
+        record["dailyPoints"] = dailyPoints
+        record["dailyPointsResetDate"] = dailyPointsResetDate
+        record["totalLifetimePoints"] = totalLifetimePoints
+        record["pointsBoostActive"] = pointsBoostActive ? 1 : 0
+        record["pointsBoostExpiresAt"] = pointsBoostExpiresAt
 
         // Save sets as arrays
         record["countriesVisited"] = Array(countriesVisited)
@@ -182,10 +212,11 @@ extension User {
     // Remove old streak date property
     private enum CodingKeys: String, CodingKey {
         case id, username, dateOfBirth, gender, customGender, avatarURL, streak, createdAt,
-             lastDropDate, lastRealDropDate, totalDrops, maxDropsInDay, longestNoPoopStreak,
+             lastDropDate, lastRealDropDate, lastPoopDate, totalDrops, maxDropsInDay, longestNoPoopStreak,
              friends, friendRequests, lastStreakLogDate, longestStreak, appleUserID, isActive, lastSeen,
              awardedStreakMilestones,
              attacksSent, attacksReceived,
+             dailyPoints, dailyPointsResetDate, totalLifetimePoints, pointsBoostActive, pointsBoostExpiresAt,
              countriesVisited, continentsVisited
     }
 }

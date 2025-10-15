@@ -69,6 +69,7 @@
 		D41D2D21BC9D40498B087397 /* WeeklyLeaderboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3B5A7F2D45C4C92A8F16E84 /* WeeklyLeaderboardView.swift */; };
 		D9AC1536EA6A48F4FEAFB2CE /* ContactView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27F25651DCDE162B6C18444A /* ContactView.swift */; };
 		DCE86F4B2E9BE433007B1BC0 /* StreakManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE86F4A2E9BE433007B1BC0 /* StreakManager.swift */; };
+		DCE86F4D2EA002B2007B1BC0 /* ReferralManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE86F4C2EA002B2007B1BC0 /* ReferralManager.swift */; };
 		DD40E6731A8A4A998FA3CBD6 /* FartAttackReceivedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AAB4C1763A447C3AD025CE8 /* FartAttackReceivedView.swift */; };
 		F28A684129C14FD2B22D2DBD /* FartAttack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4032E1A5989C49F4BF2FF783 /* FartAttack.swift */; };
 		STREAK_MGR_BUILD /* (null) in Sources */ = {isa = PBXBuildFile; };
@@ -284,6 +285,7 @@
 		D44DDC203EFB40CFBB6E70F4 /* ProfilePictureEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilePictureEditor.swift; sourceTree = "<group>"; };
 		D802FC943ABB422C88710795 /* Reaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Reaction.swift; sourceTree = "<group>"; };
 		DCE86F4A2E9BE433007B1BC0 /* StreakManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreakManager.swift; sourceTree = "<group>"; };
+		DCE86F4C2EA002B2007B1BC0 /* ReferralManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReferralManager.swift; sourceTree = "<group>"; };
 		DD6D750A1E874B5CA6A8B30E /* FriendsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsView.swift; sourceTree = "<group>"; };
 		DD9C291B6415453A84F28E06 /* StoreKitManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreKitManager.swift; sourceTree = "<group>"; };
 		E11A6043B79F421791DED928 /* NotificationHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationHandler.swift; sourceTree = "<group>"; };
@@ -423,6 +425,7 @@
 		A1000031294A0000000000888 /* Managers */ = {
 			isa = PBXGroup;
 			children = (
+				DCE86F4C2EA002B2007B1BC0 /* ReferralManager.swift */,
 				DCE86F4A2E9BE433007B1BC0 /* StreakManager.swift */,
 				A1000010294A0000000000001 /* AuthenticationManager.swift */,
 				A1000012294A0000000000001 /* SubscriptionManager.swift */,
@@ -710,6 +713,7 @@
 				A100003B294A0000000000002 /* FriendsManager.swift in Sources */,
 				A100003D294A0000000000002 /* NotificationHandler.swift in Sources */,
 				A100003F294A0000000000002 /* NotificationManager.swift in Sources */,
+				DCE86F4D2EA002B2007B1BC0 /* ReferralManager.swift in Sources */,
 				A1000050294A0000000000003 /* SpotifyAPIClient.swift in Sources */,
 				A1000041294A0000000000002 /* FriendsView.swift in Sources */,
 				A1000047294A0000000000002 /* ProfilePictureEditor.swift in Sources */,

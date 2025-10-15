@@ -117,7 +117,7 @@ class FartAttackManager: ObservableObject {
         inventory?.addAttacks(count)
         await saveInventory()
         
-        print("💨 Added \(count) fart attacks! Total: \(inventory?.availableAttacks ?? 0)")
+        print("👻 Added \(count) ghost attacks! Total: \(inventory?.availableAttacks ?? 0)")
     }
 
     // Award free attacks for streak milestones (7/30/100), only once each

@@ -13,14 +13,9 @@ class StoreKitManager: ObservableObject {
     
     private var updateListenerTask: Task<Void, Error>?
     
-    // Single fart attack pack product ID
-    private let fartAttackProductID = FartAttackPack.productID
-
-    // Streak Freeze one-time product
-    private let streakFreezeProductID = "com.thedailypoop.streak.freeze"
-
+    // All product IDs (9 IAPs)
     private var allProductIDs: [String] {
-        [fartAttackProductID, streakFreezeProductID]
+        IAPProducts.allProducts
     }
     
     private init() {
@@ -46,10 +41,8 @@ class StoreKitManager: ObservableObject {
                     self.purchasedProductIDs.insert(transaction.productID)
                 }
                 
-                // Fart attack pack purchased
-                if transaction.productID == self.fartAttackProductID {
-                    print("✅ Fart attack pack transaction verified: \(transaction.productID)")
-                }
+                // Handle product purchase
+                print("✅ IAP transaction verified: \(transaction.productID)")
                     
                     await transaction.finish()
                 } catch {
@@ -101,10 +94,8 @@ class StoreKitManager: ObservableObject {
                     self.purchasedProductIDs.insert(transaction.productID)
                 }
                 
-                // Fart attack pack purchased
-                if transaction.productID == fartAttackProductID {
-                    print("✅ Fart attack pack transaction verified: \(transaction.productID)")
-                }
+                // Handle product purchase
+                print("✅ IAP transaction verified: \(transaction.productID)")
                 
                 await transaction.finish()
                 
@@ -192,12 +183,26 @@ class StoreKitManager: ObservableObject {
         return availableProducts.first { $0.id == productID }
     }
     
-    func getFartAttackProduct() -> Product? {
-        return availableProducts.first { $0.id == fartAttackProductID }
+    // Get specific product by ID
+    func getProduct(byID productID: String) -> Product? {
+        return availableProducts.first { $0.id == productID }
     }
-
-    func getStreakFreezeProduct() -> Product? {
-        return availableProducts.first { $0.id == streakFreezeProductID }
+    
+    // Convenience methods for common products
+    func getGhostAttackPack() -> Product? {
+        return getProduct(byID: IAPProducts.ghostAttackPack3)
+    }
+    
+    func getPointsBoost() -> Product? {
+        return getProduct(byID: IAPProducts.pointsBoost24h)
+    }
+    
+    func getPollReveal() -> Product? {
+        return getProduct(byID: IAPProducts.pollReveal)
+    }
+    
+    func getGhostReveal() -> Product? {
+        return getProduct(byID: IAPProducts.ghostHintReveal)
     }
 }
 

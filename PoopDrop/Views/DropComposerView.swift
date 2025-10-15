@@ -17,7 +17,6 @@ struct DropComposerView: View {
     // Pro removed
     @State private var showingLocationError = false
     @State private var currentLocation: CLLocation?
-    @State private var isNoPoop = false // Toggle for "no poop" option
     
     // NEW: Rating and music
     @State private var rating: Double = 5.0 // 1-10 slider, default 5
@@ -44,11 +43,7 @@ struct DropComposerView: View {
     }
     
     var canDrop: Bool {
-        // For "no poop", don't require location or caption
-        if isNoPoop {
-            return !isDropping
-        }
-        // For regular poop, require location and caption
+        // Require location and caption
         return currentLocation != nil && !isDropping && !caption.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
     
@@ -60,24 +55,18 @@ struct DropComposerView: View {
                 
                 ScrollView {
                     VStack(spacing: 24) {
-                        // Poop type selector
-                        PoopTypeSelector(isNoPoop: $isNoPoop)
                         
-                        // Location info (only for regular poops)
-                        if !isNoPoop {
-                            if let location = currentLocation {
-                                LocationInfoView(location: location)
-                            } else {
-                                LocationLoadingView()
-                            }
+                        // Location info
+                        if let location = currentLocation {
+                            LocationInfoView(location: location)
+                        } else {
+                            LocationLoadingView()
                         }
                         
                         // Single poop type only - remove style selector
                         
                         // NEW: Poop Rating Slider
-                        if !isNoPoop {
-                            PoopRatingSlider(rating: $rating)
-                        }
+                        PoopRatingSlider(rating: $rating)
                         
                         // Caption input
                         CaptionInputView(
@@ -91,12 +80,12 @@ struct DropComposerView: View {
                         )
                         
                         // NEW: Music Link Input
-                        if !isNoPoop {
-                            MusicLinkInput(musicLink: $musicLink, musicData: $musicData)
-                        }
+                        MusicLinkInput(musicLink: $musicLink, musicData: $musicData)
                         
-                        // Cross-promo to Fart Attacks
-                        FartAttackComposerCard()
+                        // Cross-promo to Ghost Attacks
+                        FartAttackComposerCard(onTap: {
+                            dismiss()
+                        })
                         
                         
                         // Pro removed
@@ -113,7 +102,7 @@ struct DropComposerView: View {
                     DropButton(
                         canDrop: canDrop,
                         isDropping: isDropping,
-                        isNoPoop: isNoPoop,
+                        isNoPoop: false,
                         action: createDrop
                     )
                     .padding(.bottom, 40)
@@ -145,9 +134,6 @@ struct DropComposerView: View {
     }
     
     private func getCurrentLocation() {
-        // Only get location for regular poops
-        guard !isNoPoop else { return }
-        
         Task {
             do {
                 currentLocation = try await locationManager.getCurrentLocation()
@@ -160,8 +146,8 @@ struct DropComposerView: View {
     private func createDrop() {
         guard let user = authManager.currentUser else { return }
         
-        // For regular poops, require location
-        if !isNoPoop && currentLocation == nil {
+        // Require location
+        guard let currentLocation = currentLocation else {
             showingLocationError = true
             return
         }
@@ -176,27 +162,25 @@ struct DropComposerView: View {
             var resolvedCity: String? = nil
             var resolvedCountry: String? = nil
             var resolvedContinent: String? = nil
-            if !isNoPoop, let loc = currentLocation {
-                let geocoder = CLGeocoder()
-                if let placemark = try? await geocoder.reverseGeocodeLocation(loc).first {
-                    resolvedCity = placemark.locality
-                    resolvedCountry = placemark.country
-                    resolvedContinent = getContinent(for: placemark.country ?? "")
-                }
+            let geocoder = CLGeocoder()
+            if let placemark = try? await geocoder.reverseGeocodeLocation(currentLocation).first {
+                resolvedCity = placemark.locality
+                resolvedCountry = placemark.country
+                resolvedContinent = getContinent(for: placemark.country ?? "")
             }
         
         let drop = Drop(
                 userID: user.id,
                 username: user.username,
-                location: isNoPoop ? nil : currentLocation?.coordinate,
+                location: currentLocation.coordinate,
                 city: resolvedCity,
                 country: resolvedCountry,
                 continent: resolvedContinent,
-            skinId: isNoPoop ? nil : selectedSkinId,
+            skinId: selectedSkinId,
             caption: finalCaption.isEmpty ? nil : finalCaption,
-            isNoPoop: isNoPoop,
+            isNoPoop: false,
                 isSponsored: false,
-                rating: isNoPoop ? nil : Int(rating),
+                rating: Int(rating),
                 musicTitle: musicData?.title,
                 musicArtist: musicData?.artist,
                 musicURL: musicData?.url,
@@ -263,10 +247,8 @@ struct DropComposerView: View {
         
         print("📊 Updating user stats...")
         
-        // Let StreakManager handle streak logic if it's a real poop
-        if !isNoPoop {
-            streakManager.logPoop(for: &user)
-        }
+        // Let StreakManager update lastPoopDate
+        streakManager.logPoop(for: &user)
         
         // Update total drops
         user.totalDrops += 1
@@ -320,8 +302,8 @@ struct DropComposerView: View {
         
         // Old streak logic is now removed and handled by StreakManager
         
-        // Update travel tracking if location is available
-        if !isNoPoop, let location = currentLocation {
+        // Update travel tracking (location is guaranteed to exist at this point)
+        if let location = currentLocation {
             await updateTravelStats(for: &user, location: location)
         }
         
@@ -787,12 +769,12 @@ struct MusicData {
 
 // MARK: - Composer Cross-promo Card
 struct FartAttackComposerCard: View {
-    @Environment(\.dismiss) private var dismiss
+    let onTap: () -> Void
     
     var body: some View {
         Button(action: {
             // Dismiss the composer first
-            dismiss()
+            onTap()
             // Then switch to attacks tab
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                 NotificationCenter.default.post(name: Notification.Name("SWITCH_TO_ATTACKS_TAB"), object: nil)

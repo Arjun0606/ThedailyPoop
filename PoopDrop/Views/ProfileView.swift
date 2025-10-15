@@ -3,6 +3,7 @@ import SwiftUI
 struct ProfileView: View {
     @EnvironmentObject var authManager: AuthenticationManager
     @EnvironmentObject var cloudKitManager: CloudKitManager
+    @EnvironmentObject var streakManager: StreakManager
     @State private var showingSettings = false
     @State private var showingHowItWorks = false
     @State private var showingContact = false
@@ -27,7 +28,7 @@ struct ProfileView: View {
                             ProfileHeaderView(user: user)
                             
                             // Stats section
-                            StatsSection(user: user, refreshTrigger: refreshTrigger)
+                            StatsSection(user: user, refreshTrigger: refreshTrigger, streakManager: streakManager)
                             
                             // Achievements section
                             AchievementsSection(user: user, refreshTrigger: refreshTrigger)
@@ -189,6 +190,7 @@ struct ProfileHeaderView: View {
 struct StatsSection: View {
     let user: User
     let refreshTrigger: Bool
+    @ObservedObject var streakManager: StreakManager
     @State private var showingShareSheet = false
     
     var body: some View {
@@ -230,10 +232,10 @@ struct StatsSection: View {
                 )
                 
                 StatCard(
-                    icon: "🔥",
-                    title: "Current Streak",
-                    value: "\(user.streak)",
-                    color: .orange
+                    icon: "🚽",
+                    title: "Last Pooped",
+                    value: streakManager.constipationMessage(days: streakManager.daysSinceLastPoop(for: user)),
+                    color: daysSincePoopColor(days: streakManager.daysSinceLastPoop(for: user))
                 )
 
                 StatCard(
@@ -255,13 +257,6 @@ struct StatsSection: View {
                     title: "Max Dumps/Day",
                     value: "\(user.maxDropsInDay)",
                     color: .green
-                )
-                
-                StatCard(
-                    icon: "😵‍💫",
-                    title: "Longest No-Poop",
-                    value: "\(user.longestNoPoopStreak) days",
-                    color: .purple
                 )
             
                 StatCard(
@@ -303,6 +298,19 @@ struct StatsSection: View {
     private var memberDays: String {
         let days = Calendar.current.dateComponents([.day], from: user.createdAt, to: Date()).day ?? 0
         return "\(days) days"
+    }
+    
+    func daysSincePoopColor(days: Int) -> Color {
+        switch days {
+        case 0:
+            return .green
+        case 1...2:
+            return .yellow
+        case 3...6:
+            return .orange
+        default:
+            return .red
+        }
     }
 }
 

@@ -29,47 +29,31 @@ struct MainTabView: View {
                     }
                     .tag(1)
                 
-                // Placeholder for center FAB
-                Color.clear
-                    .tabItem {
-                        Image(systemName: "plus")
-                        Text("Drop")
-                    }
-                    .tag(2)
-                
                 // Map Tab
                 SnapchatStyleMapView()
                     .tabItem {
-                        Image(systemName: selectedTab == 3 ? "map.fill" : "map")
+                        Image(systemName: selectedTab == 2 ? "map.fill" : "map")
                         Text("Map")
                     }
-                    .tag(3)
-
-                // Fart Attacks Tab
-                ZStack {
-                    FartAttackShopView()
-                    VStack {
-                        Spacer()
-                        // Inline low inventory banner on the attacks tab as well
-                        HStack { BuyMoreBanner(selectedTab: $selectedTab) }
-                            .padding(.horizontal)
-                            .padding(.bottom, 90)
-                    }
+                    .tag(2)
+                
+                // Shop Tab
+                NavigationView {
+                    GhostAttackShopView()
                 }
-                    .tabItem {
-                        Image(systemName: selectedTab == 4 ? "burst.fill" : "burst")
-                        Text("Attacks")
-                    }
-                    .tag(4)
-                    .badge(fartAttackManager.inventory?.availableAttacks ?? 0)
+                .tabItem {
+                    Image(systemName: selectedTab == 3 ? "cart.fill" : "cart")
+                    Text("Shop")
+                }
+                .tag(3)
                 
                 // Profile Tab
                 ProfileView()
                     .tabItem {
-                        Image(systemName: selectedTab == 5 ? "person.fill" : "person")
+                        Image(systemName: selectedTab == 4 ? "person.fill" : "person")
                         Text("Profile")
                     }
-                    .tag(5)
+                    .tag(4)
             }
             .accentColor(.white)
             .onAppear {
@@ -95,13 +79,16 @@ struct MainTabView: View {
                 UITabBar.appearance().scrollEdgeAppearance = appearance
             }
             .onReceive(NotificationCenter.default.publisher(for: Notification.Name("SWITCH_TO_MAP_TAB"))) { _ in
-                selectedTab = 3 // Switch to Map tab
+                selectedTab = 2 // Switch to Map tab
             }
             .onReceive(NotificationCenter.default.publisher(for: Notification.Name("SWITCH_TO_FRIENDS_TAB"))) { _ in
                 selectedTab = 1 // Switch to Friends tab
             }
             .onReceive(NotificationCenter.default.publisher(for: Notification.Name("SWITCH_TO_ATTACKS_TAB"))) { _ in
-                selectedTab = 4 // Switch to Attacks tab
+                selectedTab = 1 // Switch to Friends tab (where attacks are sent from)
+            }
+            .onReceive(NotificationCenter.default.publisher(for: Notification.Name("SWITCH_TO_SHOP_TAB"))) { _ in
+                selectedTab = 3 // Switch to Shop tab
             }
             .onReceive(NotificationCenter.default.publisher(for: Notification.Name("DID_CREATE_DROP"))) { notification in
                 print("📱 MainTabView received DID_CREATE_DROP notification")
@@ -109,7 +96,7 @@ struct MainTabView: View {
                     print("📍 Switching to Map tab and centering on: \(coord)")
                     // Switch to Map tab and remember coordinate
                     pendingCenterCoordinate = coord
-                    selectedTab = 3
+                    selectedTab = 2  // Map tab
                     // Forward full drop to map on next runloop so the view is ready
                     DispatchQueue.main.async {
                         NotificationCenter.default.post(name: Notification.Name("CENTER_MAP"), object: nil, userInfo: ["coordinate": coord, "drop": drop])
@@ -155,11 +142,7 @@ struct MainTabView: View {
             DropComposerView()
         }
         .onChange(of: selectedTab) { newTab in
-            if newTab == 2 {
-                // Reset to previous tab and show composer
-                selectedTab = 0
-                showingDropComposer = true
-            } else if newTab == 3 {
+            if newTab == 2 {  // Map tab
                 // Always refresh map when switching to it (to handle app restart scenario)
                 print("🗺️ Switching to Map tab, posting REFRESH_MAP")
                 NotificationCenter.default.post(name: Notification.Name("REFRESH_MAP"), object: nil)
@@ -171,18 +154,34 @@ struct MainTabView: View {
             // Load inventory and check for pending fart attacks on app launch
             if let currentUser = authManager.currentUser {
                 Task {
+                    // IMPORTANT: Load inventory FIRST before checking if we should give free attack
                     await fartAttackManager.loadInventory(for: currentUser)
-                    await fartAttackManager.checkPendingAttacks(for: currentUser)
                     
-                    // Give 1 FREE attack on first launch
-                    if !UserDefaults.standard.bool(forKey: "hasReceivedFreeFartAttack") {
+                    // Give 1 FREE Ghost Attack on first launch (per user, not per device)
+                    // ONLY check UserDefaults - don't give if they've received before
+                    let userKey = "hasReceivedFreeGhostAttack_\(currentUser.id)"
+                    let hasReceivedBefore = UserDefaults.standard.bool(forKey: userKey)
+                    let currentAttacks = fartAttackManager.inventory?.availableAttacks ?? 0
+                    
+                    // Only give free attack if they've NEVER received it before (UserDefaults is the source of truth)
+                    if !hasReceivedBefore {
+                        // Set the flag FIRST to prevent double-giving
+                        UserDefaults.standard.set(true, forKey: userKey)
+                        UserDefaults.standard.synchronize() // Force save immediately
+                        
                         await fartAttackManager.addAttacksFromPurchase(for: currentUser, count: 1)
-                        UserDefaults.standard.set(true, forKey: "hasReceivedFreeFartAttack")
+                        print("🎁 Gave 1 free Ghost Attack to new user (now has \(fartAttackManager.inventory?.availableAttacks ?? 0))")
+                    } else {
+                        print("✅ User already received free Ghost Attack before (has \(currentAttacks) attacks)")
                     }
                     
-                    // Show onboarding if haven't seen it
+                    // Check for pending attacks after inventory is loaded
+                    await fartAttackManager.checkPendingAttacks(for: currentUser)
+                    
+                    // Show onboarding if haven't seen it (per user)
+                    let onboardingKey = "hasSeenFartAttackOnboarding_\(currentUser.id)"
                     await MainActor.run {
-                        if !UserDefaults.standard.bool(forKey: "hasSeenFartAttackOnboarding") {
+                        if !UserDefaults.standard.bool(forKey: onboardingKey) {
                             // Delay slightly so user sees the main app first
                             DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
                                 showingFartAttackOnboarding = true
@@ -201,10 +200,10 @@ struct MainTabView: View {
         }
         .sheet(isPresented: $showingFartAttackOnboarding) {
             FartAttackOnboardingView {
-                // After onboarding, highlight the Attacks tab
+                // After onboarding, highlight the Friends tab (where you can send attacks)
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     withAnimation {
-                        selectedTab = 4 // Attacks tab
+                        selectedTab = 1 // Friends tab
                     }
                 }
             }

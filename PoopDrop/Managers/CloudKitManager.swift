@@ -90,8 +90,9 @@ class CloudKitManager: ObservableObject {
             existing["longestNoPoopStreak"] = user.longestNoPoopStreak
             existing["isActive"] = user.isActive ? 1 : 0
             existing["lastSeen"] = user.lastSeen
-            existing["lastStreakDate"] = user.lastStreakDate
+            existing["lastStreakLogDate"] = user.lastStreakLogDate
             existing["lastRealDropDate"] = user.lastRealDropDate
+            existing["lastPoopDate"] = user.lastPoopDate
             if let friendsData = try? JSONEncoder().encode(user.friends) {
                 existing["friends"] = friendsData
             }

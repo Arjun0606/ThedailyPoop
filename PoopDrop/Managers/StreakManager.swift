@@ -6,45 +6,39 @@ class StreakManager: ObservableObject {
     
     private let calendar = Calendar.current
     
-    // Checks streak and resets if broken. No grace period.
-    func checkAndUpdateStreak(for user: inout User) {
-        guard let lastLogDate = user.lastStreakLogDate else {
-            return
-        }
-        
-        // If the last log was not yesterday or today, the streak is broken.
-        if !calendar.isDateInToday(lastLogDate) && !calendar.isDateInYesterday(lastLogDate) {
-            if user.streak > 0 {
-                print("🔥 Streak broken for user \(user.username). Was \(user.streak) days. Resetting to 0.")
-                user.streak = 0
-            }
-        }
+    /// Just update the last poop date - no complex streak calculations
+    func logPoop(for user: inout User) {
+        user.lastPoopDate = Date()
+        print("💩 Poop logged for \(user.username) at \(user.lastPoopDate?.formatted() ?? "unknown time")")
     }
     
-    func logPoop(for user: inout User) {
-        let today = Date()
-        
-        if let lastLogDate = user.lastStreakLogDate {
-            if calendar.isDateInToday(lastLogDate) {
-                // Already logged today.
-            } else if calendar.isDateInYesterday(lastLogDate) {
-                // Logged yesterday, increment streak.
-                user.streak += 1
-            } else {
-                // Missed a day or more, reset to 1.
-                user.streak = 1
-            }
-        } else {
-            // First ever poop log.
-            user.streak = 1
+    /// Calculate days since last poop (for displaying constipation status)
+    func daysSinceLastPoop(for user: User) -> Int {
+        guard let lastPoop = user.lastPoopDate else {
+            return 0 // Never pooped (or new user)
         }
         
-        // Update user properties
-        user.lastStreakLogDate = today
-        if user.streak > user.longestStreak {
-            user.longestStreak = user.streak
+        let days = calendar.dateComponents([.day], from: lastPoop, to: Date()).day ?? 0
+        return max(0, days)
+    }
+    
+    /// Get a fun constipation message based on days
+    func constipationMessage(days: Int) -> String {
+        switch days {
+        case 0:
+            return "Just pooped! ✨"
+        case 1:
+            return "1 day ago 💩"
+        case 2:
+            return "2 days ago 😐"
+        case 3:
+            return "3 days ago 😬"
+        case 4...6:
+            return "\(days) days ago 😵‍💫"
+        case 7...13:
+            return "\(days) days... you okay? 🚨"
+        default:
+            return "\(days) days... LEGEND STATUS 💀"
         }
-        
-        print("💩 Poop logged for \(user.username). New streak: \(user.streak). Longest: \(user.longestStreak)")
     }
 }

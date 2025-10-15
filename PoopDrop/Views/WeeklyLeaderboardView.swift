@@ -161,7 +161,7 @@ struct WeeklyLeaderboardView: View {
     private func competitiveMessageBanner(rank: Int) -> some View {
         if let currentEntry = leaderboard.first(where: { $0.userID == authManager.currentUser?.id }),
            rank > 1,
-           let nextPersonUp = leaderboard.first(where: { leaderboard.firstIndex(where: { $0.userID == $0.userID }) == rank - 2 }) {
+           let nextPersonUp = leaderboard.first(where: { entry in leaderboard.firstIndex(where: { $0.userID == entry.userID }) == rank - 2 }) {
             
             let attacksNeeded = nextPersonUp.attacksSent - currentEntry.attacksSent + 1
             

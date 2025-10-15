@@ -15,7 +15,7 @@ struct InviteFriendsView: View {
         """
         💩 I dare you to join me on TheDailyPoop!
         
-        Track your drops, prank friends with Fart Attacks, and compete on leaderboards!
+        Track your drops, prank friends with Ghost Attacks, and compete on leaderboards!
         
         Download now: \(inviteLink)
         """
@@ -39,7 +39,7 @@ struct InviteFriendsView: View {
                             Text("💰")
                                 .font(.system(size: 80))
                             
-                            Text("Get FREE Fart Attacks!")
+                            Text("Get FREE Ghost Attacks!")
                                 .font(.largeTitle.bold())
                                 .foregroundColor(.yellow)
                                 .multilineTextAlignment(.center)
@@ -55,7 +55,7 @@ struct InviteFriendsView: View {
                         VStack(spacing: 16) {
                             rewardCard(
                                 emoji: "🎁",
-                                title: "5 FREE Attacks",
+                                title: "3 FREE Attacks",
                                 subtitle: "For every friend who joins",
                                 color: .green
                             )
@@ -63,7 +63,7 @@ struct InviteFriendsView: View {
                             rewardCard(
                                 emoji: "🔥",
                                 title: "Unlimited Rewards",
-                                subtitle: "No limit! Invite 10 friends = 50 attacks",
+                                subtitle: "No limit! Invite 10 friends = 30 attacks",
                                 color: .orange
                             )
                             
@@ -106,7 +106,7 @@ struct InviteFriendsView: View {
                             }
                             
                             HStack {
-                                Text("🎯 Next: \(5 - (friendsInvited % 5)) friends = 5 attacks")
+                                Text("🎯 Next: \(3 - (friendsInvited % 3)) friends = 3 attacks")
                                     .font(.caption)
                                     .foregroundColor(.gray)
                                 Spacer()
@@ -132,7 +132,7 @@ struct InviteFriendsView: View {
                                     VStack(alignment: .leading, spacing: 2) {
                                         Text("Share Invite Link")
                                             .fontWeight(.bold)
-                                        Text("5 attacks per friend")
+                                        Text("3 attacks per friend")
                                             .font(.caption)
                                     }
                                 }

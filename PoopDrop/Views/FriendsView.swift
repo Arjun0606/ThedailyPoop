@@ -43,10 +43,10 @@ struct FriendsView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    NavigationLink(destination: FriendLeaderboardView()) {
+                    NavigationLink(destination: DailyLeaderboardView()) {
                         HStack(spacing: 4) {
                             Text("🏆")
-                            Text("Leaderboard")
+                            Text("Ranks")
                                 .font(.subheadline)
                                 .fontWeight(.semibold)
                         }
@@ -163,48 +163,11 @@ struct FriendsListView: View {
     var body: some View {
         ScrollView {
             LazyVStack(spacing: 12) {
-                // Invite Friends Card
-                InviteFriendsCard(showingInvite: $showingInvite)
-
-                // Low inventory banner
-                BuyMoreBanner(selectedTab: $selectedTab)
+                // Removed "Out of Ghost Attacks" banner per user request
                 
-                // Fart Attack Banner
-                if attacksAvailable > 0 {
-                    HStack(spacing: 12) {
-                        Text("💨")
-                            .font(.system(size: 36))
-                        
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("You have \(attacksAvailable) fart attack\(attacksAvailable == 1 ? "" : "s")!")
-                                .font(.headline)
-                                .fontWeight(.bold)
-                                .foregroundColor(.white)
-                            
-                            Text("Tap a friend to prank them")
-                                .font(.caption)
-                                .foregroundColor(.gray)
-                        }
-                        
-                        Spacer()
-                        
-                        Image(systemName: "chevron.right")
-                            .foregroundColor(.orange)
-                    }
-                    .padding()
-                    .background(
-                        LinearGradient(
-                            colors: [Color.orange.opacity(0.2), Color.red.opacity(0.1)],
-                            startPoint: .leading,
-                            endPoint: .trailing
-                        )
-                    )
-                    .cornerRadius(12)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color.orange.opacity(0.3), lineWidth: 1)
-                    )
-                }
+                // Invite Friends Card (below action card)
+                InviteFriendsCard(showingInvite: $showingInvite)
+                    .padding(.horizontal)
                 
                 if friends.isEmpty {
                     EmptyFriendsView()
@@ -220,6 +183,102 @@ struct FriendsListView: View {
         .sheet(isPresented: $showingInvite) {
             InviteFriendsView()
                 .environmentObject(authManager)
+        }
+    }
+}
+
+// MARK: - Dynamic Action Card (Buy More or Attack)
+struct DynamicActionCard: View {
+    let attacksAvailable: Int
+    @Binding var showingInvite: Bool
+    @Binding var selectedTab: Int
+    @State private var showingShop = false
+    
+    var body: some View {
+        if attacksAvailable <= 1 {
+            // Show "Buy More Attacks" when low
+            NavigationLink(destination: FartAttackShopView()) {
+                HStack(spacing: 16) {
+                    Text("💸")
+                        .font(.system(size: 40))
+                    
+                    VStack(alignment: .leading, spacing: 4) {
+                        if attacksAvailable == 0 {
+                            Text("Out of Ghost Attacks!")
+                                .font(.headline)
+                                .fontWeight(.bold)
+                                .foregroundColor(.white)
+                            Text("Get 3 attacks for $2.99")
+                                .font(.caption)
+                                .foregroundColor(.yellow)
+                        } else {
+                            Text("Running Low!")
+                                .font(.headline)
+                                .fontWeight(.bold)
+                                .foregroundColor(.white)
+                            Text("Stock up now - $2.99 for 3 more")
+                                .font(.caption)
+                                .foregroundColor(.yellow)
+                        }
+                    }
+                    
+                    Spacer()
+                    
+                    Image(systemName: "chevron.right")
+                        .foregroundColor(.yellow)
+                }
+                .padding()
+                .background(
+                    LinearGradient(
+                        colors: [Color.red.opacity(0.3), Color.orange.opacity(0.2)],
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
+                )
+                .cornerRadius(16)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(Color.yellow.opacity(0.3), lineWidth: 2)
+                )
+            }
+        } else {
+            // Show "Attack a Friend" when they have attacks
+            Button(action: {
+                // Scroll to friends list (they're already on this view)
+            }) {
+                HStack(spacing: 16) {
+                    Text("💨")
+                        .font(.system(size: 40))
+                    
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Ready to Prank!")
+                            .font(.headline)
+                            .fontWeight(.bold)
+                            .foregroundColor(.white)
+                        Text("You have \(attacksAvailable) attack\(attacksAvailable == 1 ? "" : "s") - tap a friend below")
+                            .font(.caption)
+                            .foregroundColor(.white.opacity(0.7))
+                    }
+                    
+                    Spacer()
+                    
+                    Image(systemName: "chevron.down")
+                        .foregroundColor(.orange)
+                }
+                .padding()
+                .background(
+                    LinearGradient(
+                        colors: [Color.orange.opacity(0.3), Color.purple.opacity(0.2)],
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
+                )
+                .cornerRadius(16)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(Color.orange.opacity(0.3), lineWidth: 2)
+                )
+            }
         }
     }
 }
@@ -422,7 +481,7 @@ struct FriendDetailView: View {
                     VStack(spacing: 16) {
                         // Low inventory banner
                         BuyMoreBanner(selectedTab: $selectedTab)
-                        // Fart Attack Button
+                        // Ghost Attack Button
                         if let inventory = fartAttackManager.inventory, inventory.availableAttacks > 0 {
                             if canSendAttack {
                                 Button(action: {
@@ -432,7 +491,7 @@ struct FriendDetailView: View {
                                         Text("💨")
                                             .font(.system(size: 60))
                                         
-                                        Text("Send Fart Attack!")
+                                        Text("Send Ghost Attack!")
                                             .font(.title3)
                                             .fontWeight(.bold)
                                         
@@ -488,7 +547,7 @@ struct FriendDetailView: View {
                                     VStack(spacing: 12) {
                                         Text("💨")
                                             .font(.system(size: 60))
-                                        Text("Get Fart Attacks")
+                                        Text("Get Ghost Attacks")
                                             .font(.title3)
                                             .fontWeight(.bold)
                                         Text("Pick a pack: 3 / 10 / 25")
@@ -563,7 +622,7 @@ struct FriendDetailView: View {
             }
         }
         .navigationBarTitleDisplayMode(.inline)
-        .alert("Fart Attack Sent!", isPresented: $showingSuccess) {
+        .alert("Ghost Attack Sent!", isPresented: $showingSuccess) {
             Button("OK", role: .cancel) { }
         } message: {
             Text("Your legendary fart will hit @\(friend.username) when they open the app! 💨")
@@ -583,7 +642,7 @@ struct FriendDetailView: View {
     
     private func sendFartAttack() {
         guard let currentUser = authManager.currentUser else {
-            errorMessage = "Please sign in to send fart attacks."
+            errorMessage = "Please sign in to send ghost attacks."
             showingError = true
             return
         }
@@ -599,7 +658,7 @@ struct FriendDetailView: View {
                 if success {
                     showingSuccess = true
                 } else {
-                    errorMessage = "Failed to send fart attack. Please try again."
+                    errorMessage = "Failed to send ghost attack. Please try again."
                     showingError = true
                 }
             }
