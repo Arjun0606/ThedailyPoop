@@ -9,6 +9,7 @@ struct MainTabView: View {
     @State private var showingDropComposer = false
     @State private var pendingCenterCoordinate: CLLocationCoordinate2D? = nil
     @State private var showingFartAttackOnboarding = false
+    @State private var showingProfile = false
     
     var body: some View {
         ZStack {
@@ -45,7 +46,7 @@ struct MainTabView: View {
                     }
                     .tag(3)
                 
-                // Shop Tab
+                // Shop Tab (was "More")
                 NavigationView {
                     GhostAttackShopView()
                 }
@@ -54,14 +55,6 @@ struct MainTabView: View {
                     Text("Shop")
                 }
                 .tag(4)
-                
-                // Profile Tab
-                ProfileView()
-                    .tabItem {
-                        Image(systemName: selectedTab == 5 ? "person.fill" : "person")
-                        Text("Profile")
-                    }
-                    .tag(5)
             }
             .accentColor(.white)
             .onAppear {
@@ -145,9 +138,52 @@ struct MainTabView: View {
                     .padding(.bottom, 90) // Above tab bar
                 }
             }
+            
+            // Profile Button (top-right corner)
+            VStack {
+                HStack {
+                    Spacer()
+                    
+                    Button(action: {
+                        showingProfile = true
+                    }) {
+                        ZStack {
+                            Circle()
+                                .fill(Color.white.opacity(0.1))
+                                .frame(width: 44, height: 44)
+                                .overlay(
+                                    Circle()
+                                        .stroke(Color.white.opacity(0.3), lineWidth: 2)
+                                )
+                            
+                            if let avatarURL = authManager.currentUser?.avatarURL,
+                               let image = UIImage(contentsOfFile: avatarURL.path) {
+                                Image(uiImage: image)
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: 40, height: 40)
+                                    .clipShape(Circle())
+                            } else {
+                                Image(systemName: "person.fill")
+                                    .font(.system(size: 20))
+                                    .foregroundColor(.white)
+                            }
+                        }
+                    }
+                    .padding(.top, 60) // Below status bar
+                    .padding(.trailing, 20)
+                }
+                
+                Spacer()
+            }
         }
         .sheet(isPresented: $showingDropComposer) {
             DropComposerView()
+        }
+        .sheet(isPresented: $showingProfile) {
+            NavigationView {
+                ProfileView()
+            }
         }
         .onChange(of: selectedTab) { newTab in
             if newTab == 3 {  // Map tab (now at index 3)
