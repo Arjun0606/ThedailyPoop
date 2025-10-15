@@ -5,7 +5,7 @@ struct InviteFriendsView: View {
     @State private var copied = false
     
     var inviteLink: String {
-        "https://apps.apple.com/app/thedailypoop/id123456789" // Replace with actual App Store link
+        "https://apps.apple.com/app/thedailypoop/id6753231171"
     }
     
     var inviteMessage: String {
