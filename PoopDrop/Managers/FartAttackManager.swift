@@ -204,8 +204,13 @@ class FartAttackManager: ObservableObject {
             // 🎯 AWARD POINTS FOR RECEIVING ATTACK (to victim)
             await pointsManager.awardPoints(to: &mutableFriend, for: .receiveAttack)
             
-            // 🔥 AGGRESSIVE: Send revenge notification to victim
-            await NotificationManager.shared.sendRevengeNotification(to: mutableFriend, from: mutableCurrentUser, attackID: attack.id)
+            // 👻 THE #1 HOOK: Send Ghost Attack notification to victim
+            await NotificationManager.shared.sendGhostAttackNotification(to: mutableFriend, attackID: attack.id)
+            
+            // ⚠️ MONETIZATION HOOK: Check if user is low on attacks
+            if let currentInventory = inventory, currentInventory.availableAttacks <= 1 {
+                await NotificationManager.shared.sendLowAttacksNotification(to: mutableCurrentUser, attacksRemaining: currentInventory.availableAttacks)
+            }
 
             return true
         } catch {

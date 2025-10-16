@@ -68,6 +68,18 @@ class PollManager: ObservableObject {
             
             self.todaysPoll = poll
             print("✅ Created poll by \(creator.username): \(questionText)")
+            
+            // 📊 ENGAGEMENT HOOK: Notify friends about the new poll
+            do {
+                let friends = try await CloudKitManager.shared.fetchFriends(for: creator)
+                await NotificationManager.shared.sendNewPollNotification(
+                    creator: creator,
+                    pollQuestion: questionText,
+                    to: friends
+                )
+            } catch {
+                print("⚠️ Failed to notify friends of new poll: \(error)")
+            }
         } catch {
             print("❌ Error creating poll: \(error)")
         }

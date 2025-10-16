@@ -354,13 +354,6 @@ class CloudKitManager: ObservableObject {
             
             // Send notification to drop owner (only if it's not their own drop)
             if reactingUser.id != dropOwner.id {
-                await NotificationManager.shared.notifyReaction(
-                    from: reactingUser,
-                    to: dropOwner,
-                    emoji: emoji,
-                    dropId: dropId
-                )
-                
                 // 🎯 AWARD POINTS FOR REACTIONS
                 if let pointsManager = pointsManager {
                     var mutableReactingUser = reactingUser
@@ -371,6 +364,16 @@ class CloudKitManager: ObservableObject {
                     
                     // Drop owner gets points for receiving reaction
                     await pointsManager.awardPoints(to: &mutableDropOwner, for: .receiveReaction)
+                    
+                    // 😂 ENGAGEMENT HOOK: Send reaction notification with points earned
+                    let pointsEarned = 5 // Points for receiving a reaction
+                    await NotificationManager.shared.sendDropReactionNotification(
+                        reactor: reactingUser,
+                        dropOwner: dropOwner,
+                        emoji: emoji,
+                        dropId: dropId,
+                        pointsEarned: pointsEarned
+                    )
                 }
             }
         } else {

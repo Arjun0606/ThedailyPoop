@@ -810,6 +810,383 @@ class NotificationManager: ObservableObject {
         try? await UNUserNotificationCenter.current().add(request)
     }
     
+    // MARK: - 🚀 PHASE 1: CORE ENGAGEMENT HOOKS (CRITICAL FOR VIRALITY & MRR)
+    
+    /// 👻 Ghost Attack Received - THE #1 HOOK
+    func sendGhostAttackNotification(to victim: User, attackID: String) async {
+        guard isAuthorized else { return }
+        
+        let content = UNMutableNotificationContent()
+        content.title = "👻 Someone just sent a fart your way!"
+        content.body = "Tap to hear it and guess who's behind it!"
+        content.sound = UNNotificationSound(named: UNNotificationSoundName(getRandomPoopSound()))
+        content.userInfo = [
+            "type": "ghost_attack",
+            "attackID": attackID,
+            "deepLink": "attack" // Opens to GhostAttackReceivedView
+        ]
+        content.badge = 1
+        content.interruptionLevel = .timeSensitive
+        
+        // Action buttons to drive immediate engagement
+        let guessAction = UNNotificationAction(identifier: "GUESS_NOW", title: "🕵️ Guess Now", options: [.foreground])
+        let revealAction = UNNotificationAction(identifier: "REVEAL_SENDER", title: "💰 Reveal ($0.99)", options: [.foreground])
+        
+        let category = UNNotificationCategory(
+            identifier: "GHOST_ATTACK",
+            actions: [guessAction, revealAction],
+            intentIdentifiers: [],
+            options: []
+        )
+        
+        UNUserNotificationCenter.current().setNotificationCategories([category])
+        content.categoryIdentifier = "GHOST_ATTACK"
+        
+        let request = UNNotificationRequest(
+            identifier: "ghost_attack_\(attackID)",
+            content: content,
+            trigger: nil // Immediate delivery
+        )
+        
+        try? await UNUserNotificationCenter.current().add(request)
+        print("👻 Ghost attack notification sent for attack \(attackID)")
+    }
+    
+    /// 💩 Friend Dropped a Poop - Creates FOMO
+    func sendFriendDroppedNotification(friend: User, drop: Drop, to recipients: [User]) async {
+        guard isAuthorized else { return }
+        
+        for recipient in recipients {
+            let content = UNMutableNotificationContent()
+            content.title = "💩 \(friend.username) just took a dump!"
+            content.body = "In \(drop.city ?? "somewhere mysterious") • Tap to see where and react!"
+            content.sound = UNNotificationSound(named: UNNotificationSoundName(getRandomPoopSound()))
+            content.userInfo = [
+                "type": "friend_dropped",
+                "friendId": friend.id,
+                "dropId": drop.id,
+                "deepLink": "map"
+            ]
+            content.badge = 1
+            
+            // Action buttons
+            let viewAction = UNNotificationAction(identifier: "VIEW_DROP", title: "👀 View Drop", options: [.foreground])
+            let reactAction = UNNotificationAction(identifier: "REACT_NOW", title: "😂 React", options: [.foreground])
+            
+            let category = UNNotificationCategory(
+                identifier: "FRIEND_DROPPED",
+                actions: [viewAction, reactAction],
+                intentIdentifiers: [],
+                options: []
+            )
+            
+            UNUserNotificationCenter.current().setNotificationCategories([category])
+            content.categoryIdentifier = "FRIEND_DROPPED"
+            
+            let request = UNNotificationRequest(
+                identifier: "friend_dropped_\(drop.id)_\(recipient.id)",
+                content: content,
+                trigger: nil
+            )
+            
+            try? await UNUserNotificationCenter.current().add(request)
+        }
+        print("💩 Friend drop notification sent to \(recipients.count) recipients")
+    }
+    
+    /// 😂 Someone Reacted to Your Drop - Social Validation + Points
+    func sendDropReactionNotification(reactor: User, dropOwner: User, emoji: String, dropId: String, pointsEarned: Int) async {
+        guard isAuthorized else { return }
+        
+        let content = UNMutableNotificationContent()
+        content.title = "😂 \(reactor.username) reacted to your drop!"
+        content.body = "They sent \(emoji) • You earned +\(pointsEarned) points!"
+        content.sound = UNNotificationSound(named: UNNotificationSoundName(getRandomSocialSound()))
+        content.userInfo = [
+            "type": "drop_reaction",
+            "reactorId": reactor.id,
+            "dropId": dropId,
+            "emoji": emoji,
+            "deepLink": "feed"
+        ]
+        content.badge = 1
+        
+        let viewAction = UNNotificationAction(identifier: "VIEW_DROP_REACTION", title: "👀 View Drop", options: [.foreground])
+        let reactBackAction = UNNotificationAction(identifier: "REACT_BACK_NOW", title: "😎 React Back", options: [])
+        
+        let category = UNNotificationCategory(
+            identifier: "DROP_REACTION_NEW",
+            actions: [viewAction, reactBackAction],
+            intentIdentifiers: [],
+            options: []
+        )
+        
+        UNUserNotificationCenter.current().setNotificationCategories([category])
+        content.categoryIdentifier = "DROP_REACTION_NEW"
+        
+        let request = UNNotificationRequest(
+            identifier: "drop_reaction_\(dropId)_\(reactor.id)_\(Date().timeIntervalSince1970)",
+            content: content,
+            trigger: nil
+        )
+        
+        try? await UNUserNotificationCenter.current().add(request)
+        print("😂 Drop reaction notification sent to \(dropOwner.username)")
+    }
+    
+    /// 📊 New Poll Created - Drives Poll Engagement
+    func sendNewPollNotification(creator: User, pollQuestion: String, to recipients: [User]) async {
+        guard isAuthorized else { return }
+        
+        for recipient in recipients {
+            let content = UNMutableNotificationContent()
+            content.title = "📊 New poll: \"\(pollQuestion)\""
+            content.body = "Vote for a friend now • Earn +5 points!"
+            content.sound = UNNotificationSound(named: UNNotificationSoundName("gentle_chime.wav"))
+            content.userInfo = [
+                "type": "new_poll",
+                "creatorId": creator.id,
+                "deepLink": "poll"
+            ]
+            content.badge = 1
+            
+            let voteAction = UNNotificationAction(identifier: "VOTE_NOW", title: "🗳️ Vote Now", options: [.foreground])
+            
+            let category = UNNotificationCategory(
+                identifier: "NEW_POLL",
+                actions: [voteAction],
+                intentIdentifiers: [],
+                options: []
+            )
+            
+            UNUserNotificationCenter.current().setNotificationCategories([category])
+            content.categoryIdentifier = "NEW_POLL"
+            
+            let request = UNNotificationRequest(
+                identifier: "new_poll_\(recipient.id)_\(Date().timeIntervalSince1970)",
+                content: content,
+                trigger: nil
+            )
+            
+            try? await UNUserNotificationCenter.current().add(request)
+        }
+        print("📊 New poll notification sent to \(recipients.count) recipients")
+    }
+    
+    /// 🏆 Poll Results Are In - Payoff for Participation
+    func sendPollResultsNotification(pollQuestion: String, winnerName: String, to recipients: [User]) async {
+        guard isAuthorized else { return }
+        
+        for recipient in recipients {
+            let content = UNMutableNotificationContent()
+            content.title = "🏆 Poll results are in!"
+            content.body = "\(winnerName) won \"\(pollQuestion)\" • Tap to see full results!"
+            content.sound = UNNotificationSound(named: UNNotificationSoundName("celebration.wav"))
+            content.userInfo = [
+                "type": "poll_results",
+                "deepLink": "poll"
+            ]
+            content.badge = 1
+            
+            let viewAction = UNNotificationAction(identifier: "VIEW_POLL_RESULTS", title: "📊 View Results", options: [.foreground])
+            
+            let category = UNNotificationCategory(
+                identifier: "POLL_RESULTS",
+                actions: [viewAction],
+                intentIdentifiers: [],
+                options: []
+            )
+            
+            UNUserNotificationCenter.current().setNotificationCategories([category])
+            content.categoryIdentifier = "POLL_RESULTS"
+            
+            let request = UNNotificationRequest(
+                identifier: "poll_results_\(recipient.id)_\(Date().timeIntervalSince1970)",
+                content: content,
+                trigger: nil
+            )
+            
+            try? await UNUserNotificationCenter.current().add(request)
+        }
+        print("🏆 Poll results notification sent to \(recipients.count) recipients")
+    }
+    
+    // MARK: - 💰 PHASE 1: MONETIZATION HOOKS (REVENUE DRIVERS)
+    
+    /// ⚠️ Low on Ghost Attacks - Scarcity + Urgency
+    func sendLowAttacksNotification(to user: User, attacksRemaining: Int) async {
+        guard isAuthorized else { return }
+        
+        let content = UNMutableNotificationContent()
+        
+        if attacksRemaining == 0 {
+            content.title = "😭 You're out of Ghost Attacks!"
+            content.body = "Stock up now so you don't miss your chance for revenge!"
+        } else {
+            content.title = "⚠️ Only \(attacksRemaining) Ghost Attack\(attacksRemaining == 1 ? "" : "s") left!"
+            content.body = "Stock up now so you don't miss your chance for revenge!"
+        }
+        
+        content.sound = UNNotificationSound(named: UNNotificationSoundName("urgent_reminder.wav"))
+        content.userInfo = [
+            "type": "low_attacks",
+            "deepLink": "shop"
+        ]
+        content.badge = 1
+        content.interruptionLevel = .timeSensitive
+        
+        let buyAction = UNNotificationAction(identifier: "BUY_ATTACKS_LOW", title: "🛒 Buy 3 for $2.99", options: [.foreground])
+        
+        let category = UNNotificationCategory(
+            identifier: "LOW_ATTACKS",
+            actions: [buyAction],
+            intentIdentifiers: [],
+            options: []
+        )
+        
+        UNUserNotificationCenter.current().setNotificationCategories([category])
+        content.categoryIdentifier = "LOW_ATTACKS"
+        
+        let request = UNNotificationRequest(
+            identifier: "low_attacks_\(user.id)",
+            content: content,
+            trigger: nil
+        )
+        
+        try? await UNUserNotificationCenter.current().add(request)
+        print("⚠️ Low attacks notification sent to \(user.username)")
+    }
+    
+    /// 📉/📈 Leaderboard Position Changed - Competition + Direct CTA
+    func sendLeaderboardRankChangeNotification(to user: User, oldRank: Int, newRank: Int, competitorName: String?) async {
+        guard isAuthorized else { return }
+        
+        let content = UNMutableNotificationContent()
+        
+        if newRank < oldRank {
+            // User moved UP
+            content.title = "📈 You're now #\(newRank) on the leaderboard!"
+            content.body = "Keep it up! Stay ahead with a 2X Points Boost!"
+            content.sound = UNNotificationSound(named: UNNotificationSoundName("celebration.wav"))
+        } else {
+            // User dropped DOWN
+            content.title = "📉 You dropped to #\(newRank) on the leaderboard!"
+            if let competitor = competitorName {
+                content.body = "\(competitor) just passed you • Buy 2X Points Boost to catch up!"
+            } else {
+                content.body = "Buy 2X Points Boost to climb back up!"
+            }
+            content.sound = UNNotificationSound(named: UNNotificationSoundName("sad_trombone.wav"))
+            content.interruptionLevel = .timeSensitive
+        }
+        
+        content.userInfo = [
+            "type": "rank_change",
+            "oldRank": oldRank,
+            "newRank": newRank,
+            "deepLink": "ranks"
+        ]
+        content.badge = 1
+        
+        let viewAction = UNNotificationAction(identifier: "VIEW_LEADERBOARD", title: "📊 View Ranks", options: [.foreground])
+        let boostAction = UNNotificationAction(identifier: "BUY_BOOST", title: "⚡️ Buy Boost ($1.99)", options: [.foreground])
+        
+        let category = UNNotificationCategory(
+            identifier: "RANK_CHANGE",
+            actions: [viewAction, boostAction],
+            intentIdentifiers: [],
+            options: []
+        )
+        
+        UNUserNotificationCenter.current().setNotificationCategories([category])
+        content.categoryIdentifier = "RANK_CHANGE"
+        
+        let request = UNNotificationRequest(
+            identifier: "rank_change_\(user.id)_\(Date().timeIntervalSince1970)",
+            content: content,
+            trigger: nil
+        )
+        
+        try? await UNUserNotificationCenter.current().add(request)
+        print("📊 Rank change notification sent to \(user.username): #\(oldRank) → #\(newRank)")
+    }
+    
+    /// 🔥 Friends Are Active Right Now - FOMO
+    func sendFriendsActiveNowNotification(to user: User, activeFriendNames: [String]) async {
+        guard isAuthorized, activeFriendNames.count >= 3 else { return }
+        
+        let content = UNMutableNotificationContent()
+        content.title = "🔥 Your squad is online!"
+        content.body = "\(activeFriendNames[0]), \(activeFriendNames[1]), and \(activeFriendNames[2]) are pooping right now!"
+        content.sound = UNNotificationSound(named: UNNotificationSoundName("gentle_chime.wav"))
+        content.userInfo = [
+            "type": "friends_active",
+            "deepLink": "feed"
+        ]
+        content.badge = 1
+        
+        let joinAction = UNNotificationAction(identifier: "JOIN_NOW", title: "🚀 Join the Party", options: [.foreground])
+        
+        let category = UNNotificationCategory(
+            identifier: "FRIENDS_ACTIVE",
+            actions: [joinAction],
+            intentIdentifiers: [],
+            options: []
+        )
+        
+        UNUserNotificationCenter.current().setNotificationCategories([category])
+        content.categoryIdentifier = "FRIENDS_ACTIVE"
+        
+        let request = UNNotificationRequest(
+            identifier: "friends_active_\(user.id)_\(Date().timeIntervalSince1970)",
+            content: content,
+            trigger: nil
+        )
+        
+        try? await UNUserNotificationCenter.current().add(request)
+        print("🔥 Friends active notification sent to \(user.username)")
+    }
+    
+    /// 🚨 You Haven't Pooped Today - Streak Risk
+    func sendDailyPoopReminderNotification(to user: User, streakDays: Int) async {
+        guard isAuthorized else { return }
+        
+        let content = UNMutableNotificationContent()
+        content.title = "🚨 Your \(streakDays)-day streak is at risk!"
+        content.body = "You haven't pooped today • Log one now to keep your streak alive!"
+        content.sound = UNNotificationSound(named: UNNotificationSoundName("urgent_reminder.wav"))
+        content.userInfo = [
+            "type": "daily_reminder",
+            "deepLink": "drop"
+        ]
+        content.badge = 1
+        content.interruptionLevel = .timeSensitive
+        
+        let logAction = UNNotificationAction(identifier: "LOG_POOP_REMINDER", title: "💩 Log Now", options: [.foreground])
+        
+        let category = UNNotificationCategory(
+            identifier: "DAILY_REMINDER",
+            actions: [logAction],
+            intentIdentifiers: [],
+            options: []
+        )
+        
+        UNUserNotificationCenter.current().setNotificationCategories([category])
+        content.categoryIdentifier = "DAILY_REMINDER"
+        
+        // Trigger in 12 hours from now
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 12 * 60 * 60, repeats: false)
+        
+        let request = UNNotificationRequest(
+            identifier: "daily_reminder_\(user.id)",
+            content: content,
+            trigger: trigger
+        )
+        
+        try? await UNUserNotificationCenter.current().add(request)
+        print("🚨 Daily poop reminder scheduled for \(user.username)")
+    }
+    
     // MARK: - Badge Management
     
     func updateAppBadge(count: Int) {

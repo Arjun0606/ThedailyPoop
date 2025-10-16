@@ -201,13 +201,13 @@ struct DropComposerView: View {
                 let userDrops = try await cloudKitManager.fetchUserDrops(for: user)
                 await badgeManager.checkBadgeEligibility(for: user, drops: userDrops)
                 
-                // Notify friends about the drop
+                // 💩 ENGAGEMENT HOOK: Notify friends about the drop
                 do {
                     let friends = try await CloudKitManager.shared.fetchFriends(for: user)
-                    await NotificationManager.shared.notifyFriendPooped(
+                    await NotificationManager.shared.sendFriendDroppedNotification(
                         friend: user,
                         drop: drop,
-                        recipients: friends
+                        to: friends
                     )
                 } catch {
                     print("Failed to notify friends of drop: \(error)")
