@@ -203,15 +203,28 @@ extension User {
             record["awardedStreakMilestones"] = Array(awardedStreakMilestones)
         }
         
-        record["attacksSent"] = attacksSent
-        record["attacksReceived"] = attacksReceived
+        // Only save attack stats if > 0 (CloudKit doesn't allow new fields on existing users)
+        if attacksSent > 0 {
+            record["attacksSent"] = attacksSent
+        }
+        if attacksReceived > 0 {
+            record["attacksReceived"] = attacksReceived
+        }
         
-        // Points System
-        record["dailyPoints"] = dailyPoints
-        record["dailyPointsResetDate"] = dailyPointsResetDate
-        record["totalLifetimePoints"] = totalLifetimePoints
-        record["pointsBoostActive"] = pointsBoostActive ? 1 : 0
-        record["pointsBoostExpiresAt"] = pointsBoostExpiresAt
+        // Points System (only save if > 0 or active, to avoid CloudKit errors on existing users)
+        if dailyPoints > 0 {
+            record["dailyPoints"] = dailyPoints
+        }
+        if let resetDate = dailyPointsResetDate {
+            record["dailyPointsResetDate"] = resetDate
+        }
+        if totalLifetimePoints > 0 {
+            record["totalLifetimePoints"] = totalLifetimePoints
+        }
+        if pointsBoostActive {
+            record["pointsBoostActive"] = 1
+            record["pointsBoostExpiresAt"] = pointsBoostExpiresAt
+        }
 
         // Save sets as arrays (only if not empty - CloudKit doesn't allow empty lists for new fields)
         if !countriesVisited.isEmpty {
