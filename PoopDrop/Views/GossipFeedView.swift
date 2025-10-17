@@ -41,27 +41,33 @@ struct GossipFeedView: View {
                                 }
                             }
                             .padding(.vertical)
+                            .padding(.bottom, 80) // Space for FAB
                         }
                         .refreshable {
                             await gossipManager.loadTodaysGossip()
                         }
                     }
-                    
-                    // Compose Button
-                    Button(action: { showingComposer = true }) {
+                }
+                
+                // Floating Action Button (only show when there's gossip)
+                if !gossipManager.todaysGossip.isEmpty && !gossipManager.isLoading {
+                    VStack {
+                        Spacer()
                         HStack {
-                            Image(systemName: "plus.circle.fill")
-                                .font(.title3)
-                            Text("Post Anonymous Gossip")
-                                .font(.headline)
+                            Spacer()
+                            Button(action: { showingComposer = true }) {
+                                Image(systemName: "plus")
+                                    .font(.title2.bold())
+                                    .foregroundColor(.black)
+                                    .frame(width: 60, height: 60)
+                                    .background(Color.yellow)
+                                    .clipShape(Circle())
+                                    .shadow(color: Color.yellow.opacity(0.4), radius: 8, x: 0, y: 4)
+                            }
+                            .padding(.trailing, 20)
+                            .padding(.bottom, 90) // Above tab bar
                         }
-                        .foregroundColor(.black)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.yellow)
-                        .cornerRadius(12)
                     }
-                    .padding()
                 }
             }
             .navigationTitle("☕ Gossip")
@@ -342,90 +348,90 @@ struct GossipComposerView: View {
             ZStack {
                 Color.black.ignoresSafeArea()
                 
-                VStack(spacing: 20) {
-                    // Text editor
-                    ZStack(alignment: .topLeading) {
-                        if gossipText.isEmpty {
-                            Text("What's the tea? ☕\n\nMention friends with @username")
-                                .foregroundColor(.gray)
-                                .padding(8)
+                ScrollView {
+                    VStack(spacing: 20) {
+                        // Text editor
+                        ZStack(alignment: .topLeading) {
+                            if gossipText.isEmpty {
+                                Text("What's the tea? ☕\n\nMention friends with @username")
+                                    .foregroundColor(.gray)
+                                    .padding(8)
+                            }
+                            
+                            TextEditor(text: $gossipText)
+                                .foregroundColor(.white)
+                                .scrollContentBackground(.hidden)
+                                .frame(minHeight: 200)
+                                .padding(4)
                         }
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color.white.opacity(0.05))
+                        )
                         
-                        TextEditor(text: $gossipText)
-                            .foregroundColor(.white)
-                            .scrollContentBackground(.hidden)
-                            .frame(minHeight: 200)
-                            .padding(4)
-                    }
-                    .background(
-                        RoundedRectangle(cornerRadius: 12)
-                            .fill(Color.white.opacity(0.05))
-                    )
-                    
-                    // Character count
-                    HStack {
-                        Text("\(gossipText.count)/\(maxCharacters)")
-                            .font(.caption)
-                            .foregroundColor(gossipText.count > maxCharacters ? .red : .gray)
-                        
-                        Spacer()
-                        
-                        if !detectedMentions.isEmpty {
-                            Text("Mentioning: \(detectedMentions.map { "@" + $0.username }.joined(separator: ", "))")
+                        // Character count
+                        HStack {
+                            Text("\(gossipText.count)/\(maxCharacters)")
                                 .font(.caption)
-                                .foregroundColor(.yellow)
+                                .foregroundColor(gossipText.count > maxCharacters ? .red : .gray)
+                            
+                            Spacer()
+                            
+                            if !detectedMentions.isEmpty {
+                                Text("Mentioning: \(detectedMentions.map { "@" + $0.username }.joined(separator: ", "))")
+                                    .font(.caption)
+                                    .foregroundColor(.yellow)
+                            }
                         }
-                    }
-                    
-                    // Tips
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("💡 Tips:")
-                            .font(.caption.bold())
-                            .foregroundColor(.white)
                         
-                        Text("• Your identity is hidden (anonymous)")
-                            .font(.caption)
-                            .foregroundColor(.gray)
-                        
-                        Text("• Mention friends with @username")
-                            .font(.caption)
-                            .foregroundColor(.gray)
-                        
-                        Text("• They can pay $1.99 to reveal who posted")
-                            .font(.caption)
-                            .foregroundColor(.gray)
-                        
-                        Text("• Gossip expires in 24 hours")
-                            .font(.caption)
-                            .foregroundColor(.gray)
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding()
-                    .background(
-                        RoundedRectangle(cornerRadius: 12)
-                            .fill(Color.yellow.opacity(0.1))
-                    )
-                    
-                    Spacer()
-                    
-                    // Post button
-                    Button(action: postGossip) {
-                        if isPosting {
-                            ProgressView()
-                                .tint(.black)
-                        } else {
-                            Text("Post Anonymously")
-                                .font(.headline)
+                        // Tips
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("💡 Tips:")
+                                .font(.caption.bold())
+                                .foregroundColor(.white)
+                            
+                            Text("• Your identity is hidden (anonymous)")
+                                .font(.caption)
+                                .foregroundColor(.gray)
+                            
+                            Text("• Mention friends with @username")
+                                .font(.caption)
+                                .foregroundColor(.gray)
+                            
+                            Text("• They can pay $1.99 to reveal who posted")
+                                .font(.caption)
+                                .foregroundColor(.gray)
+                            
+                            Text("• Gossip expires in 24 hours")
+                                .font(.caption)
+                                .foregroundColor(.gray)
                         }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding()
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color.yellow.opacity(0.1))
+                        )
+                        
+                        // Post button
+                        Button(action: postGossip) {
+                            if isPosting {
+                                ProgressView()
+                                    .tint(.black)
+                            } else {
+                                Text("Post Anonymously")
+                                    .font(.headline)
+                            }
+                        }
+                        .foregroundColor(.black)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(canPost ? Color.yellow : Color.gray)
+                        .cornerRadius(12)
+                        .disabled(!canPost || isPosting)
                     }
-                    .foregroundColor(.black)
-                    .frame(maxWidth: .infinity)
                     .padding()
-                    .background(canPost ? Color.yellow : Color.gray)
-                    .cornerRadius(12)
-                    .disabled(!canPost || isPosting)
                 }
-                .padding()
             }
             .navigationTitle("☕ New Gossip")
             .navigationBarTitleDisplayMode(.inline)
