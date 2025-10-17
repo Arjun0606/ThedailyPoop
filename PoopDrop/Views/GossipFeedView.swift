@@ -87,24 +87,29 @@ struct GossipFeedView: View {
     private func revealSender(_ gossip: GossipPost) async {
         guard let currentUser = authManager.currentUser else { return }
         
-        // Purchase reveal IAP (using existing pollReveal product ID)
+        // Purchase reveal IAP
         do {
             if let product = storeKitManager.getProduct(byID: IAPProducts.gossipReveal) {
-                try await storeKitManager.purchase(product)
+                // CRITICAL FIX: Check if purchase was successful
+                let purchaseSucceeded = try await storeKitManager.purchase(product)
                 
-                // After successful purchase, reveal the sender
-                let (revealed, sender) = await gossipManager.revealSender(
-                    gossipID: gossip.id,
-                    currentUser: currentUser
-                )
-                
-                if revealed {
-                    showingRevealed.insert(gossip.id)
-                    print("✅ Revealed sender: \(sender ?? "unknown")")
+                // ONLY reveal if payment succeeded
+                if purchaseSucceeded {
+                    let (revealed, sender) = await gossipManager.revealSender(
+                        gossipID: gossip.id,
+                        currentUser: currentUser
+                    )
+                    
+                    if revealed {
+                        showingRevealed.insert(gossip.id)
+                        print("✅ Revealed sender: \(sender ?? "unknown")")
+                    }
+                } else {
+                    print("❌ Purchase cancelled or failed - NOT revealing")
                 }
             }
         } catch {
-            print("❌ Purchase failed: \(error)")
+            print("❌ Purchase error: \(error) - NOT revealing")
         }
     }
 }

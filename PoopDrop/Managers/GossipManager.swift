@@ -101,23 +101,40 @@ class GossipManager: ObservableObject {
     // MARK: - Add Reaction
     
     func addReaction(to gossipID: String, emoji: String) async {
-        guard let index = todaysGossip.firstIndex(where: { $0.id == gossipID }) else { return }
+        guard let index = todaysGossip.firstIndex(where: { $0.id == gossipID }) else {
+            print("❌ Gossip not found: \(gossipID)")
+            return
+        }
         
         var gossip = todaysGossip[index]
         gossip.reactions[emoji, default: 0] += 1
         
-        // Update in CloudKit
-        do {
-            let record = gossip.toCKRecord()
-            let container = CKContainer(identifier: "iCloud.com.poopdrop.app")
-            let database = container.publicCloudDatabase
-            _ = try await database.save(record)
-            
-            // Update local array
-            todaysGossip[index] = gossip
-            print("✅ Added reaction \(emoji) to gossip")
-        } catch {
-            print("❌ Error adding reaction: \(error)")
+        // CRITICAL FIX: Update UI immediately (optimistic update)
+        todaysGossip[index] = gossip
+        print("🎭 Added reaction \(emoji) to gossip (optimistic)")
+        
+        // Update in CloudKit in background
+        Task {
+            do {
+                let record = gossip.toCKRecord()
+                let container = CKContainer(identifier: "iCloud.com.poopdrop.app")
+                let database = container.publicCloudDatabase
+                _ = try await database.save(record)
+                print("✅ Reaction saved to CloudKit")
+            } catch {
+                print("❌ Error saving reaction to CloudKit: \(error)")
+                // Revert on error
+                await MainActor.run {
+                    if let currentIndex = todaysGossip.firstIndex(where: { $0.id == gossipID }) {
+                        var revertedGossip = todaysGossip[currentIndex]
+                        revertedGossip.reactions[emoji, default: 1] -= 1
+                        if revertedGossip.reactions[emoji] == 0 {
+                            revertedGossip.reactions.removeValue(forKey: emoji)
+                        }
+                        todaysGossip[currentIndex] = revertedGossip
+                    }
+                }
+            }
         }
     }
     
