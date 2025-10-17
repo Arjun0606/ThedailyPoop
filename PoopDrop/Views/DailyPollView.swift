@@ -462,7 +462,7 @@ struct PollResultsView: View {
                     .foregroundColor(.gray)
                     .multilineTextAlignment(.center)
                 
-                if let product = storeKitManager.getProduct(byID: IAPProducts.pollReveal) {
+                if let product = storeKitManager.getProduct(byID: IAPProducts.gossipReveal) {
                     Button(action: { showingPurchase = true }) {
                         VStack(spacing: 8) {
                             Text("Reveal All Voters")
@@ -545,7 +545,7 @@ struct PollResultsView: View {
     private func purchaseReveal() {
         Task {
             do {
-                if let product = storeKitManager.getProduct(byID: IAPProducts.pollReveal) {
+                if let product = storeKitManager.getProduct(byID: IAPProducts.gossipReveal) {
                     try await storeKitManager.purchase(product)
                     hasRevealed = true
                 }
