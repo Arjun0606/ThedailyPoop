@@ -164,5 +164,26 @@ class PollManager: ObservableObject {
             return []
         }
     }
+    
+    // MARK: - Load Detailed Poll Results (for reveal)
+    
+    func loadPollResults(pollID: String) async -> [PollVote] {
+        let predicate = NSPredicate(format: "pollID == %@", pollID)
+        let query = CKQuery(recordType: "PollVote", predicate: predicate)
+        
+        do {
+            let container = CKContainer(identifier: "iCloud.com.poopdrop.app")
+            let database = container.publicCloudDatabase
+            let results = try await database.records(matching: query)
+            
+            let votes = results.matchResults.compactMap { try? $0.1.get() }.compactMap { PollVote(from: $0) }
+            
+            print("✅ Loaded \(votes.count) detailed votes for poll")
+            return votes
+        } catch {
+            print("❌ Error loading poll results: \(error)")
+            return []
+        }
+    }
 }
 
