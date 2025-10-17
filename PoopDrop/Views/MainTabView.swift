@@ -92,6 +92,36 @@ struct MainTabView: View {
                     print("⚠️ Drop or location missing from notification")
                 }
             }
+            // CROSS-TAB INTEGRATION: Handle gossip → drop navigation
+            .onReceive(NotificationCenter.default.publisher(for: Notification.Name("SHOW_DROP_FROM_GOSSIP"))) { notification in
+                if let userInfo = notification.userInfo,
+                   let username = userInfo["username"] as? String {
+                    print("🔗 Cross-tab: Gossip → Map for user @\(username)")
+                    // Switch to Map tab
+                    selectedTab = 2
+                    
+                    // Post notification to filter map by user
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                        NotificationCenter.default.post(
+                            name: Notification.Name("CENTER_MAP_ON_USER"),
+                            object: nil,
+                            userInfo: ["username": username]
+                        )
+                    }
+                }
+            }
+            // CROSS-TAB INTEGRATION: Handle drop → gossip navigation
+            .onReceive(NotificationCenter.default.publisher(for: Notification.Name("SHOW_GOSSIP_FOR_DROP"))) { notification in
+                if let userInfo = notification.userInfo,
+                   let username = userInfo["dropOwnerUsername"] as? String {
+                    print("🔗 Cross-tab: Drop → Gossip for user @\(username)")
+                    // Switch to Gossip tab
+                    selectedTab = 1
+                    
+                    // The Gossip tab will automatically show all gossip (including mentions)
+                    // No filtering needed - users can see all gossip mentioning this person
+                }
+            }
             
             // Floating Action Button for Drop
             VStack {

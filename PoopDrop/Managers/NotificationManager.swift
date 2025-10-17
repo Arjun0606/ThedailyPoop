@@ -1286,4 +1286,154 @@ class NotificationManager: ObservableObject {
         UNUserNotificationCenter.current().removeAllDeliveredNotifications()
         updateAppBadge(count: 0)
     }
+    
+    // MARK: - High-Frequency Engagement Notifications (Viral Features)
+    
+    /// Morning Digest: Send at 7 AM with overnight gossip count
+    func sendMorningGossipDigest(overnightCount: Int, to users: [User]) async {
+        guard isAuthorized else { return }
+        
+        for user in users {
+            let content = UNMutableNotificationContent()
+            content.title = "☕ Good morning!"
+            
+            if overnightCount > 0 {
+                content.body = "\(overnightCount) new gossip posts overnight. Someone's definitely talking about you..."
+                content.sound = .default
+                content.badge = NSNumber(value: overnightCount)
+                content.userInfo = ["action": "open_gossip"]
+                
+                let request = UNNotificationRequest(
+                    identifier: "morning_digest_\(user.id)_\(Date().timeIntervalSince1970)",
+                    content: content,
+                    trigger: nil // Send immediately
+                )
+                
+                do {
+                    try await UNUserNotificationCenter.current().add(request)
+                    print("📬 Sent morning digest to \(user.username)")
+                } catch {
+                    print("❌ Failed to send morning digest: \(error)")
+                }
+            }
+        }
+    }
+    
+    /// Gossip Expiring: Send 1 hour before expiration
+    func sendGossipExpiringNotification(gossip: GossipPost, to users: [User]) async {
+        guard isAuthorized else { return }
+        
+        for user in users {
+            // Only send if user is mentioned or hasn't revealed yet
+            if gossip.mentionedUserIDs.contains(user.id) {
+                let content = UNMutableNotificationContent()
+                content.title = "⏰ Gossip expires in 1 hour!"
+                
+                let preview = String(gossip.text.prefix(50))
+                content.body = "Last chance to reveal who said: '\(preview)...'"
+                content.sound = .default
+                content.userInfo = [
+                    "gossipID": gossip.id,
+                    "action": "open_gossip"
+                ]
+                
+                let request = UNNotificationRequest(
+                    identifier: "expiring_\(gossip.id)_\(user.id)",
+                    content: content,
+                    trigger: nil
+                )
+                
+                do {
+                    try await UNUserNotificationCenter.current().add(request)
+                    print("📬 Sent expiring notification to \(user.username)")
+                } catch {
+                    print("❌ Failed to send expiring notification: \(error)")
+                }
+            }
+        }
+    }
+    
+    /// Social Proof: Multiple people revealed this gossip
+    func sendMultipleRevealsNotification(gossip: GossipPost, revealCount: Int, to user: User) async {
+        guard isAuthorized else { return }
+        
+        if revealCount >= 3 {
+            let content = UNMutableNotificationContent()
+            content.title = "👀 \(revealCount) people revealed this"
+            content.body = "You're the only one who doesn't know who posted..."
+            content.sound = .default
+            content.userInfo = [
+                "gossipID": gossip.id,
+                "action": "open_gossip"
+            ]
+            
+            let request = UNNotificationRequest(
+                identifier: "social_proof_\(gossip.id)_\(user.id)_\(Date().timeIntervalSince1970)",
+                content: content,
+                trigger: nil
+            )
+            
+            do {
+                try await UNUserNotificationCenter.current().add(request)
+                print("📬 Sent social proof notification to \(user.username)")
+            } catch {
+                print("❌ Failed to send social proof notification: \(error)")
+            }
+        }
+    }
+    
+    /// FOMO: Friends are active right now
+    func sendFriendsActiveNotification(activeCount: Int, to user: User) async {
+        guard isAuthorized else { return }
+        
+        if activeCount >= 5 {
+            let content = UNMutableNotificationContent()
+            content.title = "🔥 Your friends are all online"
+            content.body = "\(activeCount) friends are checking gossip right now"
+            content.sound = .default
+            content.userInfo = ["action": "open_gossip"]
+            
+            let request = UNNotificationRequest(
+                identifier: "friends_active_\(user.id)_\(Date().timeIntervalSince1970)",
+                content: content,
+                trigger: nil
+            )
+            
+            do {
+                try await UNUserNotificationCenter.current().add(request)
+                print("📬 Sent friends active notification to \(user.username)")
+            } catch {
+                print("❌ Failed to send friends active notification: \(error)")
+            }
+        }
+    }
+    
+    /// Drop Mentioned in Gossip: Your drop was referenced
+    func sendDropMentionedInGossipNotification(gossip: GossipPost, dropOwner: User) async {
+        guard isAuthorized else { return }
+        
+        let content = UNMutableNotificationContent()
+        content.title = "💬 Your drop was mentioned in gossip!"
+        
+        let preview = String(gossip.text.prefix(50))
+        content.body = "Someone said: '\(preview)...'"
+        content.sound = .default
+        content.userInfo = [
+            "gossipID": gossip.id,
+            "action": "open_gossip"
+        ]
+        
+        let request = UNNotificationRequest(
+            identifier: "drop_mentioned_\(gossip.id)_\(dropOwner.id)",
+            content: content,
+            trigger: nil
+        )
+        
+        do {
+            try await UNUserNotificationCenter.current().add(request)
+            print("📬 Sent drop mentioned notification to \(dropOwner.username)")
+        } catch {
+            print("❌ Failed to send drop mentioned notification: \(error)")
+        }
+    }
 }

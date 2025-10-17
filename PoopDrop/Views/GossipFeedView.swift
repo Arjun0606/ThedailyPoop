@@ -258,6 +258,32 @@ struct GossipCard: View {
                 .padding(.vertical, 4)
             }
             
+            // CROSS-TAB INTEGRATION: Link to mentioned users' drops
+            if !gossip.mentionedUsernames.isEmpty {
+                Button(action: {
+                    // Switch to Map tab and show mentioned user's drops
+                    if let firstMentionedUsername = gossip.mentionedUsernames.first {
+                        NotificationCenter.default.post(
+                            name: Notification.Name("SHOW_DROP_FROM_GOSSIP"),
+                            object: nil,
+                            userInfo: ["username": firstMentionedUsername]
+                        )
+                    }
+                }) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "mappin.circle.fill")
+                            .foregroundColor(.purple)
+                        Text("See @\(gossip.mentionedUsernames.first ?? "their") drops on map")
+                            .font(.caption)
+                            .foregroundColor(.purple)
+                    }
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 8)
+                    .background(Color.purple.opacity(0.15))
+                    .cornerRadius(8)
+                }
+            }
+            
             // Reaction picker
             if showingReactions {
                 ScrollView(.horizontal, showsIndicators: false) {
