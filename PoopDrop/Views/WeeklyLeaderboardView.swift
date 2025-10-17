@@ -112,7 +112,8 @@ struct WeeklyLeaderboardView: View {
                                     .font(.title3.bold())
                                     .foregroundColor(.white)
                                 
-                                NavigationLink(destination: FartAttackShopView()) {
+                                // Removed: Ghost Attack shop CTA (feature deleted)
+                                // NavigationLink(destination: EmptyView()) {
                                     VStack(spacing: 8) {
                                         HStack(spacing: 8) {
                                             Image(systemName: "bolt.fill")

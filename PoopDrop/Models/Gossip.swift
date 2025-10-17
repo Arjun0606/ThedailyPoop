@@ -16,6 +16,7 @@ struct GossipPost: Identifiable, Codable {
     var reactions: [String: Int] // [emoji: count] e.g. ["😂": 5, "😱": 3]
     var viewCount: Int
     var replyCount: Int
+    var revealedBy: [String] = [] // User IDs who have revealed this gossip
     
     init(id: String = UUID().uuidString,
          posterID: String,
@@ -29,7 +30,8 @@ struct GossipPost: Identifiable, Codable {
          isAnonymous: Bool = true,
          reactions: [String: Int] = [:],
          viewCount: Int = 0,
-         replyCount: Int = 0) {
+         replyCount: Int = 0,
+         revealedBy: [String] = []) {
         self.id = id
         self.posterID = posterID
         self.posterUsername = posterUsername
@@ -43,6 +45,7 @@ struct GossipPost: Identifiable, Codable {
         self.reactions = reactions
         self.viewCount = viewCount
         self.replyCount = replyCount
+        self.revealedBy = revealedBy
     }
 }
 
@@ -71,6 +74,7 @@ extension GossipPost {
         self.isAnonymous = (record["isAnonymous"] as? Int) == 1
         self.viewCount = record["viewCount"] as? Int ?? 0
         self.replyCount = record["replyCount"] as? Int ?? 0
+        self.revealedBy = record["revealedBy"] as? [String] ?? []
         
         // Decode reactions dictionary
         if let reactionsData = record["reactions"] as? Data,
@@ -99,6 +103,11 @@ extension GossipPost {
         record["isAnonymous"] = isAnonymous ? 1 : 0
         record["viewCount"] = viewCount
         record["replyCount"] = replyCount
+        
+        // Only save revealedBy if not empty (prevents CloudKit error)
+        if !revealedBy.isEmpty {
+            record["revealedBy"] = revealedBy
+        }
         
         // Encode reactions dictionary
         if let reactionsData = try? JSONEncoder().encode(reactions) {
