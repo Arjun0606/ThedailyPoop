@@ -322,6 +322,66 @@ class GossipManager: ObservableObject {
         }
     }
     
+    // MARK: - Record Screenshot
+    
+    func recordScreenshot(for gossipID: String, by user: User) async {
+        guard let index = todaysGossip.firstIndex(where: { $0.id == gossipID }) else {
+            print("❌ Gossip not found: \(gossipID)")
+            return
+        }
+        
+        var gossip = todaysGossip[index]
+        
+        // Check if user already screenshotted (don't add twice)
+        if gossip.screenshotBy.contains(user.id) {
+            print("⚠️ User already screenshotted this gossip")
+            return
+        }
+        
+        // Add to screenshot list
+        gossip.screenshotBy.append(user.id)
+        gossip.screenshotUsernames.append(user.username)
+        
+        // CRITICAL FIX: Update UI immediately (optimistic update)
+        todaysGossip[index] = gossip
+        print("📸 @\(user.username) took screenshot (optimistic)")
+        
+        // CRITICAL FIX: Cache immediately
+        cacheGossipLocally()
+        
+        // Update in CloudKit in background
+        Task {
+            do {
+                let record = gossip.toCKRecord()
+                let container = CKContainer(identifier: "iCloud.com.poopdrop.app")
+                let database = container.publicCloudDatabase
+                _ = try await database.save(record)
+                print("✅ Screenshot recorded to CloudKit")
+                
+                // 📢 ENGAGEMENT HOOK: Notify poster (optional)
+                // await NotificationManager.shared.sendScreenshotNotification(
+                //     gossipText: gossip.text,
+                //     screenshotterUsername: user.username,
+                //     to: gossip.posterID
+                // )
+            } catch {
+                print("❌ Error recording screenshot: \(error)")
+                // Revert on error
+                await MainActor.run {
+                    if let currentIndex = todaysGossip.firstIndex(where: { $0.id == gossipID }) {
+                        var revertedGossip = todaysGossip[currentIndex]
+                        if let userIndex = revertedGossip.screenshotBy.firstIndex(of: user.id) {
+                            revertedGossip.screenshotBy.remove(at: userIndex)
+                            revertedGossip.screenshotUsernames.remove(at: userIndex)
+                        }
+                        todaysGossip[currentIndex] = revertedGossip
+                        self.cacheGossipLocally()
+                    }
+                }
+            }
+        }
+    }
+    
     // MARK: - Detect Mentions
     
     func detectMentions(in text: String, from friends: [User]) -> [User] {

@@ -92,7 +92,40 @@ struct GossipFeedView: View {
                     await gossipManager.loadMyReveals(for: currentUser.id)
                 }
             }
+            .onAppear {
+                setupScreenshotDetection()
+            }
         }
+    }
+    
+    // MARK: - Screenshot Detection
+    
+    private func setupScreenshotDetection() {
+        NotificationCenter.default.addObserver(
+            forName: UIApplication.userDidTakeScreenshotNotification,
+            object: nil,
+            queue: .main
+        ) { [self] _ in
+            handleScreenshot()
+        }
+    }
+    
+    private func handleScreenshot() {
+        guard let currentUser = authManager.currentUser else { return }
+        
+        // Record screenshot for all visible gossip
+        // For now, we'll record for ALL gossip in feed (they can see it)
+        // In future, could track which specific card is visible
+        for gossip in gossipManager.todaysGossip {
+            Task {
+                await gossipManager.recordScreenshot(for: gossip.id, by: currentUser)
+            }
+        }
+        
+        print("📸 Screenshot detected! Recorded for \(gossipManager.todaysGossip.count) gossip posts")
+        
+        // Show toast
+        showToast("📸 Screenshot saved!", icon: "camera.fill")
     }
     
     private func revealSender(_ gossip: GossipPost) async {
@@ -236,6 +269,21 @@ struct GossipCard: View {
                 .foregroundColor(.gray)
                 
                 Spacer()
+            }
+            
+            // Screenshot notification (if anyone screenshotted)
+            if !gossip.screenshotUsernames.isEmpty {
+                HStack(spacing: 4) {
+                    Image(systemName: "camera.fill")
+                        .foregroundColor(.yellow)
+                    Text(screenshotText(gossip.screenshotUsernames))
+                        .font(.caption)
+                        .foregroundColor(.yellow)
+                }
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background(Color.yellow.opacity(0.1))
+                .cornerRadius(6)
             }
             
             // Action buttons
@@ -416,6 +464,20 @@ struct GossipCard: View {
             } else {
                 Color.white.opacity(0.1)
             }
+        }
+    }
+    
+    // MARK: - Screenshot Text Helper
+    
+    private func screenshotText(_ usernames: [String]) -> String {
+        if usernames.isEmpty {
+            return ""
+        } else if usernames.count == 1 {
+            return "@\(usernames[0]) took a screenshot"
+        } else if usernames.count == 2 {
+            return "@\(usernames[0]), @\(usernames[1]) took screenshots"
+        } else {
+            return "@\(usernames[0]), @\(usernames[1]) + \(usernames.count - 2) others took screenshots"
         }
     }
 }

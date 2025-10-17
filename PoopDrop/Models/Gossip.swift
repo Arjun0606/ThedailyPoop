@@ -17,6 +17,8 @@ struct GossipPost: Identifiable, Codable {
     var viewCount: Int
     var replyCount: Int
     var revealedBy: [String] = [] // User IDs who have revealed this gossip
+    var screenshotBy: [String] = [] // User IDs who have screenshotted this gossip
+    var screenshotUsernames: [String] = [] // Usernames for display (e.g. "@arjun, @mike")
     
     init(id: String = UUID().uuidString,
          posterID: String,
@@ -31,7 +33,9 @@ struct GossipPost: Identifiable, Codable {
          reactions: [String: Int] = [:],
          viewCount: Int = 0,
          replyCount: Int = 0,
-         revealedBy: [String] = []) {
+         revealedBy: [String] = [],
+         screenshotBy: [String] = [],
+         screenshotUsernames: [String] = []) {
         self.id = id
         self.posterID = posterID
         self.posterUsername = posterUsername
@@ -46,6 +50,8 @@ struct GossipPost: Identifiable, Codable {
         self.viewCount = viewCount
         self.replyCount = replyCount
         self.revealedBy = revealedBy
+        self.screenshotBy = screenshotBy
+        self.screenshotUsernames = screenshotUsernames
     }
 }
 
@@ -75,6 +81,8 @@ extension GossipPost {
         self.viewCount = record["viewCount"] as? Int ?? 0
         self.replyCount = record["replyCount"] as? Int ?? 0
         self.revealedBy = record["revealedBy"] as? [String] ?? []
+        self.screenshotBy = record["screenshotBy"] as? [String] ?? []
+        self.screenshotUsernames = record["screenshotUsernames"] as? [String] ?? []
         
         // Decode reactions dictionary
         if let reactionsData = record["reactions"] as? Data,
@@ -107,6 +115,12 @@ extension GossipPost {
         // Only save revealedBy if not empty (prevents CloudKit error)
         if !revealedBy.isEmpty {
             record["revealedBy"] = revealedBy
+        }
+        
+        // Only save screenshot data if not empty (prevents CloudKit error)
+        if !screenshotBy.isEmpty {
+            record["screenshotBy"] = screenshotBy
+            record["screenshotUsernames"] = screenshotUsernames
         }
         
         // Encode reactions dictionary
