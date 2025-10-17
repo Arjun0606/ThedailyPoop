@@ -233,19 +233,19 @@ struct GossipCard: View {
                 Spacer()
             }
             
-            // Reveal button
+            // SMART REVEAL BUTTON: Dynamic styling based on urgency, social proof, and mentions
             if !isRevealed {
                 Button(action: { Task { await onReveal() }}) {
                     HStack {
-                        Image(systemName: isMentioned ? "exclamationmark.circle.fill" : "lock.open.fill")
-                        Text(isMentioned ? "🚨 WHO SAID THIS? - $1.99" : "Reveal Sender - $1.99")
+                        Image(systemName: revealButtonIcon)
+                        Text(revealButtonText)
                     }
-                    .font(isMentioned ? .caption.bold() : .caption)
-                    .foregroundColor(isMentioned ? .black : .white)
+                    .font(revealButtonFont)
+                    .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, 8)
-                    .background(isMentioned ? Color.red : Color.white.opacity(0.1))
-                    .cornerRadius(8)
+                    .padding(.vertical, 10)
+                    .background(revealButtonBackground)
+                    .cornerRadius(10)
                 }
             } else {
                 HStack {
@@ -314,6 +314,70 @@ struct GossipCard: View {
                 )
         )
         .padding(.horizontal)
+    }
+    
+    // MARK: - Smart Reveal Button Helpers
+    
+    private var isUrgent: Bool {
+        gossip.expiresAt.timeIntervalSinceNow < 3600 // Less than 1 hour
+    }
+    
+    private var hasMultipleReveals: Bool {
+        gossip.revealedBy.count >= 3
+    }
+    
+    private var revealButtonIcon: String {
+        if isUrgent {
+            return "clock.fill"
+        } else if isMentioned {
+            return "exclamationmark.circle.fill"
+        } else if hasMultipleReveals {
+            return "eye.fill"
+        } else {
+            return "lock.open.fill"
+        }
+    }
+    
+    private var revealButtonText: String {
+        if isUrgent {
+            return "⏰ REVEAL NOW - Expires in 1h - $1.99"
+        } else if hasMultipleReveals {
+            return "👀 \(gossip.revealedBy.count) people revealed - $1.99"
+        } else if isMentioned {
+            return "🚨 WHO SAID THIS ABOUT YOU? - $1.99"
+        } else {
+            return "Reveal Sender - $1.99"
+        }
+    }
+    
+    private var revealButtonFont: Font {
+        if isUrgent || isMentioned {
+            return .caption.bold()
+        } else {
+            return .caption
+        }
+    }
+    
+    private var revealButtonBackground: some View {
+        Group {
+            if isUrgent {
+                LinearGradient(
+                    colors: [.red, .orange],
+                    startPoint: .leading,
+                    endPoint: .trailing
+                )
+            } else if hasMultipleReveals {
+                LinearGradient(
+                    colors: [.purple, .pink],
+                    startPoint: .leading,
+                    endPoint: .trailing
+                )
+            } else if isMentioned {
+                Color.red
+            } else {
+                Color.white.opacity(0.1)
+            }
+        }
     }
 }
 
