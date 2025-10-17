@@ -18,6 +18,9 @@ class GossipManager: ObservableObject {
     func loadTodaysGossip() async {
         isLoading = true
         
+        // CRITICAL FIX: Load cached gossip first (instant display)
+        loadCachedGossip()
+        
         // Get start of today (last 24 hours)
         let yesterday = Date().addingTimeInterval(-86400)
         
@@ -42,12 +45,41 @@ class GossipManager: ObservableObject {
             }
             
             self.todaysGossip = gossipPosts
-            print("📰 Loaded \(gossipPosts.count) gossip posts")
+            print("📰 Loaded \(gossipPosts.count) gossip posts from CloudKit")
+            
+            // CRITICAL FIX: Cache gossip locally for persistence
+            cacheGossipLocally()
         } catch {
             print("❌ Error loading gossip: \(error)")
+            print("💾 Using cached gossip instead")
         }
         
         isLoading = false
+    }
+    
+    // MARK: - Local Persistence (Backup)
+    
+    private func cacheGossipLocally() {
+        do {
+            let data = try JSONEncoder().encode(todaysGossip)
+            UserDefaults.standard.set(data, forKey: "cached_gossip")
+            print("💾 Cached \(todaysGossip.count) gossip posts locally")
+        } catch {
+            print("❌ Error caching gossip: \(error)")
+        }
+    }
+    
+    private func loadCachedGossip() {
+        guard let data = UserDefaults.standard.data(forKey: "cached_gossip"),
+              let cached = try? JSONDecoder().decode([GossipPost].self, from: data) else {
+            print("📭 No cached gossip found")
+            return
+        }
+        
+        // Only use non-expired gossip
+        let validGossip = cached.filter { $0.expiresAt > Date() }
+        self.todaysGossip = validGossip
+        print("💾 Loaded \(validGossip.count) cached gossip posts")
     }
     
     // MARK: - Post Gossip
@@ -74,6 +106,9 @@ class GossipManager: ObservableObject {
             // Add to local array
             self.todaysGossip.insert(gossip, at: 0)
             print("✅ Posted gossip: \(text)")
+            
+            // CRITICAL FIX: Cache immediately after posting
+            cacheGossipLocally()
             
             // 📢 ENGAGEMENT HOOK: Notify mentioned users
             if !mentionedFriends.isEmpty {
@@ -113,6 +148,9 @@ class GossipManager: ObservableObject {
         todaysGossip[index] = gossip
         print("🎭 Added reaction \(emoji) to gossip (optimistic)")
         
+        // CRITICAL FIX: Cache immediately after reaction
+        cacheGossipLocally()
+        
         // Update in CloudKit in background
         Task {
             do {
@@ -132,6 +170,8 @@ class GossipManager: ObservableObject {
                             revertedGossip.reactions.removeValue(forKey: emoji)
                         }
                         todaysGossip[currentIndex] = revertedGossip
+                        // CRITICAL FIX: Cache after revert too
+                        self.cacheGossipLocally()
                     }
                 }
             }

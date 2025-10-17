@@ -8,6 +8,9 @@ struct GossipFeedView: View {
     
     @State private var showingComposer = false
     @State private var showingRevealed: Set<String> = []
+    @State private var showingToast = false
+    @State private var toastMessage = ""
+    @State private var toastIcon = ""
     
     var body: some View {
         NavigationView {
@@ -75,6 +78,14 @@ struct GossipFeedView: View {
             .sheet(isPresented: $showingComposer) {
                 GossipComposerView()
             }
+            .overlay(alignment: .top) {
+                if showingToast {
+                    ToastView(message: toastMessage, icon: toastIcon)
+                        .padding(.top, 50)
+                        .transition(.move(edge: .top).combined(with: .opacity))
+                        .zIndex(999)
+                }
+            }
             .task {
                 await gossipManager.loadTodaysGossip()
                 if let currentUser = authManager.currentUser {
@@ -103,6 +114,7 @@ struct GossipFeedView: View {
                     if revealed {
                         showingRevealed.insert(gossip.id)
                         print("✅ Revealed sender: \(sender ?? "unknown")")
+                        showToast("Revealed! @\(sender ?? "unknown")", icon: "checkmark.circle.fill")
                     }
                 } else {
                     print("❌ Purchase cancelled or failed - NOT revealing")
@@ -110,6 +122,21 @@ struct GossipFeedView: View {
             }
         } catch {
             print("❌ Purchase error: \(error) - NOT revealing")
+            showToast("Purchase failed. Try again.", icon: "xmark.circle.fill")
+        }
+    }
+    
+    private func showToast(_ message: String, icon: String) {
+        toastMessage = message
+        toastIcon = icon
+        withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+            showingToast = true
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+            withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+                showingToast = false
+            }
         }
     }
 }
@@ -739,6 +766,31 @@ struct ReplyCard: View {
         .padding(8)
         .background(Color.white.opacity(0.05))
         .cornerRadius(8)
+    }
+}
+
+// MARK: - Toast View
+struct ToastView: View {
+    let message: String
+    let icon: String
+    
+    var body: some View {
+        HStack(spacing: 12) {
+            Image(systemName: icon)
+                .foregroundColor(.white)
+            
+            Text(message)
+                .font(.caption.bold())
+                .foregroundColor(.white)
+        }
+        .padding(.horizontal, 20)
+        .padding(.vertical, 12)
+        .background(
+            Capsule()
+                .fill(Color.white.opacity(0.2))
+                .background(.ultraThinMaterial)
+        )
+        .shadow(color: .black.opacity(0.3), radius: 10, x: 0, y: 5)
     }
 }
 
