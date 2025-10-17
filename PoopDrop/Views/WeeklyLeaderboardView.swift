@@ -112,32 +112,7 @@ struct WeeklyLeaderboardView: View {
                                     .font(.title3.bold())
                                     .foregroundColor(.white)
                                 
-                                // Removed: Ghost Attack shop CTA (feature deleted)
-                                // NavigationLink(destination: EmptyView()) {
-                                    VStack(spacing: 8) {
-                                        HStack(spacing: 8) {
-                                            Image(systemName: "bolt.fill")
-                                            Text("Get 3 Attacks for $1.99")
-                                                .fontWeight(.bold)
-                                        }
-                                        .font(.headline)
-                                        
-                                        Text("🔥 Instantly climb the ranks")
-                                            .font(.caption)
-                                    }
-                                    .foregroundColor(.black)
-                                    .frame(maxWidth: .infinity)
-                                    .padding()
-                                    .background(
-                                        LinearGradient(
-                                            colors: [Color.yellow, Color.orange],
-                                            startPoint: .topLeading,
-                                            endPoint: .bottomTrailing
-                                        )
-                                    )
-                                    .cornerRadius(12)
-                                    .shadow(color: Color.yellow.opacity(0.3), radius: 10, x: 0, y: 5)
-                                }
+                                // Removed: Ghost Attack shop CTA (feature deleted - no longer have ghost attacks)
                             }
                             .padding(.horizontal)
                             .padding(.top, 30)
