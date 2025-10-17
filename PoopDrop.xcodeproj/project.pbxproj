@@ -63,7 +63,6 @@
 		A100004B294A0000000000002 /* SnapchatStyleMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100004C294A0000000000002 /* SnapchatStyleMapView.swift */; };
 		A100004D294A0000000000002 /* StreakView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100004E294A0000000000002 /* StreakView.swift */; };
 		A1000050294A0000000000003 /* SpotifyAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000051294A0000000000003 /* SpotifyAPIClient.swift */; };
-		B2849EE6E780317F0EA5EBDB /* GhostAttackShopView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81F3DDCF59947E17F1E7B0E3 /* GhostAttackShopView.swift */; };
 		BCDC470159A99D640A798079 /* HowItWorksView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C017F38432C0902A18CF636D /* HowItWorksView.swift */; };
 		C7269D96E6414107BA31C66C /* ReferralCredit.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7EDD4DEDFA340C8B637D777 /* ReferralCredit.swift */; };
 		D41D2D21BC9D40498B087397 /* WeeklyLeaderboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3B5A7F2D45C4C92A8F16E84 /* WeeklyLeaderboardView.swift */; };
@@ -185,7 +184,6 @@
 		7AC4D606616C4C1BB8096CC5 /* SnapchatStyleMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapchatStyleMapView.swift; sourceTree = "<group>"; };
 		7B2E2A5EBC1046A4B4CCE1EF /* NotificationHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationHandler.swift; sourceTree = "<group>"; };
 		7C3B130987144A5CA901445B /* FriendsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsManager.swift; sourceTree = "<group>"; };
-		81F3DDCF59947E17F1E7B0E3 /* GhostAttackShopView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GhostAttackShopView.swift; sourceTree = "<group>"; };
 		82568A3A19324EB9B7040DBC /* ProfilePictureEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfilePictureEditor.swift; sourceTree = "<group>"; };
 		85051EC4DA834F93A1BF75D5 /* FartAttackReceivedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FartAttackReceivedView.swift; sourceTree = "<group>"; };
 		88CF5B7CCC27421490F9EB8F /* SmartPermissionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartPermissionManager.swift; sourceTree = "<group>"; };
@@ -598,7 +596,6 @@
 				B2EB92137063461391661A2E /* WeeklyLeaderboardView.swift */,
 				65373339313463382D346565612D346636312D383434332D /* InviteFriendsView.swift */,
 				1C6495C2AB5EE70F82B3F079 /* DailyLeaderboardView.swift */,
-				81F3DDCF59947E17F1E7B0E3 /* GhostAttackShopView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -762,7 +759,6 @@
 				32E089EE8D57F0712943B5A7 /* DailyLeaderboardView.swift in Sources */,
 				38140D1FE2569790737387FA /* Poll.swift in Sources */,
 				DCE86F4F2EA00AB0007B1BC0 /* PollManager.swift in Sources */,
-				B2849EE6E780317F0EA5EBDB /* GhostAttackShopView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
