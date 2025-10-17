@@ -188,21 +188,9 @@ class StoreKitManager: ObservableObject {
         return availableProducts.first { $0.id == productID }
     }
     
-    // Convenience methods for common products
-    func getGhostAttackPack() -> Product? {
-        return getProduct(byID: IAPProducts.ghostAttackPack3)
-    }
-    
-    func getPointsBoost() -> Product? {
-        return getProduct(byID: IAPProducts.pointsBoost24h)
-    }
-    
-    func getPollReveal() -> Product? {
-        return getProduct(byID: IAPProducts.pollReveal)
-    }
-    
-    func getGhostReveal() -> Product? {
-        return getProduct(byID: IAPProducts.ghostHintReveal)
+    // Convenience method for gossip reveal (our only IAP)
+    func getGossipReveal() -> Product? {
+        return getProduct(byID: IAPProducts.gossipReveal)
     }
 }
 
