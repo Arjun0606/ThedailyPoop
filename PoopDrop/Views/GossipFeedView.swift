@@ -465,9 +465,5 @@ struct GossipComposerView: View {
     }
 }
 
-#Preview {
-    GossipFeedView()
-        .environmentObject(AuthenticationManager.shared)
-        .environmentObject(FriendsManager.shared)
-}
+// Preview removed - use simulator to test (managers don't have .shared instances)
 
