@@ -223,8 +223,7 @@ struct GossipCard: View {
                     .foregroundColor(.gray)
                 }
                 
-                // Reply button (commented out for Phase 1)
-                /*
+                // Reply button
                 Button(action: { showingReplies.toggle() }) {
                     HStack(spacing: 4) {
                         Image(systemName: "bubble.left")
@@ -233,9 +232,17 @@ struct GossipCard: View {
                     .font(.caption)
                     .foregroundColor(.gray)
                 }
-                */
                 
                 Spacer()
+            }
+            
+            // Reply thread (if showing)
+            if showingReplies {
+                ReplyThreadView(
+                    gossipID: gossip.id,
+                    currentUser: currentUser,
+                    onClose: { showingReplies = false }
+                )
             }
             
             // SMART REVEAL BUTTON: Dynamic styling based on urgency, social proof, and mentions
@@ -563,6 +570,175 @@ struct GossipComposerView: View {
                 dismiss()
             }
         }
+    }
+}
+
+// MARK: - Reply Thread View
+struct ReplyThreadView: View {
+    let gossipID: String
+    let currentUser: User
+    let onClose: () -> Void
+    
+    @StateObject private var gossipManager = GossipManager.shared
+    @State private var replies: [GossipReply] = []
+    @State private var replyText = ""
+    @State private var isPostingReply = false
+    @State private var isLoading = true
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            // Header
+            HStack {
+                Text("💬 Replies")
+                    .font(.headline)
+                    .foregroundColor(.white)
+                
+                Spacer()
+                
+                Button(action: onClose) {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundColor(.gray)
+                }
+            }
+            
+            Divider()
+                .background(Color.white.opacity(0.2))
+            
+            // Replies list
+            if isLoading {
+                HStack {
+                    Spacer()
+                    ProgressView()
+                        .tint(.white)
+                    Spacer()
+                }
+                .padding()
+            } else if replies.isEmpty {
+                VStack(spacing: 8) {
+                    Text("👻")
+                        .font(.system(size: 40))
+                    Text("No replies yet")
+                        .font(.caption)
+                        .foregroundColor(.gray)
+                    Text("Be the first to reply!")
+                        .font(.caption2)
+                        .foregroundColor(.gray)
+                }
+                .frame(maxWidth: .infinity)
+                .padding()
+            } else {
+                ScrollView {
+                    VStack(spacing: 12) {
+                        ForEach(replies) { reply in
+                            ReplyCard(reply: reply)
+                        }
+                    }
+                }
+                .frame(maxHeight: 200)
+            }
+            
+            // Reply composer
+            HStack(spacing: 12) {
+                TextField("Write a reply...", text: $replyText, axis: .vertical)
+                    .lineLimit(1...3)
+                    .textFieldStyle(.plain)
+                    .foregroundColor(.white)
+                    .padding(8)
+                    .background(Color.white.opacity(0.1))
+                    .cornerRadius(8)
+                
+                Button(action: postReply) {
+                    if isPostingReply {
+                        ProgressView()
+                            .tint(.purple)
+                    } else {
+                        Image(systemName: "paperplane.fill")
+                            .foregroundColor(canPostReply ? .purple : .gray)
+                    }
+                }
+                .disabled(!canPostReply || isPostingReply)
+            }
+        }
+        .padding()
+        .background(Color.black.opacity(0.8))
+        .cornerRadius(12)
+        .task {
+            await loadReplies()
+        }
+    }
+    
+    private var canPostReply: Bool {
+        !replyText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+    
+    private func loadReplies() async {
+        isLoading = true
+        replies = await gossipManager.loadReplies(for: gossipID)
+        isLoading = false
+    }
+    
+    private func postReply() {
+        guard canPostReply else { return }
+        
+        isPostingReply = true
+        let textToPost = replyText
+        replyText = ""
+        
+        Task {
+            await gossipManager.postReply(
+                to: gossipID,
+                replyText: textToPost,
+                replier: currentUser,
+                isAnonymous: true
+            )
+            
+            // Reload replies
+            await loadReplies()
+            
+            await MainActor.run {
+                isPostingReply = false
+            }
+        }
+    }
+}
+
+// MARK: - Reply Card
+struct ReplyCard: View {
+    let reply: GossipReply
+    
+    var body: some View {
+        HStack(alignment: .top, spacing: 12) {
+            Circle()
+                .fill(Color.gray)
+                .frame(width: 32, height: 32)
+                .overlay(
+                    Image(systemName: reply.isAnonymous ? "person.fill.questionmark" : "person.fill")
+                        .font(.caption)
+                        .foregroundColor(.white)
+                )
+            
+            VStack(alignment: .leading, spacing: 4) {
+                HStack(spacing: 8) {
+                    Text(reply.isAnonymous ? "Anonymous" : reply.replierUsername)
+                        .font(.caption.bold())
+                        .foregroundColor(.white)
+                    
+                    Text(reply.createdAt.timeAgoString())
+                        .font(.caption2)
+                        .foregroundColor(.gray)
+                }
+                
+                Text(reply.replyText)
+                    .font(.caption)
+                    .foregroundColor(.white.opacity(0.9))
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            
+            Spacer()
+        }
+        .padding(8)
+        .background(Color.white.opacity(0.05))
+        .cornerRadius(8)
     }
 }
 

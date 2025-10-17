@@ -181,7 +181,7 @@ class GossipManager: ObservableObject {
         do {
             let container = CKContainer(identifier: "iCloud.com.poopdrop.app")
             let database = container.publicCloudDatabase
-            let results = try await database.records(matching: query)
+            let results = try await database.records(matching: query, resultsLimit: 100)
             
             var replies: [GossipReply] = []
             for result in results.matchResults {
@@ -190,7 +190,7 @@ class GossipManager: ObservableObject {
                 }
             }
             
-            print("✅ Loaded \(replies.count) replies")
+            print("✅ Loaded \(replies.count) replies for gossip")
             return replies
         } catch {
             print("❌ Error loading replies: \(error)")
