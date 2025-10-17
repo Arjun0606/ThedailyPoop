@@ -200,23 +200,11 @@ extension FartAttackInventory {
 
 // MARK: - IAP Product IDs
 struct IAPProducts {
-    // Ghost Attack Pack (ONLY ONE PACK - $2.99 for 3 attacks)
-    static let ghostAttackPack3 = "com.thedailypoop.ghostattackpack3" // $2.99
+    // ONLY ONE IAP: Gossip Reveal ($1.99)
+    static let gossipReveal = "com.thedailypoop.pollreveal" // $1.99 (keeping same ID from poll reveal)
     
-    // Gossip Reveal (renamed from Poll Reveal - now $1.99)
-    static let pollReveal = "com.thedailypoop.pollreveal" // $1.99 (keeping same ID, just update price in App Store Connect)
-    
-    // Ghost Attack Hints (narrow-down is FREE, reveal is $0.99)
-    static let ghostHintReveal = "com.thedailypoop.ghostreveal" // $0.99
-    
-    // Points Boost
-    static let pointsBoost24h = "com.thedailypoop.pointsboost24h" // $1.99
-    
-    // All product IDs (4 total - SUPER simplified!)
+    // All product IDs (1 total - MAXIMUM SIMPLIFICATION!)
     static let allProducts = [
-        ghostAttackPack3,
-        pollReveal,
-        ghostHintReveal,
-        pointsBoost24h
+        gossipReveal
     ]
 }

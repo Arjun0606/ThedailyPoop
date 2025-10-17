@@ -37,23 +37,13 @@ struct MainTabView: View {
                     }
                     .tag(2)
                 
-                // Shop Tab
-                NavigationView {
-                    GhostAttackShopView()
-                }
-                .tabItem {
-                    Image(systemName: selectedTab == 3 ? "cart.fill" : "cart")
-                    Text("Shop")
-                }
-                .tag(3)
-                
                 // Profile Tab
                 ProfileView()
                     .tabItem {
-                        Image(systemName: selectedTab == 4 ? "person.fill" : "person")
+                        Image(systemName: selectedTab == 3 ? "person.fill" : "person")
                         Text("Profile")
                     }
-                    .tag(4)
+                    .tag(3)
             }
             .accentColor(.white)
             .onAppear {
@@ -86,9 +76,6 @@ struct MainTabView: View {
             }
             .onReceive(NotificationCenter.default.publisher(for: Notification.Name("SWITCH_TO_ATTACKS_TAB"))) { _ in
                 selectedTab = 0 // Switch to Chat tab (where attacks are sent from)
-            }
-            .onReceive(NotificationCenter.default.publisher(for: Notification.Name("SWITCH_TO_SHOP_TAB"))) { _ in
-                selectedTab = 3 // Switch to Shop tab (now at index 3)
             }
             .onReceive(NotificationCenter.default.publisher(for: Notification.Name("DID_CREATE_DROP"))) { notification in
                 print("📱 MainTabView received DID_CREATE_DROP notification")

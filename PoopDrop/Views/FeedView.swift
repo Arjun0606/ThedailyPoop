@@ -22,17 +22,9 @@ struct FeedView: View {
                     } else {
                         ScrollView {
                             LazyVStack(spacing: 16) {
-                                // Ghost Attack Promo Card
-                                if !UserDefaults.standard.bool(forKey: "hasDismissedFartAttackPromo") {
-                                    FartAttackPromoCard()
-                                        .padding(.top, 8)
-                                        .padding(.bottom, 8)
-                                }
-                                // Fallback mini-banner when promo dismissed
-                                if UserDefaults.standard.bool(forKey: "hasDismissedFartAttackPromo") {
-                                    FartAttackMiniBanner()
-                                        .padding(.horizontal, 16)
-                                }
+                                // Gossip Promo Card (swipe to Gossip tab!)
+                                GossipPromoCard()
+                                    .padding(.top, 8)
                                 
                                 // Drops feed
                                 ForEach(allDrops) { drop in
@@ -334,6 +326,64 @@ struct FeatureHighlight: View {
             .padding(.vertical, 4)
             .background(Color.white.opacity(0.2))
             .cornerRadius(6)
+    }
+}
+
+// MARK: - Gossip Promo Card
+struct GossipPromoCard: View {
+    @State private var isDismissed = false
+    
+    var body: some View {
+        if !isDismissed {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack {
+                    Text("☕")
+                        .font(.system(size: 32))
+                    
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("What are your friends saying?")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                        
+                        Text("Check out the Gossip tab →")
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                    }
+                    
+                    Spacer()
+                    
+                    Button(action: { withAnimation { isDismissed = true }}) {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundColor(.gray)
+                    }
+                }
+                
+                HStack(spacing: 8) {
+                    Image(systemName: "eye.slash.fill")
+                        .foregroundColor(.yellow)
+                    Text("Anonymous posts")
+                        .font(.caption)
+                        .foregroundColor(.gray)
+                    
+                    Spacer()
+                    
+                    Image(systemName: "lock.open.fill")
+                        .foregroundColor(.yellow)
+                    Text("$1.99 to reveal")
+                        .font(.caption)
+                        .foregroundColor(.gray)
+                }
+            }
+            .padding()
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(Color.purple.opacity(0.2))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 16)
+                    .stroke(Color.purple.opacity(0.4), lineWidth: 1)
+            )
+        }
     }
 }
 

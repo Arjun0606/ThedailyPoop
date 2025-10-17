@@ -87,16 +87,6 @@ struct DailyLeaderboardView: View {
                         Spacer()
                         
                         // 2X Boost indicator
-                        if user.pointsBoostActive {
-                            Text("🔥 2X")
-                                .font(.caption)
-                                .fontWeight(.bold)
-                                .foregroundColor(.yellow)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 4)
-                                .background(Color.orange.opacity(0.3))
-                                .cornerRadius(8)
-                        }
                     }
                     .padding()
                     .background(
@@ -163,43 +153,6 @@ struct DailyLeaderboardView: View {
                 PointRow(emoji: "🏆", action: "Win a poll", points: 25)
             }
             
-            Divider()
-                .background(Color.white.opacity(0.2))
-                .padding(.vertical, 8)
-            
-            // 2X Boost CTA
-            if let user = authManager.currentUser, !user.pointsBoostActive {
-                Button(action: {
-                    // Switch to Shop tab
-                    NotificationCenter.default.post(name: Notification.Name("SWITCH_TO_SHOP_TAB"), object: nil)
-                }) {
-                    HStack {
-                        Text("🚀 2X Points for 24 hours")
-                            .font(.subheadline)
-                            .fontWeight(.bold)
-                        
-                        Spacer()
-                        
-                        Text("$1.99")
-                            .font(.subheadline)
-                            .foregroundColor(.yellow)
-                    }
-                    .foregroundColor(.white)
-                    .padding()
-                    .background(
-                        LinearGradient(
-                            colors: [Color.orange.opacity(0.4), Color.red.opacity(0.3)],
-                            startPoint: .leading,
-                            endPoint: .trailing
-                        )
-                    )
-                    .cornerRadius(12)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color.yellow.opacity(0.5), lineWidth: 2)
-                    )
-                }
-            }
         }
         .padding()
         .background(Color.white.opacity(0.05))
@@ -247,16 +200,6 @@ struct DailyLeaderboardRow: View {
                         .font(.subheadline)
                         .foregroundColor(.gray)
                     
-                    if entry.user.pointsBoostActive {
-                        Text("🔥 2X")
-                            .font(.caption2)
-                            .fontWeight(.bold)
-                            .foregroundColor(.yellow)
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 2)
-                            .background(Color.orange.opacity(0.3))
-                            .cornerRadius(6)
-                    }
                 }
             }
             

@@ -89,7 +89,7 @@ struct GossipFeedView: View {
         
         // Purchase reveal IAP (using existing pollReveal product ID)
         do {
-            if let product = storeKitManager.getProduct(byID: IAPProducts.pollReveal) {
+            if let product = storeKitManager.getProduct(byID: IAPProducts.gossipReveal) {
                 try await storeKitManager.purchase(product)
                 
                 // After successful purchase, reveal the sender
