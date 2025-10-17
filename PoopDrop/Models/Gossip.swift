@@ -9,6 +9,7 @@ struct GossipPost: Identifiable, Codable {
     let text: String // The gossip content
     let mentionedUserIDs: [String] // People mentioned (@username)
     let mentionedUsernames: [String] // For display
+    var mentionedDropIDs: [String] // Drops referenced in gossip (for cross-tab integration)
     let createdAt: Date
     let expiresAt: Date // 24 hours from creation
     var isAnonymous: Bool = true
@@ -22,6 +23,7 @@ struct GossipPost: Identifiable, Codable {
          text: String,
          mentionedUserIDs: [String] = [],
          mentionedUsernames: [String] = [],
+         mentionedDropIDs: [String] = [],
          createdAt: Date = Date(),
          expiresAt: Date = Date().addingTimeInterval(86400), // 24 hours
          isAnonymous: Bool = true,
@@ -34,6 +36,7 @@ struct GossipPost: Identifiable, Codable {
         self.text = text
         self.mentionedUserIDs = mentionedUserIDs
         self.mentionedUsernames = mentionedUsernames
+        self.mentionedDropIDs = mentionedDropIDs
         self.createdAt = createdAt
         self.expiresAt = expiresAt
         self.isAnonymous = isAnonymous
@@ -62,6 +65,7 @@ extension GossipPost {
         self.text = text
         self.mentionedUserIDs = record["mentionedUserIDs"] as? [String] ?? []
         self.mentionedUsernames = record["mentionedUsernames"] as? [String] ?? []
+        self.mentionedDropIDs = record["mentionedDropIDs"] as? [String] ?? []
         self.createdAt = createdAt
         self.expiresAt = expiresAt
         self.isAnonymous = (record["isAnonymous"] as? Int) == 1
@@ -84,6 +88,12 @@ extension GossipPost {
         record["text"] = text
         record["mentionedUserIDs"] = mentionedUserIDs
         record["mentionedUsernames"] = mentionedUsernames
+        
+        // Only save mentionedDropIDs if not empty (prevents CloudKit error)
+        if !mentionedDropIDs.isEmpty {
+            record["mentionedDropIDs"] = mentionedDropIDs
+        }
+        
         record["createdAt"] = createdAt
         record["expiresAt"] = expiresAt
         record["isAnonymous"] = isAnonymous ? 1 : 0
