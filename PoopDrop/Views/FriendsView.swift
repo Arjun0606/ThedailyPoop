@@ -202,7 +202,7 @@ struct FriendsListView: View {
     }
 }
 
-// MARK: - Dynamic Action Card (Buy More or Attack)
+// MARK: - Dynamic Action Card (Removed - Ghost Attacks feature deleted)
 struct DynamicActionCard: View {
     let attacksAvailable: Int
     @Binding var showingInvite: Bool
@@ -210,9 +210,12 @@ struct DynamicActionCard: View {
     @State private var showingShop = false
     
     var body: some View {
+        // Ghost Attacks removed - only Gossip Reveals now (purchased inline in Gossip tab)
+        EmptyView()
+        /*
         if attacksAvailable <= 1 {
             // Show "Buy More Attacks" when low
-            NavigationLink(destination: FartAttackShopView()) {
+            NavigationLink(destination: EmptyView()) {
                 HStack(spacing: 16) {
                     Text("💸")
                         .font(.system(size: 40))
@@ -648,9 +651,10 @@ struct FriendDetailView: View {
         } message: {
             Text(errorMessage)
         }
-        .sheet(isPresented: $showingPurchaseSheet) {
-            FartAttackShopView()
-        }
+        // Removed: Ghost Attack shop (feature deleted)
+        // .sheet(isPresented: $showingPurchaseSheet) {
+        //     EmptyView()
+        // }
         .sheet(isPresented: $showingInvite) {
             InviteFriendsView()
         }
