@@ -162,28 +162,7 @@ struct WeeklyLeaderboardView: View {
                     Spacer()
                 }
                 
-                // Inline CTA if close to next rank
-                if attacksNeeded <= 5 {
-                    NavigationLink(destination: FartAttackShopView()) {
-                        HStack(spacing: 8) {
-                            Image(systemName: "bolt.fill")
-                            Text("Get 3 Attacks Now")
-                                .fontWeight(.bold)
-                        }
-                        .font(.subheadline)
-                        .foregroundColor(.black)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 10)
-                        .background(
-                            LinearGradient(
-                                colors: [Color.yellow, Color.orange],
-                                startPoint: .leading,
-                                endPoint: .trailing
-                            )
-                        )
-                        .cornerRadius(8)
-                    }
-                }
+                // Removed: Ghost Attack CTA (feature deleted)
             }
             .padding()
             .background(
