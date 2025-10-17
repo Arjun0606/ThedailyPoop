@@ -169,8 +169,10 @@ extension User {
         if let gender = gender {
             record["gender"] = gender.rawValue
         }
+        if let customGender = customGender {
+            record["customGender"] = customGender
+        }
         record["appleUserID"] = appleUserID
-        record["customGender"] = customGender
         // Store avatar as CKAsset when available
         if let localURL = avatarURL, FileManager.default.fileExists(atPath: localURL.path) {
             let asset = CKAsset(fileURL: localURL)
@@ -178,9 +180,18 @@ extension User {
         }
         record["streak"] = streak
         record["createdAt"] = createdAt
-        record["lastDropDate"] = lastDropDate
-        record["lastRealDropDate"] = lastRealDropDate
-        record["lastPoopDate"] = lastPoopDate
+        
+        // Only save optional Date fields if they exist (prevents CloudKit error on new users)
+        if let date = lastDropDate {
+            record["lastDropDate"] = date
+        }
+        if let date = lastRealDropDate {
+            record["lastRealDropDate"] = date
+        }
+        if let date = lastPoopDate {
+            record["lastPoopDate"] = date
+        }
+        
         record["totalDrops"] = totalDrops
         record["maxDropsInDay"] = maxDropsInDay
         record["longestNoPoopStreak"] = longestNoPoopStreak
@@ -193,10 +204,16 @@ extension User {
             record["friendRequests"] = friendRequests
         }
         
-        record["lastStreakLogDate"] = lastStreakLogDate
+        // Only save optional Date fields if they exist
+        if let date = lastStreakLogDate {
+            record["lastStreakLogDate"] = date
+        }
+        if let date = lastSeen {
+            record["lastSeen"] = date
+        }
+        
         record["longestStreak"] = longestStreak
         record["isActive"] = isActive ? 1 : 0
-        record["lastSeen"] = lastSeen
         
         // Only save awardedStreakMilestones if it has values
         if !awardedStreakMilestones.isEmpty {
@@ -211,11 +228,12 @@ extension User {
             record["attacksReceived"] = attacksReceived
         }
         
-        // Points System (only save if > 0 or active, to avoid CloudKit errors on existing users)
+        // Points System (only save if values exist to avoid CloudKit errors on new users)
         if dailyPoints > 0 {
             record["dailyPoints"] = dailyPoints
         }
-        if let resetDate = dailyPointsResetDate {
+        // CRITICAL: Only save dailyPointsResetDate if dailyPoints exist (prevents CloudKit error on new users)
+        if dailyPoints > 0, let resetDate = dailyPointsResetDate {
             record["dailyPointsResetDate"] = resetDate
         }
         if totalLifetimePoints > 0 {
@@ -223,7 +241,9 @@ extension User {
         }
         if pointsBoostActive {
             record["pointsBoostActive"] = 1
-            record["pointsBoostExpiresAt"] = pointsBoostExpiresAt
+            if let expiresAt = pointsBoostExpiresAt {
+                record["pointsBoostExpiresAt"] = expiresAt
+            }
         }
 
         // Save sets as arrays (only if not empty - CloudKit doesn't allow empty lists for new fields)
