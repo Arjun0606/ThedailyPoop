@@ -122,19 +122,19 @@ struct GhostAttackShopView: View {
                             accent: .purple
                         )
                         
-                        // Poll Reveal
+                        // Gossip Reveal (updated from Poll Reveal)
                         IAPProductCard(
-                            icon: "📊",
-                            title: "Reveal Poll Voters",
+                            icon: "☕",
+                            title: "Reveal Gossip Sender",
                             subtitle: "One-Time Use",
                             features: [
-                                "See who voted for you",
-                                "Instant results",
-                                "Know who thinks what"
+                                "See who posted anonymous gossip",
+                                "Know who's talking about you",
+                                "Get your revenge!"
                             ],
-                            price: "$0.99",
+                            price: "$1.99",
                             productID: IAPProducts.pollReveal,
-                            accent: .blue
+                            accent: .red
                         )
                     }
                     .padding(.bottom, 40)
