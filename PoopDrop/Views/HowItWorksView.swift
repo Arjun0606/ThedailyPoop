@@ -51,30 +51,36 @@ struct HowItWorksView: View {
                         FeatureSection(
                             icon: "👻",
                             title: "5. Ghost Attacks!",
-                            description: "Send anonymous fart attacks to your friends! They'll hear a hilarious fart sound and have to guess who sent it. Guess correctly or pay $0.99 to reveal the sender. It's the ultimate prank feature!"
-                        )
-                        
-                        FeatureSection(
-                            icon: "🏆",
-                            title: "6. Daily Rankings",
-                            description: "Earn points for everything you do! Drop a poop (+10), react to friends (+5), send ghost attacks (+15), get attacked (+20), and win polls (+25). Compete on the daily leaderboard that resets at midnight. Climb to #1!"
+                            description: "Send anonymous fart attacks to your friends! They'll hear a hilarious fart sound and have ONE guess to figure out who sent it. Guess wrong? You can pay $0.99 to reveal the sender, or leave it a mystery forever! It's the ultimate prank feature with real stakes."
                         )
                         
                         FeatureSection(
                             icon: "📊",
-                            title: "7. Unlock Achievements",
+                            title: "6. Daily Polls",
+                            description: "Vote in daily polls created by your friends! Questions like 'Who's the funniest?' or 'Who poops the most?' You get to vote for 1 friend. After voting, see the leaderboard showing the top 3 winners. You'll see ONE person who voted for you, but to see everyone, pay $0.99 to unlock all voters. The competitive messages tell you how many votes you need to climb the leaderboard!"
+                        )
+                        
+                        FeatureSection(
+                            icon: "🏆",
+                            title: "7. Daily Rankings",
+                            description: "Earn points for everything you do! Drop a poop (+10), react to friends (+5), send ghost attacks (+15), get attacked (+20), and win polls (+25). Compete on the daily leaderboard that resets at midnight. Buy a 2X Points Boost ($1.99) to double your points for 24 hours and climb to #1 faster!"
+                        )
+                        
+                        FeatureSection(
+                            icon: "🎖️",
+                            title: "8. Unlock Achievements",
                             description: "Earn badges for hitting milestones: 7-day streaks, 100 drops, visiting new countries, and more! Track your stats: total drops, max drops per day, longest no-poop streak, countries visited, and continents explored."
                         )
                         
                         FeatureSection(
                             icon: "🎵",
-                            title: "8. Music & Ratings",
+                            title: "9. Music & Ratings",
                             description: "Rate each poop from 1-10 (watch the poop emoji grow!). Share what song you're jamming to by pasting a Spotify or Apple Music link. Friends can tap the music card to listen to the same song. Turn your bathroom breaks into a musical experience!"
                         )
                         
                         FeatureSection(
                             icon: "📱",
-                            title: "9. Share Your Journey",
+                            title: "10. Share Your Journey",
                             description: "Export your stats as a beautiful shareable image for Instagram, Twitter, or Stories. Show off your streak, your poop passport, or your global heatmap!"
                         )
                         

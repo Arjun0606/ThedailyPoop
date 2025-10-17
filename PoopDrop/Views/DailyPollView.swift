@@ -253,14 +253,30 @@ struct FriendVoteCard: View {
 
 struct PollResultsView: View {
     @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject var authManager: AuthenticationManager
     @EnvironmentObject var friendsManager: FriendsManager
     @StateObject private var storeKitManager = StoreKitManager.shared
+    @StateObject private var pollManager = PollManager.shared
     
     let poll: Poll
     let results: [(userID: String, votes: Int)]
     
     @State private var showingPurchase = false
     @State private var hasRevealed = false
+    @State private var detailedVotes: [PollVote] = []
+    
+    var currentUserRank: Int {
+        guard let currentUser = authManager.currentUser else { return 0 }
+        if let index = results.firstIndex(where: { $0.userID == currentUser.id }) {
+            return index + 1
+        }
+        return results.count + 1
+    }
+    
+    var currentUserVotes: Int {
+        guard let currentUser = authManager.currentUser else { return 0 }
+        return results.first(where: { $0.userID == currentUser.id })?.votes ?? 0
+    }
     
     var body: some View {
         NavigationView {
@@ -282,66 +298,14 @@ struct PollResultsView: View {
                         }
                         .padding(.top, 20)
                         
-                        // Results
-                        if hasRevealed {
-                            VStack(spacing: 12) {
-                                ForEach(Array(results.enumerated()), id: \.offset) { index, result in
-                                    if let friend = friendsManager.friends.first(where: { $0.id == result.userID }) {
-                                        ResultCard(
-                                            rank: index + 1,
-                                            friend: friend,
-                                            votes: result.votes
-                                        )
-                                    }
-                                }
-                            }
-                            .padding()
+                        // FIX 4: Leaderboard with competitive messaging
+                        leaderboardSection
+                        
+                        // FIX 2: Partial results tease
+                        if !hasRevealed {
+                            partialResultsTeaseSection
                         } else {
-                            // Blurred preview
-                            VStack(spacing: 12) {
-                                ForEach(0..<min(3, results.count), id: \.self) { index in
-                                    HiddenResultCard(rank: index + 1)
-                                }
-                            }
-                            .padding()
-                            .blur(radius: 5)
-                            
-                            // Reveal button
-                            VStack(spacing: 16) {
-                                Text("💎")
-                                    .font(.system(size: 60))
-                                
-                                Text("See who voted for you!")
-                                    .font(.title3.bold())
-                                    .foregroundColor(.white)
-                                
-                                if let product = storeKitManager.getProduct(byID: IAPProducts.pollReveal) {
-                                    Button(action: { showingPurchase = true }) {
-                                        VStack(spacing: 8) {
-                                            Text("Reveal Voters")
-                                                .font(.headline)
-                                            Text(product.displayPrice)
-                                                .font(.subheadline)
-                                        }
-                                        .foregroundColor(.black)
-                                        .frame(maxWidth: .infinity)
-                                        .padding()
-                                        .background(Color.yellow)
-                                        .cornerRadius(12)
-                                    }
-                                } else {
-                                    Button(action: { showingPurchase = true }) {
-                                        Text("Reveal Voters - $0.99")
-                                            .font(.headline)
-                                            .foregroundColor(.black)
-                                            .frame(maxWidth: .infinity)
-                                            .padding()
-                                            .background(Color.yellow)
-                                            .cornerRadius(12)
-                                    }
-                                }
-                            }
-                            .padding()
+                            fullResultsSection
                         }
                     }
                 }
@@ -362,9 +326,220 @@ struct PollResultsView: View {
                 }
                 Button("Cancel", role: .cancel) {}
             } message: {
-                Text("See exactly who voted for you in this poll!")
+                Text("See exactly who voted for you and who didn't!")
+            }
+            .task {
+                await loadDetailedVotes()
             }
         }
+    }
+    
+    // FIX 4: Leaderboard Section with Competitive Messaging
+    private var leaderboardSection: some View {
+        VStack(spacing: 16) {
+            Text("🏆 Leaderboard")
+                .font(.headline)
+                .foregroundColor(.white)
+            
+            VStack(spacing: 8) {
+                ForEach(Array(results.prefix(3).enumerated()), id: \.offset) { index, result in
+                    if let friend = friendsManager.friends.first(where: { $0.id == result.userID }) {
+                        HStack(spacing: 12) {
+                            Text(index == 0 ? "🥇" : index == 1 ? "🥈" : "🥉")
+                                .font(.title2)
+                            
+                            Text(friend.username)
+                                .font(.headline)
+                                .foregroundColor(.white)
+                            
+                            Spacer()
+                            
+                            Text("\(result.votes) votes")
+                                .font(.subheadline)
+                                .foregroundColor(.gray)
+                        }
+                        .padding()
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(authManager.currentUser?.id == result.userID ? Color.purple.opacity(0.3) : Color.white.opacity(0.1))
+                        )
+                    }
+                }
+            }
+            .padding(.horizontal)
+            
+            // Competitive messaging
+            competitiveMessage
+                .padding(.horizontal)
+        }
+    }
+    
+    private var competitiveMessage: some View {
+        VStack(spacing: 8) {
+            if currentUserRank == 1 {
+                HStack {
+                    Text("🔥")
+                    Text("You're #1! Defend your position tomorrow!")
+                        .font(.subheadline)
+                        .foregroundColor(.yellow)
+                }
+            } else if currentUserRank <= 3 {
+                let votesNeeded = results[currentUserRank - 2].votes - currentUserVotes + 1
+                HStack {
+                    Text("💪")
+                    Text("Just \(votesNeeded) more vote\(votesNeeded == 1 ? "" : "s") to reach #\(currentUserRank - 1)!")
+                        .font(.subheadline)
+                        .foregroundColor(.orange)
+                }
+            } else {
+                HStack {
+                    Text("🎯")
+                    Text("You're #\(currentUserRank). Win more votes tomorrow!")
+                        .font(.subheadline)
+                        .foregroundColor(.gray)
+                }
+            }
+        }
+        .padding()
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.white.opacity(0.05))
+        )
+    }
+    
+    // FIX 2: Partial Results Tease
+    private var partialResultsTeaseSection: some View {
+        VStack(spacing: 20) {
+            // Show ONE voter (tease)
+            if let currentUser = authManager.currentUser,
+               let firstVoter = detailedVotes.first(where: { $0.votedForID == currentUser.id }) {
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("WHO VOTED FOR YOU:")
+                        .font(.caption)
+                        .fontWeight(.bold)
+                        .foregroundColor(.gray)
+                    
+                    HStack {
+                        Image(systemName: "checkmark.circle.fill")
+                            .foregroundColor(.green)
+                        Text("@\(firstVoter.voterUsername) voted for you")
+                            .foregroundColor(.white)
+                    }
+                    .padding()
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(Color.green.opacity(0.2))
+                    )
+                    
+                    if currentUserVotes > 1 {
+                        HStack {
+                            Image(systemName: "lock.fill")
+                                .foregroundColor(.yellow)
+                            Text("🔒 \(currentUserVotes - 1) more people voted for you...")
+                                .foregroundColor(.gray)
+                        }
+                        .padding()
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color.white.opacity(0.05))
+                        )
+                    }
+                }
+                .padding(.horizontal)
+            }
+            
+            // Reveal CTA
+            VStack(spacing: 16) {
+                Text("💎")
+                    .font(.system(size: 60))
+                
+                Text("Unlock All Voters")
+                    .font(.title3.bold())
+                    .foregroundColor(.white)
+                
+                Text("See everyone who voted for you and who didn't!")
+                    .font(.subheadline)
+                    .foregroundColor(.gray)
+                    .multilineTextAlignment(.center)
+                
+                if let product = storeKitManager.getProduct(byID: IAPProducts.pollReveal) {
+                    Button(action: { showingPurchase = true }) {
+                        VStack(spacing: 8) {
+                            Text("Reveal All Voters")
+                                .font(.headline)
+                            Text(product.displayPrice)
+                                .font(.subheadline)
+                        }
+                        .foregroundColor(.black)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.yellow)
+                        .cornerRadius(12)
+                    }
+                } else {
+                    Button(action: { showingPurchase = true }) {
+                        Text("Reveal All Voters - $0.99")
+                            .font(.headline)
+                            .foregroundColor(.black)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.yellow)
+                            .cornerRadius(12)
+                    }
+                }
+            }
+            .padding()
+        }
+    }
+    
+    // Full results after purchase
+    private var fullResultsSection: some View {
+        VStack(alignment: .leading, spacing: 20) {
+            Text("WHO VOTED FOR YOU:")
+                .font(.caption)
+                .fontWeight(.bold)
+                .foregroundColor(.gray)
+                .padding(.horizontal)
+            
+            if let currentUser = authManager.currentUser {
+                ForEach(detailedVotes.filter { $0.votedForID == currentUser.id }, id: \.id) { vote in
+                    HStack {
+                        Image(systemName: "checkmark.circle.fill")
+                            .foregroundColor(.green)
+                        Text("@\(vote.voterUsername) voted for you")
+                            .foregroundColor(.white)
+                    }
+                    .padding()
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(Color.green.opacity(0.2))
+                    )
+                    .padding(.horizontal)
+                }
+            }
+            
+            Text("ALL VOTES:")
+                .font(.caption)
+                .fontWeight(.bold)
+                .foregroundColor(.gray)
+                .padding(.horizontal)
+                .padding(.top)
+            
+            ForEach(Array(results.enumerated()), id: \.offset) { index, result in
+                if let friend = friendsManager.friends.first(where: { $0.id == result.userID }) {
+                    ResultCard(
+                        rank: index + 1,
+                        friend: friend,
+                        votes: result.votes
+                    )
+                    .padding(.horizontal)
+                }
+            }
+        }
+    }
+    
+    private func loadDetailedVotes() async {
+        detailedVotes = await pollManager.loadPollResults(pollID: poll.id)
     }
     
     private func purchaseReveal() {
