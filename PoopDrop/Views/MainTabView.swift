@@ -21,11 +21,11 @@ struct MainTabView: View {
                     }
                     .tag(0)
                 
-                // Poll Tab
-                DailyPollView()
+                // Gossip Tab (renamed from Poll)
+                GossipFeedView()
                     .tabItem {
-                        Image(systemName: selectedTab == 1 ? "chart.bar.fill" : "chart.bar")
-                        Text("Poll")
+                        Image(systemName: selectedTab == 1 ? "bubble.left.and.bubble.right.fill" : "bubble.left.and.bubble.right")
+                        Text("Gossip")
                     }
                     .tag(1)
                 

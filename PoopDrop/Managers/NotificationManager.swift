@@ -1187,6 +1187,94 @@ class NotificationManager: ObservableObject {
         print("🚨 Daily poop reminder scheduled for \(user.username)")
     }
     
+    // MARK: - Gossip Notifications
+    
+    /// 🚨 Someone Mentioned You in Gossip
+    func sendGossipMentionNotification(gossipText: String, to users: [User]) async {
+        guard isAuthorized else { return }
+        
+        for user in users {
+            let content = UNMutableNotificationContent()
+            content.title = "🚨 Someone's talking about you!"
+            content.body = String(gossipText.prefix(100)) + (gossipText.count > 100 ? "..." : "")
+            content.sound = .default
+            content.userInfo = [
+                "type": "gossip_mention",
+                "deepLink": "gossip"
+            ]
+            content.badge = 1
+            content.interruptionLevel = .timeSensitive
+            
+            let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
+            
+            let request = UNNotificationRequest(
+                identifier: "gossip_mention_\(user.id)_\(UUID().uuidString)",
+                content: content,
+                trigger: trigger
+            )
+            
+            try? await UNUserNotificationCenter.current().add(request)
+            print("🚨 Sent gossip mention notification to \(user.username)")
+        }
+    }
+    
+    /// 📰 New Gossip Posted
+    func sendNewGossipNotification(gossipText: String, to users: [User]) async {
+        guard isAuthorized else { return }
+        
+        // Only notify first 50 friends (don't spam everyone)
+        let notifyUsers = users.prefix(50)
+        
+        for user in notifyUsers {
+            let content = UNMutableNotificationContent()
+            content.title = "☕ Fresh gossip just dropped!"
+            content.body = String(gossipText.prefix(80)) + (gossipText.count > 80 ? "..." : "")
+            content.sound = .default
+            content.userInfo = [
+                "type": "new_gossip",
+                "deepLink": "gossip"
+            ]
+            content.badge = 1
+            
+            let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 5, repeats: false)
+            
+            let request = UNNotificationRequest(
+                identifier: "new_gossip_\(user.id)_\(UUID().uuidString)",
+                content: content,
+                trigger: trigger
+            )
+            
+            try? await UNUserNotificationCenter.current().add(request)
+        }
+        print("📰 Sent new gossip notification to \(notifyUsers.count) friends")
+    }
+    
+    /// 💬 Someone Replied to Your Gossip
+    func sendGossipReplyNotification(originalGossip: String, to user: User) async {
+        guard isAuthorized else { return }
+        
+        let content = UNMutableNotificationContent()
+        content.title = "💬 Someone replied to your gossip!"
+        content.body = "Tap to see what they said"
+        content.sound = .default
+        content.userInfo = [
+            "type": "gossip_reply",
+            "deepLink": "gossip"
+        ]
+        content.badge = 1
+        
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
+        
+        let request = UNNotificationRequest(
+            identifier: "gossip_reply_\(user.id)_\(UUID().uuidString)",
+            content: content,
+            trigger: trigger
+        )
+        
+        try? await UNUserNotificationCenter.current().add(request)
+        print("💬 Sent gossip reply notification to \(user.username)")
+    }
+    
     // MARK: - Badge Management
     
     func updateAppBadge(count: Int) {

@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A70DAD880C6A42F4BE1BE93E /* Gossip.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9585FC38999443E6AEA665EF /* Gossip.swift */; };
+		3DA8343ADDDC4BA0891D6F68 /* GossipManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93466B7BCD884076A9563FF7 /* GossipManager.swift */; };
+		105C52A619EF45F8A4D19FE5 /* GossipFeedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AA8383A726D4CC1B2C51D7F /* GossipFeedView.swift */; };
 		0C5B7BAD8CE8406A89DE0FD2 /* AttackActivityHighlights.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9E4F5A8B71D4B23A5D8E692 /* AttackActivityHighlights.swift */; };
 		0FACB45E96214F2F9C433E05 /* FartAttackManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12351ABD17EC4D46ABAC1A0F /* FartAttackManager.swift */; };
 		117D0A0612B54F5095CC3F0C /* AnalyticsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6D28C18A21A4E45B9E3F7D9 /* AnalyticsManager.swift */; };
@@ -77,6 +80,9 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		9585FC38999443E6AEA665EF /* Gossip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Gossip.swift; sourceTree = "<group>"; };
+		93466B7BCD884076A9563FF7 /* GossipManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GossipManager.swift; sourceTree = "<group>"; };
+		8AA8383A726D4CC1B2C51D7F /* GossipFeedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GossipFeedView.swift; sourceTree = "<group>"; };
 		0114749DF158CEDFD2E7541D /* Poll.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Poll.swift; sourceTree = "<group>"; };
 		0134D2C92B7949DAA232D96A /* Reaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Reaction.swift; sourceTree = "<group>"; };
 		01B03E3D7BEF49E594775CB6 /* FriendsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FriendsView.swift; sourceTree = "<group>"; };
@@ -751,7 +757,10 @@
 				38140D1FE2569790737387FA /* Poll.swift in Sources */,
 				DCE86F4F2EA00AB0007B1BC0 /* PollManager.swift in Sources */,
 				B2849EE6E780317F0EA5EBDB /* GhostAttackShopView.swift in Sources */,
-			);
+			
+				A70DAD880C6A42F4BE1BE93E /* Gossip.swift in Sources */,
+				3DA8343ADDDC4BA0891D6F68 /* GossipManager.swift in Sources */,
+				105C52A619EF45F8A4D19FE5 /* GossipFeedView.swift in Sources */,);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */

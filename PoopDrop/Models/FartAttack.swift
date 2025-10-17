@@ -203,8 +203,8 @@ struct IAPProducts {
     // Ghost Attack Pack (ONLY ONE PACK - $2.99 for 3 attacks)
     static let ghostAttackPack3 = "com.thedailypoop.ghostattackpack3" // $2.99
     
-    // Poll Features
-    static let pollReveal = "com.thedailypoop.pollreveal" // $0.99
+    // Gossip Reveal (renamed from Poll Reveal - now $1.99)
+    static let pollReveal = "com.thedailypoop.pollreveal" // $1.99 (keeping same ID, just update price in App Store Connect)
     
     // Ghost Attack Hints (narrow-down is FREE, reveal is $0.99)
     static let ghostHintReveal = "com.thedailypoop.ghostreveal" // $0.99
