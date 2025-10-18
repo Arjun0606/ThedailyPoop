@@ -29,6 +29,10 @@ struct Drop: Identifiable, Codable {
     var musicURL: String? // Apple Music/Spotify URL
     var musicCoverArt: String? // Cover art URL
     
+    // NEW: @Mention support for cross-tab integration
+    var mentionedUserIDs: [String] = [] // IDs of mentioned users
+    var mentionedUsernames: [String] = [] // Usernames for display (without @)
+    
     // Computed property for display emoji
     var displayEmoji: String {
         if isNoPoop {
@@ -75,7 +79,9 @@ struct Drop: Identifiable, Codable {
          musicTitle: String? = nil,
          musicArtist: String? = nil,
          musicURL: String? = nil,
-         musicCoverArt: String? = nil) {
+         musicCoverArt: String? = nil,
+         mentionedUserIDs: [String] = [],
+         mentionedUsernames: [String] = []) {
         self.id = id
         self.userID = userID
         self.username = username
@@ -98,6 +104,8 @@ struct Drop: Identifiable, Codable {
         self.musicArtist = musicArtist
         self.musicURL = musicURL
         self.musicCoverArt = musicCoverArt
+        self.mentionedUserIDs = mentionedUserIDs
+        self.mentionedUsernames = mentionedUsernames
         
         // Set expiration to 3 days for all users (simplified model)
         let calendar = Calendar.current
@@ -152,6 +160,10 @@ extension Drop {
         self.musicArtist = record["musicArtist"] as? String
         self.musicURL = record["musicURL"] as? String
         self.musicCoverArt = record["musicCoverArt"] as? String
+        
+        // NEW: Load @mention data
+        self.mentionedUserIDs = record["mentionedUserIDs"] as? [String] ?? []
+        self.mentionedUsernames = record["mentionedUsernames"] as? [String] ?? []
     }
     
     func toCKRecord() -> CKRecord {
@@ -190,6 +202,12 @@ extension Drop {
         record["musicArtist"] = musicArtist
         record["musicURL"] = musicURL
         record["musicCoverArt"] = musicCoverArt
+        
+        // NEW: Save @mention data (only if not empty to avoid CloudKit errors)
+        if !mentionedUserIDs.isEmpty {
+            record["mentionedUserIDs"] = mentionedUserIDs
+            record["mentionedUsernames"] = mentionedUsernames
+        }
         
         return record
     }

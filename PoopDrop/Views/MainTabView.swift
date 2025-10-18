@@ -122,6 +122,11 @@ struct MainTabView: View {
                     // No filtering needed - users can see all gossip mentioning this person
                 }
             }
+            // CROSS-TAB INTEGRATION: Handle trending gossip card tap
+            .onReceive(NotificationCenter.default.publisher(for: Notification.Name("SWITCH_TO_GOSSIP_TAB"))) { notification in
+                print("🔗 Cross-tab: Feed → Gossip (trending)")
+                selectedTab = 1 // Switch to Gossip tab
+            }
             
             // Floating Action Button for Drop
             VStack {

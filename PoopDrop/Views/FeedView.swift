@@ -22,8 +22,8 @@ struct FeedView: View {
                     } else {
                         ScrollView {
                             LazyVStack(spacing: 16) {
-                                // Gossip Promo Card (swipe to Gossip tab!)
-                                GossipPromoCard()
+                                // Trending Gossip Card (NEW! The bridge to drama)
+                                TrendingGossipCard()
                                     .padding(.top, 8)
                                 
                                 // Drops feed

@@ -336,14 +336,44 @@ struct GossipCard: View {
                     .cornerRadius(10)
                 }
             } else {
-                HStack {
-                    Image(systemName: "checkmark.circle.fill")
-                        .foregroundColor(.green)
-                    Text("Posted by @\(gossip.posterUsername)")
-                        .font(.caption)
-                        .foregroundColor(.green)
+                // Revealed sender info
+                VStack(spacing: 8) {
+                    HStack {
+                        Image(systemName: "checkmark.circle.fill")
+                            .foregroundColor(.green)
+                        Text("Posted by @\(gossip.posterUsername)")
+                            .font(.caption)
+                            .foregroundColor(.green)
+                    }
+                    .padding(.vertical, 4)
+                    
+                    // NEW: View poster's drops button (Gossip → Map navigation)
+                    Button(action: {
+                        NotificationCenter.default.post(
+                            name: Notification.Name("SHOW_DROP_FROM_GOSSIP"),
+                            object: nil,
+                            userInfo: ["username": gossip.posterUsername]
+                        )
+                    }) {
+                        HStack(spacing: 8) {
+                            Image(systemName: "map.fill")
+                                .font(.subheadline)
+                            Text("View @\(gossip.posterUsername)'s drops")
+                                .font(.subheadline.weight(.semibold))
+                        }
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 10)
+                        .background(
+                            LinearGradient(
+                                colors: [Color.purple, Color.blue],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                        )
+                        .cornerRadius(10)
+                    }
                 }
-                .padding(.vertical, 4)
             }
             
             // CROSS-TAB INTEGRATION: Link to mentioned users' drops
