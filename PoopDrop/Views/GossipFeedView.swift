@@ -11,6 +11,8 @@ struct GossipFeedView: View {
     @State private var showingToast = false
     @State private var toastMessage = ""
     @State private var toastIcon = ""
+    @State private var showingSecureReveal = false
+    @State private var revealedUsername = ""
     
     var body: some View {
         NavigationView {
@@ -95,6 +97,12 @@ struct GossipFeedView: View {
             .onAppear {
                 setupScreenshotDetection()
             }
+            .fullScreenCover(isPresented: $showingSecureReveal) {
+                SecureRevealView(posterUsername: revealedUsername) {
+                    showingSecureReveal = false
+                    showToast("Revealed! @\(revealedUsername)", icon: "checkmark.circle.fill")
+                }
+            }
         }
     }
     
@@ -147,7 +155,10 @@ struct GossipFeedView: View {
                     if revealed {
                         showingRevealed.insert(gossip.id)
                         print("✅ Revealed sender: \(sender ?? "unknown")")
-                        showToast("Revealed! @\(sender ?? "unknown")", icon: "checkmark.circle.fill")
+                        
+                        // Show secure reveal view (DRM-protected)
+                        revealedUsername = sender ?? "unknown"
+                        showingSecureReveal = true
                     }
                 } else {
                     print("❌ Purchase cancelled or failed - NOT revealing")
