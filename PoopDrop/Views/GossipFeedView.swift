@@ -271,20 +271,37 @@ struct GossipCard: View {
                 Spacer()
             }
             
-            // Screenshot notification (only show screenshots from last 24h)
+            // 📸 WALL OF SHAME: Public display of screenshot attempts (24h expiry)
             let activeScreenshots = gossip.activeScreenshotUsernames()
             if !activeScreenshots.isEmpty {
-                HStack(spacing: 4) {
-                    Image(systemName: "camera.fill")
-                        .foregroundColor(.yellow)
-                    Text(screenshotText(activeScreenshots))
+                VStack(alignment: .leading, spacing: 6) {
+                    HStack(spacing: 6) {
+                        Image(systemName: "camera.fill")
+                            .foregroundColor(.red)
+                        Text("📸 WALL OF SHAME")
+                            .font(.caption.weight(.bold))
+                            .foregroundColor(.red)
+                    }
+                    
+                    Text(wallOfShameText(activeScreenshots))
                         .font(.caption)
-                        .foregroundColor(.yellow)
+                        .foregroundColor(.white)
+                        .lineLimit(2)
                 }
-                .padding(.horizontal, 8)
-                .padding(.vertical, 4)
-                .background(Color.yellow.opacity(0.1))
-                .cornerRadius(6)
+                .padding(10)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(
+                    LinearGradient(
+                        colors: [Color.red.opacity(0.2), Color.orange.opacity(0.2)],
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(Color.red.opacity(0.5), lineWidth: 1)
+                )
+                .cornerRadius(8)
             }
             
             // Action buttons
@@ -509,6 +526,19 @@ struct GossipCard: View {
             return "@\(usernames[0]), @\(usernames[1]) took screenshots"
         } else {
             return "@\(usernames[0]), @\(usernames[1]) + \(usernames.count - 2) others took screenshots"
+        }
+    }
+    
+    // NEW: Wall of Shame messaging (more dramatic!)
+    private func wallOfShameText(_ usernames: [String]) -> String {
+        if usernames.isEmpty {
+            return ""
+        } else if usernames.count == 1 {
+            return "@\(usernames[0]) tried to screenshot this and failed! BUSTED! 🚨"
+        } else if usernames.count == 2 {
+            return "@\(usernames[0]) and @\(usernames[1]) tried to screenshot this and failed! BUSTED! 🚨"
+        } else {
+            return "@\(usernames[0]), @\(usernames[1]) and \(usernames.count - 2) others tried to screenshot this and failed! BUSTED! 🚨"
         }
     }
 }

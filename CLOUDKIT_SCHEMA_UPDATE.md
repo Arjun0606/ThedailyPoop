@@ -1,178 +1,123 @@
-# 🔥 CloudKit Schema Update - Viral Features
+# 📋 CloudKit Schema Update Guide
 
-## ⚠️ CRITICAL: Add These Fields to CloudKit
+## Changes Needed for Integration Features
 
-### 1. Update `User` Record Type
+### Drop Record Type
 
-Add these new fields:
-
-```
-dailyPoints - Int64
-dailyPointsResetDate - Date/Time
-totalLifetimePoints - Int64
-pointsBoostActive - Int64 (0 or 1)
-pointsBoostExpiresAt - Date/Time
-```
-
-### 2. Update `FartAttack` Record Type
-
-Add these new fields for ghost mode:
+Add the following fields to support @mention integration:
 
 ```
-isGhost - Int64 (0 or 1)
-ghostGuesses - String List
-ghostRevealed - Int64 (0 or 1)
-ghostHintPurchased - Int64 (0 or 1)
+Record Type: Drop
+
+NEW FIELDS:
+1. mentionedUserIDs
+   - Type: String List
+   - Optional: Yes
+   - Description: Array of user IDs mentioned in this drop
+
+2. mentionedUsernames  
+   - Type: String List
+   - Optional: Yes
+   - Description: Array of usernames (for display) mentioned in this drop
 ```
-
-### 3. Update `FartAttackInventory` Record Type
-
-Add this new field:
-
-```
-availableGhostAttacks - Int64
-```
-
-### 4. Create NEW `Poll` Record Type
-
-```
-creatorID - String (indexed)
-creatorUsername - String
-questionText - String
-pollType - String
-createdAt - Date/Time (indexed)
-endsAt - Date/Time (indexed)
-isActive - Int64 (0 or 1, indexed)
-totalVotes - Int64
-```
-
-**Indexes:**
-- creatorID (queryable)
-- createdAt (sortable)
-- endsAt (queryable)
-- isActive (queryable)
-
-### 5. Create NEW `PollVote` Record Type
-
-```
-pollID - String (indexed)
-voterID - String (indexed)
-voterUsername - String
-votedForID - String (indexed)
-votedForUsername - String
-timestamp - Date/Time
-```
-
-**Indexes:**
-- pollID (queryable) - find all votes for a poll
-- voterID (queryable) - find all polls a user voted in
-- votedForID (queryable) - find who voted for a specific user
-
-### 6. Create NEW `PollRevealPurchase` Record Type
-
-```
-pollID - String (indexed)
-userID - String (indexed)
-purchaseDate - Date/Time
-```
-
-**Indexes:**
-- pollID (queryable)
-- userID (queryable)
-- Compound index: (userID, pollID) - check if user purchased reveal for specific poll
 
 ---
 
-## 📋 Setup Instructions
+## Step-by-Step Instructions
 
-### Step 1: Go to CloudKit Dashboard
-1. https://icloud.developer.apple.com/dashboard
-2. Select your app: `iCloud.com.thedailypoop.app`
-3. Go to "Schema" → "Production" (or Development for testing)
+### For Development Schema:
 
-### Step 2: Update Existing Record Types
+1. Open https://icloud.developer.apple.com
+2. Sign in with your Apple ID
+3. Select "CloudKit Console"
+4. Choose your app: "iCloud.com.poopdrop.app"
+5. Select "Development" environment
+6. Click on "Schema" tab
+7. Find "Drop" record type
+8. Click "Edit Fields"
+9. Add new field:
+   - Field Name: `mentionedUserIDs`
+   - Field Type: `String List`
+   - Check "Optional"
+   - Click "Save"
+10. Add second field:
+    - Field Name: `mentionedUsernames`
+    - Field Type: `String List`
+    - Check "Optional"
+    - Click "Save"
+11. Click "Save Schema"
 
-**For User:**
-1. Click "User" record type
-2. Click "Add Field" for each new field
-3. Select correct data type
-4. Save
+### For Production Schema:
 
-**For FartAttack:**
-1. Click "FartAttack" record type
-2. Add the 4 ghost mode fields
-3. Save
+**IMPORTANT:** Test in Development first!
 
-**For FartAttackInventory:**
-1. Click "FartAttackInventory" record type
-2. Add `availableGhostAttacks` as Int64
-3. Save
-
-### Step 3: Create New Record Types
-
-**Poll:**
-1. Click "+ Add Record Type"
-2. Name: `Poll`
-3. Add all 8 fields listed above
-4. Create indexes on: `creatorID`, `createdAt`, `endsAt`, `isActive`
-
-**PollVote:**
-1. Click "+ Add Record Type"
-2. Name: `PollVote`
-3. Add all 6 fields listed above
-4. Create indexes on: `pollID`, `voterID`, `votedForID`
-
-**PollRevealPurchase:**
-1. Click "+ Add Record Type"
-2. Name: `PollRevealPurchase`
-3. Add all 3 fields listed above
-4. Create compound index on `userID` + `pollID`
-
-### Step 4: Deploy to Production
-
-1. Test in Development environment first
-2. Click "Deploy Schema Changes"
-3. Confirm deployment to Production
+Once tested and working:
+1. Go to "Schema" tab
+2. Click "Deploy to Production"
+3. Review changes
+4. Confirm deployment
 
 ---
 
-## ✅ Verification
+## Code Changes (Already Complete ✅)
 
-After deployment, verify each record type has:
-- ✅ All fields present
-- ✅ Correct data types
-- ✅ Indexes created
-- ✅ Queryable/Sortable set correctly
+The following code changes have been implemented:
 
----
-
-## 🔍 Query Examples
-
-### Fetch Active Polls
+### Drop Model (`Drop.swift`)
 ```swift
-let predicate = NSPredicate(format: "isActive == 1 AND endsAt > %@", Date() as CVarArg)
+// NEW fields added:
+var mentionedUserIDs: [String] = []
+var mentionedUsernames: [String] = []
+
+// CloudKit serialization updated:
+init?(from record: CKRecord) {
+    self.mentionedUserIDs = record["mentionedUserIDs"] as? [String] ?? []
+    self.mentionedUsernames = record["mentionedUsernames"] as? [String] ?? []
+}
+
+func toCKRecord() -> CKRecord {
+    if !mentionedUserIDs.isEmpty {
+        record["mentionedUserIDs"] = mentionedUserIDs
+        record["mentionedUsernames"] = mentionedUsernames
+    }
+    return record
+}
 ```
 
-### Get Poll Votes for User
+### GossipPost Model (`Gossip.swift`)
+Already had mention support:
 ```swift
-let predicate = NSPredicate(format: "votedForID == %@", userID)
-```
-
-### Check Poll Reveal Purchase
-```swift
-let predicate = NSPredicate(format: "pollID == %@ AND userID == %@", pollID, userID)
+let mentionedUserIDs: [String]
+let mentionedUsernames: [String]
+var mentionedDropIDs: [String]
 ```
 
 ---
 
-## 🎯 Ready for Implementation
+## Testing Checklist
 
-Once CloudKit schema is updated, the app code will:
-- ✅ Save/load all new fields
-- ✅ Create polls and votes
-- ✅ Track purchases
-- ✅ Award points correctly
-- ✅ Handle ghost attacks
+After updating CloudKit schema:
 
-**Estimated Setup Time: 30 minutes**
+1. ✅ Create a new drop with @mentions in caption
+2. ✅ Verify mentions are saved to CloudKit
+3. ✅ Verify mentions load correctly from CloudKit
+4. ✅ Test cross-tab navigation (Drop → Gossip)
+5. ✅ Test hot user badges on map pins
+6. ✅ Deploy to Production schema
 
+---
+
+## Notes
+
+- The code uses conditional saving (`if !mentionedUserIDs.isEmpty`) to avoid CloudKit errors on empty arrays
+- Both fields are optional to maintain backward compatibility with existing drops
+- Existing drops will have empty arrays by default
+
+---
+
+## Status
+
+- ✅ Code implementation complete
+- ⏳ CloudKit schema update (manual step required)
+- ⏳ Testing in Development
+- ⏳ Deployment to Production

@@ -6,6 +6,7 @@ struct SnapchatStyleMapView: View {
     @EnvironmentObject var cloudKitManager: CloudKitManager
     @EnvironmentObject var locationManager: LocationManager
     @EnvironmentObject var subscriptionManager: SubscriptionManager
+    @StateObject private var gossipManager = GossipManager.shared // NEW: For hot users
     @State private var region = MKCoordinateRegion(
         center: CLLocationCoordinate2D(latitude: 37.7749, longitude: -122.4194),
         span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
@@ -65,7 +66,7 @@ struct SnapchatStyleMapView: View {
             // Map with custom styling
             Map(coordinateRegion: $region, annotationItems: clusteredDrops) { cluster in
                 MapAnnotation(coordinate: cluster.coordinate) {
-                    ClusteredPoopPin(cluster: cluster) {
+                    ClusteredPoopPin(cluster: cluster, hotUsers: gossipManager.hotUsers) { // NEW: Pass hot users
                         print("🎯 Tapped cluster with \(cluster.drops.count) drops")
                         if cluster.drops.count == 1 {
                             let drop = cluster.drops.first!
@@ -263,6 +264,7 @@ struct ClusteredDrop: Identifiable {
 struct ClusteredPoopPin: View {
     let cluster: ClusteredDrop
     let onTap: () -> Void
+    var hotUsers: Set<String> = [] // NEW: For 🔥 badges
     @State private var isAnimating = false
     
     private var displayEmoji: String {
@@ -275,6 +277,12 @@ struct ClusteredPoopPin: View {
         } else {
             return .brown // Free users get brown pins
         }
+    }
+    
+    // NEW: Check if this drop is from a hot user
+    private var isHotUser: Bool {
+        guard let username = cluster.mostRecentDrop?.username else { return false }
+        return hotUsers.contains(username)
     }
     
     var body: some View {
@@ -322,6 +330,29 @@ struct ClusteredPoopPin: View {
                                         )
                                 )
                                 .offset(x: 8, y: -8)
+                        }
+                        Spacer()
+                    }
+                }
+                
+                // NEW: Hot user badge (🔥 if user is trending)
+                if isHotUser {
+                    VStack {
+                        HStack {
+                            Text("🔥")
+                                .font(.caption)
+                                .frame(width: 16, height: 16)
+                                .background(
+                                    Circle()
+                                        .fill(Color.orange)
+                                        .overlay(
+                                            Circle()
+                                                .stroke(Color.white, lineWidth: 1)
+                                        )
+                                )
+                                .offset(x: -8, y: -8)
+                            
+                            Spacer()
                         }
                         Spacer()
                     }

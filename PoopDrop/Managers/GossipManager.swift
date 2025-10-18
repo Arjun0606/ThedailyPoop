@@ -8,6 +8,7 @@ class GossipManager: ObservableObject {
     @Published var todaysGossip: [GossipPost] = []
     @Published var myReveals: [String: GossipReveal] = [:] // [gossipID: reveal]
     @Published var isLoading = false
+    @Published var hotUsers: Set<String> = [] // Usernames of most-mentioned users today (for 🔥 badges)
     
     private let cloudKitManager = CloudKitManager.shared
     
@@ -46,6 +47,9 @@ class GossipManager: ObservableObject {
             
             self.todaysGossip = gossipPosts
             print("📰 Loaded \(gossipPosts.count) gossip posts from CloudKit")
+            
+            // Calculate hot users (most mentioned today)
+            calculateHotUsers()
             
             // CRITICAL FIX: Cache gossip locally for persistence
             cacheGossipLocally()
@@ -432,6 +436,41 @@ class GossipManager: ObservableObject {
         }
         
         return mentionedFriends
+    }
+    
+    // MARK: - Calculate Hot Users
+    
+    /// Identifies the most-mentioned users today for 🔥 badges
+    /// Strategy: Top 3 users with most mentions OR users mentioned 3+ times
+    private func calculateHotUsers() {
+        var mentionCounts: [String: Int] = [:] // [username: count]
+        
+        // Count mentions across all gossip
+        for gossip in todaysGossip {
+            for username in gossip.mentionedUsernames {
+                mentionCounts[username, default: 0] += 1
+            }
+        }
+        
+        // Get top mentioned users (at least 3 mentions OR top 3 overall)
+        let threshold = 3
+        var hot: Set<String> = []
+        
+        // Add users with 3+ mentions
+        for (username, count) in mentionCounts where count >= threshold {
+            hot.insert(username)
+        }
+        
+        // If less than 3 hot users, add top mentioned users to reach 3
+        if hot.count < 3 {
+            let sorted = mentionCounts.sorted { $0.value > $1.value }
+            for (username, _) in sorted.prefix(3) {
+                hot.insert(username)
+            }
+        }
+        
+        self.hotUsers = hot
+        print("🔥 Hot users today: \(hot.sorted())")
     }
 }
 
