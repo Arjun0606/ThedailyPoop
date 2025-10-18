@@ -20,7 +20,8 @@ struct GossipPost: Identifiable, Codable {
     var screenshotBy: [String] = [] // User IDs who have screenshotted this gossip
     var screenshotUsernames: [String] = [] // Usernames for display (e.g. "@arjun, @mike")
     var screenshotTimestamps: [String: Date] = [:] // [userID: timestamp] for 24h expiry
-    var photoURL: String? // NEW: CloudKit photo asset URL (optional)
+    var photoURL: String? // CloudKit photo asset URL (optional)
+    var visibleToUserIDs: [String] = [] // NEW: Friends + mutuals who can see this gossip
     
     init(id: String = UUID().uuidString,
          posterID: String,
@@ -39,7 +40,8 @@ struct GossipPost: Identifiable, Codable {
          screenshotBy: [String] = [],
          screenshotUsernames: [String] = [],
          screenshotTimestamps: [String: Date] = [:],
-         photoURL: String? = nil) {
+         photoURL: String? = nil,
+         visibleToUserIDs: [String] = []) {
         self.id = id
         self.posterID = posterID
         self.posterUsername = posterUsername
@@ -58,6 +60,7 @@ struct GossipPost: Identifiable, Codable {
         self.screenshotUsernames = screenshotUsernames
         self.screenshotTimestamps = screenshotTimestamps
         self.photoURL = photoURL
+        self.visibleToUserIDs = visibleToUserIDs
     }
     
     // MARK: - Screenshot Expiry Helper
@@ -126,6 +129,9 @@ extension GossipPost {
         
         // NEW: Load photo URL
         self.photoURL = record["photoURL"] as? String
+        
+        // NEW: Load visibility list
+        self.visibleToUserIDs = record["visibleToUserIDs"] as? [String] ?? []
     }
     
     func toCKRecord() -> CKRecord {
@@ -171,6 +177,11 @@ extension GossipPost {
         // NEW: Save photo URL if present
         if let photoURL = photoURL {
             record["photoURL"] = photoURL
+        }
+        
+        // NEW: Save visibility list (only if not empty)
+        if !visibleToUserIDs.isEmpty {
+            record["visibleToUserIDs"] = visibleToUserIDs
         }
         
         return record

@@ -16,7 +16,7 @@ class GossipManager: ObservableObject {
     
     // MARK: - Load Today's Gossip
     
-    func loadTodaysGossip() async {
+    func loadTodaysGossip(for currentUser: User? = nil) async {
         isLoading = true
         
         // CRITICAL FIX: Load cached gossip first (instant display)
@@ -40,13 +40,21 @@ class GossipManager: ObservableObject {
                 if let record = try? result.1.get(), let gossip = GossipPost(from: record) {
                     // Only show non-expired gossip
                     if gossip.expiresAt > Date() {
-                        gossipPosts.append(gossip)
+                        // NEW: Filter by visibility (friends + mutuals)
+                        if let user = currentUser {
+                            if canUserSeeGossip(gossip, currentUser: user) {
+                                gossipPosts.append(gossip)
+                            }
+                        } else {
+                            // No user provided, show all (backward compatible)
+                            gossipPosts.append(gossip)
+                        }
                     }
                 }
             }
             
             self.todaysGossip = gossipPosts
-            print("📰 Loaded \(gossipPosts.count) gossip posts from CloudKit")
+            print("📰 Loaded \(gossipPosts.count) gossip posts from CloudKit (filtered by visibility)")
             
             // Calculate hot users (most mentioned today)
             calculateHotUsers()
@@ -88,17 +96,21 @@ class GossipManager: ObservableObject {
     
     // MARK: - Post Gossip
     
-    func postGossip(text: String, poster: User, mentionedFriends: [User]) async {
+    func postGossip(text: String, poster: User, mentionedFriends: [User], allFriends: [User]) async {
         // Detect mentions
         let mentionedUserIDs = mentionedFriends.map { $0.id }
         let mentionedUsernames = mentionedFriends.map { $0.username }
+        
+        // NEW: Calculate visibility (friends + mutuals)
+        let visibilityList = calculateVisibility(for: poster, friends: allFriends)
         
         let gossip = GossipPost(
             posterID: poster.id,
             posterUsername: poster.username,
             text: text,
             mentionedUserIDs: mentionedUserIDs,
-            mentionedUsernames: mentionedUsernames
+            mentionedUsernames: mentionedUsernames,
+            visibleToUserIDs: visibilityList
         )
         
         do {
@@ -471,6 +483,45 @@ class GossipManager: ObservableObject {
         
         self.hotUsers = hot
         print("🔥 Hot users today: \(hot.sorted())")
+    }
+    
+    // MARK: - Calculate Visibility (Friends + Mutuals)
+    
+    /// Calculates who can see a gossip post
+    /// Returns: [userIDs] of friends + friends-of-friends (mutuals)
+    private func calculateVisibility(for poster: User, friends: [User]) -> [String] {
+        var visibleTo: Set<String> = []
+        
+        // 1. Add poster's direct friends
+        for friend in friends {
+            visibleTo.insert(friend.id)
+        }
+        
+        // 2. Add friends-of-friends (mutuals)
+        // For each of poster's friends, add THEIR friends too
+        for friend in friends {
+            for mutualFriendID in friend.friends {
+                // Don't add the poster themselves
+                if mutualFriendID != poster.id {
+                    visibleTo.insert(mutualFriendID)
+                }
+            }
+        }
+        
+        print("🌐 Visibility calculated: \(visibleTo.count) users (friends + mutuals)")
+        return Array(visibleTo)
+    }
+    
+    /// Filters gossip based on visibility
+    /// Returns true if current user can see this gossip
+    func canUserSeeGossip(_ gossip: GossipPost, currentUser: User) -> Bool {
+        // If no visibility list (legacy gossip), show to everyone
+        if gossip.visibleToUserIDs.isEmpty {
+            return true
+        }
+        
+        // Check if current user is in visibility list
+        return gossip.visibleToUserIDs.contains(currentUser.id) || gossip.posterID == currentUser.id
     }
 }
 

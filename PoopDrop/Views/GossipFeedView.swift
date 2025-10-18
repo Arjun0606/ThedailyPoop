@@ -49,7 +49,7 @@ struct GossipFeedView: View {
                             .padding(.bottom, 80) // Space for FAB
                         }
                         .refreshable {
-                            await gossipManager.loadTodaysGossip()
+                            await gossipManager.loadTodaysGossip(for: authManager.currentUser)
                         }
                     }
                 }
@@ -89,8 +89,8 @@ struct GossipFeedView: View {
                 }
             }
             .task {
-                await gossipManager.loadTodaysGossip()
                 if let currentUser = authManager.currentUser {
+                    await gossipManager.loadTodaysGossip(for: currentUser)
                     await gossipManager.loadMyReveals(for: currentUser.id)
                 }
             }
