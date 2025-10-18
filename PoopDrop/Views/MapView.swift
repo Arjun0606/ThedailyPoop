@@ -309,6 +309,42 @@ struct DropDetailView: View {
                     .background(Color.white.opacity(0.05))
                     .cornerRadius(12)
                     
+                    // NEW: See gossip about this user button (Map → Gossip navigation)
+                    Button(action: {
+                        dismiss() // Dismiss the sheet first
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                            NotificationCenter.default.post(
+                                name: Notification.Name("SHOW_GOSSIP_FOR_DROP"),
+                                object: nil,
+                                userInfo: ["dropOwnerUsername": drop.username]
+                            )
+                        }
+                    }) {
+                        HStack(spacing: 12) {
+                            Image(systemName: "bubble.left.and.bubble.right.fill")
+                                .font(.title3)
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("See gossip about @\(drop.username)")
+                                    .font(.subheadline.weight(.semibold))
+                                Text("Check what people are saying")
+                                    .font(.caption)
+                                    .opacity(0.7)
+                            }
+                            Spacer()
+                            Image(systemName: "arrow.right")
+                        }
+                        .foregroundColor(.white)
+                        .padding(16)
+                        .background(
+                            LinearGradient(
+                                colors: [Color.yellow, Color.orange],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                        )
+                        .cornerRadius(12)
+                    }
+                    
                     Spacer(minLength: 20)
                 }
                 .padding()
