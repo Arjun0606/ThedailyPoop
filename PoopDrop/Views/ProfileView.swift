@@ -3,7 +3,6 @@ import SwiftUI
 struct ProfileView: View {
     @EnvironmentObject var authManager: AuthenticationManager
     @EnvironmentObject var cloudKitManager: CloudKitManager
-    @EnvironmentObject var streakManager: StreakManager
     @State private var showingSettings = false
     @State private var showingHowItWorks = false
     @State private var showingContact = false
@@ -28,7 +27,7 @@ struct ProfileView: View {
                             ProfileHeaderView(user: user)
                             
                             // Stats section
-                            StatsSection(user: user, refreshTrigger: refreshTrigger, streakManager: streakManager)
+                            StatsSection(user: user, refreshTrigger: refreshTrigger)
                             
                             // Achievements section
                             AchievementsSection(user: user, refreshTrigger: refreshTrigger)
@@ -190,7 +189,6 @@ struct ProfileHeaderView: View {
 struct StatsSection: View {
     let user: User
     let refreshTrigger: Bool
-    @ObservedObject var streakManager: StreakManager
     @State private var showingShareSheet = false
     
     var body: some View {
@@ -229,13 +227,6 @@ struct StatsSection: View {
                     title: "Total Drops",
                     value: "\(user.totalDrops)",
                     color: .brown
-                )
-                
-                StatCard(
-                    icon: "🚽",
-                    title: "Last Pooped",
-                    value: streakManager.constipationMessage(days: streakManager.daysSinceLastPoop(for: user)),
-                    color: daysSincePoopColor(days: streakManager.daysSinceLastPoop(for: user))
                 )
 
                 StatCard(
@@ -427,12 +418,6 @@ struct AchievementsSection: View {
             Achievement(id: "drops_100", title: "Centurion", description: "100 total drops", icon: "👑", isUnlocked: user.totalDrops >= 100),
             Achievement(id: "drops_500", title: "Poop Legend", description: "500 total drops", icon: "🌟", isUnlocked: user.totalDrops >= 500),
             
-            // Streak Badges
-            Achievement(id: "streak_3", title: "Getting Regular", description: "3-day streak", icon: "📅", isUnlocked: user.streak >= 3),
-            Achievement(id: "streak_7", title: "Week Warrior", description: "7-day streak", icon: "🔥", isUnlocked: user.streak >= 7),
-            Achievement(id: "streak_30", title: "Monthly Master", description: "30-day streak", icon: "🗓️", isUnlocked: user.streak >= 30),
-            Achievement(id: "streak_100", title: "Unstoppable", description: "100-day streak", icon: "⚡", isUnlocked: user.streak >= 100),
-            
             // Travel Badges
             Achievement(id: "countries_2", title: "Border Crosser", description: "Pooped in 2 countries", icon: "🌍", isUnlocked: user.countriesVisited.count >= 2),
             Achievement(id: "countries_5", title: "Jet Setter", description: "Pooped in 5 countries", icon: "✈️", isUnlocked: user.countriesVisited.count >= 5),
@@ -448,10 +433,6 @@ struct AchievementsSection: View {
             // Daily Performance Badges
             Achievement(id: "daily_3", title: "Triple Threat", description: "3 drops in one day", icon: "🎯", isUnlocked: user.maxDropsInDay >= 3),
             Achievement(id: "daily_5", title: "Power User", description: "5 drops in one day", icon: "💪", isUnlocked: user.maxDropsInDay >= 5),
-            
-            // Constipation/No-Poop Badges
-            Achievement(id: "no_poop_3", title: "Desert Days", description: "3 days no poop", icon: "😵‍💫", isUnlocked: user.longestNoPoopStreak >= 3),
-            Achievement(id: "no_poop_7", title: "Constipation Station", description: "7 days no poop", icon: "🚂", isUnlocked: user.longestNoPoopStreak >= 7),
             
             // Social Badges (need to implement friend interactions)
             Achievement(id: "friends_5", title: "Social Pooper", description: "Added 5 friends", icon: "👥", isUnlocked: user.friends.count >= 5),
@@ -630,8 +611,6 @@ struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var authManager: AuthenticationManager
     @State private var confirmingDelete = false
-    @State private var streakReminderEnabled = UserDefaults.standard.bool(forKey: "streakReminderEnabled")
-    @State private var reminderTime = Date()
     
     var body: some View {
         NavigationView {
@@ -648,38 +627,6 @@ struct SettingsView: View {
                         }.foregroundColor(.white)
                     }
                     
-                    Section(header: Text("Streak Reminders").foregroundColor(.white)) {
-                        Toggle("Daily Reminder", isOn: $streakReminderEnabled)
-                            .foregroundColor(.white)
-                            .onChange(of: streakReminderEnabled) { _, newValue in
-                                UserDefaults.standard.set(newValue, forKey: "streakReminderEnabled")
-                                Task {
-                                    if newValue, let user = authManager.currentUser {
-                                        let calendar = Calendar.current
-                                        let hour = calendar.component(.hour, from: reminderTime)
-                                        let minute = calendar.component(.minute, from: reminderTime)
-                                        await NotificationManager.shared.scheduleDailyStreakReminder(for: user, hour: hour, minute: minute)
-                                    } else if let user = authManager.currentUser {
-                                        await NotificationManager.shared.cancelDailyStreakReminder(for: user)
-                                    }
-                                }
-                            }
-                        
-                        if streakReminderEnabled {
-                            DatePicker("Reminder Time", selection: $reminderTime, displayedComponents: .hourAndMinute)
-                                .foregroundColor(.white)
-                                .onChange(of: reminderTime) { _, newValue in
-                                    Task {
-                                        if let user = authManager.currentUser {
-                                            let calendar = Calendar.current
-                                            let hour = calendar.component(.hour, from: newValue)
-                                            let minute = calendar.component(.minute, from: newValue)
-                                            await NotificationManager.shared.scheduleDailyStreakReminder(for: user, hour: hour, minute: minute)
-                                        }
-                                    }
-                                }
-                        }
-                    }
                     Section(header: Text("Profile").foregroundColor(.white)) {
                         NavigationLink("Edit Profile") {
                             EditProfileView()
@@ -925,13 +872,11 @@ struct ShareStatsView: View {
     
     enum ShareType: String, CaseIterable {
         case allStats = "All Stats"
-        case streak = "Streak"
         case achievements = "Achievements"
         
         var icon: String {
             switch self {
             case .allStats: return "chart.bar.fill"
-            case .streak: return "flame.fill"
             case .achievements: return "trophy.fill"
             }
         }
@@ -1034,8 +979,6 @@ struct ShareStatsView: View {
         switch selectedShareType {
         case .allStats:
             cardView = AnyView(ShareAllStatsCard(user: user))
-        case .streak:
-            cardView = AnyView(ShareStreakCard(user: user))
         case .achievements:
             cardView = AnyView(ShareAchievementsCard(user: user))
         }
@@ -1126,12 +1069,7 @@ struct ShareAllStatsCard: View {
             VStack(spacing: 6) {
                 HStack(spacing: 6) {
                     CompactStatItem(icon: "💩", value: "\(user.totalDrops)", label: "Drops")
-                    CompactStatItem(icon: "🔥", value: "\(user.streak)", label: "Streak")
-                }
-                
-                HStack(spacing: 6) {
                     CompactStatItem(icon: "📈", value: "\(user.maxDropsInDay)", label: "Max/Day")
-                    CompactStatItem(icon: "😵‍💫", value: "\(user.longestNoPoopStreak)", label: "No Poop")
                 }
                 
                 HStack(spacing: 6) {
@@ -1158,97 +1096,6 @@ struct ShareAllStatsCard: View {
                 colors: [Color.brown.opacity(0.8), Color.black],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
-            )
-        )
-        .cornerRadius(20)
-    }
-}
-
-// MARK: - Streak Card (Focused on streak achievement)
-struct ShareStreakCard: View {
-    let user: User
-    
-    var body: some View {
-        VStack(spacing: 12) {
-            // Header - Compact
-            VStack(spacing: 2) {
-                Text("💩")
-                    .font(.system(size: 30))
-                
-                Text("TheDailyPoop")
-                    .font(.title3)
-                    .fontWeight(.bold)
-                    .foregroundColor(.white)
-            }
-            
-            // Giant Streak Display - Compact
-            VStack(spacing: 8) {
-                Text("🔥")
-                    .font(.system(size: 50))
-                
-                Text("\(user.streak)")
-                    .font(.system(size: 64, weight: .bold))
-                    .foregroundColor(.orange)
-                
-                Text("DAY STREAK")
-                    .font(.callout)
-                    .fontWeight(.bold)
-                    .foregroundColor(.white)
-                    .tracking(1)
-            }
-            .padding(.vertical, 12)
-            .frame(maxWidth: .infinity)
-            .background(Color.white.opacity(0.1))
-            .cornerRadius(16)
-            
-            // Supporting Stats - Compact
-            HStack(spacing: 8) {
-                VStack(spacing: 2) {
-                    Text("💩")
-                        .font(.body)
-                    Text("\(user.totalDrops)")
-                        .font(.headline)
-                        .fontWeight(.bold)
-                        .foregroundColor(.white)
-                    Text("Total")
-                        .font(.caption2)
-                        .foregroundColor(.white.opacity(0.7))
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 8)
-                .background(Color.white.opacity(0.05))
-                .cornerRadius(10)
-                
-                VStack(spacing: 2) {
-                    Text("📈")
-                        .font(.body)
-                    Text("\(user.maxDropsInDay)")
-                        .font(.headline)
-                        .fontWeight(.bold)
-                        .foregroundColor(.white)
-                    Text("Max/Day")
-                        .font(.caption2)
-                        .foregroundColor(.white.opacity(0.7))
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 8)
-                .background(Color.white.opacity(0.05))
-                .cornerRadius(10)
-            }
-            
-            // Footer - Compact
-            Text("Join me on TheDailyPoop!")
-                .font(.caption)
-                .fontWeight(.semibold)
-                .foregroundColor(.white)
-        }
-        .padding(12)
-        .frame(width: 320, height: 480)
-        .background(
-            LinearGradient(
-                colors: [Color.orange.opacity(0.6), Color.brown.opacity(0.8), Color.black],
-                startPoint: .top,
-                endPoint: .bottom
             )
         )
         .cornerRadius(20)
