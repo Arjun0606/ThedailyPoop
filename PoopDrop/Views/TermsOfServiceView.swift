@@ -35,9 +35,9 @@ struct TermsOfServiceView: View {
                             • Log your bathroom visits with timestamps and locations
                             • View your activity on an interactive map
                             • Connect with friends and view their activity
-                            • Track streaks, statistics, and earn achievements
+                            • Track statistics and earn achievements
                             • React to and comment on friends' activity
-                            • Compete on leaderboards
+                            • Post anonymous gossip and reveal senders
                             
                             The service is provided "as is" and may be modified, suspended, or discontinued at any time.
                             """)

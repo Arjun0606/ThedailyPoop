@@ -80,19 +80,13 @@ class NotificationManager: ObservableObject {
         for friend in friends {
             let content = UNMutableNotificationContent()
             
-            if drop.isNoPoop {
-                content.title = "No Poop Alert! 😵‍💫"
-                content.body = "\(dropper.username) had no poop today but kept their streak alive!"
-                content.sound = UNNotificationSound(named: UNNotificationSoundName("constipated.wav"))
-            } else {
-                content.title = "Fresh Drop Alert! 💩"
-                content.body = "\(dropper.username) just dropped a poop!"
-                
-                // Random fart/flush/plop sound!
-                let sounds = ["fart_short.wav", "fart_long.wav", "bubble_fart.wav", "plop_single.wav", "big_splash.wav"]
-                let randomSound = sounds.randomElement() ?? "fart_short.wav"
-                content.sound = UNNotificationSound(named: UNNotificationSoundName(randomSound))
-            }
+            content.title = "Fresh Drop Alert! 💩"
+            content.body = "\(dropper.username) just dropped a poop!"
+            
+            // Random fart/flush/plop sound!
+            let sounds = ["fart_short.wav", "fart_long.wav", "bubble_fart.wav", "plop_single.wav", "big_splash.wav"]
+            let randomSound = sounds.randomElement() ?? "fart_short.wav"
+            content.sound = UNNotificationSound(named: UNNotificationSoundName(randomSound))
             
             content.badge = 1
             content.userInfo = [
@@ -111,106 +105,12 @@ class NotificationManager: ObservableObject {
         }
         
         // Play local sound effect for immediate feedback
-        playPoopSound(isNoPoop: drop.isNoPoop)
+        playPoopSound()
     }
     
     // MARK: - Reminder Notifications
     
-    func schedulePoopReminder(for user: User) async {
-        // Cancel existing reminder
-        UNUserNotificationCenter.current().removePendingNotificationRequests(
-            withIdentifiers: ["poop_reminder_\(user.id)"]
-        )
-        
-        let content = UNMutableNotificationContent()
-        content.title = "🚨 Poop Check Alert!"
-        content.body = "12 hours without logging! Don't break your \(user.streak)-day streak! 🔥💩"
-        content.sound = UNNotificationSound(named: UNNotificationSoundName("urgent_reminder.wav"))
-        content.badge = 1
-        content.userInfo = [
-            "type": "poop_reminder",
-            "userId": user.id
-        ]
-        
-        // Add action buttons for quick response
-        let poopAction = UNNotificationAction(
-            identifier: "LOG_POOP",
-            title: "Log Poop 💩",
-            options: [.foreground]
-        )
-        let noPoopAction = UNNotificationAction(
-            identifier: "NO_POOP",
-            title: "No Poop Today 😵‍💫",
-            options: []
-        )
-        
-        let category = UNNotificationCategory(
-            identifier: "POOP_REMINDER",
-            actions: [poopAction, noPoopAction],
-            intentIdentifiers: [],
-            options: []
-        )
-        
-        UNUserNotificationCenter.current().setNotificationCategories([category])
-        content.categoryIdentifier = "POOP_REMINDER"
-        
-        // Trigger after 12 hours
-        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 12 * 60 * 60, repeats: false)
-        
-        let request = UNNotificationRequest(
-            identifier: "poop_reminder_\(user.id)",
-            content: content,
-            trigger: trigger
-        )
-        
-        try? await UNUserNotificationCenter.current().add(request)
-    }
-    
-    func cancelPoopReminder(for user: User) {
-        UNUserNotificationCenter.current().removePendingNotificationRequests(
-            withIdentifiers: ["poop_reminder_\(user.id)"]
-        )
-    }
-    
-    /// Schedule daily streak reminder at a specific time
-    func scheduleDailyStreakReminder(for user: User, hour: Int, minute: Int) async {
-        // Cancel existing daily reminder
-        UNUserNotificationCenter.current().removePendingNotificationRequests(
-            withIdentifiers: ["daily_streak_reminder_\(user.id)"]
-        )
-        
-        let content = UNMutableNotificationContent()
-        content.title = "Don't break your streak! 🔥"
-        content.body = "You're on a \(user.streak)-day streak! Log your poop to keep it going 💩"
-        content.sound = UNNotificationSound(named: UNNotificationSoundName("urgent_reminder.wav"))
-        content.badge = 1
-        content.userInfo = [
-            "type": "daily_streak_reminder",
-            "userId": user.id
-        ]
-        
-        // Create date components for daily trigger
-        var dateComponents = DateComponents()
-        dateComponents.hour = hour
-        dateComponents.minute = minute
-        
-        let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
-        
-        let request = UNNotificationRequest(
-            identifier: "daily_streak_reminder_\(user.id)",
-            content: content,
-            trigger: trigger
-        )
-        
-        try? await UNUserNotificationCenter.current().add(request)
-        print("📅 Daily streak reminder scheduled for \(hour):\(String(format: "%02d", minute))")
-    }
-    
-    func cancelDailyStreakReminder(for user: User) {
-        UNUserNotificationCenter.current().removePendingNotificationRequests(
-            withIdentifiers: ["daily_streak_reminder_\(user.id)"]
-        )
-    }
+    // REMOVED: Streak reminder notifications (feature deleted)
     
     // MARK: - Comprehensive Notification System
     
@@ -219,15 +119,9 @@ class NotificationManager: ObservableObject {
         for recipient in recipients {
             let content = UNMutableNotificationContent()
             
-            if drop.isNoPoop {
-                content.title = "Constipation Update! 😵‍💫"
-                content.body = "\(friend.username) is backed up in \(drop.city ?? "somewhere")!"
-                content.sound = UNNotificationSound(named: UNNotificationSoundName("sad_trombone.wav"))
-            } else {
-                content.title = "Fresh Drop Alert! 💩"
-                content.body = "\(friend.username) just dropped a poop in \(drop.city ?? "somewhere")!"
-                content.sound = UNNotificationSound(named: UNNotificationSoundName(getRandomPoopSound()))
-            }
+            content.title = "Fresh Drop Alert! 💩"
+            content.body = "\(friend.username) just dropped a poop in \(drop.city ?? "somewhere")!"
+            content.sound = UNNotificationSound(named: UNNotificationSoundName(getRandomPoopSound()))
             
             content.userInfo = [
                 "type": "friend_pooped",
@@ -262,42 +156,7 @@ class NotificationManager: ObservableObject {
         }
     }
     
-    /// Friend broke their streak
-    func notifyStreakBroken(friend: User, previousStreak: Int, recipients: [User]) async {
-        for recipient in recipients {
-            let content = UNMutableNotificationContent()
-            content.title = "Streak Broken! 💔"
-            content.body = "\(friend.username) broke their \(previousStreak)-day streak! Send them support! 🔥💔"
-            content.sound = UNNotificationSound(named: UNNotificationSoundName("sad_trombone.wav"))
-            content.userInfo = [
-                "type": "streak_broken",
-                "friendId": friend.id,
-                "previousStreak": previousStreak
-            ]
-            content.badge = 1
-            
-            let supportAction = UNNotificationAction(identifier: "SEND_SUPPORT", title: "Send Support 💪", options: [.foreground])
-            let encourageAction = UNNotificationAction(identifier: "ENCOURAGE", title: "Encourage 🎉", options: [])
-            
-            let category = UNNotificationCategory(
-                identifier: "STREAK_BROKEN",
-                actions: [supportAction, encourageAction],
-                intentIdentifiers: [],
-                options: []
-            )
-            
-            UNUserNotificationCenter.current().setNotificationCategories([category])
-            content.categoryIdentifier = "STREAK_BROKEN"
-            
-            let request = UNNotificationRequest(
-                identifier: "streak_broken_\(friend.id)_\(Date().timeIntervalSince1970)",
-                content: content,
-                trigger: nil
-            )
-            
-            try? await UNUserNotificationCenter.current().add(request)
-        }
-    }
+    // REMOVED: Streak broken notification (feature deleted)
     
     /// Friend reacted to your drop
     func notifyReaction(from reactor: User, to dropOwner: User, emoji: String, dropId: String) async {
@@ -464,14 +323,8 @@ class NotificationManager: ObservableObject {
     
     // MARK: - Sound Effects
     
-    private func playPoopSound(isNoPoop: Bool) {
-        let soundName: String
-        
-        if isNoPoop {
-            soundName = "constipated"
-        } else {
-            soundName = getRandomPoopSound()
-        }
+    private func playPoopSound() {
+        let soundName = getRandomPoopSound()
         
         guard let path = Bundle.main.path(forResource: soundName, ofType: "wav") else {
             print("Sound file not found: \(soundName)")
@@ -501,7 +354,7 @@ class NotificationManager: ObservableObject {
             content.body = "\(friendsActive) friends are active today. Don't miss out on the fun!"
         } else {
             content.title = "Come back! 💩"
-            content.body = "Your streak is waiting. Keep it alive!"
+            content.body = "Your friends are waiting. Don't miss out!"
         }
         
         content.sound = UNNotificationSound(named: UNNotificationSoundName("gentle_chime.wav"))
@@ -777,38 +630,7 @@ class NotificationManager: ObservableObject {
         try? await UNUserNotificationCenter.current().add(request)
     }
     
-    /// "You're losing your streak! Friend is about to beat you!"
-    func sendStreakCompetitionNotification(to user: User, friendUsername: String, friendStreak: Int) async {
-        guard isAuthorized, user.streak < friendStreak else { return }
-        
-        let content = UNMutableNotificationContent()
-        content.title = "⏰ \(friendUsername) is beating your streak!"
-        content.body = "They have \(friendStreak) days. You have \(user.streak). Log your poop NOW!"
-        content.sound = UNNotificationSound(named: UNNotificationSoundName("urgent_reminder.wav"))
-        content.userInfo = ["type": "streak_competition", "friendUsername": friendUsername]
-        content.badge = 1
-        content.interruptionLevel = .timeSensitive
-        
-        let logAction = UNNotificationAction(identifier: "LOG_POOP_NOW", title: "💩 Log Poop", options: [.foreground])
-        
-        let category = UNNotificationCategory(
-            identifier: "STREAK_COMPETITION",
-            actions: [logAction],
-            intentIdentifiers: [],
-            options: []
-        )
-        
-        UNUserNotificationCenter.current().setNotificationCategories([category])
-        content.categoryIdentifier = "STREAK_COMPETITION"
-        
-        let request = UNNotificationRequest(
-            identifier: "streak_comp_\(user.id)_\(Date().timeIntervalSince1970)",
-            content: content,
-            trigger: nil
-        )
-        
-        try? await UNUserNotificationCenter.current().add(request)
-    }
+    // REMOVED: Streak competition notification (feature deleted)
     
     // MARK: - 🚀 PHASE 1: CORE ENGAGEMENT HOOKS (CRITICAL FOR VIRALITY & MRR)
     
@@ -1147,45 +969,7 @@ class NotificationManager: ObservableObject {
         print("🔥 Friends active notification sent to \(user.username)")
     }
     
-    /// 🚨 You Haven't Pooped Today - Streak Risk
-    func sendDailyPoopReminderNotification(to user: User, streakDays: Int) async {
-        guard isAuthorized else { return }
-        
-        let content = UNMutableNotificationContent()
-        content.title = "🚨 Your \(streakDays)-day streak is at risk!"
-        content.body = "You haven't pooped today • Log one now to keep your streak alive!"
-        content.sound = UNNotificationSound(named: UNNotificationSoundName("urgent_reminder.wav"))
-        content.userInfo = [
-            "type": "daily_reminder",
-            "deepLink": "drop"
-        ]
-        content.badge = 1
-        content.interruptionLevel = .timeSensitive
-        
-        let logAction = UNNotificationAction(identifier: "LOG_POOP_REMINDER", title: "💩 Log Now", options: [.foreground])
-        
-        let category = UNNotificationCategory(
-            identifier: "DAILY_REMINDER",
-            actions: [logAction],
-            intentIdentifiers: [],
-            options: []
-        )
-        
-        UNUserNotificationCenter.current().setNotificationCategories([category])
-        content.categoryIdentifier = "DAILY_REMINDER"
-        
-        // Trigger in 12 hours from now
-        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 12 * 60 * 60, repeats: false)
-        
-        let request = UNNotificationRequest(
-            identifier: "daily_reminder_\(user.id)",
-            content: content,
-            trigger: trigger
-        )
-        
-        try? await UNUserNotificationCenter.current().add(request)
-        print("🚨 Daily poop reminder scheduled for \(user.username)")
-    }
+    // REMOVED: Daily poop reminder (streak feature deleted)
     
     // MARK: - Gossip Notifications
     

@@ -33,24 +33,7 @@ class SmartPermissionManager: ObservableObject {
         }
     }
     
-    /// Called when user reaches 3-day streak
-    func checkAfterStreakMilestone(days: Int) {
-        // Only prompt at 3 days if not already asked
-        guard days == 3, !hasAskedForNotifications() else { return }
-        
-        notificationPromptContext = .streakMilestone(days: days)
-        shouldShowNotificationPrompt = true
-    }
-    
-    /// Called when user's streak is about to break (hasn't logged in 20+ hours)
-    func checkBeforeStreakBreak(currentStreak: Int) {
-        // Only if they have a meaningful streak and notifications enabled
-        guard currentStreak >= 3 else { return }
-        
-        // This would be called by a background task or server
-        // For now, just log that we should send a notification
-        print("⚠️ User streak \(currentStreak) at risk. Send reminder notification.")
-    }
+    // REMOVED: Streak milestone prompts (feature deleted)
     
     // MARK: - Request Permissions
     
@@ -98,15 +81,12 @@ class SmartPermissionManager: ObservableObject {
 
 enum NotificationPromptContext {
     case firstAttackReceived
-    case streakMilestone(days: Int)
     case comebackReminder
     
     var title: String {
         switch self {
         case .firstAttackReceived:
-            return "Don't Miss Future Attacks!"
-        case .streakMilestone(let days):
-            return "Protect Your \(days)-Day Streak!"
+            return "Don't Miss the Fun!"
         case .comebackReminder:
             return "Your Friends Miss You!"
         }
@@ -115,20 +95,16 @@ enum NotificationPromptContext {
     var message: String {
         switch self {
         case .firstAttackReceived:
-            return "Get notified when friends send you fart attacks and react to yours. Never miss the fun!"
-        case .streakMilestone:
-            return "Enable notifications so we can remind you before your streak breaks. You've worked hard for this!"
+            return "Get notified when friends post gossip, drop poops, and react to yours. Never miss the drama!"
         case .comebackReminder:
-            return "Stay in the loop with friend activity and streak reminders."
+            return "Stay in the loop with friend activity and fresh gossip."
         }
     }
     
     var analyticsKey: String {
         switch self {
         case .firstAttackReceived:
-            return "first_attack"
-        case .streakMilestone(let days):
-            return "streak_\(days)_days"
+            return "first_activity"
         case .comebackReminder:
             return "comeback"
         }

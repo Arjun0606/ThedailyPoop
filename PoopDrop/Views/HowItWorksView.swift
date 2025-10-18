@@ -37,51 +37,39 @@ struct HowItWorksView: View {
                         )
                         
                         FeatureSection(
-                            icon: "🔥",
-                            title: "3. Build Your Streak",
-                            description: "Log at least one poop per day to maintain your streak! The longer your streak, the more bragging rights. Miss a day? Your streak resets. We also track your 'constipated counter' 😵‍💫 if you haven't pooped in 24+ hours."
+                            icon: "☕",
+                            title: "3. Post Anonymous Gossip",
+                            description: "Post anonymous gossip to the Gossip Feed! Share tea, call out friends, or start drama. Anyone can see it, but only YOU know you posted it... unless someone pays $1.99 to reveal your identity!"
                         )
                         
                         FeatureSection(
                             icon: "👥",
                             title: "4. Connect with Friends",
-                            description: "Add friends to see their poops in your feed and on the map! React to their drops with emojis, see what music they're listening to while pooping, view their poop ratings, check their stats, and compete on the leaderboard. Get notified when friends drop, break streaks, or accept your friend requests."
+                            description: "Add friends to see their poops in your feed and on the map! React to their drops with emojis, see what music they're listening to while pooping, view their poop ratings, and compete on the leaderboard. Get notified when friends drop, post gossip, or accept your friend requests."
                         )
                         
                         FeatureSection(
-                            icon: "👻",
-                            title: "5. Ghost Attacks!",
-                            description: "Send anonymous fart attacks to your friends! They'll hear a hilarious fart sound and have ONE guess to figure out who sent it. Guess wrong? You can pay $0.99 to reveal the sender, or leave it a mystery forever! It's the ultimate prank feature with real stakes."
-                        )
-                        
-                        FeatureSection(
-                            icon: "📊",
-                            title: "6. Daily Polls",
-                            description: "Vote in daily polls created by your friends! Questions like 'Who's the funniest?' or 'Who poops the most?' You get to vote for 1 friend. After voting, see the leaderboard showing the top 3 winners. You'll see ONE person who voted for you, but to see everyone, pay $0.99 to unlock all voters. The competitive messages tell you how many votes you need to climb the leaderboard!"
-                        )
-                        
-                        FeatureSection(
-                            icon: "🏆",
-                            title: "7. Daily Rankings",
-                            description: "Earn points for everything you do! Drop a poop (+10), react to friends (+5), send ghost attacks (+15), get attacked (+20), and win polls (+25). Compete on the daily leaderboard that resets at midnight. Buy a 2X Points Boost ($1.99) to double your points for 24 hours and climb to #1 faster!"
+                            icon: "🔍",
+                            title: "5. React & Reply",
+                            description: "React to any gossip post with emojis, and join the conversation by replying anonymously! Full threaded conversations keep the drama going. Every reply is anonymous too, so speak your mind!"
                         )
                         
                         FeatureSection(
                             icon: "🎖️",
-                            title: "8. Unlock Achievements",
-                            description: "Earn badges for hitting milestones: 7-day streaks, 100 drops, visiting new countries, and more! Track your stats: total drops, max drops per day, longest no-poop streak, countries visited, and continents explored."
+                            title: "6. Track Your Journey",
+                            description: "Earn badges for hitting milestones: 100 drops, visiting new countries, and more! Track your stats: total drops, max drops per day, countries visited, and continents explored."
                         )
                         
                         FeatureSection(
                             icon: "🎵",
-                            title: "9. Music & Ratings",
+                            title: "7. Music & Ratings",
                             description: "Rate each poop from 1-10 (watch the poop emoji grow!). Share what song you're jamming to by pasting a Spotify or Apple Music link. Friends can tap the music card to listen to the same song. Turn your bathroom breaks into a musical experience!"
                         )
                         
                         FeatureSection(
                             icon: "📱",
-                            title: "10. Share Your Journey",
-                            description: "Export your stats as a beautiful shareable image for Instagram, Twitter, or Stories. Show off your streak, your poop passport, or your global heatmap!"
+                            title: "8. Share Your Journey",
+                            description: "Export your stats as a beautiful shareable image for Instagram, Twitter, or Stories. Show off your poop passport or your global heatmap!"
                         )
                         
                         Divider()

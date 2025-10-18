@@ -9,7 +9,7 @@ struct DropComposerView: View {
     @EnvironmentObject var cloudKitManager: CloudKitManager
     @EnvironmentObject var locationManager: LocationManager
     @EnvironmentObject var friendsManager: FriendsManager
-    @EnvironmentObject var streakManager: StreakManager
+    // REMOVED: streakManager (feature deleted)
     @EnvironmentObject var pointsManager: PointsManager
     
     @State private var caption: String = ""
@@ -213,8 +213,7 @@ struct DropComposerView: View {
                     print("Failed to notify friends of drop: \(error)")
                 }
                 
-                // Schedule next poop reminder (12 hours from now)
-                await NotificationManager.shared.schedulePoopReminder(for: user)
+                // REMOVED: Poop reminder (streak feature deleted)
                 
                 await MainActor.run {
                     isDropping = false
@@ -248,8 +247,8 @@ struct DropComposerView: View {
         
         print("📊 Updating user stats...")
         
-        // Let StreakManager update lastPoopDate
-        streakManager.logPoop(for: &user)
+        // Update last poop date
+        user.lastPoopDate = Date()
         
         // Update total drops
         user.totalDrops += 1
@@ -291,8 +290,6 @@ struct DropComposerView: View {
             user.maxDropsInDay = maxInAnyDay
             print("📊 Set maxDropsInDay to \(maxInAnyDay)")
             
-            // Old streak logic is now removed and handled by StreakManager
-            
         } catch {
             print("❌ Failed to fetch user drops for stats: \(error)")
             // Even if fetch fails, still count this drop
@@ -301,20 +298,16 @@ struct DropComposerView: View {
             }
         }
         
-        // Old streak logic is now removed and handled by StreakManager
-        
         // Update travel tracking (location is guaranteed to exist at this point)
         if let location = currentLocation {
             await updateTravelStats(for: &user, location: location)
         }
         
-        print("📊 Updated user stats: totalDrops now \(user.totalDrops), streak now \(user.streak), maxDropsInDay: \(user.maxDropsInDay), countries: \(user.countriesVisited.count), continents: \(user.continentsVisited.count)")
+        print("📊 Updated user stats: totalDrops now \(user.totalDrops), maxDropsInDay: \(user.maxDropsInDay), countries: \(user.countriesVisited.count), continents: \(user.continentsVisited.count)")
         
         do {
             try await cloudKitManager.saveUser(user)
-            // Award streak milestone rewards after successful save
-            await FartAttackManager.shared.maybeAwardStreakMilestone(for: &user)
-            try? await cloudKitManager.saveUser(user)
+            // REMOVED: Streak milestone rewards (feature deleted)
             
             // 🎯 AWARD POINTS FOR DROPPING
             await pointsManager.awardPoints(to: &user, for: .dropPoop)
@@ -335,7 +328,9 @@ struct DropComposerView: View {
         }
     }
     
-    private func calculateLongestNoPoopStreak(userDrops: [Drop], user: inout User) {
+    // REMOVED: calculateLongestNoPoopStreak (feature deleted)
+    
+    private func _deprecated_calculateLongestNoPoopStreak_REMOVED(userDrops: [Drop], user: inout User) {
         let calendar = Calendar.current
         let sorted = userDrops.sorted { $0.timestamp < $1.timestamp }
         // Count consecutive explicit no-poop entries only
@@ -706,12 +701,7 @@ struct PoopTypeSelector: View {
                 }
             }
             
-            if isNoPoop {
-                Text("Keep your streak alive even when nature doesn't call! 🔥")
-                    .font(.caption)
-                    .foregroundColor(.white.opacity(0.7))
-                    .padding(.top, 4)
-            }
+            // REMOVED: No poop streak message (feature deleted)
         }
         .padding()
         .background(Color.white.opacity(0.05))

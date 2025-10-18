@@ -50,7 +50,8 @@ struct PrivacyPolicyView: View {
                             • Drops you log (timestamp, emoji, caption, location)
                             • Friends list and friend requests
                             • Reactions and interactions with other users' content
-                            • Streak data, statistics, and achievements
+                            • Statistics and achievements
+                            • Gossip posts and reveals
                             • App usage analytics (screens viewed, features used)
                             
                             D. Device Information:
@@ -64,11 +65,10 @@ struct PrivacyPolicyView: View {
                             We use your information to:
                             • Provide and maintain the TheDailyPoop service
                             • Display your drops on maps and in feeds
-                            • Calculate statistics, streaks, and achievements
-                            • Facilitate social features (friends, leaderboards, notifications)
-                            • Send push notifications (drop alerts, streak reminders, friend activity)
+                            • Calculate statistics and achievements
+                            • Facilitate social features (friends, gossip, notifications)
+                            • Send push notifications (drop alerts, gossip mentions, friend activity)
                             • Improve app performance and user experience
-                            • Display personalized advertisements
                             • Prevent fraud, abuse, and violations of our Terms of Service
                             • Comply with legal obligations
                             """)
@@ -176,8 +176,7 @@ struct PrivacyPolicyView: View {
                             BodyText(text: """
                             With your permission, we send push notifications for:
                             • Friend drop alerts
-                            • Streak reminders (if you haven't logged in 12+ hours)
-                            • Streak break warnings
+                            • Gossip mentions and replies
                             • Friend requests and acceptances
                             • Reactions to your drops
                             
