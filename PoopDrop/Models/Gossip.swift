@@ -20,6 +20,7 @@ struct GossipPost: Identifiable, Codable {
     var screenshotBy: [String] = [] // User IDs who have screenshotted this gossip
     var screenshotUsernames: [String] = [] // Usernames for display (e.g. "@arjun, @mike")
     var screenshotTimestamps: [String: Date] = [:] // [userID: timestamp] for 24h expiry
+    var photoURL: String? // NEW: CloudKit photo asset URL (optional)
     
     init(id: String = UUID().uuidString,
          posterID: String,
@@ -37,7 +38,8 @@ struct GossipPost: Identifiable, Codable {
          revealedBy: [String] = [],
          screenshotBy: [String] = [],
          screenshotUsernames: [String] = [],
-         screenshotTimestamps: [String: Date] = [:]) {
+         screenshotTimestamps: [String: Date] = [:],
+         photoURL: String? = nil) {
         self.id = id
         self.posterID = posterID
         self.posterUsername = posterUsername
@@ -55,6 +57,7 @@ struct GossipPost: Identifiable, Codable {
         self.screenshotBy = screenshotBy
         self.screenshotUsernames = screenshotUsernames
         self.screenshotTimestamps = screenshotTimestamps
+        self.photoURL = photoURL
     }
     
     // MARK: - Screenshot Expiry Helper
@@ -120,6 +123,9 @@ extension GossipPost {
         } else {
             self.screenshotTimestamps = [:]
         }
+        
+        // NEW: Load photo URL
+        self.photoURL = record["photoURL"] as? String
     }
     
     func toCKRecord() -> CKRecord {
@@ -160,6 +166,11 @@ extension GossipPost {
         // Encode reactions dictionary
         if let reactionsData = try? JSONEncoder().encode(reactions) {
             record["reactions"] = reactionsData
+        }
+        
+        // NEW: Save photo URL if present
+        if let photoURL = photoURL {
+            record["photoURL"] = photoURL
         }
         
         return record
