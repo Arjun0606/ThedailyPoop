@@ -178,11 +178,12 @@ class GossipManager: ObservableObject {
         }
     }
     
-    // MARK: - Post Reply
+    // MARK: - Post Reply (Threaded)
     
-    func postReply(to gossipID: String, replyText: String, replier: User, isAnonymous: Bool) async {
+    func postReply(to gossipID: String, parentReplyID: String? = nil, replyText: String, replier: User, isAnonymous: Bool) async {
         let reply = GossipReply(
             originalGossipID: gossipID,
+            parentReplyID: parentReplyID, // Support nested replies!
             replyText: replyText,
             replierID: replier.id,
             replierUsername: replier.username,
@@ -231,11 +232,47 @@ class GossipManager: ObservableObject {
             }
             
             print("✅ Loaded \(replies.count) replies for gossip")
-            return replies
+            
+            // REDDIT-STYLE THREADING: Build nested hierarchy
+            let threadedReplies = buildThreadHierarchy(replies)
+            return threadedReplies
         } catch {
             print("❌ Error loading replies: \(error)")
             return []
         }
+    }
+    
+    // MARK: - Build Thread Hierarchy (Reddit-style)
+    
+    private func buildThreadHierarchy(_ flatReplies: [GossipReply]) -> [GossipReply] {
+        var topLevel: [GossipReply] = []
+        var replyMap: [String: GossipReply] = [:]
+        
+        // First pass: create map of all replies
+        for reply in flatReplies {
+            var mutableReply = reply
+            mutableReply.nestedReplies = []
+            replyMap[reply.id] = mutableReply
+        }
+        
+        // Second pass: build hierarchy
+        for reply in flatReplies {
+            if let parentID = reply.parentReplyID {
+                // This is a nested reply - add to parent
+                if var parent = replyMap[parentID] {
+                    parent.nestedReplies.append(replyMap[reply.id]!)
+                    replyMap[parentID] = parent
+                }
+            } else {
+                // Top-level reply
+                topLevel.append(replyMap[reply.id]!)
+            }
+        }
+        
+        // Sort by date (oldest first for Reddit-style)
+        let sorted = topLevel.sorted { $0.createdAt < $1.createdAt }
+        print("📊 Built \(sorted.count) top-level threads from \(flatReplies.count) total replies")
+        return sorted
     }
     
     // MARK: - Reveal Sender (IAP)
@@ -338,13 +375,14 @@ class GossipManager: ObservableObject {
             return
         }
         
-        // Add to screenshot list
+        // Add to screenshot list WITH timestamp for 24h expiry
         gossip.screenshotBy.append(user.id)
         gossip.screenshotUsernames.append(user.username)
+        gossip.screenshotTimestamps[user.id] = Date() // Track when screenshot was taken
         
         // CRITICAL FIX: Update UI immediately (optimistic update)
         todaysGossip[index] = gossip
-        print("📸 @\(user.username) took screenshot (optimistic)")
+        print("📸 @\(user.username) took screenshot (optimistic, expires in 24h)")
         
         // CRITICAL FIX: Cache immediately
         cacheGossipLocally()

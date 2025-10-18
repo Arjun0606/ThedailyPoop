@@ -271,12 +271,13 @@ struct GossipCard: View {
                 Spacer()
             }
             
-            // Screenshot notification (if anyone screenshotted)
-            if !gossip.screenshotUsernames.isEmpty {
+            // Screenshot notification (only show screenshots from last 24h)
+            let activeScreenshots = gossip.activeScreenshotUsernames()
+            if !activeScreenshots.isEmpty {
                 HStack(spacing: 4) {
                     Image(systemName: "camera.fill")
                         .foregroundColor(.yellow)
-                    Text(screenshotText(gossip.screenshotUsernames))
+                    Text(screenshotText(activeScreenshots))
                         .font(.caption)
                         .foregroundColor(.yellow)
                 }
@@ -719,11 +720,11 @@ struct ReplyThreadView: View {
                 ScrollView {
                     VStack(spacing: 12) {
                         ForEach(replies) { reply in
-                            ReplyCard(reply: reply)
+                            ReplyCard(reply: reply, depth: 0, currentUser: currentUser)
                         }
                     }
                 }
-                .frame(maxHeight: 200)
+                .frame(maxHeight: 400) // Increased for nested threads
             }
             
             // Reply composer
@@ -791,43 +792,110 @@ struct ReplyThreadView: View {
     }
 }
 
-// MARK: - Reply Card
+// MARK: - Reply Card (Reddit-style Threaded)
 struct ReplyCard: View {
     let reply: GossipReply
+    let depth: Int // For indentation
+    let currentUser: User
+    @StateObject private var gossipManager = GossipManager.shared
+    @State private var showingReplyBox = false
+    @State private var replyText = ""
     
     var body: some View {
-        HStack(alignment: .top, spacing: 12) {
-            Circle()
-                .fill(Color.gray)
-                .frame(width: 32, height: 32)
-                .overlay(
-                    Image(systemName: reply.isAnonymous ? "person.fill.questionmark" : "person.fill")
-                        .font(.caption)
-                        .foregroundColor(.white)
-                )
-            
-            VStack(alignment: .leading, spacing: 4) {
-                HStack(spacing: 8) {
-                    Text(reply.isAnonymous ? "Anonymous" : reply.replierUsername)
-                        .font(.caption.bold())
-                        .foregroundColor(.white)
-                    
-                    Text(reply.createdAt.timeAgoString())
-                        .font(.caption2)
-                        .foregroundColor(.gray)
+        VStack(alignment: .leading, spacing: 8) {
+            // Main reply
+            HStack(alignment: .top, spacing: 12) {
+                // Indentation lines for nested replies (Reddit style)
+                if depth > 0 {
+                    ForEach(0..<depth, id: \.self) { _ in
+                        Rectangle()
+                            .fill(Color.gray.opacity(0.3))
+                            .frame(width: 2)
+                    }
                 }
                 
-                Text(reply.replyText)
-                    .font(.caption)
-                    .foregroundColor(.white.opacity(0.9))
-                    .fixedSize(horizontal: false, vertical: true)
+                Circle()
+                    .fill(Color.gray)
+                    .frame(width: 32, height: 32)
+                    .overlay(
+                        Image(systemName: reply.isAnonymous ? "person.fill.questionmark" : "person.fill")
+                            .font(.caption)
+                            .foregroundColor(.white)
+                    )
+                
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack(spacing: 8) {
+                        Text(reply.isAnonymous ? "Anonymous" : reply.replierUsername)
+                            .font(.caption.bold())
+                            .foregroundColor(.white)
+                        
+                        Text(reply.createdAt.timeAgoString())
+                            .font(.caption2)
+                            .foregroundColor(.gray)
+                    }
+                    
+                    Text(reply.replyText)
+                        .font(.caption)
+                        .foregroundColor(.white.opacity(0.9))
+                        .fixedSize(horizontal: false, vertical: true)
+                    
+                    // Reply button
+                    Button(action: { showingReplyBox.toggle() }) {
+                        Text("Reply")
+                            .font(.caption2)
+                            .foregroundColor(.purple)
+                    }
+                }
+                
+                Spacer()
+            }
+            .padding(8)
+            .background(Color.white.opacity(depth == 0 ? 0.05 : 0.03))
+            .cornerRadius(8)
+            
+            // Reply box
+            if showingReplyBox {
+                HStack(spacing: 8) {
+                    TextField("Write a reply...", text: $replyText)
+                        .textFieldStyle(.plain)
+                        .foregroundColor(.white)
+                        .padding(8)
+                        .background(Color.white.opacity(0.1))
+                        .cornerRadius(8)
+                    
+                    Button(action: postNestedReply) {
+                        Image(systemName: "paperplane.fill")
+                            .foregroundColor(.purple)
+                    }
+                }
+                .padding(.leading, CGFloat((depth + 1) * 16))
             }
             
-            Spacer()
+            // Nested replies (RECURSIVE)
+            if !reply.nestedReplies.isEmpty {
+                ForEach(reply.nestedReplies) { nestedReply in
+                    ReplyCard(reply: nestedReply, depth: depth + 1, currentUser: currentUser)
+                }
+            }
         }
-        .padding(8)
-        .background(Color.white.opacity(0.05))
-        .cornerRadius(8)
+    }
+    
+    private func postNestedReply() {
+        guard !replyText.isEmpty else { return }
+        
+        let textToPost = replyText
+        replyText = ""
+        showingReplyBox = false
+        
+        Task {
+            await gossipManager.postReply(
+                to: reply.originalGossipID,
+                parentReplyID: reply.id, // Nested under this reply!
+                replyText: textToPost,
+                replier: currentUser,
+                isAnonymous: true
+            )
+        }
     }
 }
 

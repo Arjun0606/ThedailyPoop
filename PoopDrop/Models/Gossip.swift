@@ -19,6 +19,7 @@ struct GossipPost: Identifiable, Codable {
     var revealedBy: [String] = [] // User IDs who have revealed this gossip
     var screenshotBy: [String] = [] // User IDs who have screenshotted this gossip
     var screenshotUsernames: [String] = [] // Usernames for display (e.g. "@arjun, @mike")
+    var screenshotTimestamps: [String: Date] = [:] // [userID: timestamp] for 24h expiry
     
     init(id: String = UUID().uuidString,
          posterID: String,
@@ -35,7 +36,8 @@ struct GossipPost: Identifiable, Codable {
          replyCount: Int = 0,
          revealedBy: [String] = [],
          screenshotBy: [String] = [],
-         screenshotUsernames: [String] = []) {
+         screenshotUsernames: [String] = [],
+         screenshotTimestamps: [String: Date] = [:]) {
         self.id = id
         self.posterID = posterID
         self.posterUsername = posterUsername
@@ -52,6 +54,25 @@ struct GossipPost: Identifiable, Codable {
         self.revealedBy = revealedBy
         self.screenshotBy = screenshotBy
         self.screenshotUsernames = screenshotUsernames
+        self.screenshotTimestamps = screenshotTimestamps
+    }
+    
+    // MARK: - Screenshot Expiry Helper
+    
+    /// Get usernames of screenshots taken within last 24 hours
+    func activeScreenshotUsernames() -> [String] {
+        let cutoff = Date().addingTimeInterval(-86400) // 24 hours ago
+        var active: [String] = []
+        
+        for (index, userID) in screenshotBy.enumerated() {
+            if let timestamp = screenshotTimestamps[userID], timestamp > cutoff {
+                if index < screenshotUsernames.count {
+                    active.append(screenshotUsernames[index])
+                }
+            }
+        }
+        
+        return active
     }
 }
 
@@ -91,6 +112,14 @@ extension GossipPost {
         } else {
             self.reactions = [:]
         }
+        
+        // Decode screenshot timestamps dictionary
+        if let timestampsData = record["screenshotTimestamps"] as? Data,
+           let timestamps = try? JSONDecoder().decode([String: Date].self, from: timestampsData) {
+            self.screenshotTimestamps = timestamps
+        } else {
+            self.screenshotTimestamps = [:]
+        }
     }
     
     func toCKRecord() -> CKRecord {
@@ -121,6 +150,11 @@ extension GossipPost {
         if !screenshotBy.isEmpty {
             record["screenshotBy"] = screenshotBy
             record["screenshotUsernames"] = screenshotUsernames
+            
+            // Encode screenshot timestamps dictionary
+            if let timestampsData = try? JSONEncoder().encode(screenshotTimestamps) {
+                record["screenshotTimestamps"] = timestampsData
+            }
         }
         
         // Encode reactions dictionary
@@ -132,30 +166,36 @@ extension GossipPost {
     }
 }
 
-// MARK: - Gossip Reply Model
+// MARK: - Gossip Reply Model (Reddit-style threaded)
 struct GossipReply: Identifiable, Codable {
     let id: String
     let originalGossipID: String
+    let parentReplyID: String? // nil for top-level, set for nested replies
     let replyText: String
     let replierID: String // Hidden if anonymous
     let replierUsername: String // Hidden if anonymous
     let isAnonymous: Bool
     let createdAt: Date
+    var nestedReplies: [GossipReply] = [] // For UI hierarchical display
     
     init(id: String = UUID().uuidString,
          originalGossipID: String,
+         parentReplyID: String? = nil,
          replyText: String,
          replierID: String,
          replierUsername: String,
          isAnonymous: Bool = true,
-         createdAt: Date = Date()) {
+         createdAt: Date = Date(),
+         nestedReplies: [GossipReply] = []) {
         self.id = id
         self.originalGossipID = originalGossipID
+        self.parentReplyID = parentReplyID
         self.replyText = replyText
         self.replierID = replierID
         self.replierUsername = replierUsername
         self.isAnonymous = isAnonymous
         self.createdAt = createdAt
+        self.nestedReplies = nestedReplies
     }
 }
 
@@ -174,16 +214,21 @@ extension GossipReply {
         
         self.id = record.recordID.recordName
         self.originalGossipID = originalGossipID
+        self.parentReplyID = record["parentReplyID"] as? String // Optional for nested replies
         self.replyText = replyText
         self.replierID = replierID
         self.replierUsername = replierUsername
         self.isAnonymous = (record["isAnonymous"] as? Int) == 1
         self.createdAt = createdAt
+        self.nestedReplies = [] // Will be populated by GossipManager
     }
     
     func toCKRecord() -> CKRecord {
         let record = CKRecord(recordType: GossipReply.recordType, recordID: CKRecord.ID(recordName: id))
         record["originalGossipID"] = originalGossipID
+        if let parentID = parentReplyID {
+            record["parentReplyID"] = parentID
+        }
         record["replyText"] = replyText
         record["replierID"] = replierID
         record["replierUsername"] = replierUsername
