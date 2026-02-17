@@ -12,6 +12,16 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         let token = deviceToken.map { String(format: "%02.2hhx", $0) }.joined()
         print("📱 Device Token: \(token)")
         UserDefaults.standard.set(token, forKey: "deviceToken")
+
+        // Register token with Supabase for server-side push
+        Task { @MainActor in
+            if let session = await SupabaseManager.shared.getCurrentSession() {
+                try? await SupabaseManager.shared.registerDeviceToken(
+                    userID: session.user.id.uuidString,
+                    token: token
+                )
+            }
+        }
     }
 
     func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {

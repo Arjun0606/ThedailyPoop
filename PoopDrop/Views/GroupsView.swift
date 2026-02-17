@@ -65,7 +65,10 @@ struct GroupsView: View {
                     ScrollView {
                         LazyVStack(spacing: 12) {
                             ForEach(groups) { group in
-                                GroupRow(group: group)
+                                GroupRow(
+                                    group: group,
+                                    onShareInvite: { shareGroupInvite(group) }
+                                )
                             }
                         }
                         .padding()
@@ -102,6 +105,14 @@ struct GroupsView: View {
         }
     }
 
+    private func shareGroupInvite(_ group: Group) {
+        guard let user = authManager.currentUser else { return }
+        let card = GroupInviteCard(group: group, inviterUsername: user.username)
+        if let image = ShareCardGenerator.render(card) {
+            ShareCardGenerator.share(image: image)
+        }
+    }
+
     private func loadGroups() async {
         guard let user = authManager.currentUser else { return }
         do {
@@ -116,6 +127,7 @@ struct GroupsView: View {
 // MARK: - Group Row
 struct GroupRow: View {
     let group: Group
+    let onShareInvite: () -> Void
 
     var body: some View {
         HStack(spacing: 14) {
@@ -140,6 +152,16 @@ struct GroupRow: View {
             }
 
             Spacer()
+
+            // Share invite button
+            Button(action: onShareInvite) {
+                Image(systemName: "square.and.arrow.up")
+                    .font(.subheadline)
+                    .foregroundStyle(.white.opacity(0.6))
+                    .frame(width: 36, height: 36)
+                    .background(Color.white.opacity(0.1))
+                    .clipShape(Circle())
+            }
 
             VStack(alignment: .trailing, spacing: 4) {
                 Text(group.inviteCode)
@@ -240,7 +262,69 @@ struct CreateGroupView: View {
             }
         }
         .preferredColorScheme(.dark)
+        .sheet(isPresented: $showingShareInvite) {
+            if let group = createdGroup {
+                VStack(spacing: 28) {
+                    Text("🎉")
+                        .font(.system(size: 72))
+                        .padding(.top, 20)
+
+                    Text("Group Created!")
+                        .font(.title.bold())
+                        .foregroundStyle(.white)
+
+                    VStack(spacing: 8) {
+                        Text("\(group.emoji) \(group.name)")
+                            .font(.title2.weight(.semibold))
+                            .foregroundStyle(.white)
+                        Text("Code: \(group.inviteCode)")
+                            .font(.headline.monospaced())
+                            .foregroundStyle(.yellow)
+                    }
+
+                    Text("Invite friends to make it lit")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+
+                    Button(action: {
+                        shareCreatedGroup()
+                        showingShareInvite = false
+                        dismiss()
+                    }) {
+                        HStack(spacing: 10) {
+                            Image(systemName: "square.and.arrow.up.fill")
+                            Text("Share Invite")
+                                .fontWeight(.bold)
+                        }
+                        .font(.title3)
+                        .foregroundStyle(.black)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 16)
+                        .background(Color.yellow)
+                        .cornerRadius(14)
+                    }
+                    .padding(.horizontal, 20)
+
+                    Button(action: {
+                        showingShareInvite = false
+                        dismiss()
+                    }) {
+                        Text("Skip for now")
+                            .font(.subheadline)
+                            .foregroundStyle(.white.opacity(0.5))
+                    }
+                    .padding(.bottom, 20)
+                }
+                .padding()
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(Color.black.ignoresSafeArea())
+                .presentationDetents([.medium])
+            }
+        }
     }
+
+    @State private var createdGroup: Group?
+    @State private var showingShareInvite = false
 
     private func createGroup() {
         guard let user = authManager.currentUser, !name.isEmpty else { return }
@@ -254,11 +338,21 @@ struct CreateGroupView: View {
                     createdBy: user.id
                 )
                 onCreated(group)
-                dismiss()
+                createdGroup = group
+                showingShareInvite = true
             } catch {
                 print("Failed to create group: \(error)")
             }
             isCreating = false
+        }
+    }
+
+    private func shareCreatedGroup() {
+        guard let group = createdGroup,
+              let user = authManager.currentUser else { return }
+        let card = GroupInviteCard(group: group, inviterUsername: user.username)
+        if let image = ShareCardGenerator.render(card) {
+            ShareCardGenerator.share(image: image)
         }
     }
 }

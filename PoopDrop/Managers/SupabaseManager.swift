@@ -573,6 +573,51 @@ class SupabaseManager: ObservableObject {
         }
     }
 
+    // MARK: - Waitlist
+
+    struct WaitlistResult {
+        let position: Int
+        let totalWaiting: Int
+    }
+
+    func joinWaitlist(userID: String, schoolName: String) async throws -> WaitlistResult {
+        struct WaitlistInsert: Encodable {
+            let user_id: String
+            let school_name: String
+        }
+
+        try await client.from("waitlist")
+            .upsert(WaitlistInsert(user_id: userID, school_name: schoolName))
+            .execute()
+
+        // Get position
+        struct WaitlistRow: Decodable {
+            let id: String
+        }
+
+        let all: [WaitlistRow] = try await client.from("waitlist")
+            .select("id")
+            .eq("school_name", value: schoolName)
+            .execute()
+            .value
+
+        return WaitlistResult(position: max(1, all.count), totalWaiting: all.count)
+    }
+
+    // MARK: - Device Tokens (Push Notifications)
+
+    func registerDeviceToken(userID: String, token: String) async throws {
+        struct TokenInsert: Encodable {
+            let user_id: String
+            let token: String
+            let platform: String
+        }
+
+        try await client.from("device_tokens")
+            .upsert(TokenInsert(user_id: userID, token: token, platform: "ios"))
+            .execute()
+    }
+
     // MARK: - Account Deletion
 
     func deleteAccount(userID: String) async throws {

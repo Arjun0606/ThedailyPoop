@@ -12,6 +12,8 @@ struct DropComposerView: View {
     @State private var currentLocation: CLLocation?
     @State private var selectedGroup: Group?
     @State private var groups: [Group] = []
+    @State private var showingShareCard = false
+    @State private var lastDropLocationName: String?
 
     private let maxChars = 280
 
@@ -116,6 +118,30 @@ struct DropComposerView: View {
         } message: {
             Text("TheDailyPoop needs location access to pin your drops on the map.")
         }
+        .sheet(isPresented: $showingShareCard) {
+            DropSharePrompt(
+                username: authManager.currentUser?.username ?? "",
+                locationName: lastDropLocationName,
+                caption: caption.isEmpty ? nil : caption,
+                group: selectedGroup,
+                onShare: {
+                    if let user = authManager.currentUser, let group = selectedGroup {
+                        let card = DropShareCard(
+                            username: user.username,
+                            locationName: lastDropLocationName,
+                            caption: caption.isEmpty ? nil : caption,
+                            groupName: group.name,
+                            groupEmoji: group.emoji
+                        )
+                        if let image = ShareCardGenerator.render(card) {
+                            ShareCardGenerator.share(image: image)
+                        }
+                    }
+                },
+                onSkip: { dismiss() }
+            )
+            .presentationDetents([.medium])
+        }
     }
 
     private func getCurrentLocation() {
@@ -177,7 +203,8 @@ struct DropComposerView: View {
                 await MainActor.run {
                     authManager.currentUser = updatedUser
                     isDropping = false
-                    dismiss()
+                    lastDropLocationName = locationName
+                    showingShareCard = true
                     NotificationCenter.default.post(
                         name: Notification.Name("DID_CREATE_DROP"),
                         object: nil,

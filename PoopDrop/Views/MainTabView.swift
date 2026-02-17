@@ -5,6 +5,8 @@ struct MainTabView: View {
     @EnvironmentObject var authManager: AuthenticationManager
     @State private var selectedTab = 0
     @State private var showingDropComposer = false
+    @State private var showingDeepLinkJoin = false
+    @State private var deepLinkInviteCode = ""
 
     var body: some View {
         ZStack {
@@ -83,6 +85,16 @@ struct MainTabView: View {
             .onReceive(NotificationCenter.default.publisher(for: Notification.Name("SHOW_GOSSIP_FOR_DROP"))) { _ in
                 selectedTab = 1
             }
+            // Deep link: open join group with pre-filled code
+            .onReceive(NotificationCenter.default.publisher(for: Notification.Name("OPEN_JOIN_GROUP"))) { notification in
+                if let code = notification.userInfo?["inviteCode"] as? String {
+                    deepLinkInviteCode = code
+                    selectedTab = 2  // Switch to groups tab
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                        showingDeepLinkJoin = true
+                    }
+                }
+            }
 
             // Floating Action Button for Drop
             VStack {
@@ -115,11 +127,114 @@ struct MainTabView: View {
         .sheet(isPresented: $showingDropComposer) {
             DropComposerView()
         }
+        .sheet(isPresented: $showingDeepLinkJoin) {
+            DeepLinkJoinView(inviteCode: deepLinkInviteCode)
+        }
         .onChange(of: selectedTab) { _, newTab in
             if newTab == 0 {
                 NotificationCenter.default.post(name: Notification.Name("REFRESH_MAP"), object: nil)
             }
         }
+    }
+}
+
+// MARK: - Deep Link Join View (auto-fills invite code from URL)
+struct DeepLinkJoinView: View {
+    let inviteCode: String
+    @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject var authManager: AuthenticationManager
+    @State private var isJoining = false
+    @State private var joinedGroup: Group?
+    @State private var errorMessage: String?
+
+    var body: some View {
+        ZStack {
+            Color.black.ignoresSafeArea()
+
+            VStack(spacing: 28) {
+                if let group = joinedGroup {
+                    // Success state
+                    Text("🎉")
+                        .font(.system(size: 80))
+
+                    Text("You're in!")
+                        .font(.title.bold())
+                        .foregroundStyle(.white)
+
+                    VStack(spacing: 8) {
+                        Text(group.emoji)
+                            .font(.system(size: 48))
+                        Text(group.name)
+                            .font(.title2.weight(.semibold))
+                            .foregroundStyle(.white)
+                    }
+
+                    Button(action: { dismiss() }) {
+                        Text("Let's Go")
+                            .font(.headline)
+                            .foregroundStyle(.black)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 16)
+                            .background(Color.white)
+                            .cornerRadius(14)
+                    }
+                    .padding(.horizontal, 40)
+                } else if let error = errorMessage {
+                    // Error state
+                    Text("😕")
+                        .font(.system(size: 80))
+
+                    Text("Couldn't Join")
+                        .font(.title.bold())
+                        .foregroundStyle(.white)
+
+                    Text(error)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+
+                    Button(action: { dismiss() }) {
+                        Text("Close")
+                            .font(.headline)
+                            .foregroundStyle(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 16)
+                            .background(Color.white.opacity(0.15))
+                            .cornerRadius(14)
+                    }
+                    .padding(.horizontal, 40)
+                } else {
+                    // Loading state
+                    ProgressView()
+                        .scaleEffect(1.5)
+                        .tint(.white)
+
+                    Text("Joining group...")
+                        .font(.headline)
+                        .foregroundStyle(.white)
+
+                    Text("Code: \(inviteCode)")
+                        .font(.title3.monospaced())
+                        .foregroundStyle(.yellow)
+                }
+            }
+        }
+        .task { await joinGroup() }
+    }
+
+    private func joinGroup() async {
+        guard let user = authManager.currentUser else {
+            errorMessage = "You need to sign in first."
+            return
+        }
+        isJoining = true
+        do {
+            let group = try await SupabaseManager.shared.joinGroupByInviteCode(inviteCode, userID: user.id)
+            joinedGroup = group
+        } catch {
+            errorMessage = "Invalid or expired invite code."
+        }
+        isJoining = false
     }
 }
 

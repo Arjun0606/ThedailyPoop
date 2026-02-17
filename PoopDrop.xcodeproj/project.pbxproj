@@ -26,7 +26,6 @@
 		A1000049294A0000000000002 /* ProfileSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100004A294A0000000000002 /* ProfileSetupView.swift */; };
 		D9AC1536EA6A48F4FEAFB2CE /* ContactView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27F25651DCDE162B6C18444A /* ContactView.swift */; };
 		DCE86F532EA2531B007B1BC0 /* Gossip.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCE86F522EA2531B007B1BC0 /* Gossip.swift */; };
-		STREAK_MGR_BUILD /* (null) in Sources */ = {isa = PBXBuildFile; };
 		NEW00001000000000000001 /* Challenge.swift in Sources */ = {isa = PBXBuildFile; fileRef = NEW00002000000000000001 /* Challenge.swift */; };
 		NEW00003000000000000001 /* Group.swift in Sources */ = {isa = PBXBuildFile; fileRef = NEW00004000000000000001 /* Group.swift */; };
 		NEW00005000000000000001 /* SupabaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = NEW00006000000000000001 /* SupabaseManager.swift */; };
@@ -35,6 +34,10 @@
 		NEW0000B000000000000001 /* SnapchatStyleMapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = NEW0000C000000000000001 /* SnapchatStyleMapView.swift */; };
 		NEW0000D000000000000001 /* SecureRevealView.swift in Sources */ = {isa = PBXBuildFile; fileRef = NEW0000E000000000000001 /* SecureRevealView.swift */; };
 		SPM00003000000000000001 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = SPM00002000000000000001 /* Supabase */; };
+		VIRAL0010000000000000001 /* ShareCardGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = VIRAL0020000000000000001 /* ShareCardGenerator.swift */; };
+		VIRAL0030000000000000001 /* ViralShareCards.swift in Sources */ = {isa = PBXBuildFile; fileRef = VIRAL0040000000000000001 /* ViralShareCards.swift */; };
+		VIRAL0050000000000000001 /* PushNotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = VIRAL0060000000000000001 /* PushNotificationService.swift */; };
+		VIRAL0070000000000000001 /* WaitlistView.swift in Sources */ = {isa = PBXBuildFile; fileRef = VIRAL0080000000000000001 /* WaitlistView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -67,6 +70,10 @@
 		NEW0000A000000000000001 /* GossipFeedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GossipFeedView.swift; sourceTree = "<group>"; };
 		NEW0000C000000000000001 /* SnapchatStyleMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapchatStyleMapView.swift; sourceTree = "<group>"; };
 		NEW0000E000000000000001 /* SecureRevealView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Components/SecureRevealView.swift"; sourceTree = "<group>"; };
+		VIRAL0020000000000000001 /* ShareCardGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareCardGenerator.swift; sourceTree = "<group>"; };
+		VIRAL0040000000000000001 /* ViralShareCards.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Components/ViralShareCards.swift"; sourceTree = "<group>"; };
+		VIRAL0060000000000000001 /* PushNotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationService.swift; sourceTree = "<group>"; };
+		VIRAL0080000000000000001 /* WaitlistView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WaitlistView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -109,6 +116,7 @@
 				A1000030294A0000000000888 /* Models */,
 				A1000031294A0000000000888 /* Managers */,
 				A1000032294A0000000000888 /* Views */,
+				VIRAL0090000000000000001 /* Helpers */,
 				A1000033294A0000000000888 /* Extensions */,
 				A1000006294A0000000000001 /* Assets.xcassets */,
 				A1000009294A0000000000888 /* Preview Content */,
@@ -142,6 +150,7 @@
 				A1000010294A0000000000001 /* AuthenticationManager.swift */,
 				A1000016294A0000000000001 /* LocationManager.swift */,
 				NEW00006000000000000001 /* SupabaseManager.swift */,
+				VIRAL0060000000000000001 /* PushNotificationService.swift */,
 			);
 			path = Managers;
 			sourceTree = "<group>";
@@ -159,6 +168,8 @@
 				NEW0000A000000000000001 /* GossipFeedView.swift */,
 				NEW0000C000000000000001 /* SnapchatStyleMapView.swift */,
 				NEW0000E000000000000001 /* SecureRevealView.swift */,
+				VIRAL0040000000000000001 /* ViralShareCards.swift */,
+				VIRAL0080000000000000001 /* WaitlistView.swift */,
 				27F25651DCDE162B6C18444A /* ContactView.swift */,
 				119BCB7C76A3A13ECAA1ECFC /* TermsOfServiceView.swift */,
 				4210E055649FE550A178E211 /* PrivacyPolicyView.swift */,
@@ -171,6 +182,14 @@
 			children = (
 			);
 			path = Extensions;
+			sourceTree = "<group>";
+		};
+		VIRAL0090000000000000001 /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				VIRAL0020000000000000001 /* ShareCardGenerator.swift */,
+			);
+			path = Helpers;
 			sourceTree = "<group>";
 		};
 		DCE86F3A2E9975B5007B1BC0 /* Recovered References */ = {
@@ -277,6 +296,10 @@
 				NEW00009000000000000001 /* GossipFeedView.swift in Sources */,
 				NEW0000B000000000000001 /* SnapchatStyleMapView.swift in Sources */,
 				NEW0000D000000000000001 /* SecureRevealView.swift in Sources */,
+				VIRAL0010000000000000001 /* ShareCardGenerator.swift in Sources */,
+				VIRAL0030000000000000001 /* ViralShareCards.swift in Sources */,
+				VIRAL0050000000000000001 /* PushNotificationService.swift in Sources */,
+				VIRAL0070000000000000001 /* WaitlistView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

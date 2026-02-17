@@ -22,6 +22,11 @@ struct GossipFeedView: View {
     @State private var showingSecureReveal = false
     @State private var revealedUsername = ""
 
+    // Share after reveal
+    @State private var showingRevealShare = false
+    @State private var lastRevealedGroupName = ""
+    @State private var lastRevealedGroupEmoji = ""
+
     var body: some View {
         NavigationView {
             ZStack {
@@ -52,7 +57,8 @@ struct GossipFeedView: View {
                                         post: post,
                                         isRevealed: revealedIDs.contains(post.id),
                                         revealedUsername: revealedUsernames[post.id],
-                                        onReveal: { await revealSender(post) }
+                                        onReveal: { await revealSender(post) },
+                                        onShare: { shareGossipTease(post) }
                                     )
                                 }
                             }
@@ -109,8 +115,32 @@ struct GossipFeedView: View {
             .fullScreenCover(isPresented: $showingSecureReveal) {
                 SecureRevealView(posterUsername: revealedUsername) {
                     showingSecureReveal = false
-                    showToast("Revealed! @\(revealedUsername)", icon: "checkmark.circle.fill")
+                    // Show share prompt after reveal
+                    lastRevealedGroupName = selectedGroup?.name ?? ""
+                    lastRevealedGroupEmoji = selectedGroup?.emoji ?? "💩"
+                    showingRevealShare = true
                 }
+            }
+            .sheet(isPresented: $showingRevealShare) {
+                GossipRevealSharePrompt(
+                    groupName: lastRevealedGroupName,
+                    groupEmoji: lastRevealedGroupEmoji,
+                    onShare: {
+                        let card = GossipRevealShareCard(
+                            groupName: lastRevealedGroupName,
+                            groupEmoji: lastRevealedGroupEmoji
+                        )
+                        if let image = ShareCardGenerator.render(card) {
+                            ShareCardGenerator.share(image: image)
+                        }
+                        showingRevealShare = false
+                    },
+                    onSkip: {
+                        showingRevealShare = false
+                        showToast("Revealed! @\(revealedUsername)", icon: "checkmark.circle.fill")
+                    }
+                )
+                .presentationDetents([.medium])
             }
         }
     }
@@ -174,6 +204,21 @@ struct GossipFeedView: View {
             showingSecureReveal = true
         } catch {
             showToast("Reveal failed. Try again.", icon: "xmark.circle.fill")
+        }
+    }
+
+    // MARK: - Share Gossip Tease
+
+    private func shareGossipTease(_ post: GossipPost) {
+        guard let group = selectedGroup else { return }
+        let snippet = String(post.content.prefix(80)) + (post.content.count > 80 ? "..." : "")
+        let card = GossipTeaseCard(
+            groupName: group.name,
+            groupEmoji: group.emoji,
+            previewSnippet: snippet
+        )
+        if let image = ShareCardGenerator.render(card) {
+            ShareCardGenerator.share(image: image)
         }
     }
 
@@ -244,6 +289,7 @@ struct GossipCard: View {
     let isRevealed: Bool
     let revealedUsername: String?
     let onReveal: () async -> Void
+    let onShare: () -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -268,6 +314,13 @@ struct GossipCard: View {
                 }
 
                 Spacer()
+
+                // Share button
+                Button(action: onShare) {
+                    Image(systemName: "square.and.arrow.up")
+                        .font(.subheadline)
+                        .foregroundStyle(.white.opacity(0.5))
+                }
 
                 // Expiry badge
                 if post.expiresAt.timeIntervalSinceNow < 3600 {
