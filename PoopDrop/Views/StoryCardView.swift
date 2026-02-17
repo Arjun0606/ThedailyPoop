@@ -4,6 +4,7 @@ struct StoryCardView: View {
     let story: Story
     let isPremiumUser: Bool
     let isRead: Bool
+    var totalReactions: Int = 0
     let onTap: () -> Void
 
     private var isLocked: Bool {
@@ -78,15 +79,31 @@ struct StoryCardView: View {
                     }
                 }
 
-                // Source
-                if let source = story.sourceName, !isLocked {
-                    HStack(spacing: 4) {
-                        Image(systemName: "link")
-                            .font(.caption2)
-                        Text(source)
-                            .font(.caption2)
+                // Source + reactions
+                if !isLocked {
+                    HStack(spacing: 10) {
+                        if let source = story.sourceName {
+                            HStack(spacing: 4) {
+                                Image(systemName: "link")
+                                    .font(.caption2)
+                                Text(source)
+                                    .font(.caption2)
+                            }
+                            .foregroundStyle(.secondary)
+                        }
+
+                        Spacer()
+
+                        if totalReactions > 0 {
+                            HStack(spacing: 3) {
+                                Text("\u{1F525}")
+                                    .font(.caption2)
+                                Text("\(totalReactions)")
+                                    .font(.caption2.weight(.medium))
+                                    .foregroundStyle(.orange.opacity(0.8))
+                            }
+                        }
                     }
-                    .foregroundStyle(.secondary)
                 }
             }
             .padding(20)

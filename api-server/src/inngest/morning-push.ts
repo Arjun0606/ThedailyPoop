@@ -2,6 +2,28 @@ import { inngest } from "./client";
 import { createServiceClient } from "@/lib/supabase";
 import { pushToUsers } from "@/lib/push";
 
+// Rotate through different push titles so it never feels stale
+const PUSH_TITLES = [
+  "wake up babe, new poop just dropped 💩",
+  "the world is on fire. here's your update 🔥",
+  "you're gonna wanna sit down for this one 💩",
+  "your morning briefing is bussin 💩",
+  "10 stories. 5 minutes. zero boring ones 💩",
+  "the news just got interesting 💩",
+  "stop doomscrolling. read this instead 💩",
+  "your group chat is gonna need this 💩",
+  "the poop is hot today 🔥💩",
+  "today's news hits different 💩",
+  "bad news: the world is wild. good news: we made it funny 💩",
+  "breaking: stuff happened. we explained it 💩",
+  "freshly squeezed news, just for you 💩",
+  "your daily scoop awaits 💩",
+];
+
+function getRandomTitle(): string {
+  return PUSH_TITLES[Math.floor(Math.random() * PUSH_TITLES.length)];
+}
+
 // Runs at 7:00 AM ET — sends push notification for today's briefing
 export const morningPush = inngest.createFunction(
   { id: "morning-push", name: "Morning Push Notification" },
@@ -27,7 +49,6 @@ export const morningPush = inngest.createFunction(
 
     // Get all users with push enabled
     const userIds = await step.run("get-push-users", async () => {
-      // Get users who have device tokens
       const { data: tokens } = await db
         .from("device_tokens")
         .select("user_id");
@@ -36,7 +57,6 @@ export const morningPush = inngest.createFunction(
 
       const ids = [...new Set(tokens.map((t) => t.user_id))];
 
-      // Filter out users who disabled push
       const { data: disabledUsers } = await db
         .from("user_preferences")
         .select("user_id")
@@ -53,7 +73,7 @@ export const morningPush = inngest.createFunction(
     // Send push notifications
     const sent = await step.run("send-push", async () => {
       return await pushToUsers(userIds, {
-        title: "Your Daily Poop is ready 💩",
+        title: getRandomTitle(),
         body: briefing.headline,
         data: { type: "daily_briefing", briefingId: briefing.id },
       });

@@ -11,6 +11,7 @@ struct BriefingView: View {
     @State private var showingPaywall = false
     @State private var selectedStory: Story?
     @State private var showingSwipeMode = false
+    @State private var storyReactionCounts: [String: Int] = [:]
 
     var body: some View {
         NavigationView {
@@ -38,6 +39,7 @@ struct BriefingView: View {
                                     story: story,
                                     isPremiumUser: authManager.currentUser?.isPremium ?? false,
                                     isRead: readStoryIDs.contains(story.id),
+                                    totalReactions: storyReactionCounts[story.id] ?? 0,
                                     onTap: {
                                         handleStoryTap(story)
                                     }
@@ -117,6 +119,7 @@ struct BriefingView: View {
                 briefing = b
                 stories = try await SupabaseManager.shared.fetchBriefingStories(briefingId: b.id)
                 readStoryIDs = try await SupabaseManager.shared.fetchReadStoryIDs(userID: user.id, briefingId: b.id)
+                storyReactionCounts = (try? await SupabaseManager.shared.fetchBulkReactionCounts(storyIds: stories.map { $0.id })) ?? [:]
                 updateWidgetData(briefing: b, stories: stories)
             }
         } catch {
@@ -463,6 +466,10 @@ struct StoryDetailView: View {
         guard let user = authManager.currentUser else { return }
         let wasSelected = userReaction == reaction
 
+        // Haptic
+        let impact = UIImpactFeedbackGenerator(style: wasSelected ? .light : .medium)
+        impact.impactOccurred()
+
         // Optimistic update
         if wasSelected {
             reactionCounts[reaction, default: 1] -= 1
@@ -482,6 +489,11 @@ struct StoryDetailView: View {
 
     private func handleBookmark() {
         guard let user = authManager.currentUser else { return }
+
+        // Haptic
+        let notification = UINotificationFeedbackGenerator()
+        notification.notificationOccurred(isBookmarked ? .warning : .success)
+
         isBookmarked.toggle()
 
         Task {

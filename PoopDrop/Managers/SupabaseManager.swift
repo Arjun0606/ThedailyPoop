@@ -295,6 +295,26 @@ class SupabaseManager: ObservableObject {
         return counts
     }
 
+    func fetchBulkReactionCounts(storyIds: [String]) async throws -> [String: Int] {
+        struct ReactionRow: Decodable {
+            let story_id: String
+        }
+
+        guard !storyIds.isEmpty else { return [:] }
+
+        let rows: [ReactionRow] = try await client.from("story_reactions")
+            .select("story_id")
+            .in("story_id", values: storyIds)
+            .execute()
+            .value
+
+        var counts: [String: Int] = [:]
+        for row in rows {
+            counts[row.story_id, default: 0] += 1
+        }
+        return counts
+    }
+
     func fetchUserReaction(userId: String, storyId: String) async throws -> String? {
         struct ReactionRow: Decodable {
             let reaction: String

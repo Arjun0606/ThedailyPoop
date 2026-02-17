@@ -59,14 +59,22 @@ export const weeklyDigest = inngest.createFunction(
       for (const user of users) {
         if (user.storiesRead === 0) continue;
 
-        const body =
-          user.streak > 0
-            ? `You read ${user.storiesRead} stories this week. Streak: ${user.streak} days 🔥`
-            : `You read ${user.storiesRead} stories this week. Start a streak tomorrow!`;
+        let body: string;
+        if (user.storiesRead >= 50) {
+          body = `${user.storiesRead} stories this week?? you're literally more informed than most journalists rn. ${user.streak > 0 ? `${user.streak}-day streak btw 🔥` : ""}`;
+        } else if (user.storiesRead >= 20) {
+          body = `${user.storiesRead} stories this week. you're lowkey becoming that friend who knows everything. ${user.streak > 0 ? `streak: ${user.streak} days 🔥` : ""}`;
+        } else if (user.streak > 7) {
+          body = `${user.storiesRead} stories + a ${user.streak}-day streak. consistency is attractive ngl 🔥`;
+        } else if (user.streak > 0) {
+          body = `${user.storiesRead} stories read, ${user.streak}-day streak going. don't fumble it 🔥`;
+        } else {
+          body = `you read ${user.storiesRead} stories this week. not bad. imagine what you'd know with a daily streak tho 👀`;
+        }
 
         try {
           await pushToUsers([user.userId], {
-            title: "Your Weekly Poop Report 💩",
+            title: "your weekly poop report 💩📊",
             body,
             data: { type: "weekly_digest" },
           });
