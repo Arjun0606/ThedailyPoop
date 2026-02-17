@@ -1,7 +1,6 @@
 import Foundation
 import AuthenticationServices
-import CloudKit
-import Combine
+import CryptoKit
 
 @MainActor
 class AuthenticationManager: NSObject, ObservableObject {
@@ -9,184 +8,118 @@ class AuthenticationManager: NSObject, ObservableObject {
     @Published var currentUser: User?
     @Published var isLoading = false
     @Published var errorMessage: String?
-    
-    private var cancellables = Set<AnyCancellable>()
-    
+
+    private var currentNonce: String?
+
     override init() {
         super.init()
         checkAuthenticationState()
     }
-    
+
+    // MARK: - Session Check
+
     func checkAuthenticationState() {
-        // Check if user is already signed in with Apple ID
-        let appleIDProvider = ASAuthorizationAppleIDProvider()
-        
-        if let appleID = UserDefaults.standard.string(forKey: "appleUserID") {
-            appleIDProvider.getCredentialState(forUserID: appleID) { [weak self] credentialState, error in
-                DispatchQueue.main.async {
-                    switch credentialState {
-                    case .authorized:
-                        self?.isAuthenticated = true
-                        // Load by stored currentUserID if available; otherwise look up by appleUserID
-                        if UserDefaults.standard.string(forKey: "currentUserID") != nil {
-                            self?.loadCurrentUser()
-                        } else {
-                            Task { @MainActor in
-                                if let user = try? await CloudKitManager.shared.fetchUserByAppleUserID(appleID) {
-                                    self?.currentUser = user
-                                    UserDefaults.standard.set(user.id, forKey: "currentUserID")
-                                }
-                            }
-                        }
-                    case .revoked, .notFound:
-                        self?.signOut()
-                    default:
-                        break
-                    }
+        Task {
+            if let session = await SupabaseManager.shared.getCurrentSession() {
+                let userID = session.user.id.uuidString
+                if let user = try? await SupabaseManager.shared.fetchUser(id: userID) {
+                    self.currentUser = user
+                    self.isAuthenticated = true
                 }
             }
         }
     }
-    
+
+    // MARK: - Apple Sign In
+
     func signInWithApple() {
         isLoading = true
         errorMessage = nil
-        
+
+        let nonce = randomNonceString()
+        currentNonce = nonce
+
         let request = ASAuthorizationAppleIDProvider().createRequest()
         request.requestedScopes = [.fullName, .email]
-        
-        let authorizationController = ASAuthorizationController(authorizationRequests: [request])
-        authorizationController.delegate = self
-        authorizationController.presentationContextProvider = self
-        authorizationController.performRequests()
+        request.nonce = sha256(nonce)
+
+        let controller = ASAuthorizationController(authorizationRequests: [request])
+        controller.delegate = self
+        controller.presentationContextProvider = self
+        controller.performRequests()
     }
-    
+
+    // MARK: - Sign Out
+
     func signOut() {
         print("🚪 Signing out user")
-        
-        // Clear authentication state
+        Task { try? await SupabaseManager.shared.signOut() }
         isAuthenticated = false
         currentUser = nil
-        
-        // Clear all stored user data
-        UserDefaults.standard.removeObject(forKey: "appleUserID")
         UserDefaults.standard.removeObject(forKey: "currentUserID")
-        
-        // Clear user-specific cached data (but keep drops)
-        CloudKitManager.shared.clearUserCache()
-        
         print("✅ Sign out completed")
     }
-    
-    private func loadCurrentUser() {
-        guard let userID = UserDefaults.standard.string(forKey: "currentUserID") else {
-            return
+
+    // MARK: - Nonce Helpers
+
+    private func randomNonceString(length: Int = 32) -> String {
+        precondition(length > 0)
+        var randomBytes = [UInt8](repeating: 0, count: length)
+        let errorCode = SecRandomCopyBytes(kSecRandomDefault, randomBytes.count, &randomBytes)
+        if errorCode != errSecSuccess {
+            fatalError("Unable to generate nonce: \(errorCode)")
         }
-        
-        // Load user from CloudKit
-        Task {
-            do {
-                if let user = try await CloudKitManager.shared.fetchUser(id: userID) {
-                    print("✅ Loaded user from CloudKit: \(user.username)")
-                    print("📊 User stats - Countries: \(user.countriesVisited.count), Continents: \(user.continentsVisited.count), Created: \(user.createdAt)")
-                    await MainActor.run {
-                        self.currentUser = user
-                        // Notify map to reload data
-                        NotificationCenter.default.post(name: Notification.Name("USER_SIGNED_IN"), object: nil)
-                    }
-                } else {
-                    print("❌ User not found in CloudKit")
-                }
-            } catch {
-                print("Failed to load current user: \(error)")
-            }
-        }
+        let charset: [Character] = Array("0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._")
+        return String(randomBytes.map { charset[Int($0) % charset.count] })
     }
-    
-    private func createUserFromAppleID(_ authorization: ASAuthorizationAppleIDCredential) async {
-        let userID = authorization.user
-        
-        // First, check if user already exists
-        if let existingUser = try? await CloudKitManager.shared.fetchUserByAppleUserID(userID) {
-            print("✅ Found existing user: \(existingUser.username)")
-            await MainActor.run {
-                self.currentUser = existingUser
-                self.isAuthenticated = true
-                UserDefaults.standard.set(userID, forKey: "appleUserID")
-                UserDefaults.standard.set(existingUser.id, forKey: "currentUserID")
-                // Notify map to reload data
-                NotificationCenter.default.post(name: Notification.Name("USER_SIGNED_IN"), object: nil)
-            }
-            return
-        }
-        
-        print("🆕 Creating new user for Apple ID: \(userID)")
-        
-        // Create a minimal user with empty username to trigger profile setup
-        let user = User(
-            id: userID,
-            username: "", // Empty username triggers profile setup
-            dateOfBirth: Date(), // Temporary - will be set in profile setup
-            gender: .custom, // Temporary - will be set in profile setup
-            appleUserID: userID
-        )
-        
-        do {
-            try await CloudKitManager.shared.saveUser(user)
-            await MainActor.run {
-                self.currentUser = user
-                self.isAuthenticated = true
-                UserDefaults.standard.set(userID, forKey: "appleUserID")
-                UserDefaults.standard.set(userID, forKey: "currentUserID")
-                // Notify map to reload data
-                NotificationCenter.default.post(name: Notification.Name("USER_SIGNED_IN"), object: nil)
-            }
-        } catch {
-            await MainActor.run {
-                self.errorMessage = "Failed to create user account: \(error.localizedDescription)"
-                self.isLoading = false
-            }
-        }
+
+    private func sha256(_ input: String) -> String {
+        let inputData = Data(input.utf8)
+        let hashed = SHA256.hash(data: inputData)
+        return hashed.compactMap { String(format: "%02x", $0) }.joined()
     }
 }
 
 // MARK: - ASAuthorizationControllerDelegate
 extension AuthenticationManager: ASAuthorizationControllerDelegate {
     func authorizationController(controller: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) {
+        guard let credential = authorization.credential as? ASAuthorizationAppleIDCredential,
+              let identityToken = credential.identityToken,
+              let tokenString = String(data: identityToken, encoding: .utf8),
+              let nonce = currentNonce else {
+            isLoading = false
+            errorMessage = "Failed to get Apple ID credential"
+            return
+        }
+
         Task {
-            if let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential {
-                await createUserFromAppleID(appleIDCredential)
+            do {
+                let user = try await SupabaseManager.shared.signInWithApple(
+                    idToken: tokenString,
+                    nonce: nonce
+                )
+                self.currentUser = user
+                self.isAuthenticated = true
+                UserDefaults.standard.set(user.id, forKey: "currentUserID")
+                NotificationCenter.default.post(name: Notification.Name("USER_SIGNED_IN"), object: nil)
+            } catch {
+                self.errorMessage = "Sign in failed: \(error.localizedDescription)"
             }
-            
-            await MainActor.run {
-                self.isLoading = false
-            }
+            self.isLoading = false
         }
     }
-    
+
     func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: Error) {
-        DispatchQueue.main.async {
-            self.isLoading = false
-            if let authError = error as? ASAuthorizationError {
-                switch authError.code {
-                case .canceled:
-                    self.errorMessage = "Sign in was canceled"
-                case .failed:
-                    self.errorMessage = "Sign in failed"
-                case .invalidResponse:
-                    self.errorMessage = "Invalid response from Apple"
-                case .notHandled:
-                    self.errorMessage = "Sign in not handled"
-                case .unknown:
-                    self.errorMessage = "Unknown error occurred"
-                case .notInteractive:
-                    self.errorMessage = "Sign in not interactive"
-                @unknown default:
-                    self.errorMessage = "An unexpected error occurred"
-                }
-            } else {
-                self.errorMessage = error.localizedDescription
+        isLoading = false
+        if let authError = error as? ASAuthorizationError {
+            switch authError.code {
+            case .canceled:
+                errorMessage = nil // User canceled — don't show error
+            default:
+                errorMessage = "Sign in failed"
             }
+        } else {
+            errorMessage = error.localizedDescription
         }
     }
 }

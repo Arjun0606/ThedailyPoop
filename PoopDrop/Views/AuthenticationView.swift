@@ -110,7 +110,7 @@ struct AuthenticationView: View {
         } message: {
             Text(authManager.errorMessage ?? "An unknown error occurred")
         }
-        .onChange(of: authManager.errorMessage) { errorMessage in
+        .onChange(of: authManager.errorMessage) { _, errorMessage in
             showingError = errorMessage != nil
         }
         .sheet(isPresented: $showingTerms) {

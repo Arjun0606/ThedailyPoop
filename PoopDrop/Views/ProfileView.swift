@@ -2,51 +2,39 @@ import SwiftUI
 
 struct ProfileView: View {
     @EnvironmentObject var authManager: AuthenticationManager
-    @EnvironmentObject var cloudKitManager: CloudKitManager
     @State private var showingSettings = false
-    @State private var showingHowItWorks = false
     @State private var showingContact = false
     @State private var showingTerms = false
     @State private var showingPrivacy = false
+    @State private var groups: [Group] = []
     @State private var refreshTrigger = false
-    @State private var isRotating = false
-    
-    var user: User? {
-        authManager.currentUser
-    }
-    
+
+    var user: User? { authManager.currentUser }
+
     var body: some View {
         NavigationView {
             ZStack {
                 Color.black.ignoresSafeArea()
-                
+
                 if let user = user {
                     ScrollView {
                         VStack(spacing: 24) {
-                            // Profile header
                             ProfileHeaderView(user: user)
-                            
-                            // Stats section
                             StatsSection(user: user, refreshTrigger: refreshTrigger)
-                            
-                            // Achievements section
-                            AchievementsSection(user: user, refreshTrigger: refreshTrigger)
-                            
-                            // Info & Legal Section (replaces old Settings/Sign Out section)
+                            MyGroupsSection(groups: groups)
+
                             InfoLegalSection(
-                                onHowItWorksTap: { showingHowItWorks = true },
                                 onContactTap: { showingContact = true },
                                 onTermsTap: { showingTerms = true },
                                 onPrivacyTap: { showingPrivacy = true }
                             )
-                            
+
                             Spacer(minLength: 100)
                         }
                         .padding(.horizontal, 16)
                         .padding(.top, 8)
                     }
                 } else {
-                    // Loading state
                     ProgressView()
                         .scaleEffect(1.2)
                 }
@@ -55,275 +43,144 @@ struct ProfileView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: {
-                        showingSettings = true
-                        withAnimation(.easeInOut(duration: 0.3)) {
-                            isRotating = true
-                        }
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                            isRotating = false
-                        }
-                    }) {
+                    Button(action: { showingSettings = true }) {
                         Image(systemName: "gearshape.fill")
                             .font(.title2)
-                            .foregroundColor(.white)
-                            .rotationEffect(.degrees(isRotating ? 180 : 0))
-                            .animation(.easeInOut(duration: 0.3), value: isRotating)
+                            .foregroundStyle(.white)
                     }
                 }
             }
         }
-        .sheet(isPresented: $showingSettings) {
-            SettingsView()
-        }
-        .sheet(isPresented: $showingHowItWorks) {
-            HowItWorksView()
-        }
-        .sheet(isPresented: $showingContact) {
-            ContactView()
-        }
-        .sheet(isPresented: $showingTerms) {
-            TermsOfServiceView()
-        }
-        .sheet(isPresented: $showingPrivacy) {
-            PrivacyPolicyView()
-        }
+        .sheet(isPresented: $showingSettings) { SettingsView() }
+        .sheet(isPresented: $showingContact) { ContactView() }
+        .sheet(isPresented: $showingTerms) { TermsOfServiceView() }
+        .sheet(isPresented: $showingPrivacy) { PrivacyPolicyView() }
         .onReceive(NotificationCenter.default.publisher(for: Notification.Name("USER_STATS_UPDATED"))) { _ in
-            print("📊 Profile refreshing stats after drop")
             refreshTrigger.toggle()
+        }
+        .task { await loadGroups() }
+    }
+
+    private func loadGroups() async {
+        guard let user = user else { return }
+        do {
+            groups = try await SupabaseManager.shared.fetchMyGroups(userID: user.id)
+        } catch {
+            print("Failed to load groups: \(error)")
         }
     }
 }
 
+// MARK: - Profile Header
 struct ProfileHeaderView: View {
     let user: User
-    // Subscription removed
-    
+
     var body: some View {
         VStack(spacing: 16) {
-            // Profile picture (avatar if available; otherwise initial)
-            if let url = user.avatarURL, let data = try? Data(contentsOf: url), let image = UIImage(data: data) {
+            if let url = user.avatarURL,
+               let data = try? Data(contentsOf: url),
+               let image = UIImage(data: data) {
                 Image(uiImage: image)
                     .resizable()
                     .scaledToFill()
                     .frame(width: 100, height: 100)
                     .clipShape(Circle())
                     .overlay(Circle().stroke(Color.white.opacity(0.3), lineWidth: 2))
-                    .onTapGesture {
-                        // Full-screen preview
-                        presentImageFullScreen(image)
-                    }
             } else {
-            ZStack {
-                Circle()
-                    .fill(
-                        LinearGradient(
-                            colors: [Color.brown.opacity(0.7), Color.brown],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
+                ZStack {
+                    Circle()
+                        .fill(
+                            LinearGradient(
+                                colors: [Color.brown.opacity(0.7), Color.brown],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
                         )
-                    )
-                    .frame(width: 100, height: 100)
+                        .frame(width: 100, height: 100)
                     Text(String(user.username.prefix(1)).uppercased())
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
-                    .foregroundColor(.white)
+                        .font(.largeTitle.bold())
+                        .foregroundStyle(.white)
                 }
             }
-            
-            // User info
+
             VStack(spacing: 8) {
-                HStack(spacing: 8) {
-                    Text(user.username)
-                        .font(.title2)
-                        .fontWeight(.bold)
-                        .foregroundColor(.white)
-                    
-                    // Pro removed
-                }
-                
-                    HStack(spacing: 4) {
-                        Image(systemName: "location.fill")
-                            .font(.caption)
-                            .foregroundColor(.white.opacity(0.6))
-                    Text("Location Private")
-                            .font(.subheadline)
-                            .foregroundColor(.white.opacity(0.8))
-                }
-                
-                Text("Member since \(formatDate(user.createdAt))")
+                Text(user.username)
+                    .font(.title2.bold())
+                    .foregroundStyle(.white)
+
+                Text("Member since \(user.createdAt.formatted(.dateTime.month(.wide).year()))")
                     .font(.caption)
-                    .foregroundColor(.white.opacity(0.6))
+                    .foregroundStyle(.secondary)
             }
         }
         .padding()
         .background(Color.white.opacity(0.05))
         .cornerRadius(16)
     }
-    
-    private func formatDate(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .medium
-        return formatter.string(from: date)
-    }
-    
-    private func presentImageFullScreen(_ image: UIImage) {
-        guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-              let root = scene.windows.first?.rootViewController else { return }
-        let vc = UIViewController()
-        vc.view.backgroundColor = .black
-        let imageView = UIImageView(image: image)
-        imageView.contentMode = .scaleAspectFit
-        imageView.frame = vc.view.bounds
-        imageView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        vc.view.addSubview(imageView)
-        let close = UIButton(type: .close)
-        close.tintColor = .white
-        close.frame = CGRect(x: 20, y: 50, width: 44, height: 44)
-        close.addAction(UIAction { _ in vc.dismiss(animated: true) }, for: .touchUpInside)
-        vc.view.addSubview(close)
-        root.present(vc, animated: true)
-    }
 }
 
+// MARK: - Stats Section
 struct StatsSection: View {
     let user: User
     let refreshTrigger: Bool
-    @State private var showingShareSheet = false
-    
+    @State private var showingShare = false
+
+    var memberDays: Int {
+        Calendar.current.dateComponents([.day], from: user.createdAt, to: Date()).day ?? 0
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
-            Text("Your Stats")
-                .font(.headline)
-                .fontWeight(.bold)
-                .foregroundColor(.white)
-            
+                Text("Your Stats")
+                    .font(.headline.bold())
+                    .foregroundStyle(.white)
+
                 Spacer()
-                
-                Button(action: {
-                    showingShareSheet = true
-                }) {
+
+                Button(action: { showingShare = true }) {
                     HStack(spacing: 6) {
                         Image(systemName: "square.and.arrow.up")
                             .font(.subheadline)
                         Text("Share")
-                            .font(.subheadline)
-                            .fontWeight(.semibold)
+                            .font(.subheadline.weight(.semibold))
                     }
-                    .foregroundColor(.white)
+                    .foregroundStyle(.white)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 6)
                     .background(Color.blue)
                     .cornerRadius(20)
                 }
             }
-            
-            // Horizontal scrollable grid of ALL stats
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 12) {
-                StatCard(
-                    icon: "💩",
-                    title: "Total Drops",
-                    value: "\(user.totalDrops)",
-                    color: .brown
-                )
 
-                StatCard(
-                    icon: "💨",
-                    title: "Attacks Sent",
-                    value: "\(user.attacksSent)",
-                    color: .purple
-                )
-
-                StatCard(
-                    icon: "🛡️",
-                    title: "Attacks Received",
-                    value: "\(user.attacksReceived)",
-                    color: .red
-                )
-            
-                StatCard(
-                    icon: "📈",
-                    title: "Max Dumps/Day",
-                    value: "\(user.maxDropsInDay)",
-                    color: .green
-                )
-            
-                StatCard(
-                        icon: "🌍",
-                        title: "Countries",
-                        value: "\(user.countriesVisited.count)",
-                        color: .blue
-                )
-                
-                StatCard(
-                        icon: "🌎",
-                        title: "Continents",
-                        value: "\(user.continentsVisited.count)",
-                        color: .indigo
-                    )
-                    
-                    StatCard(
-                        icon: "👥",
-                        title: "Friends",
-                        value: "\(user.friends.count)",
-                        color: .pink
-                    )
-                    
-                    StatCard(
-                        icon: "📅",
-                        title: "Member Since",
-                        value: memberDays,
-                        color: .cyan
-                    )
-                }
-                .padding(.horizontal, 4)
+            HStack(spacing: 12) {
+                StatCard(icon: "💩", title: "Total Drops", value: "\(user.totalDrops)", color: .brown)
+                StatCard(icon: "📅", title: "Member Days", value: "\(memberDays)", color: .cyan)
             }
         }
-        .sheet(isPresented: $showingShareSheet) {
+        .sheet(isPresented: $showingShare) {
             ShareStatsView(user: user)
-        }
-    }
-    
-    private var memberDays: String {
-        let days = Calendar.current.dateComponents([.day], from: user.createdAt, to: Date()).day ?? 0
-        return "\(days) days"
-    }
-    
-    func daysSincePoopColor(days: Int) -> Color {
-        switch days {
-        case 0:
-            return .green
-        case 1...2:
-            return .yellow
-        case 3...6:
-            return .orange
-        default:
-            return .red
         }
     }
 }
 
+// MARK: - Stat Card
 struct StatCard: View {
     let icon: String
     let title: String
     let value: String
     let color: Color
-    
+
     var body: some View {
         VStack(spacing: 8) {
             Text(icon)
                 .font(.title2)
-            
             Text(value)
-                .font(.title3)
-                .fontWeight(.bold)
-                .foregroundColor(.white)
-            
+                .font(.title3.bold())
+                .foregroundStyle(.white)
             Text(title)
                 .font(.caption)
-                .foregroundColor(.white.opacity(0.7))
+                .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity)
@@ -333,245 +190,61 @@ struct StatCard: View {
     }
 }
 
-struct ProStatusSection: View {
-    @EnvironmentObject var subscriptionManager: SubscriptionManager
-    
+// MARK: - My Groups Section
+struct MyGroupsSection: View {
+    let groups: [Group]
+
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            HStack {
-                Text("👑 Pro Status")
-                    .font(.headline)
-                    .fontWeight(.bold)
-                    .foregroundColor(.white)
-                
-                Spacer()
-                
-                Text("ACTIVE")
-                    .font(.caption)
-                    .fontWeight(.bold)
-                    .foregroundColor(.black)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(Color.green)
-                    .cornerRadius(6)
-            }
-            
-            VStack(spacing: 12) {
-                ProFeatureItem(icon: "📝", text: "200-word captions")
-                ProFeatureItem(icon: "🎨", text: "Premium poop skins")
-                ProFeatureItem(icon: "😀", text: "All emoji reactions")
-                ProFeatureItem(icon: "🎵", text: "Sound effects")
-                ProFeatureItem(icon: "🗺️", text: "Exclusive map themes")
-                ProFeatureItem(icon: "✨", text: "Animations & effects")
-            }
-        }
-        .padding()
-        .background(
-            LinearGradient(
-                colors: [Color.yellow.opacity(0.2), Color.orange.opacity(0.1)],
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-        )
-        .overlay(
-            RoundedRectangle(cornerRadius: 16)
-                .stroke(Color.yellow.opacity(0.3), lineWidth: 1)
-        )
-        .cornerRadius(16)
-    }
-}
+            Text("My Groups")
+                .font(.headline.bold())
+                .foregroundStyle(.white)
 
-struct ProFeatureItem: View {
-    let icon: String
-    let text: String
-    
-    var body: some View {
-        HStack(spacing: 12) {
-            Text(icon)
-                .font(.body)
-            
-            Text(text)
-                .font(.subheadline)
-                .foregroundColor(.white.opacity(0.9))
-            
-            Spacer()
-            
-            Image(systemName: "checkmark.circle.fill")
-                .foregroundColor(.green)
-                .font(.subheadline)
-        }
-    }
-}
-
-
-struct AchievementsSection: View {
-    let user: User
-    let refreshTrigger: Bool
-    
-    var achievements: [Achievement] {
-        // Compute from real user stats; no dummy unlocks
-        [
-            // Basic Progress Badges
-            Achievement(id: "first_drop", title: "First Drop", description: "Dropped your first poop", icon: "💩", isUnlocked: user.totalDrops >= 1),
-            Achievement(id: "drops_10", title: "Getting Warm", description: "10 total drops", icon: "🥉", isUnlocked: user.totalDrops >= 10),
-            Achievement(id: "drops_50", title: "Half Century", description: "50 total drops", icon: "🏆", isUnlocked: user.totalDrops >= 50),
-            Achievement(id: "drops_100", title: "Centurion", description: "100 total drops", icon: "👑", isUnlocked: user.totalDrops >= 100),
-            Achievement(id: "drops_500", title: "Poop Legend", description: "500 total drops", icon: "🌟", isUnlocked: user.totalDrops >= 500),
-            
-            // Travel Badges
-            Achievement(id: "countries_2", title: "Border Crosser", description: "Pooped in 2 countries", icon: "🌍", isUnlocked: user.countriesVisited.count >= 2),
-            Achievement(id: "countries_5", title: "Jet Setter", description: "Pooped in 5 countries", icon: "✈️", isUnlocked: user.countriesVisited.count >= 5),
-            Achievement(id: "countries_10", title: "Globe Trotter", description: "Pooped in 10 countries", icon: "🌎", isUnlocked: user.countriesVisited.count >= 10),
-            Achievement(id: "continents_2", title: "Continental", description: "Pooped on 2 continents", icon: "🌏", isUnlocked: user.continentsVisited.count >= 2),
-            Achievement(id: "continents_5", title: "World Pooper", description: "Pooped on 5+ continents", icon: "🌐", isUnlocked: user.continentsVisited.count >= 5),
-            
-            // Timing Badges
-            Achievement(id: "early_bird", title: "Early Bird", description: "Dropped before 6 AM", icon: "🌅", isUnlocked: false),
-            Achievement(id: "night_owl", title: "Night Owl", description: "Dropped after midnight", icon: "🦉", isUnlocked: false),
-            Achievement(id: "lunch_break", title: "Lunch Break", description: "Dropped during lunch (12-2 PM)", icon: "🍽️", isUnlocked: false),
-            
-            // Daily Performance Badges
-            Achievement(id: "daily_3", title: "Triple Threat", description: "3 drops in one day", icon: "🎯", isUnlocked: user.maxDropsInDay >= 3),
-            Achievement(id: "daily_5", title: "Power User", description: "5 drops in one day", icon: "💪", isUnlocked: user.maxDropsInDay >= 5),
-            
-            // Social Badges (need to implement friend interactions)
-            Achievement(id: "friends_5", title: "Social Pooper", description: "Added 5 friends", icon: "👥", isUnlocked: user.friends.count >= 5),
-            Achievement(id: "friends_20", title: "Popular Pooper", description: "Added 20 friends", icon: "🎉", isUnlocked: user.friends.count >= 20),
-            
-            // Special/Fun Badges
-            Achievement(id: "weekend_warrior", title: "Weekend Warrior", description: "Dropped on weekend", icon: "🏖️", isUnlocked: false),
-            Achievement(id: "holiday_pooper", title: "Holiday Pooper", description: "Dropped on a holiday", icon: "🎄", isUnlocked: false),
-            Achievement(id: "birthday_drop", title: "Birthday Drop", description: "Dropped on your birthday", icon: "🎂", isUnlocked: false)
-        ]
-    }
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text("Achievements")
-                .font(.headline)
-                .fontWeight(.bold)
-                .foregroundColor(.white)
-            
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 12) {
-                ForEach(achievements) { achievement in
-                    AchievementCard(achievement: achievement)
-                            .frame(width: 220)
+            if groups.isEmpty {
+                HStack {
+                    Text("No groups yet")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                }
+                .padding()
+                .background(Color.white.opacity(0.05))
+                .cornerRadius(12)
+            } else {
+                ForEach(groups) { group in
+                    HStack(spacing: 12) {
+                        Text(group.emoji)
+                            .font(.title2)
+                        Text(group.name)
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(.white)
+                        Spacer()
+                        Text(group.inviteCode)
+                            .font(.caption.monospaced())
+                            .foregroundStyle(.secondary)
                     }
+                    .padding()
+                    .background(Color.white.opacity(0.05))
+                    .cornerRadius(12)
                 }
             }
         }
     }
 }
 
-struct Achievement: Identifiable {
-    let id: String
-    let title: String
-    let description: String
-    let icon: String
-    let isUnlocked: Bool
-}
-
-struct AchievementCard: View {
-    let achievement: Achievement
-    @State private var showingShare = false
-    
-    private var shareText: String {
-        "I just unlocked ‘\(achievement.title)’ on TheDailyPoop! 💩 #TheDailyPoop"
-    }
-    
-    var body: some View {
-        VStack(spacing: 8) {
-            Text(achievement.icon)
-                .font(.title2)
-                .opacity(achievement.isUnlocked ? 1.0 : 0.3)
-            
-            Text(achievement.title)
-                .font(.subheadline)
-                .fontWeight(.semibold)
-                .foregroundColor(achievement.isUnlocked ? .white : .white.opacity(0.5))
-                .multilineTextAlignment(.center)
-            
-            Text(achievement.description)
-                .font(.caption)
-                .foregroundColor(.white.opacity(0.6))
-                .multilineTextAlignment(.center)
-        }
-        .frame(maxWidth: .infinity)
-        .padding()
-        .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(achievement.isUnlocked ? Color.white.opacity(0.1) : Color.white.opacity(0.05))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 12)
-                        .stroke(achievement.isUnlocked ? Color.white.opacity(0.2) : Color.clear, lineWidth: 1)
-                )
-        )
-        .contextMenu {
-            if achievement.isUnlocked {
-                Button("Share") { showingShare = true }
-            }
-        }
-        .sheet(isPresented: $showingShare) {
-            ActivityViewController(activityItems: [shareText])
-        }
-    }
-}
-
-// UIKit share sheet wrapper
-struct ActivityViewController: UIViewControllerRepresentable {
-    let activityItems: [Any]
-    func makeUIViewController(context: Context) -> UIActivityViewController {
-        UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
-    }
-    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
-}
-
-// Info & Legal Section (replaces old Settings/Sign Out section)
+// MARK: - Info & Legal
 struct InfoLegalSection: View {
-    let onHowItWorksTap: () -> Void
     let onContactTap: () -> Void
     let onTermsTap: () -> Void
     let onPrivacyTap: () -> Void
-    
+
     var body: some View {
         VStack(spacing: 0) {
-            InfoLegalRow(
-                icon: "questionmark.circle.fill",
-                title: "How It Works",
-                color: .blue,
-                action: onHowItWorksTap
-            )
-            
-            Divider()
-                .background(Color.white.opacity(0.1))
-            
-            InfoLegalRow(
-                icon: "envelope.fill",
-                title: "Contact & Suggestions",
-                color: .green,
-                action: onContactTap
-            )
-            
-            Divider()
-                .background(Color.white.opacity(0.1))
-            
-            InfoLegalRow(
-                icon: "doc.text.fill",
-                title: "Terms of Service",
-                color: .orange,
-                action: onTermsTap
-            )
-            
-            Divider()
-                .background(Color.white.opacity(0.1))
-            
-            InfoLegalRow(
-                icon: "lock.shield.fill",
-                title: "Privacy Policy",
-                color: .purple,
-                action: onPrivacyTap
-            )
+            InfoLegalRow(icon: "envelope.fill", title: "Contact & Suggestions", color: .green, action: onContactTap)
+            Divider().background(Color.white.opacity(0.1))
+            InfoLegalRow(icon: "doc.text.fill", title: "Terms of Service", color: .orange, action: onTermsTap)
+            Divider().background(Color.white.opacity(0.1))
+            InfoLegalRow(icon: "lock.shield.fill", title: "Privacy Policy", color: .purple, action: onPrivacyTap)
         }
         .background(Color.white.opacity(0.05))
         .cornerRadius(12)
@@ -583,57 +256,53 @@ struct InfoLegalRow: View {
     let title: String
     let color: Color
     let action: () -> Void
-    
+
     var body: some View {
         Button(action: action) {
             HStack(spacing: 12) {
                 Image(systemName: icon)
-                    .foregroundColor(color)
-                    .font(.body)
+                    .foregroundStyle(color)
                     .frame(width: 24)
-                
                 Text(title)
-                    .font(.body)
-                    .foregroundColor(.white)
-                
+                    .foregroundStyle(.white)
                 Spacer()
-                
-                    Image(systemName: "chevron.right")
-                    .foregroundColor(.white.opacity(0.3))
-                        .font(.caption)
+                Image(systemName: "chevron.right")
+                    .foregroundStyle(.tertiary)
+                    .font(.caption)
             }
             .padding()
         }
     }
 }
 
+// MARK: - Settings
 struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var authManager: AuthenticationManager
     @State private var confirmingDelete = false
-    
+
     var body: some View {
         NavigationView {
             ZStack {
                 Color.black.ignoresSafeArea()
-                
+
                 List {
-                    
-                    Section(header: Text("Notifications").foregroundColor(.white)) {
+                    Section(header: Text("Notifications").foregroundStyle(.white)) {
                         Button("Open System Settings") {
                             if let url = URL(string: UIApplication.openSettingsURLString) {
                                 UIApplication.shared.open(url)
                             }
-                        }.foregroundColor(.white)
+                        }
+                        .foregroundStyle(.white)
                     }
-                    
-                    Section(header: Text("Profile").foregroundColor(.white)) {
+
+                    Section(header: Text("Profile").foregroundStyle(.white)) {
                         NavigationLink("Edit Profile") {
                             EditProfileView()
                         }
-                        .foregroundColor(.white)
+                        .foregroundStyle(.white)
                     }
-                    
+
                     Section {
                         Button(action: {
                             authManager.signOut()
@@ -641,12 +310,12 @@ struct SettingsView: View {
                         }) {
                             HStack {
                                 Image(systemName: "rectangle.portrait.and.arrow.right")
-                                    .foregroundColor(.red)
+                                    .foregroundStyle(.red)
                                 Text("Sign Out")
-                                    .foregroundColor(.red)
+                                    .foregroundStyle(.red)
                             }
                         }
-                        
+
                         Button(role: .destructive) {
                             confirmingDelete = true
                         } label: {
@@ -660,10 +329,8 @@ struct SettingsView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Done") {
-                        dismiss()
-                    }
-                    .foregroundColor(.white)
+                    Button("Done") { dismiss() }
+                        .foregroundStyle(.white)
                 }
             }
         }
@@ -673,27 +340,19 @@ struct SettingsView: View {
             Button("Delete Forever", role: .destructive) {
                 Task {
                     guard let user = authManager.currentUser else { return }
-                    
-                    print("🗑️ Starting account deletion for user: \(user.username)")
-                    
                     do {
-                        // Delete all CloudKit data
-                        try await CloudKitManager.shared.deleteAccount(for: user)
-                        print("✅ CloudKit data deleted successfully")
+                        try await SupabaseManager.shared.deleteAccount(userID: user.id)
                     } catch {
-                        print("⚠️ CloudKit deletion failed: \(error), but continuing with local cleanup")
+                        print("Account deletion failed: \(error)")
                     }
-                    
                     await MainActor.run {
-                        // Clear all local data and sign out
                         authManager.signOut()
                         dismiss()
-                        print("✅ Account deletion completed")
                     }
                 }
             }
         } message: {
-            Text("This will permanently delete your account, drops, reactions, and all data. This cannot be undone.")
+            Text("This will permanently delete your account and all data. This cannot be undone.")
         }
     }
 }
@@ -702,49 +361,37 @@ struct SettingsView: View {
 struct EditProfileView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var authManager: AuthenticationManager
-    @State private var username: String = ""
+    @State private var username = ""
     @State private var checking = false
-    @State private var available: Bool = true
-    @State private var showingEditor = false
-    @State private var selectedImage: UIImage? = nil
-    
+    @State private var available = true
+
     var body: some View {
         Form {
             Section(header: Text("Username")) {
                 HStack {
                     TextField("username", text: $username)
-                        .autocapitalization(.none)
-                        .disableAutocorrection(true)
-                        .onChange(of: username) { _ in debounceCheck() }
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                        .onChange(of: username) { _, _ in debounceCheck() }
                     if checking { ProgressView() }
-                    Image(systemName: available ? "checkmark.circle.fill" : "xmark.circle.fill")
-                        .foregroundColor(available ? .green : .red)
-                }
-            }
-            Section(header: Text("Profile Photo")) {
-                HStack {
-                    if let img = selectedImage {
-                        Image(uiImage: img)
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: 60, height: 60)
-                            .clipShape(Circle())
+                    if !username.isEmpty {
+                        Image(systemName: available ? "checkmark.circle.fill" : "xmark.circle.fill")
+                            .foregroundStyle(available ? .green : .red)
                     }
-                    Button("Change Photo") { showingEditor = true }
                 }
             }
+
             Section {
                 Button("Save") { Task { await saveProfile() } }
                     .disabled(!available || username.isEmpty)
             }
         }
         .navigationTitle("Edit Profile")
-        .onAppear { if let u = authManager.currentUser { username = u.username } }
-        .sheet(isPresented: $showingEditor) {
-            ProfilePictureEditor(selectedImage: $selectedImage, isPresented: $showingEditor) { _ in }
+        .onAppear {
+            if let u = authManager.currentUser { username = u.username }
         }
     }
-    
+
     private func debounceCheck() {
         checking = true
         available = false
@@ -752,348 +399,155 @@ struct EditProfileView: View {
             Task { await checkUsername() }
         }
     }
-    
+
     private func checkUsername() async {
         do {
-            let ok = try await CloudKitManager.shared.isUsernameAvailable(username)
+            let ok = try await SupabaseManager.shared.isUsernameAvailable(username)
             await MainActor.run { available = ok; checking = false }
         } catch {
             await MainActor.run { available = false; checking = false }
         }
     }
-    
+
     private func saveProfile() async {
         guard var user = authManager.currentUser else { return }
         user.username = username
-        if let img = selectedImage, let data = img.pngData() {
-            let tmp = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("avatar_\(UUID().uuidString).png")
-            try? data.write(to: tmp)
-            user.avatarURL = tmp
-        }
         do {
-            try await CloudKitManager.shared.saveUser(user)
+            try await SupabaseManager.shared.saveUser(user)
             await MainActor.run {
                 authManager.currentUser = user
                 dismiss()
             }
-        } catch { }
-    }
-}
-
-struct SubscriptionManagementView: View {
-    @Environment(\.dismiss) private var dismiss
-    @EnvironmentObject var subscriptionManager: SubscriptionManager
-    
-    var body: some View {
-        NavigationView {
-            ZStack {
-                Color.black.ignoresSafeArea()
-                
-                ScrollView {
-                    VStack(spacing: 24) {
-                        if subscriptionManager.isProSubscriber {
-                            // Active subscription
-                            VStack(spacing: 16) {
-                                Text("👑")
-                                    .font(.system(size: 60))
-                                
-                                Text("Pro Subscription Active")
-                                    .font(.title2)
-                                    .fontWeight(.bold)
-                                    .foregroundColor(.white)
-                                
-                                Text("You have access to all premium features")
-                                    .font(.body)
-                                    .foregroundColor(.white.opacity(0.8))
-                                    .multilineTextAlignment(.center)
-                            }
-                            .padding()
-                            .background(Color.green.opacity(0.2))
-                            .cornerRadius(16)
-                            
-                            Button("Restore Purchases") {
-                                Task {
-                                    await subscriptionManager.restorePurchases()
-                                }
-                            }
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color.white.opacity(0.1))
-                            .cornerRadius(12)
-                            
-                        } else {
-                            // No active subscription
-                            VStack(spacing: 16) {
-                                Text("💩")
-                                    .font(.system(size: 60))
-                                
-                                Text("Free Plan")
-                                    .font(.title2)
-                                    .fontWeight(.bold)
-                                    .foregroundColor(.white)
-                                
-                                Text("Upgrade to Pro to unlock all features")
-                                    .font(.body)
-                                    .foregroundColor(.white.opacity(0.8))
-                                    .multilineTextAlignment(.center)
-                            }
-                            .padding()
-                            .background(Color.white.opacity(0.05))
-                            .cornerRadius(16)
-                        }
-                        
-                        Spacer()
-                    }
-                    .padding()
-                }
-            }
-            .navigationTitle("Subscription")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Done") {
-                        dismiss()
-                    }
-                    .foregroundColor(.white)
-                }
-            }
+        } catch {
+            print("Failed to save profile: \(error)")
         }
-        .preferredColorScheme(.dark)
     }
 }
 
-// MARK: - Share Stats View
+// MARK: - Share Stats
 struct ShareStatsView: View {
     let user: User
     @Environment(\.dismiss) private var dismiss
-    @State private var selectedShareType: ShareType = .allStats
     @State private var shareImage: UIImage?
-    
-    enum ShareType: String, CaseIterable {
-        case allStats = "All Stats"
-        case achievements = "Achievements"
-        
-        var icon: String {
-            switch self {
-            case .allStats: return "chart.bar.fill"
-            case .achievements: return "trophy.fill"
-            }
-        }
+
+    var memberDays: Int {
+        Calendar.current.dateComponents([.day], from: user.createdAt, to: Date()).day ?? 0
     }
-    
+
     var body: some View {
         NavigationView {
             ZStack {
                 Color.black.ignoresSafeArea()
-                
-                VStack(spacing: 0) {
-                    // Share Type Selector (Fixed at top)
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text("What would you like to share?")
-                            .font(.headline)
-                            .foregroundColor(.white)
+
+                VStack(spacing: 20) {
+                    if let image = shareImage {
+                        Image(uiImage: image)
+                            .resizable()
+                            .scaledToFit()
+                            .cornerRadius(20)
                             .padding(.horizontal)
-                        
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 12) {
-                                ForEach(ShareType.allCases, id: \.self) { type in
-                                    ShareTypeButton(
-                                        type: type,
-                                        isSelected: selectedShareType == type,
-                                        action: {
-                                            selectedShareType = type
-                                            generateShareImage()
-                                        }
-                                    )
-                                }
-                            }
-                            .padding(.horizontal)
-                        }
+                    } else {
+                        ProgressView()
+                            .scaleEffect(1.5)
+                            .frame(height: 400)
                     }
-                    .padding(.top)
-                    .padding(.bottom, 12)
-                    
-                    // Scrollable preview area
-                    ScrollView {
-                        VStack(spacing: 20) {
-                            // Preview
-                            if let image = shareImage {
-                                Image(uiImage: image)
-                                    .resizable()
-                                    .scaledToFit()
-                                    .cornerRadius(20)
-                                    .padding(.horizontal)
-                            } else {
-                                // Loading preview
-                                ProgressView()
-                                    .scaleEffect(1.5)
-                                    .frame(height: 400)
-                            }
+
+                    Button(action: shareStats) {
+                        HStack(spacing: 8) {
+                            Image(systemName: "square.and.arrow.up")
+                            Text("Share to Socials")
+                                .fontWeight(.semibold)
                         }
-                        .padding(.bottom, 80) // Space for button
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.blue)
+                        .cornerRadius(12)
                     }
-                    
-                    // Share Button (Fixed at bottom)
-                    VStack {
-                        Button(action: {
-                            shareStats()
-                        }) {
-                            HStack(spacing: 8) {
-                                Image(systemName: "square.and.arrow.up")
-                                Text("Share to Socials")
-                                    .fontWeight(.semibold)
-                            }
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color.blue)
-                            .cornerRadius(12)
-                        }
-                        .padding(.horizontal)
-                        .padding(.vertical, 12)
-                    }
-                    .background(Color.black)
+                    .padding(.horizontal)
                 }
             }
             .navigationTitle("Share")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Done") {
-                        dismiss()
-                    }
-                    .foregroundColor(.white)
+                    Button("Done") { dismiss() }
+                        .foregroundStyle(.white)
                 }
             }
         }
         .preferredColorScheme(.dark)
-        .onAppear {
-            generateShareImage()
-        }
+        .onAppear { generateShareImage() }
     }
-    
+
     private func generateShareImage() {
-        let cardView: AnyView
-        
-        switch selectedShareType {
-        case .allStats:
-            cardView = AnyView(ShareAllStatsCard(user: user))
-        case .achievements:
-            cardView = AnyView(ShareAchievementsCard(user: user))
-        }
-        
-        let renderer = ImageRenderer(content: cardView)
+        let card = ShareCard(user: user, memberDays: memberDays)
+        let renderer = ImageRenderer(content: card)
         renderer.scale = 3.0
         shareImage = renderer.uiImage
     }
-    
+
     private func shareStats() {
         guard let image = shareImage else { return }
-        
         let activityVC = UIActivityViewController(activityItems: [image], applicationActivities: nil)
-        activityVC.excludedActivityTypes = [
-            .addToReadingList,
-            .assignToContact,
-            .openInIBooks,
-            .markupAsPDF
-        ]
-        
-        // Get the key window and present from the root view controller
         if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
            let window = windowScene.windows.first(where: { $0.isKeyWindow }),
-           let rootViewController = window.rootViewController {
-            
-            // Find the topmost presented view controller
-            var topController = rootViewController
+           var topController = window.rootViewController {
             while let presented = topController.presentedViewController {
                 topController = presented
             }
-            
             activityVC.popoverPresentationController?.sourceView = topController.view
-            activityVC.popoverPresentationController?.sourceRect = CGRect(x: topController.view.bounds.midX, y: topController.view.bounds.midY, width: 0, height: 0)
-            activityVC.popoverPresentationController?.permittedArrowDirections = []
-            
             topController.present(activityVC, animated: true)
         }
     }
 }
 
-struct ShareTypeButton: View {
-    let type: ShareStatsView.ShareType
-    let isSelected: Bool
-    let action: () -> Void
-    
-    var body: some View {
-        Button(action: action) {
-            HStack(spacing: 8) {
-                Image(systemName: type.icon)
-                Text(type.rawValue)
-                    .fontWeight(.medium)
-            }
-            .foregroundColor(isSelected ? .white : .white.opacity(0.7))
-            .padding(.horizontal, 20)
-            .padding(.vertical, 12)
-            .background(isSelected ? Color.blue : Color.white.opacity(0.1))
-            .cornerRadius(20)
-        }
-    }
-}
-
-// MARK: - All Stats Card (Shows ALL 8 stats)
-struct ShareAllStatsCard: View {
+struct ShareCard: View {
     let user: User
-    
-    var memberDays: Int {
-        Calendar.current.dateComponents([.day], from: user.createdAt, to: Date()).day ?? 0
-    }
-    
+    let memberDays: Int
+
     var body: some View {
-        VStack(spacing: 8) {
-            // Header - Compact
-            VStack(spacing: 2) {
-                Text("💩")
-                    .font(.system(size: 30))
-                
-                Text("TheDailyPoop")
-                    .font(.title3)
-                    .fontWeight(.bold)
-                    .foregroundColor(.white)
-                
-                Text("@\(user.username)")
-                    .font(.caption)
-                    .foregroundColor(.white.opacity(0.7))
-            }
-            
-            // All Stats Grid - Super Compact
-            VStack(spacing: 6) {
-                HStack(spacing: 6) {
-                    CompactStatItem(icon: "💩", value: "\(user.totalDrops)", label: "Drops")
-                    CompactStatItem(icon: "📈", value: "\(user.maxDropsInDay)", label: "Max/Day")
-                }
-                
-                HStack(spacing: 6) {
-                    CompactStatItem(icon: "🌍", value: "\(user.countriesVisited.count)", label: "Countries")
-                    CompactStatItem(icon: "🌎", value: "\(user.continentsVisited.count)", label: "Continents")
-                }
-                
-                HStack(spacing: 6) {
-                    CompactStatItem(icon: "👥", value: "\(user.friends.count)", label: "Friends")
-                    CompactStatItem(icon: "📅", value: "\(memberDays)", label: "Days")
-                }
-            }
-            
-            // Footer - Compact
-            Text("Join me on TheDailyPoop!")
+        VStack(spacing: 12) {
+            Text("💩")
+                .font(.system(size: 40))
+            Text("TheDailyPoop")
+                .font(.title2.bold())
+                .foregroundStyle(.white)
+            Text("@\(user.username)")
                 .font(.caption)
-                .fontWeight(.semibold)
-                .foregroundColor(.white)
+                .foregroundStyle(.white.opacity(0.7))
+
+            HStack(spacing: 12) {
+                VStack(spacing: 4) {
+                    Text("💩").font(.title3)
+                    Text("\(user.totalDrops)").font(.title2.bold()).foregroundStyle(.white)
+                    Text("Drops").font(.caption2).foregroundStyle(.white.opacity(0.7))
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 8)
+                .background(Color.white.opacity(0.1))
+                .cornerRadius(12)
+
+                VStack(spacing: 4) {
+                    Text("📅").font(.title3)
+                    Text("\(memberDays)").font(.title2.bold()).foregroundStyle(.white)
+                    Text("Days").font(.caption2).foregroundStyle(.white.opacity(0.7))
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 8)
+                .background(Color.white.opacity(0.1))
+                .cornerRadius(12)
+            }
+
+            Text("Join me on TheDailyPoop!")
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.white)
         }
-        .padding(12)
-        .frame(width: 320, height: 480)
+        .padding(16)
+        .frame(width: 320, height: 320)
         .background(
             LinearGradient(
-                colors: [Color.brown.opacity(0.8), Color.black],
+                colors: [.brown.opacity(0.8), .black],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
@@ -1102,152 +556,16 @@ struct ShareAllStatsCard: View {
     }
 }
 
-// MARK: - Achievements Card (Shows unlocked badges)
-struct ShareAchievementsCard: View {
-    let user: User
-    
-    var unlockedAchievements: [Achievement] {
-        AchievementsSection(user: user, refreshTrigger: false).achievements.filter { $0.isUnlocked }
+// UIKit share sheet wrapper
+struct ActivityViewController: UIViewControllerRepresentable {
+    let activityItems: [Any]
+    func makeUIViewController(context: Context) -> UIActivityViewController {
+        UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
     }
-    
-    var body: some View {
-        VStack(spacing: 8) {
-            // Header - Compact
-            VStack(spacing: 2) {
-                Text("💩")
-                    .font(.system(size: 30))
-                
-                Text("TheDailyPoop")
-                    .font(.title3)
-                    .fontWeight(.bold)
-                    .foregroundColor(.white)
-                
-                Text("@\(user.username)")
-                    .font(.caption)
-                    .foregroundColor(.white.opacity(0.7))
-            }
-            
-            // Achievements Title - Compact
-            HStack(spacing: 4) {
-                Text("🏆")
-                    .font(.body)
-                Text("Achievements")
-                    .font(.headline)
-                    .fontWeight(.bold)
-                    .foregroundColor(.white)
-            }
-            .padding(.top, 4)
-            
-            // Achievements Grid (9 badges, compact)
-            LazyVGrid(columns: [
-                GridItem(.flexible()),
-                GridItem(.flexible()),
-                GridItem(.flexible())
-            ], spacing: 6) {
-                ForEach(unlockedAchievements.prefix(9)) { achievement in
-                    VStack(spacing: 3) {
-                        Text(achievement.icon)
-                            .font(.system(size: 22))
-                        
-                        Text(achievement.title)
-                            .font(.system(size: 9))
-                            .fontWeight(.semibold)
-                            .foregroundColor(.white)
-                            .multilineTextAlignment(.center)
-                            .lineLimit(2)
-                            .minimumScaleFactor(0.6)
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 6)
-                    .padding(.horizontal, 2)
-                    .background(Color.white.opacity(0.1))
-                    .cornerRadius(10)
-                }
-            }
-            
-            // Achievement Count - Compact
-            Text("\(unlockedAchievements.count) Badges Unlocked")
-                .font(.caption)
-                .fontWeight(.semibold)
-                .foregroundColor(.white)
-                .padding(.top, 4)
-            
-            // Footer - Compact
-            Text("Join me on TheDailyPoop!")
-                .font(.caption2)
-                .fontWeight(.semibold)
-                .foregroundColor(.white.opacity(0.9))
-        }
-        .padding(12)
-        .frame(width: 320, height: 480)
-        .background(
-            LinearGradient(
-                colors: [Color.yellow.opacity(0.4), Color.brown.opacity(0.8), Color.black],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-        )
-        .cornerRadius(20)
-    }
-}
-
-// Super compact stat item for share cards
-struct CompactStatItem: View {
-    let icon: String
-    let value: String
-    let label: String
-    
-    var body: some View {
-        VStack(spacing: 4) {
-            Text(icon)
-                .font(.title3)
-            
-            Text(value)
-                .font(.title2)
-                .fontWeight(.bold)
-                .foregroundColor(.white)
-            
-            Text(label)
-                .font(.caption2)
-                .foregroundColor(.white.opacity(0.7))
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 8)
-        .padding(.horizontal, 6)
-        .background(Color.white.opacity(0.1))
-        .cornerRadius(12)
-    }
-}
-
-struct ShareStatItem: View {
-    let icon: String
-    let value: String
-    let label: String
-    
-    var body: some View {
-        VStack(spacing: 8) {
-            Text(icon)
-                .font(.largeTitle)
-            
-            Text(value)
-                .font(.title)
-                .fontWeight(.bold)
-                .foregroundColor(.white)
-            
-            Text(label)
-                .font(.caption)
-                .foregroundColor(.white.opacity(0.7))
-        }
-        .frame(maxWidth: .infinity)
-        .padding()
-        .background(Color.white.opacity(0.1))
-        .cornerRadius(16)
-    }
+    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
 }
 
 #Preview {
     ProfileView()
         .environmentObject(AuthenticationManager())
-        .environmentObject(SubscriptionManager())
-        .environmentObject(CloudKitManager())
 }

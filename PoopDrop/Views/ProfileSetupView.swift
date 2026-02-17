@@ -3,395 +3,170 @@ import SwiftUI
 struct ProfileSetupView: View {
     @EnvironmentObject var authManager: AuthenticationManager
     @State private var username = ""
-    @State private var dateOfBirth: Date? = nil
-    @State private var showDateOfBirthPicker = false
     @State private var isLoading = false
     @State private var errorMessage: String?
-    @State private var showingDatePicker = false
     @State private var showingError = false
     @State private var usernameAvailable = true
     @State private var checkingUsername = false
-    @State private var showingPhotoEditor = false
-    @State private var selectedImage: UIImage? = nil
-    
+
     let onComplete: () -> Void
-    
+
     var body: some View {
         ZStack {
-            backgroundGradient
-            
-            ScrollView {
-                VStack(spacing: 30) {
-                    headerSection
-                    profilePhotoSection
-                    
-                    VStack(spacing: 24) {
-                        usernameField
-                        dateOfBirthField
-                    }
-                    .padding(.horizontal, 32)
-                    
-                    // Continue button
-                    VStack(spacing: 16) {
-                        Button(action: completeProfile) {
-                            HStack {
-                                if isLoading {
-                                    ProgressView()
-                                        .scaleEffect(0.8)
-                                        .foregroundColor(.black)
-                                } else {
-                                    Text("Start Dropping! 💩")
-                                        .fontWeight(.semibold)
-                                }
-                            }
-                            .foregroundColor(.black)
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(canContinue ? Color.white : Color.white.opacity(0.3))
-                            .cornerRadius(12)
-                        }
-                        .disabled(!canContinue || isLoading)
-                        
-                        // Removed skip – profile is mandatory
-                    }
-                    .padding(.horizontal, 32)
-                    .padding(.bottom, 40)
+            LinearGradient(
+                colors: [Color.black, Color.brown.opacity(0.4)],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .ignoresSafeArea()
+
+            VStack(spacing: 40) {
+                Spacer()
+
+                // Header
+                VStack(spacing: 16) {
+                    Text("💩")
+                        .font(.system(size: 80))
+
+                    Text("Pick a Username")
+                        .font(.largeTitle.bold())
+                        .foregroundStyle(.white)
+
+                    Text("This is how your friends will see you")
+                        .font(.body)
+                        .foregroundStyle(.white.opacity(0.8))
                 }
-            }
-        }
-        .sheet(isPresented: $showingPhotoEditor) {
-            ProfilePictureEditor(selectedImage: $selectedImage, isPresented: $showingPhotoEditor) { _ in }
-        }
-        .sheet(isPresented: $showingDatePicker) {
-            if let _ = dateOfBirth {
-                DatePickerSheet(
-                    selectedDate: Binding(
-                        get: { dateOfBirth ?? Date() },
-                        set: { dateOfBirth = $0 }
-                    ),
-                    isPresented: $showingDatePicker
-                )
+
+                // Username field
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack {
+                        Text("@")
+                            .foregroundStyle(.white.opacity(0.7))
+                            .font(.body)
+
+                        TextField("username", text: $username)
+                            .textFieldStyle(.plain)
+                            .foregroundStyle(.white)
+                            .textInputAutocapitalization(.never)
+                            .autocorrectionDisabled()
+                            .onChange(of: username) { _, newValue in
+                                username = newValue.lowercased()
+                                    .filter { $0.isLetter || $0.isNumber || $0 == "_" }
+                                checkUsernameAvailability()
+                            }
+
+                        if checkingUsername {
+                            ProgressView().scaleEffect(0.8)
+                        } else if !username.isEmpty {
+                            Image(systemName: usernameAvailable ? "checkmark.circle.fill" : "xmark.circle.fill")
+                                .foregroundStyle(usernameAvailable ? .green : .red)
+                        }
+                    }
+                    .padding()
+                    .background(Color.white.opacity(0.1))
+                    .cornerRadius(12)
+
+                    if !usernameAvailable && !username.isEmpty {
+                        Text("Username not available")
+                            .font(.caption)
+                            .foregroundStyle(.red)
+                    }
+
+                    if username.count > 0 && username.count < 3 {
+                        Text("At least 3 characters")
+                            .font(.caption)
+                            .foregroundStyle(.orange)
+                    }
+                }
+                .padding(.horizontal, 32)
+
+                // Continue button
+                Button(action: completeProfile) {
+                    HStack {
+                        if isLoading {
+                            ProgressView().tint(.black)
+                        } else {
+                            Text("Start Dropping! 💩")
+                                .fontWeight(.semibold)
+                        }
+                    }
+                    .foregroundStyle(.black)
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(canContinue ? Color.white : Color.white.opacity(0.3))
+                    .cornerRadius(12)
+                }
+                .disabled(!canContinue || isLoading)
+                .padding(.horizontal, 32)
+
+                Spacer()
+                Spacer()
             }
         }
         .alert("Profile Setup Error", isPresented: $showingError) {
-            Button("OK") {
-                errorMessage = nil
-            }
+            Button("OK") { errorMessage = nil }
         } message: {
-            Text(errorMessage ?? "An unknown error occurred")
+            Text(errorMessage ?? "Something went wrong")
         }
-        .onChange(of: errorMessage) { error in
+        .onChange(of: errorMessage) { _, error in
             showingError = error != nil
         }
     }
-    
+
     private var canContinue: Bool {
-        !username.isEmpty && usernameAvailable && !checkingUsername
+        username.count >= 3 && usernameAvailable && !checkingUsername
     }
-    
+
     private func checkUsernameAvailability() {
-        guard !username.isEmpty else {
+        guard username.count >= 3 else {
             usernameAvailable = true
             return
         }
-        
-        // Basic validation first
-        let isValidFormat = username.count >= 3 && 
-                           username.allSatisfy { $0.isLetter || $0.isNumber || $0 == "_" } &&
-                           !username.hasPrefix("_") && 
-                           !username.hasSuffix("_")
-        
+
+        let isValidFormat = username.allSatisfy { $0.isLetter || $0.isNumber || $0 == "_" }
+            && !username.hasPrefix("_")
+            && !username.hasSuffix("_")
+
         guard isValidFormat else {
             usernameAvailable = false
             return
         }
-        
+
         checkingUsername = true
-        
-        // Check with CloudKit
+
         Task {
             do {
-                let available = try await CloudKitManager.shared.isUsernameAvailable(username)
-                await MainActor.run {
-                    usernameAvailable = available
-                    checkingUsername = false
-                }
+                let available = try await SupabaseManager.shared.isUsernameAvailable(username)
+                usernameAvailable = available
             } catch {
-                await MainActor.run {
-                    usernameAvailable = false
-                    checkingUsername = false
-                    print("Username availability check failed: \(error)")
-                }
+                usernameAvailable = false
+                print("Username check failed: \(error)")
             }
+            checkingUsername = false
         }
     }
-    
+
     private func completeProfile() {
-        guard canContinue else { return }
-        
+        guard canContinue, var currentUser = authManager.currentUser else { return }
         isLoading = true
         errorMessage = nil
-        
-        // Update current user with profile information
-        guard var currentUser = authManager.currentUser else {
-            errorMessage = "No user found"
-            isLoading = false
-            return
-        }
-        
+
         currentUser.username = username
-        // DOB is optional - only save if user provided it
-        currentUser.dateOfBirth = dateOfBirth
-        // Gender removed per Apple guidelines
-        if let img = selectedImage {
-            // Compress image to stay within CloudKit limits (< 1MB recommended)
-            let maxSize: CGFloat = 512 // Max dimension
-            let compressedImage: UIImage
-            
-            // Resize if needed
-            if img.size.width > maxSize || img.size.height > maxSize {
-                let scale = min(maxSize / img.size.width, maxSize / img.size.height)
-                let newSize = CGSize(width: img.size.width * scale, height: img.size.height * scale)
-                
-                UIGraphicsBeginImageContextWithOptions(newSize, false, 1.0)
-                img.draw(in: CGRect(origin: .zero, size: newSize))
-                compressedImage = UIGraphicsGetImageFromCurrentImageContext() ?? img
-                UIGraphicsEndImageContext()
-            } else {
-                compressedImage = img
-            }
-            
-            // Compress to JPEG with quality 0.7 (good balance of quality/size)
-            if let data = compressedImage.jpegData(compressionQuality: 0.7) {
-                let tmp = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("avatar_\(UUID().uuidString).jpg")
-                try? data.write(to: tmp)
-                currentUser.avatarURL = tmp
-                print("💾 Compressed avatar: \(data.count / 1024)KB")
-            }
-        }
-        
+
         Task {
             do {
-                try await CloudKitManager.shared.saveUser(currentUser)
-                await MainActor.run {
-                    authManager.currentUser = currentUser
-                    onComplete()
-                }
+                try await SupabaseManager.shared.saveUser(currentUser)
+                authManager.currentUser = currentUser
+                onComplete()
             } catch {
-                await MainActor.run {
-                    errorMessage = "Failed to save profile: \(error.localizedDescription)"
-                    isLoading = false
-                }
+                errorMessage = "Failed to save profile: \(error.localizedDescription)"
             }
+            isLoading = false
         }
-    }
-    
-    // MARK: - Subviews
-    
-    private var backgroundGradient: some View {
-        LinearGradient(
-            colors: [Color.black, Color.brown.opacity(0.4)],
-            startPoint: .top,
-            endPoint: .bottom
-        )
-        .ignoresSafeArea()
-    }
-    
-    private var headerSection: some View {
-        VStack(spacing: 16) {
-            Text("💩")
-                .font(.system(size: 80))
-            
-            Text("Complete Your Profile")
-                .font(.largeTitle)
-                .fontWeight(.bold)
-                .foregroundColor(.white)
-            
-            Text("Set your username to get started!")
-                .font(.body)
-                .foregroundColor(.white.opacity(0.8))
-                .multilineTextAlignment(.center)
-            
-            Text("(Profile photo and date of birth are optional)")
-                .font(.caption)
-                .foregroundColor(.white.opacity(0.6))
-                .multilineTextAlignment(.center)
-        }
-        .padding(.top, 40)
-    }
-    
-    private var profilePhotoSection: some View {
-        VStack(spacing: 12) {
-            ZStack {
-                if let image = selectedImage {
-                    Image(uiImage: image)
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: 120, height: 120)
-                        .clipShape(Circle())
-                        .overlay(Circle().stroke(Color.white.opacity(0.3), lineWidth: 2))
-                        .onTapGesture { showingPhotoEditor = true }
-                } else {
-                    Circle()
-                        .fill(Color.white.opacity(0.1))
-                        .frame(width: 120, height: 120)
-                        .overlay(Text("Tap to add\nphoto").font(.caption).foregroundColor(.white.opacity(0.7)))
-                        .onTapGesture { showingPhotoEditor = true }
-                }
-            }
-        }
-    }
-    
-    private var usernameField: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("Username")
-                .font(.headline)
-                .foregroundColor(.white)
-            
-            HStack {
-                Text("@")
-                    .foregroundColor(.white.opacity(0.7))
-                    .font(.body)
-                
-                TextField("username", text: $username)
-                    .textFieldStyle(PlainTextFieldStyle())
-                    .foregroundColor(.white)
-                    .autocapitalization(.none)
-                    .disableAutocorrection(true)
-                    .onChange(of: username) { _ in
-                        checkUsernameAvailability()
-                    }
-                
-                if checkingUsername {
-                    ProgressView()
-                        .scaleEffect(0.8)
-                } else if !username.isEmpty {
-                    Image(systemName: usernameAvailable ? "checkmark.circle.fill" : "xmark.circle.fill")
-                        .foregroundColor(usernameAvailable ? .green : .red)
-                }
-            }
-            .padding()
-            .background(Color.white.opacity(0.1))
-            .cornerRadius(12)
-            .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(usernameAvailable ? Color.clear : Color.red, lineWidth: 1)
-            )
-            
-            if !usernameAvailable && !username.isEmpty {
-                Text("Username not available")
-                    .font(.caption)
-                    .foregroundColor(.red)
-            }
-        }
-    }
-    
-    private var dateOfBirthField: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Text("Date of Birth")
-                    .font(.headline)
-                    .foregroundColor(.white)
-                Text("(Optional - Skip if you prefer)")
-                    .font(.caption)
-                    .foregroundColor(.white.opacity(0.6))
-            }
-            
-            if let dob = dateOfBirth {
-                HStack {
-                    Button(action: {
-                        showingDatePicker.toggle()
-                    }) {
-                        HStack {
-                            Text(dob.formatted(date: .abbreviated, time: .omitted))
-                                .foregroundColor(.white)
-                            
-                            Spacer()
-                            
-                            Image(systemName: "calendar")
-                                .foregroundColor(.white.opacity(0.7))
-                        }
-                        .padding()
-                        .background(Color.white.opacity(0.1))
-                        .cornerRadius(12)
-                    }
-                    
-                    Button(action: {
-                        dateOfBirth = nil
-                    }) {
-                        Image(systemName: "xmark.circle.fill")
-                            .foregroundColor(.white.opacity(0.7))
-                            .font(.title3)
-                    }
-                }
-            } else {
-                addDateOfBirthButton
-            }
-        }
-    }
-    
-    private var addDateOfBirthButton: some View {
-        Button(action: {
-            dateOfBirth = Date()
-            showingDatePicker = true
-        }) {
-            HStack {
-                Text("Add Date of Birth")
-                    .foregroundColor(.white.opacity(0.7))
-                
-                Spacer()
-                
-                Image(systemName: "plus.circle")
-                    .foregroundColor(.white.opacity(0.7))
-            }
-            .padding()
-            .background(Color.white.opacity(0.05))
-            .cornerRadius(12)
-            .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                    .strokeBorder(style: StrokeStyle(lineWidth: 1, dash: [5]))
-                    .foregroundColor(Color.white.opacity(0.2))
-            )
-        }
-    }
-}
-
-struct DatePickerSheet: View {
-    @Binding var selectedDate: Date
-    @Binding var isPresented: Bool
-    
-    var body: some View {
-        NavigationView {
-            VStack {
-                DatePicker(
-                    "Date of Birth",
-                    selection: $selectedDate,
-                    in: ...Date(),
-                    displayedComponents: .date
-                )
-                .datePickerStyle(WheelDatePickerStyle())
-                .labelsHidden()
-                
-                Spacer()
-            }
-            .padding()
-            .navigationTitle("Date of Birth")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Done") {
-                        isPresented = false
-                    }
-                }
-            }
-        }
-        .presentationDetents([.medium])
     }
 }
 
 #Preview {
-    ProfileSetupView {
-        print("Profile setup completed")
-    }
-    .environmentObject(AuthenticationManager())
+    ProfileSetupView { print("done") }
+        .environmentObject(AuthenticationManager())
 }

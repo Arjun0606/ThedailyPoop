@@ -1,61 +1,70 @@
 import SwiftUI
 
+// MARK: - Gossip Feed (group-scoped, 24h expiry, $1.99 reveals)
 struct GossipFeedView: View {
     @EnvironmentObject var authManager: AuthenticationManager
-    @EnvironmentObject var friendsManager: FriendsManager
-    @StateObject private var gossipManager = GossipManager.shared
-    @StateObject private var storeKitManager = StoreKitManager.shared
-    
+
+    @State private var gossip: [GossipPost] = []
+    @State private var groups: [Group] = []
+    @State private var selectedGroup: Group?
+    @State private var revealedIDs: Set<String> = []       // gossip IDs this user has revealed
+    @State private var revealedUsernames: [String: String] = [:] // gossipID → author username
+
+    @State private var isLoading = true
     @State private var showingComposer = false
-    @State private var showingRevealed: Set<String> = []
+
+    // Toast
     @State private var showingToast = false
     @State private var toastMessage = ""
     @State private var toastIcon = ""
+
+    // Secure reveal
     @State private var showingSecureReveal = false
     @State private var revealedUsername = ""
-    
+
     var body: some View {
         NavigationView {
             ZStack {
                 Color.black.ignoresSafeArea()
-                
+
                 VStack(spacing: 0) {
+                    // Group picker
+                    if !groups.isEmpty {
+                        GroupGossipPicker(
+                            selectedGroup: $selectedGroup,
+                            groups: groups,
+                            onChange: { loadGossip() }
+                        )
+                    }
+
                     // Feed
-                    if gossipManager.isLoading {
-                        ProgressView()
-                            .tint(.white)
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    } else if gossipManager.todaysGossip.isEmpty {
+                    if isLoading {
+                        Spacer()
+                        ProgressView().tint(.white)
+                        Spacer()
+                    } else if gossip.isEmpty {
                         EmptyGossipView(onPost: { showingComposer = true })
                     } else {
                         ScrollView {
                             LazyVStack(spacing: 16) {
-                                ForEach(gossipManager.todaysGossip) { gossip in
+                                ForEach(gossip) { post in
                                     GossipCard(
-                                        gossip: gossip,
-                                        currentUser: authManager.currentUser!,
-                                        friends: friendsManager.friends,
-                                        isRevealed: showingRevealed.contains(gossip.id) || gossipManager.myReveals[gossip.id] != nil,
-                                        onReveal: {
-                                            await revealSender(gossip)
-                                        },
-                                        onReact: { emoji in
-                                            await gossipManager.addReaction(to: gossip.id, emoji: emoji)
-                                        }
+                                        post: post,
+                                        isRevealed: revealedIDs.contains(post.id),
+                                        revealedUsername: revealedUsernames[post.id],
+                                        onReveal: { await revealSender(post) }
                                     )
                                 }
                             }
                             .padding(.vertical)
-                            .padding(.bottom, 80) // Space for FAB
+                            .padding(.bottom, 80)
                         }
-                        .refreshable {
-                            await gossipManager.loadTodaysGossip(for: authManager.currentUser)
-                        }
+                        .refreshable { loadGossip() }
                     }
                 }
-                
-                // Floating Action Button (only show when there's gossip)
-                if !gossipManager.todaysGossip.isEmpty && !gossipManager.isLoading {
+
+                // FAB
+                if !gossip.isEmpty && !isLoading {
                     VStack {
                         Spacer()
                         HStack {
@@ -63,14 +72,14 @@ struct GossipFeedView: View {
                             Button(action: { showingComposer = true }) {
                                 Image(systemName: "plus")
                                     .font(.title2.bold())
-                                    .foregroundColor(.black)
+                                    .foregroundStyle(.black)
                                     .frame(width: 60, height: 60)
                                     .background(Color.yellow)
                                     .clipShape(Circle())
-                                    .shadow(color: Color.yellow.opacity(0.4), radius: 8, x: 0, y: 4)
+                                    .shadow(color: .yellow.opacity(0.4), radius: 8, x: 0, y: 4)
                             }
                             .padding(.trailing, 20)
-                            .padding(.bottom, 90) // Above tab bar
+                            .padding(.bottom, 90)
                         }
                     }
                 }
@@ -78,7 +87,11 @@ struct GossipFeedView: View {
             .navigationTitle("☕ Gossip")
             .navigationBarTitleDisplayMode(.inline)
             .sheet(isPresented: $showingComposer) {
-                GossipComposerView()
+                GossipComposerView(
+                    selectedGroup: selectedGroup,
+                    groups: groups,
+                    onPosted: { loadGossip() }
+                )
             }
             .overlay(alignment: .top) {
                 if showingToast {
@@ -89,14 +102,10 @@ struct GossipFeedView: View {
                 }
             }
             .task {
-                if let currentUser = authManager.currentUser {
-                    await gossipManager.loadTodaysGossip(for: currentUser)
-                    await gossipManager.loadMyReveals(for: currentUser.id)
-                }
+                await loadGroups()
+                loadGossip()
             }
-            .onAppear {
-                setupScreenshotDetection()
-            }
+            .onAppear { setupScreenshotDetection() }
             .fullScreenCover(isPresented: $showingSecureReveal) {
                 SecureRevealView(posterUsername: revealedUsername) {
                     showingSecureReveal = false
@@ -105,78 +114,89 @@ struct GossipFeedView: View {
             }
         }
     }
-    
+
+    // MARK: - Data Loading
+
+    private func loadGroups() async {
+        guard let user = authManager.currentUser else { return }
+        do {
+            groups = try await SupabaseManager.shared.fetchMyGroups(userID: user.id)
+            if selectedGroup == nil { selectedGroup = groups.first }
+        } catch {
+            print("Failed to load groups: \(error)")
+        }
+    }
+
+    private func loadGossip() {
+        guard let group = selectedGroup else {
+            isLoading = false
+            return
+        }
+        Task {
+            do {
+                gossip = try await SupabaseManager.shared.fetchGossip(groupID: group.id)
+                // Check which ones this user already revealed
+                if let user = authManager.currentUser {
+                    for post in gossip {
+                        if try await SupabaseManager.shared.hasRevealedGossip(
+                            gossipID: post.id, userID: user.id
+                        ) {
+                            revealedIDs.insert(post.id)
+                            // Fetch the author username
+                            let username = try await SupabaseManager.shared.revealGossip(
+                                gossipID: post.id, revealedBy: user.id
+                            )
+                            revealedUsernames[post.id] = username
+                        }
+                    }
+                }
+            } catch {
+                print("Failed to load gossip: \(error)")
+            }
+            isLoading = false
+        }
+    }
+
+    // MARK: - Reveal
+
+    private func revealSender(_ post: GossipPost) async {
+        guard let user = authManager.currentUser else { return }
+
+        // TODO: Integrate RevenueCat purchase ($1.99) before revealing
+        // For now, reveal directly for testing
+        do {
+            let username = try await SupabaseManager.shared.revealGossip(
+                gossipID: post.id, revealedBy: user.id
+            )
+            revealedIDs.insert(post.id)
+            revealedUsernames[post.id] = username
+            revealedUsername = username
+            showingSecureReveal = true
+        } catch {
+            showToast("Reveal failed. Try again.", icon: "xmark.circle.fill")
+        }
+    }
+
     // MARK: - Screenshot Detection
-    
+
     private func setupScreenshotDetection() {
         NotificationCenter.default.addObserver(
             forName: UIApplication.userDidTakeScreenshotNotification,
             object: nil,
             queue: .main
-        ) { [self] _ in
-            handleScreenshot()
+        ) { _ in
+            showToast("📸 Screenshot detected!", icon: "camera.fill")
         }
     }
-    
-    private func handleScreenshot() {
-        guard let currentUser = authManager.currentUser else { return }
-        
-        // Record screenshot for all visible gossip
-        // For now, we'll record for ALL gossip in feed (they can see it)
-        // In future, could track which specific card is visible
-        for gossip in gossipManager.todaysGossip {
-            Task {
-                await gossipManager.recordScreenshot(for: gossip.id, by: currentUser)
-            }
-        }
-        
-        print("📸 Screenshot detected! Recorded for \(gossipManager.todaysGossip.count) gossip posts")
-        
-        // Show toast
-        showToast("📸 Screenshot saved!", icon: "camera.fill")
-    }
-    
-    private func revealSender(_ gossip: GossipPost) async {
-        guard let currentUser = authManager.currentUser else { return }
-        
-        // Purchase reveal IAP
-        do {
-            if let product = storeKitManager.getProduct(byID: IAPProducts.gossipReveal) {
-                // CRITICAL FIX: Check if purchase was successful
-                let purchaseSucceeded = try await storeKitManager.purchase(product)
-                
-                // ONLY reveal if payment succeeded
-                if purchaseSucceeded {
-                    let (revealed, sender) = await gossipManager.revealSender(
-                        gossipID: gossip.id,
-                        currentUser: currentUser
-                    )
-                    
-                    if revealed {
-                        showingRevealed.insert(gossip.id)
-                        print("✅ Revealed sender: \(sender ?? "unknown")")
-                        
-                        // Show secure reveal view (DRM-protected)
-                        revealedUsername = sender ?? "unknown"
-                        showingSecureReveal = true
-                    }
-                } else {
-                    print("❌ Purchase cancelled or failed - NOT revealing")
-                }
-            }
-        } catch {
-            print("❌ Purchase error: \(error) - NOT revealing")
-            showToast("Purchase failed. Try again.", icon: "xmark.circle.fill")
-        }
-    }
-    
+
+    // MARK: - Toast
+
     private func showToast(_ message: String, icon: String) {
         toastMessage = message
         toastIcon = icon
         withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
             showingToast = true
         }
-        
         DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
             withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
                 showingToast = false
@@ -185,216 +205,119 @@ struct GossipFeedView: View {
     }
 }
 
+// MARK: - Group Picker (horizontal pills)
+struct GroupGossipPicker: View {
+    @Binding var selectedGroup: Group?
+    let groups: [Group]
+    let onChange: () -> Void
+
+    var body: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 10) {
+                ForEach(groups) { group in
+                    Button(action: {
+                        selectedGroup = group
+                        onChange()
+                    }) {
+                        HStack(spacing: 6) {
+                            Text(group.emoji)
+                            Text(group.name)
+                                .font(.subheadline.weight(.medium))
+                        }
+                        .foregroundStyle(selectedGroup?.id == group.id ? .black : .white)
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 8)
+                        .background(selectedGroup?.id == group.id ? Color.yellow : Color.white.opacity(0.1))
+                        .cornerRadius(20)
+                    }
+                }
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 10)
+        }
+    }
+}
+
 // MARK: - Gossip Card
 struct GossipCard: View {
-    let gossip: GossipPost
-    let currentUser: User
-    let friends: [User]
+    let post: GossipPost
     let isRevealed: Bool
+    let revealedUsername: String?
     let onReveal: () async -> Void
-    let onReact: (String) async -> Void
-    
-    @State private var showingReactions = false
-    @State private var showingReplies = false
-    
-    // Check if current user is mentioned
-    private var isMentioned: Bool {
-        gossip.mentionedUserIDs.contains(currentUser.id)
-    }
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             // Header
             HStack(spacing: 12) {
-                // Avatar
                 Circle()
                     .fill(isRevealed ? Color.purple : Color.gray)
                     .frame(width: 40, height: 40)
                     .overlay(
                         Image(systemName: isRevealed ? "person.fill" : "person.fill.questionmark")
-                            .foregroundColor(.white)
+                            .foregroundStyle(.white)
                     )
-                
+
                 VStack(alignment: .leading, spacing: 4) {
-                    Text(isRevealed ? gossip.posterUsername : "Anonymous")
+                    Text(isRevealed ? "@\(revealedUsername ?? "unknown")" : "Anonymous")
                         .font(.headline)
-                        .foregroundColor(.white)
-                    
-                    Text(gossip.createdAt.timeAgoString())
+                        .foregroundStyle(.white)
+
+                    Text(post.createdAt.timeAgoString())
                         .font(.caption)
-                        .foregroundColor(.gray)
+                        .foregroundStyle(.secondary)
                 }
-                
+
                 Spacer()
-                
-                // Expires indicator
-                if gossip.expiresAt.timeIntervalSinceNow < 3600 {
-                    Text("⏰ Expires soon")
+
+                // Expiry badge
+                if post.expiresAt.timeIntervalSinceNow < 3600 {
+                    Text("⏰ <1h left")
                         .font(.caption2)
-                        .foregroundColor(.orange)
+                        .foregroundStyle(.orange)
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
                         .background(Color.orange.opacity(0.2))
                         .cornerRadius(8)
                 }
             }
-            
-            // Gossip text
-            Text(gossip.text)
+
+            // Content
+            Text(post.content)
                 .font(.body)
-                .foregroundColor(.white)
+                .foregroundStyle(.white)
                 .fixedSize(horizontal: false, vertical: true)
-            
-            // Stats row
-            HStack(spacing: 16) {
-                // Reactions count
-                if !gossip.reactions.isEmpty {
-                    HStack(spacing: 4) {
-                        ForEach(Array(gossip.reactions.keys.prefix(3)), id: \.self) { emoji in
-                            Text(emoji)
-                        }
-                        if gossip.reactions.values.reduce(0, +) > 0 {
-                            Text("\(gossip.reactions.values.reduce(0, +))")
-                                .font(.caption)
-                                .foregroundColor(.gray)
-                        }
-                    }
-                }
-                
-                // Reply count
-                if gossip.replyCount > 0 {
-                    HStack(spacing: 4) {
-                        Image(systemName: "bubble.left")
-                        Text("\(gossip.replyCount)")
-                    }
-                    .font(.caption)
-                    .foregroundColor(.gray)
-                }
-                
-                // View count
-                HStack(spacing: 4) {
-                    Image(systemName: "eye")
-                    Text("\(gossip.viewCount)")
-                }
-                .font(.caption)
-                .foregroundColor(.gray)
-                
-                Spacer()
-            }
-            
-            // 📸 WALL OF SHAME: Public display of screenshot attempts (24h expiry)
-            let activeScreenshots = gossip.activeScreenshotUsernames()
-            if !activeScreenshots.isEmpty {
-                VStack(alignment: .leading, spacing: 6) {
-                    HStack(spacing: 6) {
-                        Image(systemName: "camera.fill")
-                            .foregroundColor(.red)
-                        Text("📸 WALL OF SHAME")
-                            .font(.caption.weight(.bold))
-                            .foregroundColor(.red)
-                    }
-                    
-                    Text(wallOfShameText(activeScreenshots))
-                        .font(.caption)
-                        .foregroundColor(.white)
-                        .lineLimit(2)
-                }
-                .padding(10)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .background(
-                    LinearGradient(
-                        colors: [Color.red.opacity(0.2), Color.orange.opacity(0.2)],
-                        startPoint: .leading,
-                        endPoint: .trailing
-                    )
-                )
-                .overlay(
-                    RoundedRectangle(cornerRadius: 8)
-                        .stroke(Color.red.opacity(0.5), lineWidth: 1)
-                )
-                .cornerRadius(8)
-            }
-            
-            // Action buttons
-            HStack(spacing: 12) {
-                // React button
-                Button(action: { showingReactions.toggle() }) {
-                    HStack(spacing: 4) {
-                        Image(systemName: "face.smiling")
-                        Text("React")
-                    }
-                    .font(.caption)
-                    .foregroundColor(.gray)
-                }
-                
-                // Reply button
-                Button(action: { showingReplies.toggle() }) {
-                    HStack(spacing: 4) {
-                        Image(systemName: "bubble.left")
-                        Text("Reply")
-                    }
-                    .font(.caption)
-                    .foregroundColor(.gray)
-                }
-                
-                Spacer()
-            }
-            
-            // Reply thread (if showing)
-            if showingReplies {
-                ReplyThreadView(
-                    gossipID: gossip.id,
-                    currentUser: currentUser,
-                    onClose: { showingReplies = false }
-                )
-            }
-            
-            // SMART REVEAL BUTTON: Dynamic styling based on urgency, social proof, and mentions
-            if !isRevealed {
-                Button(action: { Task { await onReveal() }}) {
-                    HStack {
-                        Image(systemName: revealButtonIcon)
-                        Text(revealButtonText)
-                    }
-                    .font(revealButtonFont)
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 10)
-                    .background(revealButtonBackground)
-                    .cornerRadius(10)
-                }
-            } else {
-                // Revealed sender info
+
+            // Reveal / Revealed state
+            if isRevealed {
                 VStack(spacing: 8) {
                     HStack {
                         Image(systemName: "checkmark.circle.fill")
-                            .foregroundColor(.green)
-                        Text("Posted by @\(gossip.posterUsername)")
+                            .foregroundStyle(.green)
+                        Text("Posted by @\(revealedUsername ?? "unknown")")
                             .font(.caption)
-                            .foregroundColor(.green)
+                            .foregroundStyle(.green)
                     }
                     .padding(.vertical, 4)
-                    
-                    // NEW: View poster's drops button (Gossip → Map navigation)
+
+                    // View their drops on map
                     Button(action: {
                         NotificationCenter.default.post(
                             name: Notification.Name("SHOW_DROP_FROM_GOSSIP"),
                             object: nil,
-                            userInfo: ["username": gossip.posterUsername]
+                            userInfo: ["username": revealedUsername ?? ""]
                         )
                     }) {
                         HStack(spacing: 8) {
-                            Image(systemName: "map.fill")
-                                .font(.subheadline)
-                            Text("View @\(gossip.posterUsername)'s drops")
+                            Image(systemName: "map.fill").font(.subheadline)
+                            Text("View @\(revealedUsername ?? "")'s drops")
                                 .font(.subheadline.weight(.semibold))
                         }
-                        .foregroundColor(.white)
+                        .foregroundStyle(.white)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 10)
                         .background(
                             LinearGradient(
-                                colors: [Color.purple, Color.blue],
+                                colors: [.purple, .blue],
                                 startPoint: .leading,
                                 endPoint: .trailing
                             )
@@ -402,154 +325,52 @@ struct GossipCard: View {
                         .cornerRadius(10)
                     }
                 }
-            }
-            
-            // CROSS-TAB INTEGRATION: Link to mentioned users' drops
-            if !gossip.mentionedUsernames.isEmpty {
-                Button(action: {
-                    // Switch to Map tab and show mentioned user's drops
-                    if let firstMentionedUsername = gossip.mentionedUsernames.first {
-                        NotificationCenter.default.post(
-                            name: Notification.Name("SHOW_DROP_FROM_GOSSIP"),
-                            object: nil,
-                            userInfo: ["username": firstMentionedUsername]
-                        )
+            } else {
+                // Reveal button
+                Button(action: { Task { await onReveal() } }) {
+                    HStack {
+                        Image(systemName: revealIcon)
+                        Text(revealText)
                     }
-                }) {
-                    HStack(spacing: 8) {
-                        Image(systemName: "mappin.circle.fill")
-                            .foregroundColor(.purple)
-                        Text("See @\(gossip.mentionedUsernames.first ?? "their") drops on map")
-                            .font(.caption)
-                            .foregroundColor(.purple)
-                    }
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 8)
-                    .background(Color.purple.opacity(0.15))
-                    .cornerRadius(8)
-                }
-            }
-            
-            // Reaction picker
-            if showingReactions {
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 12) {
-                        ForEach(["😂", "😱", "🔥", "💀", "👀", "🤮", "💩", "🚽"], id: \.self) { emoji in
-                            Button(action: {
-                                Task {
-                                    await onReact(emoji)
-                                    showingReactions = false
-                                }
-                            }) {
-                                Text(emoji)
-                                    .font(.title2)
-                            }
-                        }
-                    }
-                    .padding(.vertical, 8)
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 10)
+                    .background(revealBackground)
+                    .cornerRadius(10)
                 }
             }
         }
         .padding()
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .fill(isMentioned ? Color.red.opacity(0.1) : Color.white.opacity(0.05))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 12)
-                        .stroke(isMentioned ? Color.red.opacity(0.3) : Color.clear, lineWidth: 2)
-                )
+                .fill(Color.white.opacity(0.05))
         )
         .padding(.horizontal)
     }
-    
-    // MARK: - Smart Reveal Button Helpers
-    
+
+    // MARK: - Reveal Button Styling
+
     private var isUrgent: Bool {
-        gossip.expiresAt.timeIntervalSinceNow < 3600 // Less than 1 hour
+        post.expiresAt.timeIntervalSinceNow < 3600
     }
-    
-    private var hasMultipleReveals: Bool {
-        gossip.revealedBy.count >= 3
+
+    private var revealIcon: String {
+        isUrgent ? "clock.fill" : "lock.open.fill"
     }
-    
-    private var revealButtonIcon: String {
+
+    private var revealText: String {
+        isUrgent
+            ? "⏰ REVEAL NOW — Expires soon — $1.99"
+            : "Reveal Sender — $1.99"
+    }
+
+    @ViewBuilder
+    private var revealBackground: some View {
         if isUrgent {
-            return "clock.fill"
-        } else if isMentioned {
-            return "exclamationmark.circle.fill"
-        } else if hasMultipleReveals {
-            return "eye.fill"
+            LinearGradient(colors: [.red, .orange], startPoint: .leading, endPoint: .trailing)
         } else {
-            return "lock.open.fill"
-        }
-    }
-    
-    private var revealButtonText: String {
-        if isUrgent {
-            return "⏰ REVEAL NOW - Expires in 1h - $1.99"
-        } else if hasMultipleReveals {
-            return "👀 \(gossip.revealedBy.count) people revealed - $1.99"
-        } else if isMentioned {
-            return "🚨 WHO SAID THIS ABOUT YOU? - $1.99"
-        } else {
-            return "Reveal Sender - $1.99"
-        }
-    }
-    
-    private var revealButtonFont: Font {
-        if isUrgent || isMentioned {
-            return .caption.bold()
-        } else {
-            return .caption
-        }
-    }
-    
-    private var revealButtonBackground: some View {
-        Group {
-            if isUrgent {
-                LinearGradient(
-                    colors: [.red, .orange],
-                    startPoint: .leading,
-                    endPoint: .trailing
-                )
-            } else if hasMultipleReveals {
-                LinearGradient(
-                    colors: [.purple, .pink],
-                    startPoint: .leading,
-                    endPoint: .trailing
-                )
-            } else if isMentioned {
-                Color.red
-            } else {
-                Color.white.opacity(0.1)
-            }
-        }
-    }
-    
-    // MARK: - Screenshot Text Helper
-    
-    private func screenshotText(_ usernames: [String]) -> String {
-        if usernames.isEmpty {
-            return ""
-        } else if usernames.count == 1 {
-            return "@\(usernames[0]) took a screenshot"
-        } else if usernames.count == 2 {
-            return "@\(usernames[0]), @\(usernames[1]) took screenshots"
-        } else {
-            return "@\(usernames[0]), @\(usernames[1]) + \(usernames.count - 2) others took screenshots"
-        }
-    }
-    
-    // NEW: Wall of Shame messaging (more dramatic!)
-    private func wallOfShameText(_ usernames: [String]) -> String {
-        if usernames.isEmpty {
-            return ""
-        } else if usernames.count == 1 {
-            return "@\(usernames[0]) tried to screenshot this and failed! BUSTED! 🚨"
-        } else if usernames.count == 2 {
-            return "@\(usernames[0]) and @\(usernames[1]) tried to screenshot this and failed! BUSTED! 🚨"
-        } else {
-            return "@\(usernames[0]), @\(usernames[1]) and \(usernames.count - 2) others tried to screenshot this and failed! BUSTED! 🚨"
+            Color.white.opacity(0.1)
         }
     }
 }
@@ -557,28 +378,27 @@ struct GossipCard: View {
 // MARK: - Empty State
 struct EmptyGossipView: View {
     let onPost: () -> Void
-    
+
     var body: some View {
         VStack(spacing: 24) {
             Text("☕")
                 .font(.system(size: 80))
-            
+
             Text("No Gossip Yet")
                 .font(.title.bold())
-                .foregroundColor(.white)
-            
+                .foregroundStyle(.white)
+
             Text("Be the first to spill the tea!")
                 .font(.subheadline)
-                .foregroundColor(.gray)
-                .multilineTextAlignment(.center)
-            
+                .foregroundStyle(.secondary)
+
             Button(action: onPost) {
                 HStack {
                     Image(systemName: "plus.circle.fill")
                     Text("Post Anonymous Gossip")
                 }
                 .font(.headline)
-                .foregroundColor(.black)
+                .foregroundStyle(.black)
                 .frame(maxWidth: .infinity)
                 .padding()
                 .background(Color.yellow)
@@ -592,82 +412,101 @@ struct EmptyGossipView: View {
 
 // MARK: - Gossip Composer
 struct GossipComposerView: View {
+    let selectedGroup: Group?
+    let groups: [Group]
+    let onPosted: () -> Void
+
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var authManager: AuthenticationManager
-    @EnvironmentObject var friendsManager: FriendsManager
-    @StateObject private var gossipManager = GossipManager.shared
-    
+
     @State private var gossipText = ""
+    @State private var composerGroup: Group?
     @State private var isPosting = false
-    
-    private let maxCharacters = 280
-    
-    private var detectedMentions: [User] {
-        gossipManager.detectMentions(in: gossipText, from: friendsManager.friends)
+
+    private let maxChars = 280
+
+    private var canPost: Bool {
+        !gossipText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        && gossipText.count <= maxChars
+        && composerGroup != nil
     }
-    
+
     var body: some View {
         NavigationView {
             ZStack {
                 Color.black.ignoresSafeArea()
-                
+
                 ScrollView {
                     VStack(spacing: 20) {
+                        // Group selector
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Post in Group")
+                                .font(.headline)
+                                .foregroundStyle(.white)
+
+                            ScrollView(.horizontal, showsIndicators: false) {
+                                HStack(spacing: 10) {
+                                    ForEach(groups) { group in
+                                        Button(action: { composerGroup = group }) {
+                                            HStack(spacing: 6) {
+                                                Text(group.emoji)
+                                                Text(group.name)
+                                                    .font(.subheadline.weight(.medium))
+                                            }
+                                            .foregroundStyle(composerGroup?.id == group.id ? .black : .white)
+                                            .padding(.horizontal, 14)
+                                            .padding(.vertical, 8)
+                                            .background(composerGroup?.id == group.id ? Color.yellow : Color.white.opacity(0.1))
+                                            .cornerRadius(20)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
                         // Text editor
                         ZStack(alignment: .topLeading) {
                             if gossipText.isEmpty {
-                                Text("What's the tea? ☕\n\nMention friends with @username")
-                                    .foregroundColor(.gray)
+                                Text("What's the tea? ☕")
+                                    .foregroundStyle(.secondary)
                                     .padding(8)
                             }
-                            
+
                             TextEditor(text: $gossipText)
-                                .foregroundColor(.white)
+                                .foregroundStyle(.white)
                                 .scrollContentBackground(.hidden)
                                 .frame(minHeight: 200)
                                 .padding(4)
+                                .onChange(of: gossipText) { _, newValue in
+                                    if newValue.count > maxChars {
+                                        gossipText = String(newValue.prefix(maxChars))
+                                    }
+                                }
                         }
                         .background(
                             RoundedRectangle(cornerRadius: 12)
                                 .fill(Color.white.opacity(0.05))
                         )
-                        
-                        // Character count
+
+                        // Char count
                         HStack {
-                            Text("\(gossipText.count)/\(maxCharacters)")
+                            Text("\(gossipText.count)/\(maxChars)")
                                 .font(.caption)
-                                .foregroundColor(gossipText.count > maxCharacters ? .red : .gray)
-                            
+                                .foregroundStyle(gossipText.count > maxChars ? .red : .secondary)
                             Spacer()
-                            
-                            if !detectedMentions.isEmpty {
-                                Text("Mentioning: \(detectedMentions.map { "@" + $0.username }.joined(separator: ", "))")
-                                    .font(.caption)
-                                    .foregroundColor(.yellow)
-                            }
                         }
-                        
+
                         // Tips
                         VStack(alignment: .leading, spacing: 8) {
                             Text("💡 Tips:")
                                 .font(.caption.bold())
-                                .foregroundColor(.white)
-                            
+                                .foregroundStyle(.white)
                             Text("• Your identity is hidden (anonymous)")
-                                .font(.caption)
-                                .foregroundColor(.gray)
-                            
-                            Text("• Mention friends with @username")
-                                .font(.caption)
-                                .foregroundColor(.gray)
-                            
-                            Text("• They can pay $1.99 to reveal who posted")
-                                .font(.caption)
-                                .foregroundColor(.gray)
-                            
+                                .font(.caption).foregroundStyle(.secondary)
+                            Text("• Others can pay $1.99 to reveal who posted")
+                                .font(.caption).foregroundStyle(.secondary)
                             Text("• Gossip expires in 24 hours")
-                                .font(.caption)
-                                .foregroundColor(.gray)
+                                .font(.caption).foregroundStyle(.secondary)
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding()
@@ -675,18 +514,17 @@ struct GossipComposerView: View {
                             RoundedRectangle(cornerRadius: 12)
                                 .fill(Color.yellow.opacity(0.1))
                         )
-                        
+
                         // Post button
                         Button(action: postGossip) {
                             if isPosting {
-                                ProgressView()
-                                    .tint(.black)
+                                ProgressView().tint(.black)
                             } else {
                                 Text("Post Anonymously")
                                     .font(.headline)
                             }
                         }
-                        .foregroundColor(.black)
+                        .foregroundStyle(.black)
                         .frame(maxWidth: .infinity)
                         .padding()
                         .background(canPost ? Color.yellow : Color.gray)
@@ -700,272 +538,35 @@ struct GossipComposerView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Cancel") {
-                        dismiss()
-                    }
-                    .foregroundColor(.white)
+                    Button("Cancel") { dismiss() }
+                        .foregroundStyle(.white)
                 }
             }
         }
+        .preferredColorScheme(.dark)
+        .onAppear {
+            composerGroup = selectedGroup ?? groups.first
+        }
     }
-    
-    private var canPost: Bool {
-        !gossipText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
-        gossipText.count <= maxCharacters
-    }
-    
+
     private func postGossip() {
-        guard let currentUser = authManager.currentUser, canPost else { return }
-        
+        guard let user = authManager.currentUser,
+              let group = composerGroup, canPost else { return }
         isPosting = true
-        
+
         Task {
-            await gossipManager.postGossip(
-                text: gossipText,
-                poster: currentUser,
-                mentionedFriends: detectedMentions
-            )
-            
-            await MainActor.run {
-                isPosting = false
+            do {
+                try await SupabaseManager.shared.postGossip(
+                    authorID: user.id,
+                    groupID: group.id,
+                    content: gossipText
+                )
+                onPosted()
                 dismiss()
+            } catch {
+                print("Failed to post gossip: \(error)")
             }
-        }
-    }
-}
-
-// MARK: - Reply Thread View
-struct ReplyThreadView: View {
-    let gossipID: String
-    let currentUser: User
-    let onClose: () -> Void
-    
-    @StateObject private var gossipManager = GossipManager.shared
-    @State private var replies: [GossipReply] = []
-    @State private var replyText = ""
-    @State private var isPostingReply = false
-    @State private var isLoading = true
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            // Header
-            HStack {
-                Text("💬 Replies")
-                    .font(.headline)
-                    .foregroundColor(.white)
-                
-                Spacer()
-                
-                Button(action: onClose) {
-                    Image(systemName: "xmark.circle.fill")
-                        .foregroundColor(.gray)
-                }
-            }
-            
-            Divider()
-                .background(Color.white.opacity(0.2))
-            
-            // Replies list
-            if isLoading {
-                HStack {
-                    Spacer()
-                    ProgressView()
-                        .tint(.white)
-                    Spacer()
-                }
-                .padding()
-            } else if replies.isEmpty {
-                VStack(spacing: 8) {
-                    Text("👻")
-                        .font(.system(size: 40))
-                    Text("No replies yet")
-                        .font(.caption)
-                        .foregroundColor(.gray)
-                    Text("Be the first to reply!")
-                        .font(.caption2)
-                        .foregroundColor(.gray)
-                }
-                .frame(maxWidth: .infinity)
-                .padding()
-            } else {
-                ScrollView {
-                    VStack(spacing: 12) {
-                        ForEach(replies) { reply in
-                            ReplyCard(reply: reply, depth: 0, currentUser: currentUser)
-                        }
-                    }
-                }
-                .frame(maxHeight: 400) // Increased for nested threads
-            }
-            
-            // Reply composer
-            HStack(spacing: 12) {
-                TextField("Write a reply...", text: $replyText, axis: .vertical)
-                    .lineLimit(1...3)
-                    .textFieldStyle(.plain)
-                    .foregroundColor(.white)
-                    .padding(8)
-                    .background(Color.white.opacity(0.1))
-                    .cornerRadius(8)
-                
-                Button(action: postReply) {
-                    if isPostingReply {
-                        ProgressView()
-                            .tint(.purple)
-                    } else {
-                        Image(systemName: "paperplane.fill")
-                            .foregroundColor(canPostReply ? .purple : .gray)
-                    }
-                }
-                .disabled(!canPostReply || isPostingReply)
-            }
-        }
-        .padding()
-        .background(Color.black.opacity(0.8))
-        .cornerRadius(12)
-        .task {
-            await loadReplies()
-        }
-    }
-    
-    private var canPostReply: Bool {
-        !replyText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-    }
-    
-    private func loadReplies() async {
-        isLoading = true
-        replies = await gossipManager.loadReplies(for: gossipID)
-        isLoading = false
-    }
-    
-    private func postReply() {
-        guard canPostReply else { return }
-        
-        isPostingReply = true
-        let textToPost = replyText
-        replyText = ""
-        
-        Task {
-            await gossipManager.postReply(
-                to: gossipID,
-                replyText: textToPost,
-                replier: currentUser,
-                isAnonymous: true
-            )
-            
-            // Reload replies
-            await loadReplies()
-            
-            await MainActor.run {
-                isPostingReply = false
-            }
-        }
-    }
-}
-
-// MARK: - Reply Card (Reddit-style Threaded)
-struct ReplyCard: View {
-    let reply: GossipReply
-    let depth: Int // For indentation
-    let currentUser: User
-    @StateObject private var gossipManager = GossipManager.shared
-    @State private var showingReplyBox = false
-    @State private var replyText = ""
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            // Main reply
-            HStack(alignment: .top, spacing: 12) {
-                // Indentation lines for nested replies (Reddit style)
-                if depth > 0 {
-                    ForEach(0..<depth, id: \.self) { _ in
-                        Rectangle()
-                            .fill(Color.gray.opacity(0.3))
-                            .frame(width: 2)
-                    }
-                }
-                
-                Circle()
-                    .fill(Color.gray)
-                    .frame(width: 32, height: 32)
-                    .overlay(
-                        Image(systemName: reply.isAnonymous ? "person.fill.questionmark" : "person.fill")
-                            .font(.caption)
-                            .foregroundColor(.white)
-                    )
-                
-                VStack(alignment: .leading, spacing: 4) {
-                    HStack(spacing: 8) {
-                        Text(reply.isAnonymous ? "Anonymous" : reply.replierUsername)
-                            .font(.caption.bold())
-                            .foregroundColor(.white)
-                        
-                        Text(reply.createdAt.timeAgoString())
-                            .font(.caption2)
-                            .foregroundColor(.gray)
-                    }
-                    
-                    Text(reply.replyText)
-                        .font(.caption)
-                        .foregroundColor(.white.opacity(0.9))
-                        .fixedSize(horizontal: false, vertical: true)
-                    
-                    // Reply button
-                    Button(action: { showingReplyBox.toggle() }) {
-                        Text("Reply")
-                            .font(.caption2)
-                            .foregroundColor(.purple)
-                    }
-                }
-                
-                Spacer()
-            }
-            .padding(8)
-            .background(Color.white.opacity(depth == 0 ? 0.05 : 0.03))
-            .cornerRadius(8)
-            
-            // Reply box
-            if showingReplyBox {
-                HStack(spacing: 8) {
-                    TextField("Write a reply...", text: $replyText)
-                        .textFieldStyle(.plain)
-                        .foregroundColor(.white)
-                        .padding(8)
-                        .background(Color.white.opacity(0.1))
-                        .cornerRadius(8)
-                    
-                    Button(action: postNestedReply) {
-                        Image(systemName: "paperplane.fill")
-                            .foregroundColor(.purple)
-                    }
-                }
-                .padding(.leading, CGFloat((depth + 1) * 16))
-            }
-            
-            // Nested replies (RECURSIVE)
-            if !reply.nestedReplies.isEmpty {
-                ForEach(reply.nestedReplies) { nestedReply in
-                    ReplyCard(reply: nestedReply, depth: depth + 1, currentUser: currentUser)
-                }
-            }
-        }
-    }
-    
-    private func postNestedReply() {
-        guard !replyText.isEmpty else { return }
-        
-        let textToPost = replyText
-        replyText = ""
-        showingReplyBox = false
-        
-        Task {
-            await gossipManager.postReply(
-                to: reply.originalGossipID,
-                parentReplyID: reply.id, // Nested under this reply!
-                replyText: textToPost,
-                replier: currentUser,
-                isAnonymous: true
-            )
+            isPosting = false
         }
     }
 }
@@ -974,15 +575,14 @@ struct ReplyCard: View {
 struct ToastView: View {
     let message: String
     let icon: String
-    
+
     var body: some View {
         HStack(spacing: 12) {
             Image(systemName: icon)
-                .foregroundColor(.white)
-            
+                .foregroundStyle(.white)
             Text(message)
                 .font(.caption.bold())
-                .foregroundColor(.white)
+                .foregroundStyle(.white)
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 12)
@@ -991,9 +591,12 @@ struct ToastView: View {
                 .fill(Color.white.opacity(0.2))
                 .background(.ultraThinMaterial)
         )
+        .clipShape(Capsule())
         .shadow(color: .black.opacity(0.3), radius: 10, x: 0, y: 5)
     }
 }
 
-// Preview removed - use simulator to test (managers don't have .shared instances)
-
+#Preview {
+    GossipFeedView()
+        .environmentObject(AuthenticationManager())
+}

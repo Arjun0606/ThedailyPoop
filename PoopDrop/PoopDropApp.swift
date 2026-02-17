@@ -18,16 +18,16 @@ struct TheDailyPoopApp: App {
                 .environmentObject(locationManager)
                 .preferredColorScheme(.dark)
                 .onAppear {
-                    setupApp()
+                    locationManager.requestLocationPermission()
+                    requestNotificationPermission()
                 }
         }
     }
 
-    private func setupApp() {
-        locationManager.requestLocationPermission()
-
+    private func requestNotificationPermission() {
         Task {
-            await NotificationManager.shared.requestPermission()
+            let center = UNUserNotificationCenter.current()
+            let _ = try? await center.requestAuthorization(options: [.alert, .sound, .badge])
         }
     }
 }

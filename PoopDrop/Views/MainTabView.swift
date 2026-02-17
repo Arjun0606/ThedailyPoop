@@ -9,10 +9,9 @@ struct MainTabView: View {
     var body: some View {
         ZStack {
             TabView(selection: $selectedTab) {
-                // Map is THE core feature — first tab
-                SnapchatStyleMapView()
+                GlobeMapView()
                     .tabItem {
-                        Image(systemName: selectedTab == 0 ? "map.fill" : "map")
+                        Image(systemName: selectedTab == 0 ? "globe.americas.fill" : "globe.americas")
                         Text("Map")
                     }
                     .tag(0)
@@ -24,12 +23,19 @@ struct MainTabView: View {
                     }
                     .tag(1)
 
-                ProfileView()
+                GroupsView()
                     .tabItem {
-                        Image(systemName: selectedTab == 2 ? "person.fill" : "person")
-                        Text("Profile")
+                        Image(systemName: selectedTab == 2 ? "person.3.fill" : "person.3")
+                        Text("Groups")
                     }
                     .tag(2)
+
+                ProfileView()
+                    .tabItem {
+                        Image(systemName: selectedTab == 3 ? "person.fill" : "person")
+                        Text("Profile")
+                    }
+                    .tag(3)
             }
             .accentColor(.white)
             .onAppear {
@@ -54,15 +60,23 @@ struct MainTabView: View {
                 if let drop = notification.userInfo?["drop"] as? Drop, let coord = drop.location {
                     selectedTab = 0
                     DispatchQueue.main.async {
-                        NotificationCenter.default.post(name: Notification.Name("CENTER_MAP"), object: nil, userInfo: ["coordinate": coord, "drop": drop])
+                        NotificationCenter.default.post(
+                            name: Notification.Name("CENTER_MAP"),
+                            object: nil,
+                            userInfo: ["coordinate": coord, "drop": drop]
+                        )
                     }
                 }
             }
             .onReceive(NotificationCenter.default.publisher(for: Notification.Name("SHOW_DROP_FROM_GOSSIP"))) { notification in
-                if let userInfo = notification.userInfo, let username = userInfo["username"] as? String {
+                if let username = notification.userInfo?["username"] as? String {
                     selectedTab = 0
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                        NotificationCenter.default.post(name: Notification.Name("CENTER_MAP_ON_USER"), object: nil, userInfo: ["username": username])
+                        NotificationCenter.default.post(
+                            name: Notification.Name("CENTER_MAP_ON_USER"),
+                            object: nil,
+                            userInfo: ["username": username]
+                        )
                     }
                 }
             }
@@ -78,7 +92,13 @@ struct MainTabView: View {
                     Button(action: { showingDropComposer = true }) {
                         ZStack {
                             Circle()
-                                .fill(LinearGradient(colors: [Color.brown, Color.brown.opacity(0.8)], startPoint: .topLeading, endPoint: .bottomTrailing))
+                                .fill(
+                                    LinearGradient(
+                                        colors: [Color.brown, Color.brown.opacity(0.8)],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    )
+                                )
                                 .frame(width: 64, height: 64)
                                 .shadow(color: .black.opacity(0.3), radius: 8, x: 0, y: 4)
                             Text("💩")
@@ -95,7 +115,7 @@ struct MainTabView: View {
         .sheet(isPresented: $showingDropComposer) {
             DropComposerView()
         }
-        .onChange(of: selectedTab) { newTab in
+        .onChange(of: selectedTab) { _, newTab in
             if newTab == 0 {
                 NotificationCenter.default.post(name: Notification.Name("REFRESH_MAP"), object: nil)
             }
