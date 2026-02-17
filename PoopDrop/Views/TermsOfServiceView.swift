@@ -21,7 +21,7 @@ struct TermsOfServiceView: View {
                             .foregroundColor(.gray)
                             .padding(.bottom, 16)
                         
-                        Group {
+                        SwiftUI.Group {
                             SectionHeader(title: "1. Acceptance of Terms")
                             BodyText(text: """
                             By downloading, installing, or using TheDailyPoop ("the App"), you agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, do not use the App.
@@ -67,7 +67,7 @@ struct TermsOfServiceView: View {
                             """)
                         }
                         
-                        Group {
+                        SwiftUI.Group {
                             SectionHeader(title: "5. Location Data")
                             BodyText(text: """
                             TheDailyPoop collects your location when you log a drop. By using the App, you consent to:
@@ -103,7 +103,7 @@ struct TermsOfServiceView: View {
                             """)
                         }
                         
-                        Group {
+                        SwiftUI.Group {
                             SectionHeader(title: "9. Disclaimer of Warranties")
                             BodyText(text: """
                             POOPDROP IS PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND, EXPRESS OR IMPLIED. WE DO NOT GUARANTEE:
@@ -147,7 +147,7 @@ struct TermsOfServiceView: View {
                             """)
                         }
                         
-                        Group {
+                        SwiftUI.Group {
                             SectionHeader(title: "13. Changes to Terms")
                             BodyText(text: """
                             We reserve the right to modify these Terms at any time. Changes will be posted in-app with an updated "Last Updated" date. Continued use of TheDailyPoop after changes constitutes acceptance of the new Terms.

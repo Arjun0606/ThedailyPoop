@@ -1,12 +1,10 @@
 import Foundation
 import Supabase
-import CoreLocation
 
 @MainActor
 class SupabaseManager: ObservableObject {
     static let shared = SupabaseManager()
 
-    @Published var drops: [Drop] = []
     @Published var isLoading = false
     @Published var errorMessage: String?
 
@@ -24,19 +22,16 @@ class SupabaseManager: ObservableObject {
 
     // MARK: - Auth
 
-    /// Sign in with Apple via Supabase Auth
     func signInWithApple(idToken: String, nonce: String) async throws -> User {
         let session = try await client.auth.signInWithIdToken(
             credentials: .init(provider: .apple, idToken: idToken, nonce: nonce)
         )
         let uid = session.user.id.uuidString
 
-        // Check if user profile exists
         if let existing = try await fetchUser(id: uid) {
             return existing
         }
 
-        // Create new user profile (username will be set in profile setup)
         let newUser = User(id: uid, username: "", appleUserID: uid)
         try await saveUser(newUser)
         return newUser
@@ -59,7 +54,8 @@ class SupabaseManager: ObservableObject {
             let display_name: String?
             let avatar_url: String?
             let apple_user_id: String
-            let total_drops: Int
+            let is_premium: Bool
+            let streak_count: Int
         }
 
         let row = UserRow(
@@ -68,7 +64,8 @@ class SupabaseManager: ObservableObject {
             display_name: user.displayName,
             avatar_url: user.avatarURL?.absoluteString,
             apple_user_id: user.appleUserID,
-            total_drops: user.totalDrops
+            is_premium: user.isPremium,
+            streak_count: user.streakCount
         )
 
         try await client.from("users")
@@ -83,7 +80,8 @@ class SupabaseManager: ObservableObject {
             let display_name: String?
             let avatar_url: String?
             let apple_user_id: String
-            let total_drops: Int
+            let is_premium: Bool?
+            let streak_count: Int?
             let created_at: String
         }
 
@@ -100,7 +98,9 @@ class SupabaseManager: ObservableObject {
             username: row.username,
             displayName: row.display_name,
             avatarURL: row.avatar_url.flatMap { URL(string: $0) },
-            appleUserID: row.apple_user_id
+            appleUserID: row.apple_user_id,
+            isPremium: row.is_premium ?? false,
+            streakCount: row.streak_count ?? 0
         )
     }
 
@@ -115,569 +115,313 @@ class SupabaseManager: ObservableObject {
         return rows.isEmpty
     }
 
-    // MARK: - Groups
+    // MARK: - Briefings
 
-    func createGroup(name: String, emoji: String, createdBy: String) async throws -> Group {
-        struct GroupInsert: Encodable {
-            let name: String
-            let emoji: String
-            let created_by: String
-        }
+    func fetchTodayBriefing() async throws -> Briefing? {
+        let today = dateString(for: Date())
 
-        struct GroupRow: Decodable {
-            let id: String
-            let name: String
-            let emoji: String
-            let created_by: String
-            let invite_code: String
-            let max_members: Int
-            let created_at: String
-        }
-
-        let rows: [GroupRow] = try await client.from("groups")
-            .insert(GroupInsert(name: name, emoji: emoji, created_by: createdBy))
+        let rows: [Briefing] = try await client.from("briefings")
             .select()
-            .execute()
-            .value
-
-        guard let row = rows.first else { throw SupabaseError.noData }
-
-        // Auto-join as admin
-        try await joinGroup(groupID: row.id, userID: createdBy, role: "admin")
-
-        return Group(
-            id: row.id,
-            name: row.name,
-            emoji: row.emoji,
-            inviteCode: row.invite_code,
-            createdBy: row.created_by,
-            maxMembers: row.max_members
-        )
-    }
-
-    func joinGroup(groupID: String, userID: String, role: String = "member") async throws {
-        struct MemberInsert: Encodable {
-            let group_id: String
-            let user_id: String
-            let role: String
-        }
-
-        try await client.from("group_members")
-            .insert(MemberInsert(group_id: groupID, user_id: userID, role: role))
-            .execute()
-    }
-
-    func joinGroupByInviteCode(_ code: String, userID: String) async throws -> Group {
-        struct GroupRow: Decodable {
-            let id: String
-            let name: String
-            let emoji: String
-            let invite_code: String
-            let created_by: String
-            let max_members: Int
-        }
-
-        let rows: [GroupRow] = try await client.from("groups")
-            .select()
-            .eq("invite_code", value: code.lowercased())
+            .eq("publish_date", value: today)
+            .eq("status", value: "published")
             .limit(1)
             .execute()
             .value
 
-        guard let row = rows.first else { throw SupabaseError.groupNotFound }
-
-        try await joinGroup(groupID: row.id, userID: userID)
-
-        return Group(
-            id: row.id,
-            name: row.name,
-            emoji: row.emoji,
-            inviteCode: row.invite_code,
-            createdBy: row.created_by,
-            maxMembers: row.max_members
-        )
+        return rows.first
     }
 
-    func fetchMyGroups(userID: String) async throws -> [Group] {
-        struct MemberRow: Decodable {
-            let group_id: String
-            let groups: GroupRow
+    func fetchBriefingByDate(date: Date) async throws -> Briefing? {
+        let dateStr = dateString(for: date)
 
-            struct GroupRow: Decodable {
-                let id: String
-                let name: String
-                let emoji: String
-                let invite_code: String
-                let created_by: String
-                let max_members: Int
-            }
-        }
-
-        let rows: [MemberRow] = try await client.from("group_members")
-            .select("group_id, groups(id, name, emoji, invite_code, created_by, max_members)")
-            .eq("user_id", value: userID)
+        let rows: [Briefing] = try await client.from("briefings")
+            .select()
+            .eq("publish_date", value: dateStr)
+            .eq("status", value: "published")
+            .limit(1)
             .execute()
             .value
 
-        return rows.map { row in
-            Group(
-                id: row.groups.id,
-                name: row.groups.name,
-                emoji: row.groups.emoji,
-                inviteCode: row.groups.invite_code,
-                createdBy: row.groups.created_by,
-                maxMembers: row.groups.max_members
-            )
-        }
+        return rows.first
     }
 
-    func fetchGroupMembers(groupID: String) async throws -> [User] {
-        struct MemberRow: Decodable {
-            let users: UserRow
-
-            struct UserRow: Decodable {
-                let id: String
-                let username: String
-                let display_name: String?
-                let avatar_url: String?
-                let apple_user_id: String
-                let total_drops: Int
-            }
-        }
-
-        let rows: [MemberRow] = try await client.from("group_members")
-            .select("users(id, username, display_name, avatar_url, apple_user_id, total_drops)")
-            .eq("group_id", value: groupID)
-            .execute()
-            .value
-
-        return rows.map { row in
-            User(
-                id: row.users.id,
-                username: row.users.username,
-                displayName: row.users.display_name,
-                avatarURL: row.users.avatar_url.flatMap { URL(string: $0) },
-                appleUserID: row.users.apple_user_id
-            )
-        }
-    }
-
-    func leaveGroup(groupID: String, userID: String) async throws {
-        try await client.from("group_members")
-            .delete()
-            .eq("group_id", value: groupID)
-            .eq("user_id", value: userID)
-            .execute()
-    }
-
-    // MARK: - Drops (Core Feature)
-
-    func saveDrop(_ drop: Drop) async throws {
-        struct DropInsert: Encodable {
-            let user_id: String
-            let group_id: String?
-            let caption: String?
-            let latitude: Double
-            let longitude: Double
-            let location_name: String?
-        }
-
-        guard let coord = drop.location else { throw SupabaseError.noLocation }
-
-        try await client.from("drops")
-            .insert(DropInsert(
-                user_id: drop.userID,
-                group_id: drop.groupID,
-                caption: drop.caption,
-                latitude: coord.latitude,
-                longitude: coord.longitude,
-                location_name: drop.locationName
-            ))
-            .execute()
-
-        // Update local array
-        drops.insert(drop, at: 0)
-    }
-
-    func fetchDrops(groupID: String, limit: Int = 100) async throws -> [Drop] {
-        struct DropRow: Decodable {
-            let id: String
-            let user_id: String
-            let group_id: String?
-            let caption: String?
-            let latitude: Double
-            let longitude: Double
-            let location_name: String?
-            let reactions: [String: Int]?
-            let created_at: String
-            let users: UserRef?
-
-            struct UserRef: Decodable {
-                let username: String
-            }
-        }
-
-        let rows: [DropRow] = try await client.from("drops")
-            .select("*, users(username)")
-            .eq("group_id", value: groupID)
-            .order("created_at", ascending: false)
+    func fetchRecentBriefings(limit: Int = 30) async throws -> [Briefing] {
+        let rows: [Briefing] = try await client.from("briefings")
+            .select()
+            .eq("status", value: "published")
+            .order("publish_date", ascending: false)
             .limit(limit)
             .execute()
             .value
 
-        let fetched = rows.map { row in
-            Drop(
-                id: row.id,
-                userID: row.user_id,
-                username: row.users?.username ?? "unknown",
-                location: CLLocationCoordinate2D(latitude: row.latitude, longitude: row.longitude),
-                locationName: row.location_name,
-                caption: row.caption,
-                groupID: row.group_id
-            )
-        }
-
-        drops = fetched
-        return fetched
+        return rows
     }
 
-    func fetchAllDropsForUser(userID: String) async throws -> [Drop] {
-        // Fetch drops across all groups the user is in
-        struct DropRow: Decodable {
-            let id: String
-            let user_id: String
-            let group_id: String?
-            let caption: String?
-            let latitude: Double
-            let longitude: Double
-            let location_name: String?
-            let created_at: String
-            let users: UserRef?
+    // MARK: - Stories
 
-            struct UserRef: Decodable {
-                let username: String
+    func fetchBriefingStories(briefingId: String) async throws -> [Story] {
+        let rows: [Story] = try await client.from("stories")
+            .select()
+            .eq("briefing_id", value: briefingId)
+            .order("sort_order", ascending: true)
+            .execute()
+            .value
+
+        return rows
+    }
+
+    // MARK: - Reading Tracking
+
+    func markStoryRead(userID: String, storyID: String) async throws {
+        struct ReadInsert: Encodable {
+            let user_id: String
+            let story_id: String
+        }
+
+        try await client.from("user_reads")
+            .upsert(ReadInsert(user_id: userID, story_id: storyID))
+            .execute()
+    }
+
+    func fetchReadStoryIDs(userID: String, briefingId: String) async throws -> Set<String> {
+        struct ReadRow: Decodable {
+            let story_id: String
+        }
+
+        // Get story IDs for this briefing, then filter reads
+        let storyRows: [Story] = try await client.from("stories")
+            .select()
+            .eq("briefing_id", value: briefingId)
+            .execute()
+            .value
+
+        let storyIds = storyRows.map { $0.id }
+        guard !storyIds.isEmpty else { return [] }
+
+        let readRows: [ReadRow] = try await client.from("user_reads")
+            .select("story_id")
+            .eq("user_id", value: userID)
+            .in("story_id", values: storyIds)
+            .execute()
+            .value
+
+        return Set(readRows.map { $0.story_id })
+    }
+
+    // MARK: - Reader Globe (Live)
+
+    private var readerChannel: RealtimeChannelV2?
+
+    func pingReaderLocation(userId: String, storyId: String, username: String, storyHeadline: String) async throws {
+        guard let url = URL(string: "\(Config.apiServerURL)/api/reader-ping") else { return }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try JSONEncoder().encode([
+            "userId": userId,
+            "storyId": storyId,
+            "username": username,
+            "storyHeadline": storyHeadline
+        ])
+
+        let (_, _) = try await URLSession.shared.data(for: request)
+    }
+
+    func fetchRecentReaderSessions(minutes: Int = 5) async throws -> [ReaderSession] {
+        let cutoff = Date().addingTimeInterval(-Double(minutes * 60))
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+
+        let rows: [ReaderSession] = try await client.from("reader_sessions")
+            .select()
+            .gt("created_at", value: formatter.string(from: cutoff))
+            .order("created_at", ascending: false)
+            .limit(100)
+            .execute()
+            .value
+
+        return rows
+    }
+
+    func subscribeToReaderSessions(onInsert: @escaping @Sendable (ReaderSession) -> Void) async {
+        let channel = client.realtimeV2.channel("reader_sessions")
+
+        let insertions = channel.postgresChange(InsertAction.self, table: "reader_sessions")
+
+        try? await channel.subscribeWithError()
+
+        self.readerChannel = channel
+
+        Task {
+            for await insertion in insertions {
+                do {
+                    let decoder = JSONDecoder()
+                    decoder.keyDecodingStrategy = .convertFromSnakeCase
+                    decoder.dateDecodingStrategy = .iso8601
+                    let session = try insertion.decodeRecord(as: ReaderSession.self, decoder: decoder)
+                    onInsert(session)
+                } catch {
+                    print("Failed to decode reader session: \(error)")
+                }
             }
         }
+    }
 
-        let rows: [DropRow] = try await client.from("drops")
-            .select("*, users(username)")
-            .order("created_at", ascending: false)
-            .limit(500)
+    func unsubscribeFromReaderSessions() async {
+        if let channel = readerChannel {
+            await client.realtimeV2.removeChannel(channel)
+            readerChannel = nil
+        }
+    }
+
+    // MARK: - Reactions
+
+    func fetchReactionCounts(storyId: String) async throws -> [String: Int] {
+        struct ReactionRow: Decodable {
+            let reaction: String
+        }
+
+        let rows: [ReactionRow] = try await client.from("story_reactions")
+            .select("reaction")
+            .eq("story_id", value: storyId)
             .execute()
             .value
 
-        return rows.map { row in
-            Drop(
-                id: row.id,
-                userID: row.user_id,
-                username: row.users?.username ?? "unknown",
-                location: CLLocationCoordinate2D(latitude: row.latitude, longitude: row.longitude),
-                locationName: row.location_name,
-                caption: row.caption,
-                groupID: row.group_id
-            )
+        var counts: [String: Int] = [:]
+        for row in rows {
+            counts[row.reaction, default: 0] += 1
         }
+        return counts
     }
 
-    // MARK: - Gossip
-
-    func postGossip(authorID: String, groupID: String, content: String) async throws {
-        struct GossipInsert: Encodable {
-            let author_id: String
-            let group_id: String
-            let content: String
+    func fetchUserReaction(userId: String, storyId: String) async throws -> String? {
+        struct ReactionRow: Decodable {
+            let reaction: String
         }
 
-        try await client.from("gossip")
-            .insert(GossipInsert(author_id: authorID, group_id: groupID, content: content))
-            .execute()
-    }
-
-    func fetchGossip(groupID: String) async throws -> [GossipPost] {
-        struct GossipRow: Decodable {
-            let id: String
-            let author_id: String
-            let group_id: String
-            let content: String
-            let expires_at: String
-            let created_at: String
-        }
-
-        let rows: [GossipRow] = try await client.from("gossip")
-            .select()
-            .eq("group_id", value: groupID)
-            .gt("expires_at", value: ISO8601DateFormatter().string(from: Date()))
-            .order("created_at", ascending: false)
-            .execute()
-            .value
-
-        return rows.map { row in
-            GossipPost(
-                id: row.id,
-                authorID: row.author_id,
-                groupID: row.group_id,
-                content: row.content,
-                createdAt: ISO8601DateFormatter().date(from: row.created_at) ?? Date(),
-                expiresAt: ISO8601DateFormatter().date(from: row.expires_at) ?? Date()
-            )
-        }
-    }
-
-    func revealGossip(gossipID: String, revealedBy userID: String) async throws -> String {
-        // Insert reveal record
-        struct RevealInsert: Encodable {
-            let gossip_id: String
-            let revealed_by: String
-            let price_cents: Int
-        }
-
-        try await client.from("gossip_reveals")
-            .insert(RevealInsert(gossip_id: gossipID, revealed_by: userID, price_cents: 199))
-            .execute()
-
-        // Fetch the author
-        struct GossipRow: Decodable {
-            let author_id: String
-            let users: UserRef?
-            struct UserRef: Decodable { let username: String }
-        }
-
-        let rows: [GossipRow] = try await client.from("gossip")
-            .select("author_id, users:author_id(username)")
-            .eq("id", value: gossipID)
+        let rows: [ReactionRow] = try await client.from("story_reactions")
+            .select("reaction")
+            .eq("user_id", value: userId)
+            .eq("story_id", value: storyId)
             .limit(1)
             .execute()
             .value
 
-        return rows.first?.users?.username ?? "unknown"
+        return rows.first?.reaction
     }
 
-    func hasRevealedGossip(gossipID: String, userID: String) async throws -> Bool {
-        struct RevealRow: Decodable { let id: String }
-        let rows: [RevealRow] = try await client.from("gossip_reveals")
+    func toggleReaction(userId: String, storyId: String, reaction: String) async throws {
+        // Check existing
+        let existing = try await fetchUserReaction(userId: userId, storyId: storyId)
+
+        if existing == reaction {
+            // Remove reaction
+            try await client.from("story_reactions")
+                .delete()
+                .eq("user_id", value: userId)
+                .eq("story_id", value: storyId)
+                .execute()
+        } else if existing != nil {
+            // Update to new reaction
+            struct ReactionUpdate: Encodable {
+                let reaction: String
+            }
+            try await client.from("story_reactions")
+                .update(ReactionUpdate(reaction: reaction))
+                .eq("user_id", value: userId)
+                .eq("story_id", value: storyId)
+                .execute()
+        } else {
+            // Insert new reaction
+            struct ReactionInsert: Encodable {
+                let user_id: String
+                let story_id: String
+                let reaction: String
+            }
+            try await client.from("story_reactions")
+                .insert(ReactionInsert(user_id: userId, story_id: storyId, reaction: reaction))
+                .execute()
+        }
+    }
+
+    // MARK: - Bookmarks
+
+    func isBookmarked(userId: String, storyId: String) async throws -> Bool {
+        struct BookmarkRow: Decodable { let id: String }
+
+        let rows: [BookmarkRow] = try await client.from("story_bookmarks")
             .select("id")
-            .eq("gossip_id", value: gossipID)
-            .eq("revealed_by", value: userID)
+            .eq("user_id", value: userId)
+            .eq("story_id", value: storyId)
             .limit(1)
             .execute()
             .value
+
         return !rows.isEmpty
     }
 
-    // MARK: - Challenges
+    func toggleBookmark(userId: String, storyId: String) async throws -> Bool {
+        let bookmarked = try await isBookmarked(userId: userId, storyId: storyId)
 
-    func fetchTodayChallenge(groupID: String) async throws -> Challenge? {
-        struct ChallengeRow: Decodable {
-            let id: String
-            let group_id: String
-            let prompt: String
-            let challenge_type: String?
-            let options: [String]?
-            let expires_at: String
-            let created_at: String
-        }
-
-        let today = Calendar.current.startOfDay(for: Date())
-
-        let rows: [ChallengeRow] = try await client.from("challenges")
-            .select()
-            .eq("group_id", value: groupID)
-            .gte("created_at", value: ISO8601DateFormatter().string(from: today))
-            .neq("challenge_type", value: "weekly_recap")
-            .order("created_at", ascending: false)
-            .limit(1)
-            .execute()
-            .value
-
-        guard let row = rows.first else { return nil }
-        return Challenge(
-            id: row.id,
-            groupID: row.group_id,
-            prompt: row.prompt,
-            challengeType: row.challenge_type ?? "vote",
-            options: row.options
-        )
-    }
-
-    func respondToChallenge(challengeID: String, userID: String, response: String, votedFor: String? = nil) async throws {
-        struct ResponseInsert: Encodable {
-            let challenge_id: String
-            let user_id: String
-            let response: String
-            let voted_for: String?
-        }
-
-        try await client.from("challenge_responses")
-            .insert(ResponseInsert(
-                challenge_id: challengeID,
-                user_id: userID,
-                response: response,
-                voted_for: votedFor
-            ))
-            .execute()
-    }
-
-    // MARK: - Realtime
-
-    func subscribeToDrops(groupID: String, onInsert: @escaping (Drop) -> Void) async {
-        let channel = client.realtimeV2.channel("drops-\(groupID)")
-
-        let insertions = channel.postgresChange(InsertAction.self, table: "drops")
-
-        await channel.subscribe()
-
-        Task {
-            for await insert in insertions {
-                guard let record = insert.record as? [String: Any],
-                      let id = record["id"] as? String,
-                      let userID = record["user_id"] as? String,
-                      let lat = record["latitude"] as? Double,
-                      let lon = record["longitude"] as? Double else { continue }
-
-                let drop = Drop(
-                    id: id,
-                    userID: userID,
-                    username: "friend", // Will be resolved on next fetch
-                    location: CLLocationCoordinate2D(latitude: lat, longitude: lon),
-                    locationName: record["location_name"] as? String,
-                    caption: record["caption"] as? String,
-                    groupID: record["group_id"] as? String
-                )
-                await MainActor.run { onInsert(drop) }
-            }
-        }
-    }
-
-    func subscribeToGossip(groupID: String, onInsert: @escaping (GossipPost) -> Void) async {
-        let channel = client.realtimeV2.channel("gossip-\(groupID)")
-
-        let insertions = channel.postgresChange(InsertAction.self, table: "gossip")
-
-        await channel.subscribe()
-
-        Task {
-            for await insert in insertions {
-                guard let record = insert.record as? [String: Any],
-                      let id = record["id"] as? String,
-                      let authorID = record["author_id"] as? String,
-                      let content = record["content"] as? String else { continue }
-
-                let post = GossipPost(
-                    id: id,
-                    authorID: authorID,
-                    groupID: record["group_id"] as? String ?? groupID,
-                    content: content
-                )
-                await MainActor.run { onInsert(post) }
-            }
-        }
-    }
-
-    // MARK: - Waitlist
-
-    struct WaitlistResult {
-        let position: Int
-        let totalWaiting: Int
-    }
-
-    func joinWaitlist(userID: String, schoolName: String = "") async throws -> WaitlistResult {
-        struct WaitlistInsert: Encodable {
-            let user_id: String
-        }
-
-        try await client.from("waitlist")
-            .upsert(WaitlistInsert(user_id: userID))
-            .execute()
-
-        // Get total and position
-        struct WaitlistRow: Decodable {
-            let id: String
-            let user_id: String
-        }
-
-        let all: [WaitlistRow] = try await client.from("waitlist")
-            .select("id, user_id")
-            .order("created_at", ascending: true)
-            .execute()
-            .value
-
-        let position = (all.firstIndex { $0.user_id == userID } ?? all.count) + 1
-        return WaitlistResult(position: position, totalWaiting: all.count)
-    }
-
-    /// Redeem an invite code to skip the waitlist
-    func redeemInviteCode(code: String, userID: String) async throws -> Bool {
-        struct InviteRow: Decodable {
-            let id: String
-            let code: String
-            let used_by: String?
-        }
-
-        // Find unused invite with this code
-        let rows: [InviteRow] = try await client.from("invite_codes")
-            .select("id, code, used_by")
-            .eq("code", value: code)
-            .execute()
-            .value
-
-        guard let invite = rows.first, invite.used_by == nil else {
-            return false
-        }
-
-        // Mark as used
-        struct InviteUpdate: Encodable {
-            let used_by: String
-        }
-
-        try await client.from("invite_codes")
-            .update(InviteUpdate(used_by: userID))
-            .eq("id", value: invite.id)
-            .execute()
-
-        return true
-    }
-
-    /// Fetch user's golden invite codes (3 per user)
-    struct InviteCodesResult {
-        let codes: [String]
-        let usedCodes: [String]
-    }
-
-    func fetchUserInvites(userID: String) async throws -> InviteCodesResult {
-        struct InviteRow: Decodable {
-            let code: String
-            let used_by: String?
-        }
-
-        let rows: [InviteRow] = try await client.from("invite_codes")
-            .select("code, used_by")
-            .eq("owner_id", value: userID)
-            .execute()
-            .value
-
-        let codes = rows.map { $0.code }
-        let usedCodes = rows.compactMap { $0.used_by != nil ? $0.code : nil }
-        return InviteCodesResult(codes: codes, usedCodes: usedCodes)
-    }
-
-    /// Generate invite codes for a new user who just got access
-    func generateInviteCodes(userID: String, count: Int = 3) async throws -> [String] {
-        struct InviteInsert: Encodable {
-            let owner_id: String
-            let code: String
-        }
-
-        let codes = (0..<count).map { _ in
-            String((0..<6).map { _ in "ABCDEFGHJKLMNPQRSTUVWXYZ23456789".randomElement()! })
-        }
-
-        for code in codes {
-            try await client.from("invite_codes")
-                .insert(InviteInsert(owner_id: userID, code: code))
+        if bookmarked {
+            try await client.from("story_bookmarks")
+                .delete()
+                .eq("user_id", value: userId)
+                .eq("story_id", value: storyId)
                 .execute()
+            return false
+        } else {
+            struct BookmarkInsert: Encodable {
+                let user_id: String
+                let story_id: String
+            }
+            try await client.from("story_bookmarks")
+                .insert(BookmarkInsert(user_id: userId, story_id: storyId))
+                .execute()
+            return true
+        }
+    }
+
+    func fetchBookmarkedStories(userId: String) async throws -> [Story] {
+        struct BookmarkRow: Decodable {
+            let story_id: String
         }
 
-        return codes
+        let bookmarks: [BookmarkRow] = try await client.from("story_bookmarks")
+            .select("story_id")
+            .eq("user_id", value: userId)
+            .order("created_at", ascending: false)
+            .execute()
+            .value
+
+        guard !bookmarks.isEmpty else { return [] }
+        let storyIds = bookmarks.map { $0.story_id }
+
+        let stories: [Story] = try await client.from("stories")
+            .select()
+            .in("id", values: storyIds)
+            .execute()
+            .value
+
+        // Maintain bookmark order
+        let storyMap = Dictionary(uniqueKeysWithValues: stories.map { ($0.id, $0) })
+        return storyIds.compactMap { storyMap[$0] }
+    }
+
+    // MARK: - Avatar Upload (Supabase Storage)
+
+    func uploadAvatar(userID: String, imageData: Data) async throws -> URL {
+        let fileName = "\(userID).jpg"
+
+        try await client.storage.from("avatars").upload(
+            fileName,
+            data: imageData,
+            options: .init(contentType: "image/jpeg", upsert: true)
+        )
+
+        let publicURL = try client.storage.from("avatars").getPublicURL(path: fileName)
+        return publicURL
     }
 
     // MARK: - Device Tokens (Push Notifications)
@@ -697,20 +441,20 @@ class SupabaseManager: ObservableObject {
     // MARK: - Account Deletion
 
     func deleteAccount(userID: String) async throws {
-        // Delete drops
-        try await client.from("drops")
+        // Delete user reads
+        try await client.from("user_reads")
             .delete()
             .eq("user_id", value: userID)
             .execute()
 
-        // Delete gossip
-        try await client.from("gossip")
+        // Delete preferences
+        try await client.from("user_preferences")
             .delete()
-            .eq("author_id", value: userID)
+            .eq("user_id", value: userID)
             .execute()
 
-        // Leave all groups
-        try await client.from("group_members")
+        // Delete device tokens
+        try await client.from("device_tokens")
             .delete()
             .eq("user_id", value: userID)
             .execute()
@@ -721,19 +465,24 @@ class SupabaseManager: ObservableObject {
             .eq("id", value: userID)
             .execute()
     }
+
+    // MARK: - Helpers
+
+    private func dateString(for date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        formatter.timeZone = TimeZone(identifier: "America/New_York")
+        return formatter.string(from: date)
+    }
 }
 
 // MARK: - Errors
 enum SupabaseError: LocalizedError {
     case noData
-    case groupNotFound
-    case noLocation
 
     var errorDescription: String? {
         switch self {
         case .noData: return "No data returned"
-        case .groupNotFound: return "Group not found. Check your invite code."
-        case .noLocation: return "Location required to drop"
         }
     }
 }
@@ -742,4 +491,5 @@ enum SupabaseError: LocalizedError {
 enum Config {
     static let supabaseURL = Bundle.main.object(forInfoDictionaryKey: "SUPABASE_URL") as? String ?? ""
     static let supabaseAnonKey = Bundle.main.object(forInfoDictionaryKey: "SUPABASE_ANON_KEY") as? String ?? ""
+    static let apiServerURL = Bundle.main.object(forInfoDictionaryKey: "API_SERVER_URL") as? String ?? "https://thedailypoop-api.vercel.app"
 }

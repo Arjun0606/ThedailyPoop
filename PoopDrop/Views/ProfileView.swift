@@ -6,8 +6,9 @@ struct ProfileView: View {
     @State private var showingContact = false
     @State private var showingTerms = false
     @State private var showingPrivacy = false
-    @State private var groups: [Group] = []
-    @State private var refreshTrigger = false
+    @State private var showingPaywall = false
+    @State private var savedStories: [Story] = []
+    @State private var selectedStory: Story?
 
     var user: User? { authManager.currentUser }
 
@@ -20,9 +21,19 @@ struct ProfileView: View {
                     ScrollView {
                         VStack(spacing: 24) {
                             ProfileHeaderView(user: user)
-                            GoldenInvitesSection()
-                            StatsSection(user: user, refreshTrigger: refreshTrigger)
-                            MyGroupsSection(groups: groups)
+                            StreakSection(user: user)
+                            SubscriptionSection(
+                                isPremium: user.isPremium,
+                                onUpgrade: { showingPaywall = true }
+                            )
+
+                            // Saved Stories
+                            if !savedStories.isEmpty {
+                                SavedStoriesSection(
+                                    stories: savedStories,
+                                    onTap: { story in selectedStory = story }
+                                )
+                            }
 
                             InfoLegalSection(
                                 onContactTap: { showingContact = true },
@@ -56,18 +67,14 @@ struct ProfileView: View {
         .sheet(isPresented: $showingContact) { ContactView() }
         .sheet(isPresented: $showingTerms) { TermsOfServiceView() }
         .sheet(isPresented: $showingPrivacy) { PrivacyPolicyView() }
-        .onReceive(NotificationCenter.default.publisher(for: Notification.Name("USER_STATS_UPDATED"))) { _ in
-            refreshTrigger.toggle()
+        .sheet(isPresented: $showingPaywall) { PaywallView() }
+        .sheet(item: $selectedStory) { story in
+            StoryDetailView(story: story)
+                .environmentObject(authManager)
         }
-        .task { await loadGroups() }
-    }
-
-    private func loadGroups() async {
-        guard let user = user else { return }
-        do {
-            groups = try await SupabaseManager.shared.fetchMyGroups(userID: user.id)
-        } catch {
-            print("Failed to load groups: \(error)")
+        .task {
+            guard let user = authManager.currentUser else { return }
+            savedStories = (try? await SupabaseManager.shared.fetchBookmarkedStories(userId: user.id)) ?? []
         }
     }
 }
@@ -105,9 +112,18 @@ struct ProfileHeaderView: View {
             }
 
             VStack(spacing: 8) {
-                Text(user.username)
-                    .font(.title2.bold())
-                    .foregroundStyle(.white)
+                if let displayName = user.displayName, !displayName.isEmpty {
+                    Text(displayName)
+                        .font(.title2.bold())
+                        .foregroundStyle(.white)
+                    Text("@\(user.username)")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                } else {
+                    Text("@\(user.username)")
+                        .font(.title2.bold())
+                        .foregroundStyle(.white)
+                }
 
                 Text("Member since \(user.createdAt.formatted(.dateTime.month(.wide).year()))")
                     .font(.caption)
@@ -120,47 +136,103 @@ struct ProfileHeaderView: View {
     }
 }
 
-// MARK: - Stats Section
-struct StatsSection: View {
+// MARK: - Streak Section
+struct StreakSection: View {
     let user: User
-    let refreshTrigger: Bool
-    @State private var showingShare = false
-
-    var memberDays: Int {
-        Calendar.current.dateComponents([.day], from: user.createdAt, to: Date()).day ?? 0
-    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            HStack {
-                Text("Your Stats")
-                    .font(.headline.bold())
-                    .foregroundStyle(.white)
+            Text("Reading Streak")
+                .font(.headline.bold())
+                .foregroundStyle(.white)
 
-                Spacer()
+            HStack(spacing: 16) {
+                StatCard(
+                    icon: "🔥",
+                    title: "Current Streak",
+                    value: "\(user.streakCount)",
+                    color: .orange
+                )
 
-                Button(action: { showingShare = true }) {
-                    HStack(spacing: 6) {
-                        Image(systemName: "square.and.arrow.up")
-                            .font(.subheadline)
-                        Text("Share")
-                            .font(.subheadline.weight(.semibold))
-                    }
-                    .foregroundStyle(.white)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 6)
-                    .background(Color.blue)
-                    .cornerRadius(20)
-                }
-            }
-
-            HStack(spacing: 12) {
-                StatCard(icon: "💩", title: "Total Drops", value: "\(user.totalDrops)", color: .brown)
-                StatCard(icon: "📅", title: "Member Days", value: "\(memberDays)", color: .cyan)
+                StatCard(
+                    icon: "📅",
+                    title: "Member Days",
+                    value: "\(memberDays)",
+                    color: .cyan
+                )
             }
         }
-        .sheet(isPresented: $showingShare) {
-            ShareStatsView(user: user)
+    }
+
+    private var memberDays: Int {
+        Calendar.current.dateComponents([.day], from: user.createdAt, to: Date()).day ?? 0
+    }
+}
+
+// MARK: - Subscription Section
+struct SubscriptionSection: View {
+    let isPremium: Bool
+    let onUpgrade: () -> Void
+
+    var body: some View {
+        if isPremium {
+            HStack(spacing: 14) {
+                Text("⭐")
+                    .font(.title)
+
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Premium Member")
+                        .font(.headline)
+                        .foregroundStyle(.white)
+                    Text("All stories unlocked")
+                        .font(.caption)
+                        .foregroundStyle(.green)
+                }
+
+                Spacer()
+            }
+            .padding()
+            .background(
+                LinearGradient(
+                    colors: [Color.yellow.opacity(0.1), Color.orange.opacity(0.05)],
+                    startPoint: .leading,
+                    endPoint: .trailing
+                )
+            )
+            .cornerRadius(12)
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(Color.yellow.opacity(0.2), lineWidth: 1)
+            )
+        } else {
+            Button(action: onUpgrade) {
+                HStack(spacing: 14) {
+                    Text("💩")
+                        .font(.title)
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Upgrade to Premium")
+                            .font(.headline)
+                            .foregroundStyle(.white)
+                        Text("Unlock all 10 daily stories")
+                            .font(.caption)
+                            .foregroundStyle(.yellow)
+                    }
+
+                    Spacer()
+
+                    Text("$7.99/mo")
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(.yellow)
+                }
+                .padding()
+                .background(Color.white.opacity(0.05))
+                .cornerRadius(12)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 12)
+                        .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                )
+            }
         }
     }
 }
@@ -188,126 +260,6 @@ struct StatCard: View {
         .padding()
         .background(color.opacity(0.2))
         .cornerRadius(12)
-    }
-}
-
-// MARK: - Golden Invites Section (profile page)
-struct GoldenInvitesSection: View {
-    @EnvironmentObject var authManager: AuthenticationManager
-    @State private var inviteCodes: [String] = []
-    @State private var usedCodes: Set<String> = []
-    @State private var isLoading = true
-    @State private var showingInvites = false
-
-    var remaining: Int {
-        inviteCodes.filter { !usedCodes.contains($0) }.count
-    }
-
-    var body: some View {
-        Button(action: { showingInvites = true }) {
-            HStack(spacing: 14) {
-                Text("🎟️")
-                    .font(.title)
-
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Golden Invites")
-                        .font(.headline)
-                        .foregroundStyle(.white)
-                    Text(isLoading ? "Loading..." : "\(remaining) remaining")
-                        .font(.caption)
-                        .foregroundStyle(.yellow)
-                }
-
-                Spacer()
-
-                Image(systemName: "chevron.right")
-                    .foregroundStyle(.white.opacity(0.3))
-                    .font(.caption)
-            }
-            .padding()
-            .background(
-                LinearGradient(
-                    colors: [Color.yellow.opacity(0.1), Color.orange.opacity(0.05)],
-                    startPoint: .leading,
-                    endPoint: .trailing
-                )
-            )
-            .cornerRadius(12)
-            .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(Color.yellow.opacity(0.2), lineWidth: 1)
-            )
-        }
-        .sheet(isPresented: $showingInvites) {
-            NavigationView {
-                GoldenInvitesView()
-                    .navigationTitle("Invites")
-                    .navigationBarTitleDisplayMode(.inline)
-                    .toolbar {
-                        ToolbarItem(placement: .navigationBarTrailing) {
-                            Button("Done") { showingInvites = false }
-                                .foregroundStyle(.white)
-                        }
-                    }
-            }
-            .preferredColorScheme(.dark)
-        }
-        .task { await loadInvites() }
-    }
-
-    private func loadInvites() async {
-        guard let user = authManager.currentUser else { return }
-        do {
-            let result = try await SupabaseManager.shared.fetchUserInvites(userID: user.id)
-            inviteCodes = result.codes
-            usedCodes = Set(result.usedCodes)
-        } catch {
-            // Demo fallback
-            inviteCodes = ["DEMO01", "DEMO02", "DEMO03"]
-        }
-        isLoading = false
-    }
-}
-
-// MARK: - My Groups Section
-struct MyGroupsSection: View {
-    let groups: [Group]
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text("My Groups")
-                .font(.headline.bold())
-                .foregroundStyle(.white)
-
-            if groups.isEmpty {
-                HStack {
-                    Text("No groups yet")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                    Spacer()
-                }
-                .padding()
-                .background(Color.white.opacity(0.05))
-                .cornerRadius(12)
-            } else {
-                ForEach(groups) { group in
-                    HStack(spacing: 12) {
-                        Text(group.emoji)
-                            .font(.title2)
-                        Text(group.name)
-                            .font(.subheadline.weight(.semibold))
-                            .foregroundStyle(.white)
-                        Spacer()
-                        Text(group.inviteCode)
-                            .font(.caption.monospaced())
-                            .foregroundStyle(.secondary)
-                    }
-                    .padding()
-                    .background(Color.white.opacity(0.05))
-                    .cornerRadius(12)
-                }
-            }
-        }
     }
 }
 
@@ -503,15 +455,68 @@ struct EditProfileView: View {
     }
 }
 
+// MARK: - Saved Stories
+struct SavedStoriesSection: View {
+    let stories: [Story]
+    let onTap: (Story) -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Image(systemName: "bookmark.fill")
+                    .foregroundStyle(.brown)
+                Text("Saved Stories")
+                    .font(.headline.bold())
+                    .foregroundStyle(.white)
+                Spacer()
+                Text("\(stories.count)")
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(.secondary)
+            }
+
+            ForEach(stories) { story in
+                Button { onTap(story) } label: {
+                    HStack(spacing: 12) {
+                        Text(story.categoryEmoji)
+                            .font(.title3)
+
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(story.headline)
+                                .font(.subheadline.weight(.medium))
+                                .foregroundStyle(.white)
+                                .lineLimit(2)
+                                .multilineTextAlignment(.leading)
+
+                            Text("\(story.categoryLabel) · \(story.readingTimeMinutes) min")
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
+                        }
+
+                        Spacer()
+
+                        Image(systemName: "chevron.right")
+                            .font(.caption)
+                            .foregroundStyle(.tertiary)
+                    }
+                    .padding(.vertical, 8)
+                }
+                .buttonStyle(.plain)
+
+                if story.id != stories.last?.id {
+                    Divider().background(Color.white.opacity(0.06))
+                }
+            }
+        }
+        .padding()
+        .background(Color.white.opacity(0.05))
+        .cornerRadius(12)
+    }
+}
+
 // MARK: - Share Stats
 struct ShareStatsView: View {
     let user: User
     @Environment(\.dismiss) private var dismiss
-    @State private var shareImage: UIImage?
-
-    var memberDays: Int {
-        Calendar.current.dateComponents([.day], from: user.createdAt, to: Date()).day ?? 0
-    }
 
     var body: some View {
         NavigationView {
@@ -519,22 +524,17 @@ struct ShareStatsView: View {
                 Color.black.ignoresSafeArea()
 
                 VStack(spacing: 20) {
-                    if let image = shareImage {
-                        Image(uiImage: image)
-                            .resizable()
-                            .scaledToFit()
-                            .cornerRadius(20)
-                            .padding(.horizontal)
-                    } else {
-                        ProgressView()
-                            .scaleEffect(1.5)
-                            .frame(height: 400)
-                    }
+                    ShareCard(user: user)
+                        .padding(.horizontal)
 
-                    Button(action: shareStats) {
+                    ShareLink(
+                        item: "I'm on a \(user.streakCount)-day streak on TheDailyPoop! Join me.",
+                        subject: Text("TheDailyPoop"),
+                        message: Text("Check out TheDailyPoop - the daily news briefing that's actually fun to read!")
+                    ) {
                         HStack(spacing: 8) {
                             Image(systemName: "square.and.arrow.up")
-                            Text("Share to Socials")
+                            Text("Share")
                                 .fontWeight(.semibold)
                         }
                         .foregroundStyle(.white)
@@ -556,34 +556,11 @@ struct ShareStatsView: View {
             }
         }
         .preferredColorScheme(.dark)
-        .onAppear { generateShareImage() }
-    }
-
-    private func generateShareImage() {
-        let card = ShareCard(user: user, memberDays: memberDays)
-        let renderer = ImageRenderer(content: card)
-        renderer.scale = 3.0
-        shareImage = renderer.uiImage
-    }
-
-    private func shareStats() {
-        guard let image = shareImage else { return }
-        let activityVC = UIActivityViewController(activityItems: [image], applicationActivities: nil)
-        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-           let window = windowScene.windows.first(where: { $0.isKeyWindow }),
-           var topController = window.rootViewController {
-            while let presented = topController.presentedViewController {
-                topController = presented
-            }
-            activityVC.popoverPresentationController?.sourceView = topController.view
-            topController.present(activityVC, animated: true)
-        }
     }
 }
 
 struct ShareCard: View {
     let user: User
-    let memberDays: Int
 
     var body: some View {
         VStack(spacing: 12) {
@@ -598,9 +575,9 @@ struct ShareCard: View {
 
             HStack(spacing: 12) {
                 VStack(spacing: 4) {
-                    Text("💩").font(.title3)
-                    Text("\(user.totalDrops)").font(.title2.bold()).foregroundStyle(.white)
-                    Text("Drops").font(.caption2).foregroundStyle(.white.opacity(0.7))
+                    Text("🔥").font(.title3)
+                    Text("\(user.streakCount)").font(.title2.bold()).foregroundStyle(.white)
+                    Text("Streak").font(.caption2).foregroundStyle(.white.opacity(0.7))
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 8)
@@ -609,7 +586,8 @@ struct ShareCard: View {
 
                 VStack(spacing: 4) {
                     Text("📅").font(.title3)
-                    Text("\(memberDays)").font(.title2.bold()).foregroundStyle(.white)
+                    let days = Calendar.current.dateComponents([.day], from: user.createdAt, to: Date()).day ?? 0
+                    Text("\(days)").font(.title2.bold()).foregroundStyle(.white)
                     Text("Days").font(.caption2).foregroundStyle(.white.opacity(0.7))
                 }
                 .frame(maxWidth: .infinity)
@@ -618,7 +596,7 @@ struct ShareCard: View {
                 .cornerRadius(12)
             }
 
-            Text("Join me on TheDailyPoop!")
+            Text("Your daily scoop — actually fun to read.")
                 .font(.caption.weight(.semibold))
                 .foregroundStyle(.white)
         }
@@ -633,15 +611,6 @@ struct ShareCard: View {
         )
         .cornerRadius(20)
     }
-}
-
-// UIKit share sheet wrapper
-struct ActivityViewController: UIViewControllerRepresentable {
-    let activityItems: [Any]
-    func makeUIViewController(context: Context) -> UIActivityViewController {
-        UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
-    }
-    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
 }
 
 #Preview {

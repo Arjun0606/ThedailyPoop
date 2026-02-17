@@ -6,20 +6,24 @@ struct User: Identifiable, Codable {
     var displayName: String?
     var avatarURL: URL?
     var appleUserID: String
-    var totalDrops: Int
+    var isPremium: Bool
+    var streakCount: Int
     var createdAt: Date
 
     init(id: String = UUID().uuidString,
          username: String,
          displayName: String? = nil,
          avatarURL: URL? = nil,
-         appleUserID: String) {
+         appleUserID: String,
+         isPremium: Bool = false,
+         streakCount: Int = 0) {
         self.id = id
         self.username = username
         self.displayName = displayName
         self.avatarURL = avatarURL
         self.appleUserID = appleUserID
-        self.totalDrops = 0
+        self.isPremium = isPremium
+        self.streakCount = streakCount
         self.createdAt = Date()
     }
 }

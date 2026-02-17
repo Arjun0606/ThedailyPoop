@@ -1,15 +1,20 @@
 import OpenAI from "openai";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY!,
-});
+// Lazy init — avoids build failure when env vars aren't set
+let _openai: OpenAI | null = null;
+function getClient(): OpenAI {
+  if (!_openai) {
+    _openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! });
+  }
+  return _openai;
+}
 
 // gpt-5-mini: reasoning model for contextual challenges, roasts, prompts
 export async function generateWithMini(
   systemPrompt: string,
   userPrompt: string
 ): Promise<string> {
-  const response = await openai.chat.completions.create({
+  const response = await getClient().chat.completions.create({
     model: "gpt-5-mini",
     messages: [
       { role: "system", content: systemPrompt },
@@ -25,7 +30,7 @@ export async function generateWithPremium(
   systemPrompt: string,
   userPrompt: string
 ): Promise<string> {
-  const response = await openai.chat.completions.create({
+  const response = await getClient().chat.completions.create({
     model: "gpt-5.2",
     messages: [
       { role: "system", content: systemPrompt },

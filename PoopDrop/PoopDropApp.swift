@@ -5,7 +5,6 @@ import UserNotifications
 struct TheDailyPoopApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @StateObject private var authManager = AuthenticationManager()
-    @StateObject private var locationManager = LocationManager()
 
     init() {
         UIApplication.shared.registerForRemoteNotifications()
@@ -15,10 +14,8 @@ struct TheDailyPoopApp: App {
         WindowGroup {
             ContentView()
                 .environmentObject(authManager)
-                .environmentObject(locationManager)
                 .preferredColorScheme(.dark)
                 .onAppear {
-                    locationManager.requestLocationPermission()
                     requestNotificationPermission()
                 }
         }

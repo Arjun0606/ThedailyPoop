@@ -3,37 +3,35 @@ import SwiftUI
 struct OnboardingView: View {
     let onComplete: () -> Void
     @State private var currentPage = 0
-    
+
     private let pages = [
         OnboardingPage(
             emoji: "💩",
             title: "Welcome to TheDailyPoop!",
-            description: "The most fun way to share your bathroom adventures with friends around the world!"
+            description: "Your daily scoop on business, tech, and culture — delivered with the irreverence of a group chat and the depth of actual journalism."
         ),
         OnboardingPage(
-            emoji: "📍",
-            title: "Drop Your Poops",
-            description: "Drop poops at your current location and see what your friends are up to on the map!"
+            emoji: "📰",
+            title: "10 Stories, Every Morning",
+            description: "Wake up to 10 hand-picked stories rewritten in a voice that actually makes the news fun to read. 3 are free, 7 are premium."
         ),
         OnboardingPage(
-            emoji: "🌍",
-            title: "Explore the World",
-            description: "Browse the global map to see your friends' drops around the world, even while your own drops are geo-locked!"
+            emoji: "🔥",
+            title: "Build Your Streak",
+            description: "Read at least one story a day to keep your streak alive. Miss a day and it resets. No pressure... but also, pressure."
         )
     ]
-    
+
     var body: some View {
         ZStack {
-            // Dark gradient background
             LinearGradient(
                 colors: [Color.black, Color.brown.opacity(0.3)],
                 startPoint: .top,
                 endPoint: .bottom
             )
             .ignoresSafeArea()
-            
+
             VStack(spacing: 40) {
-                // Page indicator
                 HStack(spacing: 8) {
                     ForEach(0..<pages.count, id: \.self) { index in
                         Circle()
@@ -43,23 +41,22 @@ struct OnboardingView: View {
                     }
                 }
                 .padding(.top, 20)
-                
+
                 Spacer()
-                
-                // Current page content
+
                 VStack(spacing: 30) {
                     Text(pages[currentPage].emoji)
                         .font(.system(size: 120))
                         .scaleEffect(currentPage == 0 ? 1.2 : 1.0)
                         .animation(.bouncy(duration: 0.6), value: currentPage)
-                    
+
                     VStack(spacing: 16) {
                         Text(pages[currentPage].title)
                             .font(.title)
                             .fontWeight(.bold)
                             .foregroundColor(.white)
                             .multilineTextAlignment(.center)
-                        
+
                         Text(pages[currentPage].description)
                             .font(.body)
                             .foregroundColor(.white.opacity(0.8))
@@ -71,10 +68,9 @@ struct OnboardingView: View {
                     insertion: .move(edge: .trailing).combined(with: .opacity),
                     removal: .move(edge: .leading).combined(with: .opacity)
                 ))
-                
+
                 Spacer()
-                
-                // Navigation buttons
+
                 VStack(spacing: 16) {
                     if currentPage < pages.count - 1 {
                         Button(action: nextPage) {
@@ -89,13 +85,13 @@ struct OnboardingView: View {
                             .background(Color.white)
                             .cornerRadius(12)
                         }
-                        
+
                         Button("Skip", action: onComplete)
                             .foregroundColor(.white.opacity(0.7))
                             .padding(.vertical, 8)
                     } else {
                         Button(action: onComplete) {
-                            Text("Get Started! 💩")
+                            Text("Get Started!")
                                 .fontWeight(.semibold)
                                 .foregroundColor(.black)
                                 .frame(maxWidth: .infinity)
@@ -120,13 +116,13 @@ struct OnboardingView: View {
                 }
         )
     }
-    
+
     private func nextPage() {
         withAnimation(.easeInOut(duration: 0.3)) {
             currentPage = min(currentPage + 1, pages.count - 1)
         }
     }
-    
+
     private func previousPage() {
         withAnimation(.easeInOut(duration: 0.3)) {
             currentPage = max(currentPage - 1, 0)

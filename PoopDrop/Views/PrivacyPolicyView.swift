@@ -21,7 +21,7 @@ struct PrivacyPolicyView: View {
                             .foregroundColor(.gray)
                             .padding(.bottom, 16)
                         
-                        Group {
+                        SwiftUI.Group {
                             SectionHeader(title: "Introduction")
                             BodyText(text: """
                             TheDailyPoop ("we," "us," or "our") respects your privacy. This Privacy Policy explains how we collect, use, store, and protect your personal information when you use the TheDailyPoop app ("the App").
@@ -74,7 +74,7 @@ struct PrivacyPolicyView: View {
                             """)
                         }
                         
-                        Group {
+                        SwiftUI.Group {
                             SectionHeader(title: "3. How We Share Your Information")
                             BodyText(text: """
                             Your privacy is important to us. We DO NOT sell your personal information to third parties.
@@ -126,7 +126,7 @@ struct PrivacyPolicyView: View {
                             """)
                         }
                         
-                        Group {
+                        SwiftUI.Group {
                             SectionHeader(title: "6. Location Privacy")
                             BodyText(text: """
                             TheDailyPoop collects location data to provide map and location-based features. We prioritize your privacy:
@@ -171,7 +171,7 @@ struct PrivacyPolicyView: View {
                             """)
                         }
                         
-                        Group {
+                        SwiftUI.Group {
                             SectionHeader(title: "10. Push Notifications")
                             BodyText(text: """
                             With your permission, we send push notifications for:
@@ -222,7 +222,7 @@ struct PrivacyPolicyView: View {
                             """)
                         }
                         
-                        Group {
+                        SwiftUI.Group {
                             SectionHeader(title: "15. Contact Information")
                             BodyText(text: """
                             If you have questions, concerns, or requests regarding this Privacy Policy or your personal data, contact us:

@@ -44,9 +44,9 @@
 	<key>CFBundleDisplayName</key>
 	<string>TheDailyPoop</string>
 	<key>SUPABASE_URL</key>
-	<string>YOUR_SUPABASE_URL</string>
+	<string>https://qolqaxbfspuddhatoxtd.supabase.co</string>
 	<key>SUPABASE_ANON_KEY</key>
-	<string>YOUR_SUPABASE_ANON_KEY</string>
+	<string>eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFvbHFheGJmc3B1ZGRoYXRveHRkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEzMDAxNjksImV4cCI6MjA4Njg3NjE2OX0.bVd8PkfhVgkkKXl3irH7nGMYk5kyp_xxBhNy2AbZslk</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>remote-notification</string>
