@@ -580,28 +580,104 @@ class SupabaseManager: ObservableObject {
         let totalWaiting: Int
     }
 
-    func joinWaitlist(userID: String, schoolName: String) async throws -> WaitlistResult {
+    func joinWaitlist(userID: String, schoolName: String = "") async throws -> WaitlistResult {
         struct WaitlistInsert: Encodable {
             let user_id: String
-            let school_name: String
         }
 
         try await client.from("waitlist")
-            .upsert(WaitlistInsert(user_id: userID, school_name: schoolName))
+            .upsert(WaitlistInsert(user_id: userID))
             .execute()
 
-        // Get position
+        // Get total and position
         struct WaitlistRow: Decodable {
             let id: String
+            let user_id: String
         }
 
         let all: [WaitlistRow] = try await client.from("waitlist")
-            .select("id")
-            .eq("school_name", value: schoolName)
+            .select("id, user_id")
+            .order("created_at", ascending: true)
             .execute()
             .value
 
-        return WaitlistResult(position: max(1, all.count), totalWaiting: all.count)
+        let position = (all.firstIndex { $0.user_id == userID } ?? all.count) + 1
+        return WaitlistResult(position: position, totalWaiting: all.count)
+    }
+
+    /// Redeem an invite code to skip the waitlist
+    func redeemInviteCode(code: String, userID: String) async throws -> Bool {
+        struct InviteRow: Decodable {
+            let id: String
+            let code: String
+            let used_by: String?
+        }
+
+        // Find unused invite with this code
+        let rows: [InviteRow] = try await client.from("invite_codes")
+            .select("id, code, used_by")
+            .eq("code", value: code)
+            .execute()
+            .value
+
+        guard let invite = rows.first, invite.used_by == nil else {
+            return false
+        }
+
+        // Mark as used
+        struct InviteUpdate: Encodable {
+            let used_by: String
+        }
+
+        try await client.from("invite_codes")
+            .update(InviteUpdate(used_by: userID))
+            .eq("id", value: invite.id)
+            .execute()
+
+        return true
+    }
+
+    /// Fetch user's golden invite codes (3 per user)
+    struct InviteCodesResult {
+        let codes: [String]
+        let usedCodes: [String]
+    }
+
+    func fetchUserInvites(userID: String) async throws -> InviteCodesResult {
+        struct InviteRow: Decodable {
+            let code: String
+            let used_by: String?
+        }
+
+        let rows: [InviteRow] = try await client.from("invite_codes")
+            .select("code, used_by")
+            .eq("owner_id", value: userID)
+            .execute()
+            .value
+
+        let codes = rows.map { $0.code }
+        let usedCodes = rows.compactMap { $0.used_by != nil ? $0.code : nil }
+        return InviteCodesResult(codes: codes, usedCodes: usedCodes)
+    }
+
+    /// Generate invite codes for a new user who just got access
+    func generateInviteCodes(userID: String, count: Int = 3) async throws -> [String] {
+        struct InviteInsert: Encodable {
+            let owner_id: String
+            let code: String
+        }
+
+        let codes = (0..<count).map { _ in
+            String((0..<6).map { _ in "ABCDEFGHJKLMNPQRSTUVWXYZ23456789".randomElement()! })
+        }
+
+        for code in codes {
+            try await client.from("invite_codes")
+                .insert(InviteInsert(owner_id: userID, code: code))
+                .execute()
+        }
+
+        return codes
     }
 
     // MARK: - Device Tokens (Push Notifications)

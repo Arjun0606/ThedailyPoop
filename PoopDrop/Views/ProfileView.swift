@@ -20,6 +20,7 @@ struct ProfileView: View {
                     ScrollView {
                         VStack(spacing: 24) {
                             ProfileHeaderView(user: user)
+                            GoldenInvitesSection()
                             StatsSection(user: user, refreshTrigger: refreshTrigger)
                             MyGroupsSection(groups: groups)
 
@@ -187,6 +188,84 @@ struct StatCard: View {
         .padding()
         .background(color.opacity(0.2))
         .cornerRadius(12)
+    }
+}
+
+// MARK: - Golden Invites Section (profile page)
+struct GoldenInvitesSection: View {
+    @EnvironmentObject var authManager: AuthenticationManager
+    @State private var inviteCodes: [String] = []
+    @State private var usedCodes: Set<String> = []
+    @State private var isLoading = true
+    @State private var showingInvites = false
+
+    var remaining: Int {
+        inviteCodes.filter { !usedCodes.contains($0) }.count
+    }
+
+    var body: some View {
+        Button(action: { showingInvites = true }) {
+            HStack(spacing: 14) {
+                Text("🎟️")
+                    .font(.title)
+
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Golden Invites")
+                        .font(.headline)
+                        .foregroundStyle(.white)
+                    Text(isLoading ? "Loading..." : "\(remaining) remaining")
+                        .font(.caption)
+                        .foregroundStyle(.yellow)
+                }
+
+                Spacer()
+
+                Image(systemName: "chevron.right")
+                    .foregroundStyle(.white.opacity(0.3))
+                    .font(.caption)
+            }
+            .padding()
+            .background(
+                LinearGradient(
+                    colors: [Color.yellow.opacity(0.1), Color.orange.opacity(0.05)],
+                    startPoint: .leading,
+                    endPoint: .trailing
+                )
+            )
+            .cornerRadius(12)
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(Color.yellow.opacity(0.2), lineWidth: 1)
+            )
+        }
+        .sheet(isPresented: $showingInvites) {
+            NavigationView {
+                GoldenInvitesView()
+                    .navigationTitle("Invites")
+                    .navigationBarTitleDisplayMode(.inline)
+                    .toolbar {
+                        ToolbarItem(placement: .navigationBarTrailing) {
+                            Button("Done") { showingInvites = false }
+                                .foregroundStyle(.white)
+                        }
+                    }
+            }
+            .preferredColorScheme(.dark)
+        }
+        .task { await loadInvites() }
+    }
+
+    private func loadInvites() async {
+        guard let user = authManager.currentUser else { return }
+        do {
+            let result = try await SupabaseManager.shared.fetchUserInvites(userID: user.id)
+            inviteCodes = result.codes
+            usedCodes = Set(result.usedCodes)
+        } catch {
+            // Demo fallback
+            inviteCodes = ["DEMO01", "DEMO02", "DEMO03"]
+        }
+        isLoading = false
     }
 }
 
