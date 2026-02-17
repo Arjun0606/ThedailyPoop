@@ -43,19 +43,10 @@
 	<string>TheDailyPoop needs your location to place your poop drops on the map and track your bathroom adventures.</string>
 	<key>CFBundleDisplayName</key>
 	<string>TheDailyPoop</string>
-	<key>GADApplicationIdentifier</key>
-	<string>ca-app-pub-5826159291481711~2785528820</string>
-	<key>SKAdNetworkItems</key>
-	<array>
-		<dict>
-			<key>SKAdNetworkIdentifier</key>
-			<string>cstr6suwn9.skadnetwork</string>
-		</dict>
-	</array>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Allow access to choose a profile picture.</string>
-	<key>NSCameraUsageDescription</key>
-	<string>Allow camera to take a profile picture.</string>
+	<key>SUPABASE_URL</key>
+	<string>YOUR_SUPABASE_URL</string>
+	<key>SUPABASE_ANON_KEY</key>
+	<string>YOUR_SUPABASE_ANON_KEY</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>remote-notification</string>
