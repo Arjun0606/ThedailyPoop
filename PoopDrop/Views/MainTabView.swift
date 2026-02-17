@@ -3,41 +3,36 @@ import CoreLocation
 
 struct MainTabView: View {
     @EnvironmentObject var authManager: AuthenticationManager
-    @EnvironmentObject var subscriptionManager: SubscriptionManager
     @StateObject private var fartAttackManager = FartAttackManager.shared
     @State private var selectedTab = 0
     @State private var showingDropComposer = false
     @State private var pendingCenterCoordinate: CLLocationCoordinate2D? = nil
     @State private var showingFartAttackOnboarding = false
-    
+
     var body: some View {
         ZStack {
             TabView(selection: $selectedTab) {
-                // Feed Tab (consolidated)
                 FeedView()
                     .tabItem {
                         Image(systemName: selectedTab == 0 ? "house.fill" : "house")
                         Text("Feed")
                     }
                     .tag(0)
-                
-                // Gossip Tab (renamed from Poll)
+
                 GossipFeedView()
                     .tabItem {
                         Image(systemName: selectedTab == 1 ? "bubble.left.and.bubble.right.fill" : "bubble.left.and.bubble.right")
                         Text("Gossip")
                     }
                     .tag(1)
-                
-                // Map Tab
+
                 SnapchatStyleMapView()
                     .tabItem {
                         Image(systemName: selectedTab == 2 ? "map.fill" : "map")
                         Text("Map")
                     }
                     .tag(2)
-                
-                // Profile Tab
+
                 ProfileView()
                     .tabItem {
                         Image(systemName: selectedTab == 3 ? "person.fill" : "person")
@@ -47,108 +42,62 @@ struct MainTabView: View {
             }
             .accentColor(.white)
             .onAppear {
-                // Configure tab bar appearance for dark mode
                 let appearance = UITabBarAppearance()
                 appearance.configureWithOpaqueBackground()
                 appearance.backgroundColor = UIColor.black
                 appearance.selectionIndicatorTintColor = UIColor.white
-                
-                // Normal state
                 appearance.stackedLayoutAppearance.normal.iconColor = UIColor.gray
-                appearance.stackedLayoutAppearance.normal.titleTextAttributes = [
-                    .foregroundColor: UIColor.gray
-                ]
-                
-                // Selected state
+                appearance.stackedLayoutAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor.gray]
                 appearance.stackedLayoutAppearance.selected.iconColor = UIColor.white
-                appearance.stackedLayoutAppearance.selected.titleTextAttributes = [
-                    .foregroundColor: UIColor.white
-                ]
-                
+                appearance.stackedLayoutAppearance.selected.titleTextAttributes = [.foregroundColor: UIColor.white]
                 UITabBar.appearance().standardAppearance = appearance
                 UITabBar.appearance().scrollEdgeAppearance = appearance
             }
+            // Cross-tab navigation
             .onReceive(NotificationCenter.default.publisher(for: Notification.Name("SWITCH_TO_MAP_TAB"))) { _ in
-                selectedTab = 2 // Switch to Map tab (now at index 2)
+                selectedTab = 2
             }
             .onReceive(NotificationCenter.default.publisher(for: Notification.Name("SWITCH_TO_FRIENDS_TAB"))) { _ in
-                selectedTab = 0 // Switch to Chat tab (Feed/Friends combined)
+                selectedTab = 0
             }
             .onReceive(NotificationCenter.default.publisher(for: Notification.Name("SWITCH_TO_ATTACKS_TAB"))) { _ in
-                selectedTab = 0 // Switch to Chat tab (where attacks are sent from)
+                selectedTab = 0
             }
             .onReceive(NotificationCenter.default.publisher(for: Notification.Name("DID_CREATE_DROP"))) { notification in
-                print("📱 MainTabView received DID_CREATE_DROP notification")
                 if let drop = notification.userInfo?["drop"] as? Drop, let coord = drop.location {
-                    print("📍 Switching to Map tab and centering on: \(coord)")
-                    // Switch to Map tab and remember coordinate
                     pendingCenterCoordinate = coord
-                    selectedTab = 2  // Map tab (now at index 2)
-                    // Forward full drop to map on next runloop so the view is ready
+                    selectedTab = 2
                     DispatchQueue.main.async {
                         NotificationCenter.default.post(name: Notification.Name("CENTER_MAP"), object: nil, userInfo: ["coordinate": coord, "drop": drop])
                     }
-                } else {
-                    print("⚠️ Drop or location missing from notification")
                 }
             }
-            // CROSS-TAB INTEGRATION: Handle gossip → drop navigation
             .onReceive(NotificationCenter.default.publisher(for: Notification.Name("SHOW_DROP_FROM_GOSSIP"))) { notification in
-                if let userInfo = notification.userInfo,
-                   let username = userInfo["username"] as? String {
-                    print("🔗 Cross-tab: Gossip → Map for user @\(username)")
-                    // Switch to Map tab
+                if let userInfo = notification.userInfo, let username = userInfo["username"] as? String {
                     selectedTab = 2
-                    
-                    // Post notification to filter map by user
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                        NotificationCenter.default.post(
-                            name: Notification.Name("CENTER_MAP_ON_USER"),
-                            object: nil,
-                            userInfo: ["username": username]
-                        )
+                        NotificationCenter.default.post(name: Notification.Name("CENTER_MAP_ON_USER"), object: nil, userInfo: ["username": username])
                     }
                 }
             }
-            // CROSS-TAB INTEGRATION: Handle drop → gossip navigation
-            .onReceive(NotificationCenter.default.publisher(for: Notification.Name("SHOW_GOSSIP_FOR_DROP"))) { notification in
-                if let userInfo = notification.userInfo,
-                   let username = userInfo["dropOwnerUsername"] as? String {
-                    print("🔗 Cross-tab: Drop → Gossip for user @\(username)")
-                    // Switch to Gossip tab
-                    selectedTab = 1
-                    
-                    // The Gossip tab will automatically show all gossip (including mentions)
-                    // No filtering needed - users can see all gossip mentioning this person
-                }
+            .onReceive(NotificationCenter.default.publisher(for: Notification.Name("SHOW_GOSSIP_FOR_DROP"))) { _ in
+                selectedTab = 1
             }
-            // CROSS-TAB INTEGRATION: Handle trending gossip card tap
-            .onReceive(NotificationCenter.default.publisher(for: Notification.Name("SWITCH_TO_GOSSIP_TAB"))) { notification in
-                print("🔗 Cross-tab: Feed → Gossip (trending)")
-                selectedTab = 1 // Switch to Gossip tab
+            .onReceive(NotificationCenter.default.publisher(for: Notification.Name("SWITCH_TO_GOSSIP_TAB"))) { _ in
+                selectedTab = 1
             }
-            
+
             // Floating Action Button for Drop
             VStack {
                 Spacer()
                 HStack {
                     Spacer()
-                    
-                    Button(action: {
-                        showingDropComposer = true
-                    }) {
+                    Button(action: { showingDropComposer = true }) {
                         ZStack {
                             Circle()
-                                .fill(
-                                    LinearGradient(
-                                        colors: [Color.brown, Color.brown.opacity(0.8)],
-                                        startPoint: .topLeading,
-                                        endPoint: .bottomTrailing
-                                    )
-                                )
+                                .fill(LinearGradient(colors: [Color.brown, Color.brown.opacity(0.8)], startPoint: .topLeading, endPoint: .bottomTrailing))
                                 .frame(width: 64, height: 64)
                                 .shadow(color: .black.opacity(0.3), radius: 8, x: 0, y: 4)
-                            
                             Text("💩")
                                 .font(.system(size: 32))
                                 .scaleEffect(showingDropComposer ? 0.8 : 1.0)
@@ -156,7 +105,7 @@ struct MainTabView: View {
                         }
                     }
                     .padding(.trailing, 20)
-                    .padding(.bottom, 90) // Above tab bar
+                    .padding(.bottom, 90)
                 }
             }
         }
@@ -164,47 +113,26 @@ struct MainTabView: View {
             DropComposerView()
         }
         .onChange(of: selectedTab) { newTab in
-            if newTab == 2 {  // Map tab (now at index 2)
-                // Always refresh map when switching to it (to handle app restart scenario)
-                print("🗺️ Switching to Map tab, posting REFRESH_MAP")
+            if newTab == 2 {
                 NotificationCenter.default.post(name: Notification.Name("REFRESH_MAP"), object: nil)
-                // Clear pending coordinate after use
                 pendingCenterCoordinate = nil
             }
         }
         .onAppear {
-            // Load inventory and check for pending fart attacks on app launch
             if let currentUser = authManager.currentUser {
                 Task {
-                    // IMPORTANT: Load inventory FIRST before checking if we should give free attack
                     await fartAttackManager.loadInventory(for: currentUser)
-                    
-                    // Give 1 FREE Ghost Attack on first launch (per user, not per device)
-                    // ONLY check UserDefaults - don't give if they've received before
                     let userKey = "hasReceivedFreeGhostAttack_\(currentUser.id)"
                     let hasReceivedBefore = UserDefaults.standard.bool(forKey: userKey)
-                    let currentAttacks = fartAttackManager.inventory?.availableAttacks ?? 0
-                    
-                    // Only give free attack if they've NEVER received it before (UserDefaults is the source of truth)
                     if !hasReceivedBefore {
-                        // Set the flag FIRST to prevent double-giving
                         UserDefaults.standard.set(true, forKey: userKey)
-                        UserDefaults.standard.synchronize() // Force save immediately
-                        
+                        UserDefaults.standard.synchronize()
                         await fartAttackManager.addAttacksFromPurchase(for: currentUser, count: 1)
-                        print("🎁 Gave 1 free Ghost Attack to new user (now has \(fartAttackManager.inventory?.availableAttacks ?? 0))")
-                    } else {
-                        print("✅ User already received free Ghost Attack before (has \(currentAttacks) attacks)")
                     }
-                    
-                    // Check for pending attacks after inventory is loaded
                     await fartAttackManager.checkPendingAttacks(for: currentUser)
-                    
-                    // Show onboarding if haven't seen it (per user)
                     let onboardingKey = "hasSeenFartAttackOnboarding_\(currentUser.id)"
                     await MainActor.run {
                         if !UserDefaults.standard.bool(forKey: onboardingKey) {
-                            // Delay slightly so user sees the main app first
                             DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
                                 showingFartAttackOnboarding = true
                             }
@@ -222,11 +150,8 @@ struct MainTabView: View {
         }
         .sheet(isPresented: $showingFartAttackOnboarding) {
             FartAttackOnboardingView {
-                // After onboarding, highlight the Friends tab (where you can send attacks)
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    withAnimation {
-                        selectedTab = 1 // Friends tab
-                    }
+                    withAnimation { selectedTab = 1 }
                 }
             }
         }
@@ -236,7 +161,6 @@ struct MainTabView: View {
 #Preview {
     MainTabView()
         .environmentObject(AuthenticationManager())
-        .environmentObject(SubscriptionManager())
         .environmentObject(CloudKitManager())
         .environmentObject(LocationManager())
 }
