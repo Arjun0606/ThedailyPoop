@@ -300,6 +300,36 @@ struct StoryDetailView: View {
                                 .foregroundStyle(.secondary)
                         }
 
+                        // Hero image
+                        if let imageUrl = story.imageUrl, let url = URL(string: imageUrl) {
+                            VStack(alignment: .trailing, spacing: 4) {
+                                AsyncImage(url: url) { phase in
+                                    switch phase {
+                                    case .success(let image):
+                                        image
+                                            .resizable()
+                                            .aspectRatio(contentMode: .fill)
+                                            .frame(maxHeight: 200)
+                                            .clipped()
+                                            .cornerRadius(12)
+                                    case .failure:
+                                        EmptyView()
+                                    default:
+                                        RoundedRectangle(cornerRadius: 12)
+                                            .fill(Color.white.opacity(0.05))
+                                            .frame(height: 200)
+                                            .overlay(ProgressView().tint(.secondary))
+                                    }
+                                }
+
+                                if let source = story.sourceName {
+                                    Text("Image: \(source)")
+                                        .font(.system(size: 10))
+                                        .foregroundStyle(.white.opacity(0.4))
+                                }
+                            }
+                        }
+
                         // Headline
                         Text(story.headline)
                             .font(.title2.bold())
@@ -366,13 +396,25 @@ struct StoryDetailView: View {
                         // Source + bookmark row
                         HStack {
                             if let sourceName = story.sourceName {
-                                HStack(spacing: 6) {
-                                    Image(systemName: "link")
-                                        .font(.caption)
-                                    Text("Source: \(sourceName)")
-                                        .font(.caption)
+                                if let sourceUrl = story.sourceUrl, let url = URL(string: sourceUrl) {
+                                    Link(destination: url) {
+                                        HStack(spacing: 6) {
+                                            Image(systemName: "arrow.up.right.square")
+                                                .font(.caption)
+                                            Text(sourceName)
+                                                .font(.caption.weight(.medium))
+                                        }
+                                        .foregroundStyle(.blue.opacity(0.8))
+                                    }
+                                } else {
+                                    HStack(spacing: 6) {
+                                        Image(systemName: "link")
+                                            .font(.caption)
+                                        Text("Source: \(sourceName)")
+                                            .font(.caption)
+                                    }
+                                    .foregroundStyle(.secondary)
                                 }
-                                .foregroundStyle(.secondary)
                             }
 
                             Spacer()

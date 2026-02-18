@@ -11,6 +11,7 @@ struct Story: Identifiable, Codable {
     let tldr: String?
     let sourceUrl: String?
     let sourceName: String?
+    let imageUrl: String?
     let emoji: String?
     let createdAt: Date
 
@@ -25,6 +26,7 @@ struct Story: Identifiable, Codable {
         case tldr
         case sourceUrl = "source_url"
         case sourceName = "source_name"
+        case imageUrl = "image_url"
         case emoji
         case createdAt = "created_at"
     }

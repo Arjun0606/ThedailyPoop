@@ -108,6 +108,36 @@ struct SwipeCardContent: View {
                         .foregroundStyle(.secondary)
                 }
 
+                // Hero image
+                if let imageUrl = story.imageUrl, let url = URL(string: imageUrl) {
+                    VStack(alignment: .trailing, spacing: 4) {
+                        AsyncImage(url: url) { phase in
+                            switch phase {
+                            case .success(let image):
+                                image
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                                    .frame(maxHeight: 180)
+                                    .clipped()
+                                    .cornerRadius(12)
+                            case .failure:
+                                EmptyView()
+                            default:
+                                RoundedRectangle(cornerRadius: 12)
+                                    .fill(Color.white.opacity(0.05))
+                                    .frame(height: 180)
+                                    .overlay(ProgressView().tint(.secondary))
+                            }
+                        }
+
+                        if let source = story.sourceName {
+                            Text("Image: \(source)")
+                                .font(.system(size: 10))
+                                .foregroundStyle(.white.opacity(0.4))
+                        }
+                    }
+                }
+
                 // Headline
                 Text(story.headline)
                     .font(.title2.bold())
@@ -168,13 +198,25 @@ struct SwipeCardContent: View {
 
                     // Source
                     if let source = story.sourceName {
-                        HStack(spacing: 6) {
-                            Image(systemName: "link")
-                                .font(.caption)
-                            Text("Source: \(source)")
-                                .font(.caption)
+                        if let sourceUrl = story.sourceUrl, let url = URL(string: sourceUrl) {
+                            Link(destination: url) {
+                                HStack(spacing: 6) {
+                                    Image(systemName: "arrow.up.right.square")
+                                        .font(.caption)
+                                    Text(source)
+                                        .font(.caption.weight(.medium))
+                                }
+                                .foregroundStyle(.blue.opacity(0.8))
+                            }
+                        } else {
+                            HStack(spacing: 6) {
+                                Image(systemName: "link")
+                                    .font(.caption)
+                                Text("Source: \(source)")
+                                    .font(.caption)
+                            }
+                            .foregroundStyle(.secondary)
                         }
-                        .foregroundStyle(.secondary)
                     }
 
                     // Swipe hint

@@ -45,6 +45,44 @@ struct StoryCardView: View {
                     }
                 }
 
+                // Hero image
+                if let imageUrl = story.imageUrl, let url = URL(string: imageUrl) {
+                    ZStack(alignment: .bottomTrailing) {
+                        AsyncImage(url: url) { phase in
+                            switch phase {
+                            case .success(let image):
+                                image
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                                    .frame(height: 160)
+                                    .clipped()
+                            case .failure:
+                                EmptyView()
+                            default:
+                                RoundedRectangle(cornerRadius: 10)
+                                    .fill(Color.white.opacity(0.05))
+                                    .frame(height: 160)
+                                    .overlay(
+                                        ProgressView()
+                                            .tint(.secondary)
+                                    )
+                            }
+                        }
+
+                        if let source = story.sourceName {
+                            Text("📷 \(source)")
+                                .font(.system(size: 9, weight: .medium))
+                                .foregroundStyle(.white.opacity(0.7))
+                                .padding(.horizontal, 6)
+                                .padding(.vertical, 3)
+                                .background(.black.opacity(0.5))
+                                .cornerRadius(4)
+                                .padding(6)
+                        }
+                    }
+                    .cornerRadius(10)
+                }
+
                 // Headline
                 Text(story.headline)
                     .font(.headline)
@@ -130,6 +168,7 @@ struct StoryCardView: View {
                     tldr: "Apple fixed basic math in their AI. Progress.",
                     sourceUrl: nil,
                     sourceName: "TechCrunch",
+                    imageUrl: nil,
                     emoji: "📱",
                     createdAt: Date()
                 ),
@@ -152,6 +191,7 @@ struct StoryCardView: View {
                     tldr: nil,
                     sourceUrl: nil,
                     sourceName: "WSJ",
+                    imageUrl: nil,
                     emoji: "💰",
                     createdAt: Date()
                 ),

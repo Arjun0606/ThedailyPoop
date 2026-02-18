@@ -2,6 +2,7 @@ import { inngest } from "./client";
 import { createServiceClient } from "@/lib/supabase";
 import { fetchAllCategories } from "@/lib/perplexity";
 import { generateWithPremium, generateWithMini } from "@/lib/openai";
+import { fetchOgImages } from "@/lib/og-image";
 
 const STYLE_GUIDE = `You are the voice of TheDailyPoop — imagine if your funniest, most unhinged friend who also happens to be weirdly knowledgeable about finance, tech, and culture was texting you the news every morning. You sound like Dan Toomey meets Morning Brew meets a group chat that's way too smart for its own good.
 
@@ -118,7 +119,18 @@ Return ONLY the JSON array.`,
       }
     });
 
-    // Step 3: Rewrite each story in TheDailyPoop voice
+    // Step 3: Fetch OG images from source articles
+    const ogImages = await step.run("fetch-og-images", async () => {
+      const urls: string[] = curatedStories
+        .map((s: { sourceUrl?: string }) => s.sourceUrl)
+        .filter(Boolean) as string[];
+
+      const imageMap = await fetchOgImages(urls);
+      // Convert Map to plain object for Inngest serialization
+      return Object.fromEntries(imageMap);
+    });
+
+    // Step 4: Rewrite each story in TheDailyPoop voice
     const rewrittenStories = await step.run("rewrite-stories", async () => {
       const results = [];
 
@@ -172,6 +184,7 @@ Return ONLY the JSON object, no markdown fences, no explanation.`
             tldr: parsed.tldr ?? null,
             sourceUrl: story.sourceUrl ?? null,
             sourceName: story.sourceName ?? null,
+            imageUrl: story.sourceUrl ? ogImages[story.sourceUrl] ?? null : null,
             emoji: categoryEmoji,
           });
         } catch {
@@ -185,6 +198,7 @@ Return ONLY the JSON object, no markdown fences, no explanation.`
             tldr: null,
             sourceUrl: story.sourceUrl ?? null,
             sourceName: story.sourceName ?? null,
+            imageUrl: story.sourceUrl ? ogImages[story.sourceUrl] ?? null : null,
             emoji: categoryEmoji,
           });
         }
@@ -258,6 +272,7 @@ Return ONLY JSON.`
         tldr: s.tldr,
         source_url: s.sourceUrl,
         source_name: s.sourceName,
+        image_url: s.imageUrl,
         emoji: s.emoji,
       }));
 
