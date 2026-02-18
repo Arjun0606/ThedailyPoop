@@ -26,12 +26,14 @@ class SupabaseManager: ObservableObject {
         let session = try await client.auth.signInWithIdToken(
             credentials: .init(provider: .apple, idToken: idToken, nonce: nonce)
         )
-        let uid = session.user.id.uuidString
+        let uid = session.user.id.uuidString.lowercased()
 
+        // Check if user profile already exists
         if let existing = try await fetchUser(id: uid) {
             return existing
         }
 
+        // New user — create via server endpoint (bypasses RLS)
         let newUser = User(id: uid, username: "", appleUserID: uid)
         try await saveUser(newUser)
         return newUser
@@ -48,29 +50,34 @@ class SupabaseManager: ObservableObject {
     // MARK: - Users
 
     func saveUser(_ user: User) async throws {
-        struct UserRow: Encodable {
-            let id: String
-            let username: String
-            let display_name: String?
-            let avatar_url: String?
-            let apple_user_id: String
-            let is_premium: Bool
-            let streak_count: Int
+        // Use server endpoint to bypass RLS issues
+        guard let url = URL(string: "\(Config.apiServerURL)/api/user/profile") else {
+            throw NSError(domain: "SupabaseManager", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid API URL"])
         }
 
-        let row = UserRow(
-            id: user.id,
-            username: user.username,
-            display_name: user.displayName,
-            avatar_url: user.avatarURL?.absoluteString,
-            apple_user_id: user.appleUserID,
-            is_premium: user.isPremium,
-            streak_count: user.streakCount
-        )
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
 
-        try await client.from("users")
-            .upsert(row)
-            .execute()
+        let body: [String: Any] = [
+            "userId": user.id,
+            "username": user.username,
+            "displayName": user.displayName ?? "",
+            "avatarUrl": user.avatarURL?.absoluteString ?? "",
+            "appleUserId": user.appleUserID
+        ]
+        request.httpBody = try JSONSerialization.data(withJSONObject: body)
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw NSError(domain: "SupabaseManager", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid response"])
+        }
+
+        if httpResponse.statusCode != 200 {
+            let errorMsg = (try? JSONSerialization.jsonObject(with: data) as? [String: Any])?["error"] as? String ?? "Unknown error"
+            throw NSError(domain: "SupabaseManager", code: httpResponse.statusCode, userInfo: [NSLocalizedDescriptionKey: errorMsg])
+        }
     }
 
     func fetchUser(id: String) async throws -> User? {
@@ -459,19 +466,45 @@ class SupabaseManager: ObservableObject {
         return storyIds.compactMap { storyMap[$0] }
     }
 
-    // MARK: - Avatar Upload (Supabase Storage)
+    // MARK: - Avatar Upload (via server to bypass storage RLS)
 
     func uploadAvatar(userID: String, imageData: Data) async throws -> URL {
-        let fileName = "\(userID).jpg"
+        guard let url = URL(string: "\(Config.apiServerURL)/api/user/avatar") else {
+            throw NSError(domain: "SupabaseManager", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid API URL"])
+        }
 
-        try await client.storage.from("avatars").upload(
-            fileName,
-            data: imageData,
-            options: .init(contentType: "image/jpeg", upsert: true)
-        )
+        let boundary = UUID().uuidString
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
 
-        let publicURL = try client.storage.from("avatars").getPublicURL(path: fileName)
-        return publicURL
+        var body = Data()
+        // userId field
+        body.append("--\(boundary)\r\n".data(using: .utf8)!)
+        body.append("Content-Disposition: form-data; name=\"userId\"\r\n\r\n".data(using: .utf8)!)
+        body.append("\(userID)\r\n".data(using: .utf8)!)
+        // file field
+        body.append("--\(boundary)\r\n".data(using: .utf8)!)
+        body.append("Content-Disposition: form-data; name=\"file\"; filename=\"avatar.jpg\"\r\n".data(using: .utf8)!)
+        body.append("Content-Type: image/jpeg\r\n\r\n".data(using: .utf8)!)
+        body.append(imageData)
+        body.append("\r\n--\(boundary)--\r\n".data(using: .utf8)!)
+        request.httpBody = body
+
+        let (responseData, response) = try await URLSession.shared.data(for: request)
+
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            let errorMsg = (try? JSONSerialization.jsonObject(with: responseData) as? [String: Any])?["error"] as? String ?? "Upload failed"
+            throw NSError(domain: "SupabaseManager", code: -1, userInfo: [NSLocalizedDescriptionKey: errorMsg])
+        }
+
+        guard let json = try? JSONSerialization.jsonObject(with: responseData) as? [String: Any],
+              let avatarUrlString = json["avatarUrl"] as? String,
+              let avatarUrl = URL(string: avatarUrlString) else {
+            throw NSError(domain: "SupabaseManager", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid avatar URL response"])
+        }
+
+        return avatarUrl
     }
 
     // MARK: - Device Tokens (Push Notifications)

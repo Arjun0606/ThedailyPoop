@@ -21,7 +21,7 @@ class AuthenticationManager: NSObject, ObservableObject {
     func checkAuthenticationState() {
         Task {
             if let session = await SupabaseManager.shared.getCurrentSession() {
-                let userID = session.user.id.uuidString
+                let userID = session.user.id.uuidString.lowercased()
                 if let user = try? await SupabaseManager.shared.fetchUser(id: userID) {
                     self.currentUser = user
                     self.isAuthenticated = true

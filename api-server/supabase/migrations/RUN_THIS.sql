@@ -332,7 +332,46 @@ END $$;
 
 
 -- ============================================================
+-- 11. STORAGE POLICIES (avatars bucket)
+-- Run AFTER creating the "avatars" bucket in Supabase Dashboard
+-- (Storage → New bucket → "avatars" → Public → Create)
+-- ============================================================
+
+-- Let authenticated users upload avatars
+DO $$ BEGIN
+  CREATE POLICY "Authenticated users can upload avatars" ON storage.objects
+    FOR INSERT TO authenticated
+    WITH CHECK (bucket_id = 'avatars');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+
+-- Let anyone view avatars (public bucket)
+DO $$ BEGIN
+  CREATE POLICY "Anyone can view avatars" ON storage.objects
+    FOR SELECT USING (bucket_id = 'avatars');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+
+-- Let authenticated users update their own avatars
+DO $$ BEGIN
+  CREATE POLICY "Authenticated users can update avatars" ON storage.objects
+    FOR UPDATE TO authenticated
+    USING (bucket_id = 'avatars');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+
+-- Let authenticated users delete their own avatars
+DO $$ BEGIN
+  CREATE POLICY "Authenticated users can delete avatars" ON storage.objects
+    FOR DELETE TO authenticated
+    USING (bucket_id = 'avatars');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+
+
+-- ============================================================
 -- DONE! Tables: briefings, stories, user_reads, user_preferences,
 -- reader_sessions, story_reactions, story_bookmarks, word_games,
 -- word_game_scores. Users table updated with all needed columns.
+-- Storage policies: avatars bucket read/write for authenticated users.
 -- ============================================================
