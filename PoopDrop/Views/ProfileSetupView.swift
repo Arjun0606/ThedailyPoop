@@ -18,7 +18,7 @@ struct ProfileSetupView: View {
     var body: some View {
         ZStack {
             LinearGradient(
-                colors: [Color.black, Color.brown.opacity(0.4)],
+                colors: [Color.black, Theme.accent.opacity(0.15)],
                 startPoint: .top,
                 endPoint: .bottom
             )
@@ -55,7 +55,7 @@ struct ProfileSetupView: View {
                             }
 
                             Circle()
-                                .fill(Color.brown)
+                                .fill(Theme.accent)
                                 .frame(width: 34, height: 34)
                                 .overlay(
                                     Image(systemName: "plus")
@@ -153,14 +153,14 @@ struct ProfileSetupView: View {
                             } else {
                                 Text("Start Dropping!")
                                     .fontWeight(.bold)
-                                Text("💩")
+                                AppLogoView(size: 20)
                             }
                         }
                         .foregroundStyle(.black)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 16)
-                        .background(canContinue ? Color.white : Color.white.opacity(0.3))
-                        .cornerRadius(14)
+                        .background(canContinue ? Theme.accent : Theme.accent.opacity(0.3))
+                        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                     }
                     .disabled(!canContinue || isLoading)
                     .padding(.horizontal, 24)

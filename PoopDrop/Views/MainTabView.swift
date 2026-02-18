@@ -4,48 +4,74 @@ struct MainTabView: View {
     @EnvironmentObject var authManager: AuthenticationManager
     @State private var selectedTab = 0
 
+    private let tabs: [(icon: String, iconFill: String, label: String)] = [
+        ("newspaper", "newspaper.fill", "Today"),
+        ("globe.americas", "globe.americas.fill", "Live"),
+        ("archivebox", "archivebox.fill", "Archive"),
+        ("person", "person.fill", "You"),
+    ]
+
     var body: some View {
-        TabView(selection: $selectedTab) {
-            BriefingView()
-                .tabItem {
-                    Image(systemName: selectedTab == 0 ? "newspaper.fill" : "newspaper")
-                    Text("Today")
+        ZStack(alignment: .bottom) {
+            // Content
+            Group {
+                switch selectedTab {
+                case 0: BriefingView()
+                case 1: LiveGlobeView()
+                case 2: ArchiveView()
+                case 3: ProfileView()
+                default: BriefingView()
                 }
-                .tag(0)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-            LiveGlobeView()
-                .tabItem {
-                    Image(systemName: selectedTab == 1 ? "globe.americas.fill" : "globe.americas")
-                    Text("Live")
-                }
-                .tag(1)
+            // Floating tab bar
+            HStack(spacing: 0) {
+                ForEach(0..<tabs.count, id: \.self) { index in
+                    Button {
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.75)) {
+                            if selectedTab == index {
+                                // Haptic on re-tap (scroll to top hint)
+                                let impact = UIImpactFeedbackGenerator(style: .light)
+                                impact.impactOccurred()
+                            }
+                            selectedTab = index
+                        }
+                    } label: {
+                        VStack(spacing: 4) {
+                            Image(systemName: selectedTab == index ? tabs[index].iconFill : tabs[index].icon)
+                                .font(.system(size: 20, weight: selectedTab == index ? .semibold : .regular))
+                                .symbolEffect(.bounce, value: selectedTab == index)
 
-            ArchiveView()
-                .tabItem {
-                    Image(systemName: selectedTab == 2 ? "archivebox.fill" : "archivebox")
-                    Text("Archive")
+                            Text(tabs[index].label)
+                                .font(.system(size: 10, weight: selectedTab == index ? .semibold : .regular))
+                        }
+                        .foregroundStyle(selectedTab == index ? .white : .white.opacity(0.35))
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 8)
+                    }
+                    .buttonStyle(.plain)
                 }
-                .tag(2)
-
-            ProfileView()
-                .tabItem {
-                    Image(systemName: selectedTab == 3 ? "person.fill" : "person")
-                    Text("You")
-                }
-                .tag(3)
+            }
+            .padding(.horizontal, 8)
+            .padding(.top, 12)
+            .padding(.bottom, 28)
+            .background(
+                Rectangle()
+                    .fill(.ultraThinMaterial)
+                    .overlay(
+                        Rectangle()
+                            .fill(Color.black.opacity(0.5))
+                    )
+                    .overlay(alignment: .top) {
+                        Rectangle()
+                            .fill(Color.white.opacity(0.06))
+                            .frame(height: 0.5)
+                    }
+            )
+            .ignoresSafeArea(.container, edges: .bottom)
         }
-        .accentColor(.white)
-        .onAppear {
-            let appearance = UITabBarAppearance()
-            appearance.configureWithOpaqueBackground()
-            appearance.backgroundColor = UIColor.black
-            appearance.stackedLayoutAppearance.normal.iconColor = UIColor.gray
-            appearance.stackedLayoutAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor.gray]
-            appearance.stackedLayoutAppearance.selected.iconColor = UIColor.white
-            appearance.stackedLayoutAppearance.selected.titleTextAttributes = [.foregroundColor: UIColor.white]
-            UITabBar.appearance().standardAppearance = appearance
-            UITabBar.appearance().scrollEdgeAppearance = appearance
-        }
+        .preferredColorScheme(.dark)
     }
 }
 

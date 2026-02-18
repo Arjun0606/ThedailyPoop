@@ -34,7 +34,18 @@
 		AUDIO0010000000000000001 /* AudioBriefingManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AUDIO0020000000000000001 /* AudioBriefingManager.swift */; };
 		SHARE0010000000000000001 /* ShareCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHARE0020000000000000001 /* ShareCardView.swift */; };
 		SWIPE0010000000000000001 /* SwipeReadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SWIPE0020000000000000001 /* SwipeReadingView.swift */; };
+		THEME0010000000000000001 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = THEME0020000000000000001 /* Theme.swift */; };
+		RCAT0010000000000000001 /* SubscriptionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = RCAT0020000000000000001 /* SubscriptionManager.swift */; };
 		SPM00003000000000000001 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = SPM00002000000000000001 /* Supabase */; };
+		RCAT0030000000000000001 /* RevenueCat in Frameworks */ = {isa = PBXBuildFile; productRef = RCAT0040000000000000001 /* RevenueCat */; };
+		WDCRD0010000000000000001 /* WordDropCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = WDCRD0020000000000000001 /* WordDropCardView.swift */; };
+		WDGAM0010000000000000001 /* WordDropGameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = WDGAM0020000000000000001 /* WordDropGameView.swift */; };
+		WDRST0010000000000000001 /* WordDropResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = WDRST0020000000000000001 /* WordDropResultView.swift */; };
+		WDLDR0010000000000000001 /* WordDropLeaderboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = WDLDR0020000000000000001 /* WordDropLeaderboardView.swift */; };
+		WDSHR0010000000000000001 /* WordDropShareCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = WDSHR0020000000000000001 /* WordDropShareCardView.swift */; };
+		WDLTL0010000000000000001 /* LetterTileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = WDLTL0020000000000000001 /* LetterTileView.swift */; };
+		WDMGR0010000000000000001 /* WordDropManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = WDMGR0020000000000000001 /* WordDropManager.swift */; };
+		WDMDL0010000000000000001 /* WordGame.swift in Sources */ = {isa = PBXBuildFile; fileRef = WDMDL0020000000000000001 /* WordGame.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -68,6 +79,16 @@
 		AUDIO0020000000000000001 /* AudioBriefingManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioBriefingManager.swift; sourceTree = "<group>"; };
 		SHARE0020000000000000001 /* ShareCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareCardView.swift; sourceTree = "<group>"; };
 		SWIPE0020000000000000001 /* SwipeReadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwipeReadingView.swift; sourceTree = "<group>"; };
+		THEME0020000000000000001 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
+		RCAT0020000000000000001 /* SubscriptionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionManager.swift; sourceTree = "<group>"; };
+		WDCRD0020000000000000001 /* WordDropCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordDropCardView.swift; sourceTree = "<group>"; };
+		WDGAM0020000000000000001 /* WordDropGameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordDropGameView.swift; sourceTree = "<group>"; };
+		WDRST0020000000000000001 /* WordDropResultView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordDropResultView.swift; sourceTree = "<group>"; };
+		WDLDR0020000000000000001 /* WordDropLeaderboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordDropLeaderboardView.swift; sourceTree = "<group>"; };
+		WDSHR0020000000000000001 /* WordDropShareCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordDropShareCardView.swift; sourceTree = "<group>"; };
+		WDLTL0020000000000000001 /* LetterTileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LetterTileView.swift; sourceTree = "<group>"; };
+		WDMGR0020000000000000001 /* WordDropManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordDropManager.swift; sourceTree = "<group>"; };
+		WDMDL0020000000000000001 /* WordGame.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordGame.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -76,6 +97,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				SPM00003000000000000001 /* Supabase in Frameworks */,
+				RCAT0030000000000000001 /* RevenueCat in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -104,6 +126,7 @@
 				A1000002294A0000000000001 /* PoopDropApp.swift */,
 				A1000003294A0000000000003 /* AppDelegate.swift */,
 				A1000004294A0000000000001 /* ContentView.swift */,
+				THEME0020000000000000001 /* Theme.swift */,
 				A100002D294A0000000000001 /* Info.plist */,
 				A100002E294A0000000000001 /* PoopDrop.entitlements */,
 				A1000030294A0000000000888 /* Models */,
@@ -131,6 +154,7 @@
 				BRIEF0020000000000000001 /* Briefing.swift */,
 				STORY0020000000000000001 /* Story.swift */,
 				RSESS0020000000000000001 /* ReaderSession.swift */,
+				WDMDL0020000000000000001 /* WordGame.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -142,6 +166,8 @@
 				NEW00006000000000000001 /* SupabaseManager.swift */,
 				VIRAL0060000000000000001 /* PushNotificationService.swift */,
 				AUDIO0020000000000000001 /* AudioBriefingManager.swift */,
+				RCAT0020000000000000001 /* SubscriptionManager.swift */,
+				WDMGR0020000000000000001 /* WordDropManager.swift */,
 			);
 			path = Managers;
 			sourceTree = "<group>";
@@ -163,6 +189,7 @@
 				4210E055649FE550A178E211 /* PrivacyPolicyView.swift */,
 				SHARE0020000000000000001 /* ShareCardView.swift */,
 				SWIPE0020000000000000001 /* SwipeReadingView.swift */,
+				WDGRP0010000000000000001 /* WordDrop */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -172,6 +199,19 @@
 			children = (
 			);
 			path = Extensions;
+			sourceTree = "<group>";
+		};
+		WDGRP0010000000000000001 /* WordDrop */ = {
+			isa = PBXGroup;
+			children = (
+				WDCRD0020000000000000001 /* WordDropCardView.swift */,
+				WDGAM0020000000000000001 /* WordDropGameView.swift */,
+				WDRST0020000000000000001 /* WordDropResultView.swift */,
+				WDLDR0020000000000000001 /* WordDropLeaderboardView.swift */,
+				WDSHR0020000000000000001 /* WordDropShareCardView.swift */,
+				WDLTL0020000000000000001 /* LetterTileView.swift */,
+			);
+			path = WordDrop;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -192,6 +232,7 @@
 			name = PoopDrop;
 			packageProductDependencies = (
 				SPM00002000000000000001 /* Supabase */,
+				RCAT0040000000000000001 /* RevenueCat */,
 			);
 			productName = PoopDrop;
 			productReference = A1000001294A0000000000000 /* TheDailyPoop.app */;
@@ -223,6 +264,7 @@
 			mainGroup = A0FFFFFF294A0000000000888;
 			packageReferences = (
 				SPM00001000000000000001 /* XCRemoteSwiftPackageReference "supabase-swift" */,
+				RCAT0050000000000000001 /* XCRemoteSwiftPackageReference "purchases-ios" */,
 			);
 			productRefGroup = A1000002294A0000000000888 /* Products */;
 			projectDirPath = "";
@@ -275,6 +317,16 @@
 				AUDIO0010000000000000001 /* AudioBriefingManager.swift in Sources */,
 				SHARE0010000000000000001 /* ShareCardView.swift in Sources */,
 				SWIPE0010000000000000001 /* SwipeReadingView.swift in Sources */,
+				THEME0010000000000000001 /* Theme.swift in Sources */,
+				RCAT0010000000000000001 /* SubscriptionManager.swift in Sources */,
+				WDCRD0010000000000000001 /* WordDropCardView.swift in Sources */,
+				WDGAM0010000000000000001 /* WordDropGameView.swift in Sources */,
+				WDRST0010000000000000001 /* WordDropResultView.swift in Sources */,
+				WDLDR0010000000000000001 /* WordDropLeaderboardView.swift in Sources */,
+				WDSHR0010000000000000001 /* WordDropShareCardView.swift in Sources */,
+				WDLTL0010000000000000001 /* LetterTileView.swift in Sources */,
+				WDMGR0010000000000000001 /* WordDropManager.swift in Sources */,
+				WDMDL0010000000000000001 /* WordGame.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -508,6 +560,14 @@
 				minimumVersion = 2.0.0;
 			};
 		};
+		RCAT0050000000000000001 /* XCRemoteSwiftPackageReference "purchases-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/RevenueCat/purchases-ios.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.0.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -515,6 +575,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = SPM00001000000000000001 /* XCRemoteSwiftPackageReference "supabase-swift" */;
 			productName = Supabase;
+		};
+		RCAT0040000000000000001 /* RevenueCat */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = RCAT0050000000000000001 /* XCRemoteSwiftPackageReference "purchases-ios" */;
+			productName = RevenueCat;
 		};
 /* End XCSwiftPackageProductDependency section */
 

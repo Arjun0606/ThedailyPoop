@@ -6,50 +6,57 @@ struct AuthenticationView: View {
     @State private var showingError = false
     @State private var showingTerms = false
     @State private var showingPrivacy = false
-    
+    @State private var pulseScale: CGFloat = 1.0
+
     var body: some View {
         ZStack {
-            // Dark gradient background
-            LinearGradient(
-                colors: [Color.black, Color.brown.opacity(0.4)],
-                startPoint: .top,
-                endPoint: .bottom
+            // Background
+            Color.black.ignoresSafeArea()
+
+            // Subtle radial glow behind logo
+            RadialGradient(
+                gradient: Gradient(colors: [
+                    Theme.accent.opacity(0.12),
+                    .clear
+                ]),
+                center: .center,
+                startRadius: 10,
+                endRadius: 300
             )
+            .offset(y: -80)
             .ignoresSafeArea()
-            
-            VStack(spacing: 40) {
+
+            VStack(spacing: 0) {
                 Spacer()
-                
-                // App logo and title
-                VStack(spacing: 20) {
-                    Text("💩")
-                        .font(.system(size: 120))
-                        .scaleEffect(authManager.isLoading ? 0.8 : 1.0)
-                        .animation(.easeInOut(duration: 0.6).repeatForever(autoreverses: true), value: authManager.isLoading)
-                    
+
+                // Logo + title
+                VStack(spacing: 24) {
+                    AppLogoView(size: 100)
+                        .scaleEffect(pulseScale)
+                        .shadow(color: Theme.accent.opacity(0.3), radius: 30, x: 0, y: 10)
+                        .onAppear {
+                            withAnimation(.easeInOut(duration: 2).repeatForever(autoreverses: true)) {
+                                pulseScale = 1.08
+                            }
+                        }
+
                     VStack(spacing: 8) {
                         Text("TheDailyPoop")
-                            .font(.largeTitle)
-                            .fontWeight(.bold)
-                            .foregroundColor(.white)
-                        
-                        Text("Drop it like it's hot! 🔥")
-                            .font(.title3)
-                            .foregroundColor(.white.opacity(0.8))
+                            .font(.system(size: 32, weight: .black))
+                            .foregroundStyle(.white)
+
+                        Text("News that doesn't suck")
+                            .font(.system(size: 16, weight: .medium))
+                            .foregroundStyle(Theme.textSecondary)
                     }
                 }
-                
+
                 Spacer()
-                
-                // Sign in section
-                VStack(spacing: 24) {
-                    Text("Ready to start dropping?")
-                        .font(.title2)
-                        .fontWeight(.semibold)
-                        .foregroundColor(.white)
-                        .multilineTextAlignment(.center)
-                    
-                    // Sign in with Apple button
+                Spacer()
+
+                // Sign in area
+                VStack(spacing: 20) {
+                    // Sign in with Apple
                     SignInWithAppleButton(
                         onRequest: { request in
                             request.requestedScopes = [.fullName, .email]
@@ -59,45 +66,49 @@ struct AuthenticationView: View {
                         }
                     )
                     .signInWithAppleButtonStyle(.white)
-                    .frame(height: 50)
-                    .cornerRadius(12)
+                    .frame(height: 52)
+                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                     .disabled(authManager.isLoading)
-                    
+
                     if authManager.isLoading {
                         HStack(spacing: 8) {
                             ProgressView()
                                 .scaleEffect(0.8)
+                                .tint(Theme.textSecondary)
                             Text("Signing in...")
-                                .font(.caption)
-                                .foregroundColor(.white.opacity(0.7))
+                                .font(.caption.weight(.medium))
+                                .foregroundStyle(Theme.textSecondary)
                         }
+                        .transition(.opacity)
                     }
                 }
                 .padding(.horizontal, 32)
-                
+
                 Spacer()
-                
-                // Terms and privacy
+                    .frame(height: 40)
+
+                // Legal footer
                 VStack(spacing: 8) {
                     Text("By signing in, you agree to our")
-                        .font(.caption)
-                        .foregroundColor(.white.opacity(0.6))
-                    
-                    HStack(spacing: 16) {
+                        .font(.system(size: 12))
+                        .foregroundStyle(Theme.textTertiary)
+
+                    HStack(spacing: 4) {
                         Button("Terms of Service") {
                             showingTerms = true
                         }
-                        .font(.caption)
-                        .foregroundColor(.white.opacity(0.8))
-                        
-                        Text("•")
-                            .foregroundColor(.white.opacity(0.6))
-                        
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundStyle(Theme.textSecondary)
+
+                        Text("and")
+                            .font(.system(size: 12))
+                            .foregroundStyle(Theme.textTertiary)
+
                         Button("Privacy Policy") {
                             showingPrivacy = true
                         }
-                        .font(.caption)
-                        .foregroundColor(.white.opacity(0.8))
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundStyle(Theme.textSecondary)
                     }
                 }
                 .padding(.bottom, 40)

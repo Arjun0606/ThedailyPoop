@@ -117,18 +117,42 @@ class SupabaseManager: ObservableObject {
 
     // MARK: - Briefings
 
-    func fetchTodayBriefing() async throws -> Briefing? {
+    func fetchTodayDrops() async throws -> [BriefingDrop] {
         let today = dateString(for: Date())
 
-        let rows: [Briefing] = try await client.from("briefings")
+        let briefings: [Briefing] = try await client.from("briefings")
             .select()
             .eq("publish_date", value: today)
             .eq("status", value: "published")
-            .limit(1)
             .execute()
             .value
 
-        return rows.first
+        guard !briefings.isEmpty else { return [] }
+
+        // Sort: morning → midday → evening
+        let dropOrder = ["morning", "midday", "evening"]
+        let sorted = briefings.sorted { dropOrder.firstIndex(of: $0.dropType) ?? 99 < dropOrder.firstIndex(of: $1.dropType) ?? 99 }
+
+        // Fetch all stories for all briefings at once
+        let briefingIds = sorted.map { $0.id }
+        let allStories: [Story] = try await client.from("stories")
+            .select()
+            .in("briefing_id", values: briefingIds)
+            .order("sort_order", ascending: true)
+            .execute()
+            .value
+
+        // Group stories by briefing
+        let storiesByBriefing = Dictionary(grouping: allStories, by: { $0.briefingId })
+
+        return sorted.map { briefing in
+            BriefingDrop(briefing: briefing, stories: storiesByBriefing[briefing.id] ?? [])
+        }
+    }
+
+    func fetchTodayBriefing() async throws -> Briefing? {
+        let drops = try await fetchTodayDrops()
+        return drops.first?.briefing
     }
 
     func fetchBriefingByDate(date: Date) async throws -> Briefing? {
@@ -184,14 +208,20 @@ class SupabaseManager: ObservableObject {
     }
 
     func fetchReadStoryIDs(userID: String, briefingId: String) async throws -> Set<String> {
+        return try await fetchReadStoryIDs(userID: userID, briefingIds: [briefingId])
+    }
+
+    func fetchReadStoryIDs(userID: String, briefingIds: [String]) async throws -> Set<String> {
         struct ReadRow: Decodable {
             let story_id: String
         }
 
-        // Get story IDs for this briefing, then filter reads
+        guard !briefingIds.isEmpty else { return [] }
+
+        // Get story IDs for these briefings, then filter reads
         let storyRows: [Story] = try await client.from("stories")
             .select()
-            .eq("briefing_id", value: briefingId)
+            .in("briefing_id", values: briefingIds)
             .execute()
             .value
 
@@ -461,29 +491,83 @@ class SupabaseManager: ObservableObject {
     // MARK: - Account Deletion
 
     func deleteAccount(userID: String) async throws {
-        // Delete user reads
-        try await client.from("user_reads")
-            .delete()
-            .eq("user_id", value: userID)
-            .execute()
+        // Delete related data (ignore errors for tables that may not exist yet)
+        try? await client.from("user_reads").delete().eq("user_id", value: userID).execute()
+        try? await client.from("story_reactions").delete().eq("user_id", value: userID).execute()
+        try? await client.from("story_bookmarks").delete().eq("user_id", value: userID).execute()
+        try? await client.from("reader_sessions").delete().eq("user_id", value: userID).execute()
+        try? await client.from("device_tokens").delete().eq("user_id", value: userID).execute()
 
-        // Delete preferences
-        try await client.from("user_preferences")
-            .delete()
-            .eq("user_id", value: userID)
-            .execute()
-
-        // Delete device tokens
-        try await client.from("device_tokens")
-            .delete()
-            .eq("user_id", value: userID)
-            .execute()
-
-        // Delete user profile
+        // Delete user profile (this one must succeed)
         try await client.from("users")
             .delete()
             .eq("id", value: userID)
             .execute()
+    }
+
+    // MARK: - Word Drop Games
+
+    func fetchTodayGames(userId: String? = nil) async throws -> [WordGame] {
+        var urlString = "\(Config.apiServerURL)/api/games/today"
+        if let userId = userId {
+            urlString += "?userId=\(userId)"
+        }
+        guard let url = URL(string: urlString) else { return [] }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+
+        if let session = try? await client.auth.session {
+            request.setValue("Bearer \(session.accessToken)", forHTTPHeaderField: "Authorization")
+        }
+
+        let (data, _) = try await URLSession.shared.data(for: request)
+
+        struct Response: Decodable {
+            let games: [WordGame]
+        }
+
+        return try JSONDecoder().decode(Response.self, from: data).games
+    }
+
+    func submitGameScore(
+        userId: String,
+        gameId: String,
+        wordsFound: [String],
+        timeRemaining: Int
+    ) async throws -> WordGameSubmitResponse {
+        guard let url = URL(string: "\(Config.apiServerURL)/api/games/submit") else {
+            throw SupabaseError.noData
+        }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+        let body: [String: Any] = [
+            "userId": userId,
+            "gameId": gameId,
+            "wordsFound": wordsFound,
+            "timeRemaining": timeRemaining
+        ]
+        request.httpBody = try JSONSerialization.data(withJSONObject: body)
+
+        let (data, _) = try await URLSession.shared.data(for: request)
+        return try JSONDecoder().decode(WordGameSubmitResponse.self, from: data)
+    }
+
+    func fetchLeaderboard(date: String, dropType: String = "morning") async throws -> [LeaderboardEntry] {
+        guard let url = URL(string: "\(Config.apiServerURL)/api/games/leaderboard?date=\(date)&drop=\(dropType)") else {
+            return []
+        }
+
+        let (data, _) = try await URLSession.shared.data(for: URLRequest(url: url))
+
+        struct Response: Decodable {
+            let leaderboard: [LeaderboardEntry]
+        }
+
+        return try JSONDecoder().decode(Response.self, from: data).leaderboard
     }
 
     // MARK: - Helpers

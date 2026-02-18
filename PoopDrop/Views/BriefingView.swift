@@ -4,98 +4,85 @@ import WidgetKit
 struct BriefingView: View {
     @EnvironmentObject var authManager: AuthenticationManager
     @StateObject private var audioManager = AudioBriefingManager.shared
-    @State private var briefing: Briefing?
-    @State private var stories: [Story] = []
+    @State private var drops: [BriefingDrop] = []
     @State private var readStoryIDs: Set<String> = []
     @State private var isLoading = true
     @State private var showingPaywall = false
     @State private var selectedStory: Story?
     @State private var showingSwipeMode = false
     @State private var storyReactionCounts: [String: Int] = [:]
+    @State private var wordGames: [WordGame] = []
+    @State private var selectedWordGame: WordGame?
+
+    private var allStories: [Story] {
+        drops.flatMap { $0.stories }
+    }
+
+    private var totalStories: Int { allStories.count }
+    private var readCount: Int { allStories.filter { readStoryIDs.contains($0.id) }.count }
+    private var readProgress: Double {
+        totalStories > 0 ? Double(readCount) / Double(totalStories) : 0
+    }
 
     var body: some View {
-        NavigationView {
-            ZStack {
-                Color.black.ignoresSafeArea()
+        ZStack {
+            Color.black.ignoresSafeArea()
 
-                if isLoading {
-                    VStack(spacing: 16) {
-                        ProgressView()
-                            .scaleEffect(1.3)
-                            .tint(.white)
-                        Text("Loading your briefing...")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                    }
-                } else if let briefing = briefing {
-                    ScrollView {
-                        LazyVStack(spacing: 0) {
-                            // Hero Header
-                            BriefingHeaderView(briefing: briefing)
+            if isLoading {
+                loadingView
+            } else if !drops.isEmpty {
+                ScrollView {
+                    LazyVStack(spacing: 0) {
+                        ForEach(drops) { drop in
+                            DropHeaderView(
+                                briefing: drop.briefing,
+                                isFirst: drop.id == drops.first?.id,
+                                readCount: drop.stories.filter { readStoryIDs.contains($0.id) }.count,
+                                totalCount: drop.stories.count
+                            )
 
-                            // Stories
-                            ForEach(stories) { story in
+                            // Word Drop challenge card
+                            if let game = wordGames.first(where: { $0.dropType == drop.briefing.dropType }) {
+                                WordDropCardView(
+                                    game: game,
+                                    isPremium: authManager.currentUser?.isPremium ?? false,
+                                    onPlay: { selectedWordGame = game },
+                                    onUpgrade: { showingPaywall = true }
+                                )
+                                .padding(.horizontal, Theme.pagePadding)
+                                .padding(.vertical, 8)
+                            }
+
+                            ForEach(drop.stories) { story in
                                 StoryCardView(
                                     story: story,
                                     isPremiumUser: authManager.currentUser?.isPremium ?? false,
                                     isRead: readStoryIDs.contains(story.id),
                                     totalReactions: storyReactionCounts[story.id] ?? 0,
-                                    onTap: {
-                                        handleStoryTap(story)
-                                    }
+                                    onTap: { handleStoryTap(story) }
                                 )
-
-                                if story.id != stories.last?.id {
-                                    Divider()
-                                        .background(Color.white.opacity(0.06))
-                                        .padding(.horizontal, 20)
-                                }
                             }
-                        }
-                        .padding(.bottom, 100)
-                    }
-                    .refreshable { await loadBriefing() }
-                } else {
-                    NoBriefingView()
-                }
-            }
-            .navigationTitle("TheDailyPoop")
-            .navigationBarTitleDisplayMode(.large)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    HStack(spacing: 12) {
-                        // Swipe mode
-                        if !stories.isEmpty {
-                            Button {
-                                showingSwipeMode = true
-                            } label: {
-                                Image(systemName: "rectangle.stack")
-                                    .foregroundStyle(.white)
+
+                            if drop.id != drops.last?.id {
+                                DropDivider()
                             }
                         }
 
-                        // Audio
-                        if !stories.isEmpty {
-                            Button {
-                                if audioManager.isPlaying {
-                                    audioManager.togglePlayPause()
-                                } else {
-                                    let playable = stories.filter { $0.isFree || (authManager.currentUser?.isPremium ?? false) }
-                                    audioManager.startBriefing(stories: playable)
-                                }
-                            } label: {
-                                Image(systemName: audioManager.isPlaying ? "pause.circle.fill" : "headphones")
-                                    .foregroundStyle(audioManager.isPlaying ? .brown : .white)
-                            }
-                        }
+                        Spacer(minLength: 120)
                     }
                 }
+                .refreshable { await loadBriefing() }
+            } else {
+                NoBriefingView()
             }
-            .safeAreaInset(edge: .bottom) {
-                if audioManager.isPlaying || audioManager.progress > 0 {
-                    AudioPlayerBar(stories: stories)
-                        .environmentObject(audioManager)
-                }
+        }
+        .safeAreaInset(edge: .top) {
+            topBar
+        }
+        .safeAreaInset(edge: .bottom) {
+            if audioManager.isPlaying || audioManager.progress > 0 {
+                AudioPlayerBar(stories: allStories)
+                    .environmentObject(audioManager)
             }
         }
         .task { await loadBriefing() }
@@ -107,20 +94,142 @@ struct BriefingView: View {
                 .environmentObject(authManager)
         }
         .fullScreenCover(isPresented: $showingSwipeMode) {
-            SwipeReadingView(stories: stories, readStoryIDs: $readStoryIDs)
+            SwipeReadingView(stories: allStories, readStoryIDs: $readStoryIDs)
                 .environmentObject(authManager)
+        }
+        .fullScreenCover(item: $selectedWordGame) { game in
+            WordDropGameView(game: game)
+                .environmentObject(authManager)
+                .onDisappear {
+                    Task {
+                        if let user = authManager.currentUser {
+                            wordGames = (try? await SupabaseManager.shared.fetchTodayGames(userId: user.id)) ?? wordGames
+                        }
+                    }
+                }
         }
     }
 
+    // MARK: - Top Bar
+    private var topBar: some View {
+        HStack(spacing: 14) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text("TheDailyPoop")
+                    .font(.system(size: 22, weight: .black))
+                    .foregroundStyle(.white)
+                Text(formattedToday)
+                    .font(.caption2.weight(.medium))
+                    .foregroundStyle(Theme.textTertiary)
+            }
+
+            Spacer()
+
+            if !allStories.isEmpty {
+                // Reading progress ring
+                ZStack {
+                    Circle()
+                        .stroke(Color.white.opacity(0.08), lineWidth: 3)
+                    Circle()
+                        .trim(from: 0, to: readProgress)
+                        .stroke(Theme.accent, style: StrokeStyle(lineWidth: 3, lineCap: .round))
+                        .rotationEffect(.degrees(-90))
+                        .animation(.spring(response: 0.5), value: readProgress)
+                    Text("\(readCount)")
+                        .font(.system(size: 11, weight: .bold).monospacedDigit())
+                        .foregroundStyle(.white)
+                }
+                .frame(width: 32, height: 32)
+
+                // Swipe mode
+                Button {
+                    showingSwipeMode = true
+                } label: {
+                    Image(systemName: "rectangle.stack")
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundStyle(.white.opacity(0.7))
+                        .frame(width: 36, height: 36)
+                        .background(Theme.cardBg)
+                        .clipShape(Circle())
+                        .overlay(Circle().stroke(Theme.cardBorder, lineWidth: 0.5))
+                }
+
+                // Audio
+                Button {
+                    if audioManager.isPlaying {
+                        audioManager.togglePlayPause()
+                    } else {
+                        let playable = allStories.filter { $0.isFree || (authManager.currentUser?.isPremium ?? false) }
+                        audioManager.startBriefing(stories: playable)
+                    }
+                } label: {
+                    Image(systemName: audioManager.isPlaying ? "pause.fill" : "headphones")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(audioManager.isPlaying ? Theme.accent : .white.opacity(0.7))
+                        .frame(width: 36, height: 36)
+                        .background(audioManager.isPlaying ? Theme.accentDim : Theme.cardBg)
+                        .clipShape(Circle())
+                        .overlay(Circle().stroke(audioManager.isPlaying ? Theme.accent.opacity(0.3) : Theme.cardBorder, lineWidth: 0.5))
+                }
+            }
+        }
+        .padding(.horizontal, Theme.pagePadding)
+        .padding(.vertical, 10)
+        .background(
+            Rectangle()
+                .fill(.ultraThinMaterial)
+                .overlay(Rectangle().fill(Color.black.opacity(0.6)))
+                .overlay(alignment: .bottom) {
+                    Rectangle().fill(Color.white.opacity(0.04)).frame(height: 0.5)
+                }
+        )
+    }
+
+    // MARK: - Loading
+    private var loadingView: some View {
+        VStack(spacing: 20) {
+            ZStack {
+                Circle()
+                    .stroke(Color.white.opacity(0.06), lineWidth: 3)
+                    .frame(width: 50, height: 50)
+                Circle()
+                    .trim(from: 0, to: 0.3)
+                    .stroke(Theme.accent, style: StrokeStyle(lineWidth: 3, lineCap: .round))
+                    .frame(width: 50, height: 50)
+                    .rotationEffect(.degrees(isLoading ? 360 : 0))
+                    .animation(.linear(duration: 1).repeatForever(autoreverses: false), value: isLoading)
+            }
+            Text("Loading your briefing...")
+                .font(.subheadline.weight(.medium))
+                .foregroundStyle(Theme.textSecondary)
+        }
+    }
+
+    private var formattedToday: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "EEEE, MMM d"
+        return formatter.string(from: Date())
+    }
+
+    // MARK: - Data
     private func loadBriefing() async {
         guard let user = authManager.currentUser else { return }
         do {
-            if let b = try await SupabaseManager.shared.fetchTodayBriefing() {
-                briefing = b
-                stories = try await SupabaseManager.shared.fetchBriefingStories(briefingId: b.id)
-                readStoryIDs = try await SupabaseManager.shared.fetchReadStoryIDs(userID: user.id, briefingId: b.id)
-                storyReactionCounts = (try? await SupabaseManager.shared.fetchBulkReactionCounts(storyIds: stories.map { $0.id })) ?? [:]
-                updateWidgetData(briefing: b, stories: stories)
+            let fetchedDrops = try await SupabaseManager.shared.fetchTodayDrops()
+            drops = fetchedDrops
+
+            // Load word games
+            wordGames = (try? await SupabaseManager.shared.fetchTodayGames(userId: user.id)) ?? []
+
+            if !fetchedDrops.isEmpty {
+                let briefingIds = fetchedDrops.map { $0.briefing.id }
+                readStoryIDs = try await SupabaseManager.shared.fetchReadStoryIDs(userID: user.id, briefingIds: briefingIds)
+
+                let allIds = fetchedDrops.flatMap { $0.stories.map { $0.id } }
+                storyReactionCounts = (try? await SupabaseManager.shared.fetchBulkReactionCounts(storyIds: allIds)) ?? [:]
+
+                if let morningDrop = fetchedDrops.first {
+                    updateWidgetData(briefing: morningDrop.briefing, stories: morningDrop.stories)
+                }
             }
         } catch {
             print("Briefing load error: \(error)")
@@ -137,8 +246,6 @@ struct BriefingView: View {
             ["emoji": story.categoryEmoji, "headline": story.headline]
         }
         defaults.set(storiesData, forKey: "widget_stories")
-
-        // Tell WidgetKit to refresh
         WidgetCenter.shared.reloadAllTimelines()
     }
 
@@ -152,13 +259,11 @@ struct BriefingView: View {
 
         selectedStory = story
 
-        // Mark as read + ping globe
         if let user = authManager.currentUser {
             Task {
                 try? await SupabaseManager.shared.markStoryRead(userID: user.id, storyID: story.id)
                 readStoryIDs.insert(story.id)
 
-                // Fire reader location ping for live globe (fire-and-forget)
                 try? await SupabaseManager.shared.pingReaderLocation(
                     userId: user.id,
                     storyId: story.id,
@@ -170,61 +275,66 @@ struct BriefingView: View {
     }
 }
 
-// MARK: - Briefing Header
-struct BriefingHeaderView: View {
+// MARK: - Drop Header
+struct DropHeaderView: View {
     let briefing: Briefing
+    let isFirst: Bool
+    var readCount: Int = 0
+    var totalCount: Int = 0
+
+    private var dropColor: Color {
+        Theme.dropColor(for: briefing.dropType)
+    }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 14) {
+            // Drop type label + progress
             HStack {
-                Text("TODAY'S BRIEFING")
-                    .font(.caption.weight(.bold))
-                    .foregroundStyle(.brown)
-                    .tracking(1.5)
+                HStack(spacing: 6) {
+                    Text(briefing.dropEmoji)
+                        .font(.caption)
+                    Text(briefing.dropLabel)
+                        .font(.caption.weight(.black))
+                        .tracking(1.5)
+                }
+                .foregroundStyle(dropColor)
 
                 Spacer()
 
-                Text(formattedDate)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                if totalCount > 0 {
+                    Text("\(readCount)/\(totalCount) read")
+                        .font(.caption2.weight(.medium).monospacedDigit())
+                        .foregroundStyle(Theme.textTertiary)
+                }
+
+                if isFirst {
+                    Text(formattedDate)
+                        .font(.caption2.weight(.medium))
+                        .foregroundStyle(Theme.textTertiary)
+                }
             }
 
+            // Headline
             Text(briefing.headline)
-                .font(.title2.bold())
+                .font(.system(size: 24, weight: .black))
                 .foregroundStyle(.white)
                 .fixedSize(horizontal: false, vertical: true)
+                .lineSpacing(2)
 
+            // Intro
             if let intro = briefing.introText {
                 Text(intro)
                     .font(.subheadline)
-                    .foregroundStyle(.white.opacity(0.7))
+                    .foregroundStyle(Theme.textSecondary)
                     .fixedSize(horizontal: false, vertical: true)
+                    .lineSpacing(3)
             }
-
-            HStack(spacing: 16) {
-                Label("\(briefing.storyCount) stories", systemImage: "newspaper")
-                Label("\(briefing.freeStoryCount) free", systemImage: "lock.open")
-            }
-            .font(.caption)
-            .foregroundStyle(.secondary)
-
-            // Listen button
-            HStack(spacing: 10) {
-                Image(systemName: "headphones")
-                    .font(.caption.weight(.semibold))
-                Text("Listen to Briefing")
-                    .font(.caption.weight(.semibold))
-            }
-            .foregroundStyle(.brown)
-            .padding(.horizontal, 14)
-            .padding(.vertical, 8)
-            .background(Color.brown.opacity(0.15))
-            .cornerRadius(20)
         }
-        .padding(20)
+        .padding(Theme.pagePadding)
+        .padding(.top, isFirst ? 8 : 0)
         .background(
             LinearGradient(
-                colors: [Color.brown.opacity(0.15), Color.clear],
+                colors: [dropColor.opacity(0.1), Color.clear],
                 startPoint: .top,
                 endPoint: .bottom
             )
@@ -242,23 +352,52 @@ struct BriefingHeaderView: View {
     }
 }
 
+// MARK: - Drop Divider
+struct DropDivider: View {
+    var body: some View {
+        HStack(spacing: 12) {
+            Rectangle()
+                .fill(
+                    LinearGradient(colors: [.clear, Theme.cardBorder], startPoint: .leading, endPoint: .trailing)
+                )
+                .frame(height: 0.5)
+            Text("NEW DROP")
+                .font(.system(size: 10, weight: .heavy))
+                .foregroundStyle(Theme.textTertiary)
+                .tracking(3)
+            Rectangle()
+                .fill(
+                    LinearGradient(colors: [Theme.cardBorder, .clear], startPoint: .leading, endPoint: .trailing)
+                )
+                .frame(height: 0.5)
+        }
+        .padding(.horizontal, Theme.pagePadding)
+        .padding(.vertical, 28)
+    }
+}
+
 // MARK: - No Briefing
 struct NoBriefingView: View {
+    @State private var pulse = false
+
     var body: some View {
-        VStack(spacing: 20) {
-            Text("💩")
-                .font(.system(size: 80))
+        VStack(spacing: 24) {
+            AppLogoView(size: 80)
+                .scaleEffect(pulse ? 1.05 : 0.95)
+                .animation(.easeInOut(duration: 2).repeatForever(autoreverses: true), value: pulse)
 
-            Text("No Briefing Yet")
-                .font(.title2.bold())
-                .foregroundStyle(.white)
+            VStack(spacing: 8) {
+                Text("No Briefing Yet")
+                    .font(.title2.bold())
+                    .foregroundStyle(.white)
 
-            Text("Today's briefing hasn't been published yet. Check back soon!")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, 40)
+                Text("Today's briefing drops at 7 AM.\nCheck back soon!")
+                    .font(.subheadline)
+                    .foregroundStyle(Theme.textSecondary)
+                    .multilineTextAlignment(.center)
+            }
         }
+        .onAppear { pulse = true }
     }
 }
 
@@ -276,209 +415,242 @@ struct StoryDetailView: View {
         ("fire", "\u{1F525}"), ("skull", "\u{1F480}"), ("laugh", "\u{1F602}"), ("mindblown", "\u{1F92F}")
     ]
 
+    private var catColor: Color {
+        Theme.categoryColor(for: story.category)
+    }
+
     var body: some View {
         NavigationView {
             ZStack {
                 Color.black.ignoresSafeArea()
 
                 ScrollView {
-                    VStack(alignment: .leading, spacing: 16) {
-                        // Category pill + reading time
-                        HStack {
-                            Text("\(story.categoryEmoji) \(story.categoryLabel)")
-                                .font(.caption.weight(.semibold))
-                                .foregroundStyle(.white)
-                                .padding(.horizontal, 12)
-                                .padding(.vertical, 6)
-                                .background(Color.white.opacity(0.1))
-                                .cornerRadius(20)
-
-                            Spacer()
-
-                            Label("\(story.readingTimeMinutes) min read", systemImage: "clock")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
-
-                        // Hero image
+                    VStack(alignment: .leading, spacing: 0) {
+                        // Hero image (full bleed)
                         if let imageUrl = story.imageUrl, let url = URL(string: imageUrl) {
-                            VStack(alignment: .trailing, spacing: 4) {
+                            ZStack(alignment: .bottomLeading) {
                                 AsyncImage(url: url) { phase in
                                     switch phase {
                                     case .success(let image):
                                         image
                                             .resizable()
                                             .aspectRatio(contentMode: .fill)
-                                            .frame(maxHeight: 200)
+                                            .frame(height: 240)
                                             .clipped()
-                                            .cornerRadius(12)
                                     case .failure:
-                                        EmptyView()
+                                        Rectangle()
+                                            .fill(catColor.opacity(0.1))
+                                            .frame(height: 240)
                                     default:
-                                        RoundedRectangle(cornerRadius: 12)
-                                            .fill(Color.white.opacity(0.05))
-                                            .frame(height: 200)
+                                        Rectangle()
+                                            .fill(Color.white.opacity(0.03))
+                                            .frame(height: 240)
                                             .overlay(ProgressView().tint(.secondary))
                                     }
                                 }
 
+                                // Gradient overlay
+                                LinearGradient(
+                                    stops: [
+                                        .init(color: .clear, location: 0.3),
+                                        .init(color: .black, location: 1.0),
+                                    ],
+                                    startPoint: .top,
+                                    endPoint: .bottom
+                                )
+
+                                // Source credit
                                 if let source = story.sourceName {
-                                    Text("Image: \(source)")
-                                        .font(.system(size: 10))
+                                    Text(source)
+                                        .font(.system(size: 10, weight: .medium))
                                         .foregroundStyle(.white.opacity(0.4))
+                                        .padding(.horizontal, 8)
+                                        .padding(.vertical, 4)
+                                        .background(.black.opacity(0.5))
+                                        .clipShape(Capsule())
+                                        .padding(12)
+                                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
                                 }
                             }
+                            .frame(height: 240)
                         }
 
-                        // Headline
-                        Text(story.headline)
-                            .font(.title2.bold())
-                            .foregroundStyle(.white)
-                            .fixedSize(horizontal: false, vertical: true)
+                        // Content
+                        VStack(alignment: .leading, spacing: 20) {
+                            // Category + reading time
+                            HStack {
+                                CategoryPill(category: story.category, emoji: story.categoryEmoji)
 
-                        // Body
-                        Text(story.body)
-                            .font(.body)
-                            .foregroundStyle(.white.opacity(0.9))
-                            .lineSpacing(6)
-                            .fixedSize(horizontal: false, vertical: true)
+                                Spacer()
 
-                        // TLDR
-                        if let tldr = story.tldr {
-                            VStack(alignment: .leading, spacing: 8) {
-                                Text("TLDR")
-                                    .font(.caption.weight(.bold))
-                                    .foregroundStyle(.brown)
-                                    .tracking(1)
-
-                                Text(tldr)
-                                    .font(.subheadline)
-                                    .foregroundStyle(.white.opacity(0.8))
-                                    .italic()
+                                Label("\(story.readingTimeMinutes) min read", systemImage: "clock")
+                                    .font(.caption2.weight(.medium))
+                                    .foregroundStyle(Theme.textTertiary)
                             }
-                            .padding()
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .background(Color.white.opacity(0.05))
-                            .cornerRadius(12)
-                        }
 
-                        // Reactions bar
-                        VStack(spacing: 8) {
-                            HStack(spacing: 0) {
-                                ForEach(reactions, id: \.key) { reaction in
-                                    Button {
-                                        handleReaction(reaction.key)
-                                    } label: {
-                                        VStack(spacing: 4) {
-                                            Text(reaction.emoji)
-                                                .font(.title2)
-                                            Text("\(reactionCounts[reaction.key] ?? 0)")
-                                                .font(.caption2.weight(.medium))
-                                                .foregroundStyle(userReaction == reaction.key ? .white : .secondary)
+                            // Headline
+                            Text(story.headline)
+                                .font(.system(size: 24, weight: .black))
+                                .foregroundStyle(.white)
+                                .fixedSize(horizontal: false, vertical: true)
+                                .lineSpacing(2)
+
+                            // Body
+                            Text(story.body)
+                                .font(.system(size: 16))
+                                .foregroundStyle(.white.opacity(0.88))
+                                .lineSpacing(8)
+                                .fixedSize(horizontal: false, vertical: true)
+
+                            // TLDR
+                            if let tldr = story.tldr {
+                                VStack(alignment: .leading, spacing: 8) {
+                                    Text("TLDR")
+                                        .font(.caption.weight(.black))
+                                        .foregroundStyle(catColor)
+                                        .tracking(2)
+
+                                    Text(tldr)
+                                        .font(.subheadline)
+                                        .foregroundStyle(.white.opacity(0.75))
+                                        .italic()
+                                        .lineSpacing(4)
+                                }
+                                .padding(16)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .background(catColor.opacity(0.06))
+                                .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                        .stroke(catColor.opacity(0.15), lineWidth: 0.5)
+                                )
+                            }
+
+                            // Reactions
+                            GlassCard {
+                                HStack(spacing: 0) {
+                                    ForEach(reactions, id: \.key) { reaction in
+                                        Button {
+                                            handleReaction(reaction.key)
+                                        } label: {
+                                            VStack(spacing: 5) {
+                                                Text(reaction.emoji)
+                                                    .font(.title3)
+                                                Text("\(reactionCounts[reaction.key] ?? 0)")
+                                                    .font(.caption2.weight(.bold).monospacedDigit())
+                                                    .foregroundStyle(userReaction == reaction.key ? .white : Theme.textTertiary)
+                                            }
+                                            .frame(maxWidth: .infinity)
+                                            .padding(.vertical, 8)
+                                            .background(
+                                                userReaction == reaction.key
+                                                    ? catColor.opacity(0.15)
+                                                    : Color.clear
+                                            )
+                                            .clipShape(RoundedRectangle(cornerRadius: 10))
                                         }
-                                        .frame(maxWidth: .infinity)
-                                        .padding(.vertical, 10)
-                                        .background(
-                                            userReaction == reaction.key
-                                                ? Color.white.opacity(0.12)
-                                                : Color.clear
-                                        )
-                                        .cornerRadius(10)
+                                        .buttonStyle(.plain)
                                     }
-                                    .buttonStyle(.plain)
                                 }
                             }
-                            .padding(4)
-                            .background(Color.white.opacity(0.05))
-                            .cornerRadius(14)
-                        }
 
-                        // Source + bookmark row
-                        HStack {
-                            if let sourceName = story.sourceName {
-                                if let sourceUrl = story.sourceUrl, let url = URL(string: sourceUrl) {
-                                    Link(destination: url) {
+                            // Source + bookmark
+                            HStack {
+                                if let sourceName = story.sourceName {
+                                    if let sourceUrl = story.sourceUrl, let url = URL(string: sourceUrl) {
+                                        Link(destination: url) {
+                                            HStack(spacing: 6) {
+                                                Image(systemName: "arrow.up.right.square")
+                                                    .font(.caption)
+                                                Text(sourceName)
+                                                    .font(.caption.weight(.semibold))
+                                            }
+                                            .foregroundStyle(catColor.opacity(0.8))
+                                        }
+                                    } else {
                                         HStack(spacing: 6) {
-                                            Image(systemName: "arrow.up.right.square")
+                                            Image(systemName: "link")
                                                 .font(.caption)
-                                            Text(sourceName)
-                                                .font(.caption.weight(.medium))
+                                            Text("Source: \(sourceName)")
+                                                .font(.caption)
                                         }
-                                        .foregroundStyle(.blue.opacity(0.8))
+                                        .foregroundStyle(Theme.textTertiary)
                                     }
-                                } else {
-                                    HStack(spacing: 6) {
-                                        Image(systemName: "link")
-                                            .font(.caption)
-                                        Text("Source: \(sourceName)")
-                                            .font(.caption)
-                                    }
-                                    .foregroundStyle(.secondary)
                                 }
-                            }
 
-                            Spacer()
+                                Spacer()
 
-                            Button {
-                                handleBookmark()
-                            } label: {
-                                Image(systemName: isBookmarked ? "bookmark.fill" : "bookmark")
-                                    .font(.title3)
-                                    .foregroundStyle(isBookmarked ? .brown : .secondary)
-                            }
-                        }
-
-                        // Action buttons
-                        HStack(spacing: 12) {
-                            // Share text
-                            ShareLink(
-                                item: "\(story.headline)\n\nRead more on TheDailyPoop",
-                                subject: Text(story.headline),
-                                message: Text(story.tldr ?? story.headline)
-                            ) {
-                                HStack(spacing: 6) {
-                                    Image(systemName: "square.and.arrow.up")
-                                    Text("Share")
-                                        .fontWeight(.semibold)
-                                }
-                                .font(.subheadline)
-                                .foregroundStyle(.black)
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 14)
-                                .background(Color.white)
-                                .cornerRadius(12)
-                            }
-
-                            // Share card
-                            if story.bottomLine != nil || story.tldr != nil {
                                 Button {
-                                    showingShareCard = true
+                                    handleBookmark()
                                 } label: {
+                                    Image(systemName: isBookmarked ? "bookmark.fill" : "bookmark")
+                                        .font(.title3)
+                                        .foregroundStyle(isBookmarked ? catColor : Theme.textTertiary)
+                                        .symbolEffect(.bounce, value: isBookmarked)
+                                }
+                            }
+
+                            // Action buttons
+                            HStack(spacing: 10) {
+                                ShareLink(
+                                    item: "\(story.headline)\n\nRead more on TheDailyPoop",
+                                    subject: Text(story.headline),
+                                    message: Text(story.tldr ?? story.headline)
+                                ) {
                                     HStack(spacing: 6) {
-                                        Image(systemName: "photo")
-                                        Text("Card")
-                                            .fontWeight(.semibold)
+                                        Image(systemName: "square.and.arrow.up")
+                                        Text("Share")
+                                            .fontWeight(.bold)
                                     }
                                     .font(.subheadline)
-                                    .foregroundStyle(.white)
+                                    .foregroundStyle(.black)
                                     .frame(maxWidth: .infinity)
                                     .padding(.vertical, 14)
-                                    .background(Color.white.opacity(0.12))
-                                    .cornerRadius(12)
+                                    .background(Color.white)
+                                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                                }
+
+                                if story.bottomLine != nil || story.tldr != nil {
+                                    Button {
+                                        showingShareCard = true
+                                    } label: {
+                                        HStack(spacing: 6) {
+                                            Image(systemName: "photo")
+                                            Text("Card")
+                                                .fontWeight(.bold)
+                                        }
+                                        .font(.subheadline)
+                                        .foregroundStyle(.white)
+                                        .frame(maxWidth: .infinity)
+                                        .padding(.vertical, 14)
+                                        .background(Theme.elevatedBg)
+                                        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                                .stroke(Theme.cardBorder, lineWidth: 0.5)
+                                        )
+                                    }
                                 }
                             }
                         }
-                        .padding(.top, 8)
+                        .padding(Theme.pagePadding)
+                        .padding(.bottom, 40)
                     }
-                    .padding(20)
-                    .padding(.bottom, 40)
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Done") { dismiss() }
-                        .foregroundStyle(.white)
+                    Button {
+                        dismiss()
+                    } label: {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 14, weight: .bold))
+                            .foregroundStyle(.white.opacity(0.5))
+                            .frame(width: 30, height: 30)
+                            .background(.ultraThinMaterial.opacity(0.5))
+                            .clipShape(Circle())
+                    }
                 }
             }
         }
@@ -508,11 +680,9 @@ struct StoryDetailView: View {
         guard let user = authManager.currentUser else { return }
         let wasSelected = userReaction == reaction
 
-        // Haptic
         let impact = UIImpactFeedbackGenerator(style: wasSelected ? .light : .medium)
         impact.impactOccurred()
 
-        // Optimistic update
         if wasSelected {
             reactionCounts[reaction, default: 1] -= 1
             userReaction = nil
@@ -532,7 +702,6 @@ struct StoryDetailView: View {
     private func handleBookmark() {
         guard let user = authManager.currentUser else { return }
 
-        // Haptic
         let notification = UINotificationFeedbackGenerator()
         notification.notificationOccurred(isBookmarked ? .warning : .success)
 
@@ -540,9 +709,7 @@ struct StoryDetailView: View {
 
         Task {
             let result = try? await SupabaseManager.shared.toggleBookmark(userId: user.id, storyId: story.id)
-            if let result {
-                isBookmarked = result
-            }
+            if let result { isBookmarked = result }
         }
     }
 }
@@ -550,94 +717,204 @@ struct StoryDetailView: View {
 // MARK: - Paywall
 struct PaywallView: View {
     @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject var subscriptionManager: SubscriptionManager
+    @State private var animate = false
+    @State private var purchaseError: String?
 
     var body: some View {
         NavigationView {
             ZStack {
+                // Animated gradient background
                 LinearGradient(
-                    colors: [Color.black, Color.brown.opacity(0.3)],
-                    startPoint: .top,
-                    endPoint: .bottom
+                    colors: [
+                        Color.black,
+                        Theme.accent.opacity(0.2),
+                        Color.black,
+                    ],
+                    startPoint: animate ? .topLeading : .bottomTrailing,
+                    endPoint: animate ? .bottomTrailing : .topLeading
                 )
                 .ignoresSafeArea()
+                .animation(.easeInOut(duration: 4).repeatForever(autoreverses: true), value: animate)
 
-                VStack(spacing: 28) {
-                    Spacer()
+                ScrollView {
+                    VStack(spacing: 32) {
+                        Spacer(minLength: 40)
 
-                    Text("💩")
-                        .font(.system(size: 80))
+                        // Logo
+                        VStack(spacing: 16) {
+                            AppLogoView(size: 72)
 
-                    Text("Unlock All Stories")
-                        .font(.title.bold())
-                        .foregroundStyle(.white)
+                            Text("Go Premium")
+                                .font(.system(size: 32, weight: .black))
+                                .foregroundStyle(.white)
 
-                    Text("Get full access to all 10 daily stories, the archive, and keep your streak alive.")
-                        .font(.subheadline)
-                        .foregroundStyle(.white.opacity(0.7))
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal, 32)
-
-                    VStack(spacing: 12) {
-                        FeatureRow(icon: "newspaper.fill", text: "All 10 stories daily")
-                        FeatureRow(icon: "archivebox.fill", text: "Full briefing archive")
-                        FeatureRow(icon: "flame.fill", text: "Reading streak tracking")
-                        FeatureRow(icon: "bell.fill", text: "Priority morning push")
-                    }
-                    .padding(.horizontal, 32)
-
-                    Spacer()
-
-                    VStack(spacing: 12) {
-                        Button(action: { /* TODO: RevenueCat purchase */ }) {
-                            VStack(spacing: 4) {
-                                Text("$7.99/month")
-                                    .font(.headline)
-                                Text("Cancel anytime")
-                                    .font(.caption)
-                                    .opacity(0.7)
-                            }
-                            .foregroundStyle(.black)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 16)
-                            .background(Color.white)
-                            .cornerRadius(14)
+                            Text("Unlock every story across all daily drops.\nNever miss the news that matters.")
+                                .font(.subheadline)
+                                .foregroundStyle(Theme.textSecondary)
+                                .multilineTextAlignment(.center)
+                                .lineSpacing(4)
                         }
 
-                        Button(action: { /* TODO: RevenueCat purchase */ }) {
-                            VStack(spacing: 4) {
-                                Text("$59.99/year")
-                                    .font(.headline)
-                                Text("Save 37%")
-                                    .font(.caption)
-                                    .opacity(0.7)
-                            }
-                            .foregroundStyle(.white)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 16)
-                            .background(Color.white.opacity(0.15))
-                            .cornerRadius(14)
+                        // Features
+                        VStack(spacing: 14) {
+                            PaywallFeature(icon: "newspaper.fill", text: "18 stories daily (3 drops)", color: Theme.accent)
+                            PaywallFeature(icon: "bell.badge.fill", text: "Morning, midday & evening pushes", color: .orange)
+                            PaywallFeature(icon: "archivebox.fill", text: "Full briefing archive", color: .cyan)
+                            PaywallFeature(icon: "flame.fill", text: "Reading streak tracking", color: .red)
+                            PaywallFeature(icon: "headphones", text: "Audio briefings", color: .purple)
                         }
+                        .padding(.horizontal, 24)
+
+                        // Pricing cards
+                        VStack(spacing: 12) {
+                            // Monthly
+                            Button(action: { purchaseMonthly() }) {
+                                HStack {
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text("Monthly")
+                                            .font(.headline)
+                                            .foregroundStyle(.white)
+                                        Text("Cancel anytime")
+                                            .font(.caption)
+                                            .foregroundStyle(Theme.textTertiary)
+                                    }
+                                    Spacer()
+                                    Text("$7.99/mo")
+                                        .font(.title3.bold())
+                                        .foregroundStyle(.white)
+                                }
+                                .padding(18)
+                                .background(Theme.elevatedBg)
+                                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                        .stroke(Theme.cardBorder, lineWidth: 0.5)
+                                )
+                            }
+
+                            // Annual (highlighted)
+                            Button(action: { purchaseAnnual() }) {
+                                HStack {
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        HStack(spacing: 6) {
+                                            Text("Annual")
+                                                .font(.headline)
+                                            Text("SAVE 37%")
+                                                .font(.system(size: 10, weight: .heavy))
+                                                .foregroundStyle(.black)
+                                                .padding(.horizontal, 6)
+                                                .padding(.vertical, 2)
+                                                .background(Theme.accent)
+                                                .clipShape(Capsule())
+                                        }
+                                        .foregroundStyle(.black)
+                                        Text("$4.99/mo billed yearly")
+                                            .font(.caption)
+                                            .foregroundStyle(.black.opacity(0.6))
+                                    }
+                                    Spacer()
+                                    Text("$59.99/yr")
+                                        .font(.title3.bold())
+                                        .foregroundStyle(.black)
+                                }
+                                .padding(18)
+                                .background(Color.white)
+                                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                            }
+                        }
+                        .padding(.horizontal, 24)
 
                         Button("Restore Purchases") {
-                            /* TODO: RevenueCat restore */
+                            restorePurchases()
                         }
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .padding(.top, 4)
+                        .font(.caption.weight(.medium))
+                        .foregroundStyle(Theme.textTertiary)
+
+                        if subscriptionManager.isLoading {
+                            ProgressView()
+                                .tint(Theme.accent)
+                        }
+
+                        if let error = purchaseError {
+                            Text(error)
+                                .font(.caption)
+                                .foregroundStyle(.red)
+                                .multilineTextAlignment(.center)
+                        }
+
+                        Spacer(minLength: 40)
                     }
-                    .padding(.horizontal, 24)
-                    .padding(.bottom, 40)
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Close") { dismiss() }
-                        .foregroundStyle(.white)
+                    Button {
+                        dismiss()
+                    } label: {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 14, weight: .bold))
+                            .foregroundStyle(.white.opacity(0.5))
+                            .frame(width: 30, height: 30)
+                            .background(.ultraThinMaterial.opacity(0.5))
+                            .clipShape(Circle())
+                    }
                 }
             }
         }
         .preferredColorScheme(.dark)
+        .onAppear { animate = true }
+        .disabled(subscriptionManager.isLoading)
+    }
+
+    private func purchaseMonthly() {
+        purchaseError = nil
+        Task {
+            let success = await subscriptionManager.purchase(productID: SubscriptionManager.monthlyProductID)
+            if success { dismiss() }
+            else if !subscriptionManager.isLoading { purchaseError = "Purchase could not be completed." }
+        }
+    }
+
+    private func purchaseAnnual() {
+        purchaseError = nil
+        Task {
+            let success = await subscriptionManager.purchase(productID: SubscriptionManager.annualProductID)
+            if success { dismiss() }
+            else if !subscriptionManager.isLoading { purchaseError = "Purchase could not be completed." }
+        }
+    }
+
+    private func restorePurchases() {
+        purchaseError = nil
+        Task {
+            let success = await subscriptionManager.restorePurchases()
+            if success { dismiss() }
+            else { purchaseError = "No active subscription found." }
+        }
+    }
+}
+
+struct PaywallFeature: View {
+    let icon: String
+    let text: String
+    let color: Color
+
+    var body: some View {
+        HStack(spacing: 14) {
+            Image(systemName: icon)
+                .font(.system(size: 15))
+                .foregroundStyle(color)
+                .frame(width: 28)
+            Text(text)
+                .font(.subheadline.weight(.medium))
+                .foregroundStyle(.white)
+            Spacer()
+            Image(systemName: "checkmark")
+                .font(.caption.weight(.bold))
+                .foregroundStyle(.green.opacity(0.6))
+        }
     }
 }
 
@@ -648,7 +925,7 @@ struct FeatureRow: View {
     var body: some View {
         HStack(spacing: 14) {
             Image(systemName: icon)
-                .foregroundStyle(.brown)
+                .foregroundStyle(Theme.accent)
                 .frame(width: 24)
             Text(text)
                 .font(.subheadline)
@@ -665,31 +942,28 @@ struct AudioPlayerBar: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            // Progress bar
             GeometryReader { geo in
                 Rectangle()
-                    .fill(Color.brown)
+                    .fill(Theme.accent)
                     .frame(width: geo.size.width * audioManager.progress, height: 2)
             }
             .frame(height: 2)
 
             HStack(spacing: 16) {
-                // Story info
                 VStack(alignment: .leading, spacing: 2) {
                     if audioManager.currentStoryIndex < stories.count {
                         Text(stories[audioManager.currentStoryIndex].headline)
-                            .font(.caption.weight(.medium))
+                            .font(.caption.weight(.semibold))
                             .foregroundStyle(.white)
                             .lineLimit(1)
                     }
                     Text("Story \(audioManager.currentStoryIndex + 1) of \(stories.count)")
                         .font(.caption2)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(Theme.textTertiary)
                 }
 
                 Spacer()
 
-                // Controls
                 HStack(spacing: 20) {
                     Button { audioManager.skipBackward() } label: {
                         Image(systemName: "backward.fill")
@@ -712,7 +986,7 @@ struct AudioPlayerBar: View {
                     Button { audioManager.stop() } label: {
                         Image(systemName: "xmark")
                             .font(.caption)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(Theme.textTertiary)
                     }
                 }
             }

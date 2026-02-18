@@ -37,11 +37,7 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>TheDailyPoop needs your location to place your poop drops on the map and connect you with nearby friends.</string>
-	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>TheDailyPoop needs your location to place your poop drops on the map and track your bathroom adventures.</string>
-	<key>CFBundleDisplayName</key>
+<key>CFBundleDisplayName</key>
 	<string>TheDailyPoop</string>
 	<key>SUPABASE_URL</key>
 	<string>https://qolqaxbfspuddhatoxtd.supabase.co</string>

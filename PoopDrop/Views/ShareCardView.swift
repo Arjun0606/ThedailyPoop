@@ -17,7 +17,7 @@ struct BottomLineCardView: View {
 
                 Text("TheDailyPoop")
                     .font(.caption2.weight(.bold))
-                    .foregroundStyle(.brown)
+                    .foregroundStyle(Theme.accent)
                     .tracking(1)
             }
 
@@ -29,7 +29,7 @@ struct BottomLineCardView: View {
 
             // Divider
             Rectangle()
-                .fill(Color.brown.opacity(0.5))
+                .fill(Theme.accent.opacity(0.3))
                 .frame(height: 1)
 
             // Bottom Line
@@ -37,7 +37,7 @@ struct BottomLineCardView: View {
                 VStack(alignment: .leading, spacing: 6) {
                     Text("THE BOTTOM LINE")
                         .font(.caption2.weight(.black))
-                        .foregroundStyle(.brown)
+                        .foregroundStyle(Theme.accent)
                         .tracking(2)
 
                     Text(bottomLine)
@@ -49,7 +49,7 @@ struct BottomLineCardView: View {
                 VStack(alignment: .leading, spacing: 6) {
                     Text("TLDR")
                         .font(.caption2.weight(.black))
-                        .foregroundStyle(.brown)
+                        .foregroundStyle(Theme.accent)
                         .tracking(2)
 
                     Text(tldr)
@@ -80,7 +80,7 @@ struct BottomLineCardView: View {
         .cornerRadius(20)
         .overlay(
             RoundedRectangle(cornerRadius: 20)
-                .stroke(Color.brown.opacity(0.3), lineWidth: 1)
+                .stroke(Theme.accent.opacity(0.2), lineWidth: 1)
         )
     }
 }

@@ -35,13 +35,22 @@ struct Story: Identifiable, Codable {
         switch category {
         case "business": return "Business"
         case "tech": return "Tech"
+        case "politics": return "Politics"
+        case "sports": return "Sports"
         case "culture": return "Culture"
         default: return category.capitalized
         }
     }
 
     var categoryEmoji: String {
-        emoji ?? (category == "business" ? "💰" : category == "tech" ? "📱" : "🎬")
+        if let emoji = emoji { return emoji }
+        switch category {
+        case "business": return "💰"
+        case "tech": return "📱"
+        case "politics": return "🏛️"
+        case "sports": return "🏆"
+        default: return "🎬"
+        }
     }
 
     var readingTimeMinutes: Int {

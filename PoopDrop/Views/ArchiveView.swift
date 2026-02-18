@@ -7,39 +7,53 @@ struct ArchiveView: View {
     @State private var selectedBriefing: Briefing?
 
     var body: some View {
-        NavigationView {
-            ZStack {
-                Color.black.ignoresSafeArea()
+        ZStack {
+            Color.black.ignoresSafeArea()
+
+            VStack(spacing: 0) {
+                // Top bar
+                HStack {
+                    Text("Archive")
+                        .font(.system(size: 28, weight: .black))
+                        .foregroundStyle(.white)
+                    Spacer()
+                }
+                .padding(.horizontal, Theme.pagePadding)
+                .padding(.top, 16)
+                .padding(.bottom, 12)
 
                 if isLoading {
-                    ProgressView().tint(.white)
+                    Spacer()
+                    ProgressView().tint(Theme.textSecondary)
+                    Spacer()
                 } else if briefings.isEmpty {
-                    VStack(spacing: 20) {
+                    Spacer()
+                    VStack(spacing: 16) {
                         Text("📚")
-                            .font(.system(size: 60))
+                            .font(.system(size: 52))
                         Text("No Archives Yet")
-                            .font(.title3.bold())
+                            .font(.title3.weight(.bold))
                             .foregroundStyle(.white)
                         Text("Past briefings will appear here.")
                             .font(.subheadline)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(Theme.textSecondary)
                     }
+                    Spacer()
                 } else {
-                    List {
-                        ForEach(briefings) { briefing in
-                            Button(action: { selectedBriefing = briefing }) {
-                                ArchiveRow(briefing: briefing)
+                    ScrollView(showsIndicators: false) {
+                        LazyVStack(spacing: 10) {
+                            ForEach(briefings) { briefing in
+                                Button { selectedBriefing = briefing } label: {
+                                    ArchiveRow(briefing: briefing)
+                                }
+                                .buttonStyle(PressableButtonStyle())
                             }
-                            .listRowBackground(Color.white.opacity(0.03))
-                            .listRowSeparatorTint(Color.white.opacity(0.06))
                         }
+                        .padding(.horizontal, Theme.pagePadding)
+                        .padding(.bottom, 100)
                     }
-                    .listStyle(.plain)
-                    .scrollContentBackground(.hidden)
                 }
             }
-            .navigationTitle("Archive")
-            .navigationBarTitleDisplayMode(.large)
         }
         .task { await loadArchive() }
         .sheet(item: $selectedBriefing) { briefing in
@@ -61,33 +75,65 @@ struct ArchiveView: View {
 struct ArchiveRow: View {
     let briefing: Briefing
 
+    private var dropColor: Color {
+        Theme.dropColor(for: briefing.dropType)
+    }
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 10) {
             HStack {
-                Text(formattedDate)
-                    .font(.caption.weight(.semibold))
-                    .foregroundStyle(.brown)
+                HStack(spacing: 6) {
+                    Text(briefing.dropEmoji)
+                        .font(.caption)
+                    Text(briefing.dropLabel)
+                        .font(.system(size: 10, weight: .heavy))
+                        .tracking(0.5)
+                        .foregroundStyle(dropColor)
+                }
 
                 Spacer()
 
-                Text("\(briefing.storyCount) stories")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                Text(formattedDate)
+                    .font(.caption2.weight(.medium))
+                    .foregroundStyle(Theme.textTertiary)
+
+                Text("\(briefing.storyCount)")
+                    .font(.caption2.weight(.bold).monospacedDigit())
+                    .foregroundStyle(Theme.textTertiary)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(Theme.cardBg)
+                    .clipShape(Capsule())
             }
 
             Text(briefing.headline)
-                .font(.subheadline.weight(.semibold))
+                .font(.subheadline.weight(.bold))
                 .foregroundStyle(.white)
                 .lineLimit(2)
+                .multilineTextAlignment(.leading)
 
             if let intro = briefing.introText {
                 Text(intro)
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(Theme.textTertiary)
                     .lineLimit(2)
+                    .multilineTextAlignment(.leading)
             }
         }
-        .padding(.vertical, 8)
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Theme.cardBg)
+        .clipShape(RoundedRectangle(cornerRadius: Theme.cardRadius, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: Theme.cardRadius, style: .continuous)
+                .stroke(Theme.cardBorder, lineWidth: 0.5)
+        )
+        // Left accent bar
+        .overlay(alignment: .leading) {
+            dropColor
+                .frame(width: 3)
+                .clipShape(RoundedRectangle(cornerRadius: 2))
+        }
     }
 
     private var formattedDate: String {
@@ -101,7 +147,7 @@ struct ArchiveRow: View {
     }
 }
 
-// MARK: - Archive Briefing View (reuses story loading)
+// MARK: - Archive Briefing View
 struct ArchiveBriefingView: View {
     let briefing: Briefing
     @EnvironmentObject var authManager: AuthenticationManager
@@ -116,11 +162,11 @@ struct ArchiveBriefingView: View {
                 Color.black.ignoresSafeArea()
 
                 if isLoading {
-                    ProgressView().tint(.white)
+                    ProgressView().tint(Theme.textSecondary)
                 } else {
-                    ScrollView {
+                    ScrollView(showsIndicators: false) {
                         LazyVStack(spacing: 0) {
-                            BriefingHeaderView(briefing: briefing)
+                            DropHeaderView(briefing: briefing, isFirst: true)
 
                             ForEach(stories) { story in
                                 StoryCardView(
@@ -133,12 +179,6 @@ struct ArchiveBriefingView: View {
                                         }
                                     }
                                 )
-
-                                if story.id != stories.last?.id {
-                                    Divider()
-                                        .background(Color.white.opacity(0.06))
-                                        .padding(.horizontal, 20)
-                                }
                             }
                         }
                         .padding(.bottom, 40)
@@ -149,7 +189,8 @@ struct ArchiveBriefingView: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Done") { dismiss() }
-                        .foregroundStyle(.white)
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(Theme.accent)
                 }
             }
         }

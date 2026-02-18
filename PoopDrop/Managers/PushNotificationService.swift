@@ -4,10 +4,9 @@ import UserNotifications
 // MARK: - Push Notification Service
 // Registers device tokens with Supabase and triggers engagement notifications.
 // Key triggers that drive retention + revenue:
-//   "Someone posted gossip about you" → opens gossip, drives reveals ($1.99)
-//   "New drop in [group]" → opens map, drives engagement
-//   "Your group has a new challenge" → opens challenge, daily habit
-//   "[Name] joined your group" → social proof, keeps groups alive
+//   "Your morning briefing just dropped" → opens briefing, drives daily habit
+//   "Breaking: [headline]" → urgency, drives opens
+//   "Your streak is at risk!" → loss aversion, keeps streak alive
 
 @MainActor
 class PushNotificationService {
@@ -29,94 +28,72 @@ class PushNotificationService {
                     platform: "ios"
                 ))
                 .execute()
-            print("📱 Device token registered for user \(userID)")
+            print("Device token registered for user \(userID)")
         } catch {
             print("Failed to register device token: \(error)")
         }
     }
 
     // MARK: - Local Notification Triggers
-    // These fire immediately for in-app events. Server-side push handles cross-device.
 
-    /// "Someone posted gossip in [group]" — drives opens + reveals
-    func notifyNewGossip(groupName: String, groupEmoji: String) {
+    /// "Your morning briefing just dropped" — drives daily opens
+    func notifyNewBriefing(dropType: String) {
+        let (title, body) = dropTitle(for: dropType)
         schedule(
-            title: "\(groupEmoji) New gossip in \(groupName)",
-            body: "Someone just posted anonymous gossip. Can you figure out who? 👀",
-            type: "new_gossip",
-            delay: 0
-        )
-    }
-
-    /// "You were mentioned in gossip" — THE highest-converting notification
-    func notifyMentionedInGossip(groupName: String) {
-        schedule(
-            title: "🚨 Someone is talking about you",
-            body: "Anonymous gossip mentioning you was just posted in \(groupName). Pay $1.99 to reveal who.",
-            type: "new_gossip",
-            delay: 0
-        )
-    }
-
-    /// "New drop nearby" — drives map opens
-    func notifyNewDrop(username: String, locationName: String?) {
-        let location = locationName ?? "somewhere"
-        schedule(
-            title: "💩 @\(username) just dropped",
-            body: "New poop pin at \(location). Check the map!",
+            title: title,
+            body: body,
             type: "new_drop",
             delay: 0
         )
     }
 
-    /// "[Name] joined your group" — social proof
-    func notifyGroupJoin(username: String, groupName: String) {
+    /// "Breaking story" — urgency notification
+    func notifyBreakingStory(headline: String) {
         schedule(
-            title: "👋 @\(username) joined \(groupName)",
-            body: "Your group is growing! Drop a poop to welcome them.",
+            title: "Breaking",
+            body: headline,
             type: "new_drop",
             delay: 0
         )
     }
 
-    /// Daily challenge available — drives daily habit
-    func notifyDailyChallenge(groupName: String, groupEmoji: String) {
+    /// "Your streak is at risk!" — loss aversion
+    func notifyStreakAtRisk(currentStreak: Int) {
         schedule(
-            title: "\(groupEmoji) Daily challenge in \(groupName)",
-            body: "A new challenge just dropped. Respond before everyone else!",
-            type: "new_gossip",
+            title: "Your \(currentStreak)-day streak is at risk",
+            body: "Read at least one story today to keep it alive!",
+            type: "streak_reminder",
             delay: 0
         )
     }
 
     // MARK: - Re-engagement Nudges
-    // Scheduled for users who haven't opened the app
 
     /// Schedule a "you're missing out" nudge for 24h later
-    func scheduleReengagement(groupName: String) {
+    func scheduleReengagement() {
         schedule(
-            title: "💩 Your group misses you",
-            body: "There's new gossip and drops in \(groupName). Don't miss out!",
-            type: "new_gossip",
+            title: "You're missing out",
+            body: "Today's stories are going viral. Catch up before everyone else.",
+            type: "reengagement",
             delay: 86400 // 24 hours
         )
     }
 
-    /// Schedule daily drop reminder
+    /// Schedule daily briefing reminder
     func scheduleDailyReminder() {
-        // Fire at 2 PM local time
+        // Fire at 7:30 AM local time (just after morning drop)
         var dateComponents = DateComponents()
-        dateComponents.hour = 14
-        dateComponents.minute = 0
+        dateComponents.hour = 7
+        dateComponents.minute = 30
 
         let content = UNMutableNotificationContent()
-        content.title = "💩 Time for your daily drop"
-        content.body = "Your friends are waiting. Drop a poop and keep your streak alive!"
+        content.title = "Your morning briefing is ready"
+        content.body = "10 stories to start your day. Quick reads, zero fluff."
         content.sound = .default
         content.userInfo = ["type": "new_drop"]
 
         let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
-        let request = UNNotificationRequest(identifier: "daily_drop_reminder", content: content, trigger: trigger)
+        let request = UNNotificationRequest(identifier: "daily_briefing_reminder", content: content, trigger: trigger)
 
         UNUserNotificationCenter.current().add(request) { error in
             if let error { print("Failed to schedule daily reminder: \(error)") }
@@ -124,6 +101,19 @@ class PushNotificationService {
     }
 
     // MARK: - Private
+
+    private func dropTitle(for dropType: String) -> (String, String) {
+        switch dropType {
+        case "morning":
+            return ("Your morning briefing just dropped", "10 stories to start your day. Read time: 5 min.")
+        case "midday":
+            return ("Midday update is live", "5 stories you need to see before end of day.")
+        case "evening":
+            return ("Tonight's wrap is ready", "3 stories to close out the day.")
+        default:
+            return ("New briefing available", "Fresh stories are waiting for you.")
+        }
+    }
 
     private func schedule(title: String, body: String, type: String, delay: TimeInterval) {
         let content = UNMutableNotificationContent()

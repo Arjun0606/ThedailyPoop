@@ -8,6 +8,8 @@ struct User: Identifiable, Codable {
     var appleUserID: String
     var isPremium: Bool
     var streakCount: Int
+    var gameStreak: Int
+    var highestWordScore: Int
     var createdAt: Date
 
     init(id: String = UUID().uuidString,
@@ -16,7 +18,9 @@ struct User: Identifiable, Codable {
          avatarURL: URL? = nil,
          appleUserID: String,
          isPremium: Bool = false,
-         streakCount: Int = 0) {
+         streakCount: Int = 0,
+         gameStreak: Int = 0,
+         highestWordScore: Int = 0) {
         self.id = id
         self.username = username
         self.displayName = displayName
@@ -24,6 +28,8 @@ struct User: Identifiable, Codable {
         self.appleUserID = appleUserID
         self.isPremium = isPremium
         self.streakCount = streakCount
+        self.gameStreak = gameStreak
+        self.highestWordScore = highestWordScore
         self.createdAt = Date()
     }
 }

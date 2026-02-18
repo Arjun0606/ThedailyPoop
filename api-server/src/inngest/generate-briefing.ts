@@ -44,48 +44,70 @@ function extractJSON(text: string): string {
   return text.trim();
 }
 
-// Runs at 5:00 AM ET — generates the daily briefing
-export const generateDailyBriefing = inngest.createFunction(
-  { id: "generate-daily-briefing", name: "Generate Daily Briefing" },
-  { cron: "0 5 * * *" }, // 5:00 AM UTC (adjust for ET as needed)
-  async ({ step }) => {
-    const db = createServiceClient();
-    const today = new Date().toISOString().split("T")[0];
+function getCategoryEmoji(category: string): string {
+  switch (category) {
+    case "business": return "💰";
+    case "tech": return "📱";
+    case "politics": return "🏛️";
+    case "sports": return "🏆";
+    default: return "🎬";
+  }
+}
 
-    // Check if briefing already exists for today
-    const existing = await step.run("check-existing", async () => {
-      const { data } = await db
-        .from("briefings")
-        .select("id")
-        .eq("publish_date", today)
-        .single();
-      return data;
-    });
+interface DropConfig {
+  id: string;
+  name: string;
+  cron: string;
+  dropType: string;
+  storyCount: number;
+  freeCount: number;
+  timeFocus?: string;
+  headlineStyle: string;
+}
 
-    if (existing) {
-      return { skipped: true, reason: "Briefing already exists for today" };
-    }
+function createDropFunction(config: DropConfig) {
+  return inngest.createFunction(
+    { id: config.id, name: config.name },
+    { cron: config.cron },
+    async ({ step }) => {
+      const db = createServiceClient();
+      const today = new Date().toISOString().split("T")[0];
 
-    // Step 1: Fetch trending news from Perplexity
-    const rawStories = await step.run("fetch-news", async () => {
-      const results = await fetchAllCategories();
-      return results;
-    });
+      // Check if this drop already exists for today
+      const existing = await step.run("check-existing", async () => {
+        const { data } = await db
+          .from("briefings")
+          .select("id")
+          .eq("publish_date", today)
+          .eq("drop_type", config.dropType)
+          .single();
+        return data;
+      });
 
-    const allStories = rawStories.flatMap((r) =>
-      r.stories.map((s) => ({ ...s, category: r.category }))
-    );
+      if (existing) {
+        return { skipped: true, reason: `${config.dropType} drop already exists for today` };
+      }
 
-    if (allStories.length === 0) {
-      return { error: "No stories fetched from Perplexity" };
-    }
+      // Step 1: Fetch trending news from Perplexity
+      const rawStories = await step.run("fetch-news", async () => {
+        const results = await fetchAllCategories(config.timeFocus);
+        return results;
+      });
 
-    // Step 2: Curate & rank top 10 stories
-    const curatedStories = await step.run("curate-stories", async () => {
-      const storiesJson = JSON.stringify(allStories, null, 2);
+      const allStories = rawStories.flatMap((r) =>
+        r.stories.map((s) => ({ ...s, category: r.category }))
+      );
 
-      const result = await generateWithPremium(
-        `You are the editorial director at TheDailyPoop — the news app that makes finance, tech, and culture actually interesting to young people. Your job is to pick the 10 stories that will make our readers say "yooo no way" and send to their group chat.
+      if (allStories.length === 0) {
+        return { error: "No stories fetched from Perplexity" };
+      }
+
+      // Step 2: Curate & rank stories
+      const curatedStories = await step.run("curate-stories", async () => {
+        const storiesJson = JSON.stringify(allStories, null, 2);
+
+        const result = await generateWithPremium(
+          `You are the editorial director at TheDailyPoop — the news app that makes finance, tech, politics, sports, and culture actually interesting to young people. Your job is to pick the ${config.storyCount} stories that will make our readers say "yooo no way" and send to their group chat.
 
 SELECTION CRITERIA (in order of importance):
 1. "Holy shit factor" — would someone screenshot this and text it to a friend?
@@ -95,57 +117,51 @@ SELECTION CRITERIA (in order of importance):
 5. Power moves — big corporations, billionaires, or politicians doing wild things
 
 HARD RULES:
-- Stories 1-3 are FREE (these need to be absolute bangers to hook people into premium)
-- Stories 4-10 are PREMIUM
-- Mix it: roughly 3-4 business/finance, 3-4 tech/AI, 2-3 culture/sports/viral
+- Stories 1-${config.freeCount} are FREE (these need to be absolute bangers to hook people into premium)
+- Stories ${config.freeCount + 1}-${config.storyCount} are PREMIUM
+- Mix across categories: spread evenly across business, tech, politics, sports, culture — but flex if one category has weaker stories
 - SKIP boring earnings reports unless the numbers are genuinely shocking
 - SKIP generic "company releases new product" unless it's actually a big deal
+- SKIP dry policy stories unless the impact is massive or the hypocrisy is wild
 - PRIORITIZE stories with conflict, irony, huge numbers, or real consequences
 
-Return a JSON array of exactly 10 objects with keys: title, summary, sourceUrl, sourceName, category ("business" | "tech" | "culture"), rank (1-10).
+Return a JSON array of exactly ${config.storyCount} objects with keys: title, summary, sourceUrl, sourceName, category ("business" | "tech" | "politics" | "sports" | "culture"), rank (1-${config.storyCount}).
 Return ONLY the JSON array.`,
-        `Here are today's raw stories:\n\n${storiesJson}`
-      );
+          `Here are today's raw stories:\n\n${storiesJson}`
+        );
 
-      try {
-        return JSON.parse(extractJSON(result));
-      } catch {
-        console.error("Failed to parse curation result:", result.substring(0, 300));
-        // Fallback: use first 10 raw stories
-        return allStories.slice(0, 10).map((s, i) => ({
-          ...s,
-          rank: i + 1,
-        }));
-      }
-    });
+        try {
+          return JSON.parse(extractJSON(result));
+        } catch {
+          console.error("Failed to parse curation result:", result.substring(0, 300));
+          return allStories.slice(0, config.storyCount).map((s, i) => ({
+            ...s,
+            rank: i + 1,
+          }));
+        }
+      });
 
-    // Step 3: Fetch OG images from source articles
-    const ogImages = await step.run("fetch-og-images", async () => {
-      const urls: string[] = curatedStories
-        .map((s: { sourceUrl?: string }) => s.sourceUrl)
-        .filter(Boolean) as string[];
+      // Step 3: Fetch OG images from source articles
+      const ogImages = await step.run("fetch-og-images", async () => {
+        const urls: string[] = curatedStories
+          .map((s: { sourceUrl?: string }) => s.sourceUrl)
+          .filter(Boolean) as string[];
 
-      const imageMap = await fetchOgImages(urls);
-      // Convert Map to plain object for Inngest serialization
-      return Object.fromEntries(imageMap);
-    });
+        const imageMap = await fetchOgImages(urls);
+        return Object.fromEntries(imageMap);
+      });
 
-    // Step 4: Rewrite each story in TheDailyPoop voice
-    const rewrittenStories = await step.run("rewrite-stories", async () => {
-      const results = [];
+      // Step 4: Rewrite each story in TheDailyPoop voice
+      const rewrittenStories = await step.run("rewrite-stories", async () => {
+        const results = [];
 
-      for (let i = 0; i < Math.min(curatedStories.length, 10); i++) {
-        const story = curatedStories[i];
-        const categoryEmoji =
-          story.category === "business"
-            ? "💰"
-            : story.category === "tech"
-            ? "📱"
-            : "🎬";
+        for (let i = 0; i < Math.min(curatedStories.length, config.storyCount); i++) {
+          const story = curatedStories[i];
+          const categoryEmoji = getCategoryEmoji(story.category);
 
-        const result = await generateWithPremium(
-          STYLE_GUIDE,
-          `Rewrite this news story for TheDailyPoop. Make it genuinely entertaining AND informative.
+          const result = await generateWithPremium(
+            STYLE_GUIDE,
+            `Rewrite this news story for TheDailyPoop. Make it genuinely entertaining AND informative.
 
 ORIGINAL STORY:
 Title: ${story.title}
@@ -171,129 +187,184 @@ Examples of BAD headlines (do NOT write like this):
 "tldr": One sentence, casual tone, that captures the vibe. Like something you'd text: "basically apple fumbled again lol"
 
 Return ONLY the JSON object, no markdown fences, no explanation.`
-        );
+          );
 
-        try {
-          const parsed = JSON.parse(extractJSON(result));
-          results.push({
-            sortOrder: i + 1,
-            isFree: i < 3,
-            category: story.category,
-            headline: parsed.headline ?? story.title,
-            body: parsed.body ?? story.summary,
-            tldr: parsed.tldr ?? null,
-            sourceUrl: story.sourceUrl ?? null,
-            sourceName: story.sourceName ?? null,
-            imageUrl: story.sourceUrl ? ogImages[story.sourceUrl] ?? null : null,
-            emoji: categoryEmoji,
-          });
-        } catch {
-          // Fallback: use raw story
-          results.push({
-            sortOrder: i + 1,
-            isFree: i < 3,
-            category: story.category,
-            headline: story.title,
-            body: story.summary,
-            tldr: null,
-            sourceUrl: story.sourceUrl ?? null,
-            sourceName: story.sourceName ?? null,
-            imageUrl: story.sourceUrl ? ogImages[story.sourceUrl] ?? null : null,
-            emoji: categoryEmoji,
-          });
+          try {
+            const parsed = JSON.parse(extractJSON(result));
+            results.push({
+              sortOrder: i + 1,
+              isFree: i < config.freeCount,
+              category: story.category,
+              headline: parsed.headline ?? story.title,
+              body: parsed.body ?? story.summary,
+              tldr: parsed.tldr ?? null,
+              sourceUrl: story.sourceUrl ?? null,
+              sourceName: story.sourceName ?? null,
+              imageUrl: story.sourceUrl ? ogImages[story.sourceUrl] ?? null : null,
+              emoji: categoryEmoji,
+            });
+          } catch {
+            results.push({
+              sortOrder: i + 1,
+              isFree: i < config.freeCount,
+              category: story.category,
+              headline: story.title,
+              body: story.summary,
+              tldr: null,
+              sourceUrl: story.sourceUrl ?? null,
+              sourceName: story.sourceName ?? null,
+              imageUrl: story.sourceUrl ? ogImages[story.sourceUrl] ?? null : null,
+              emoji: categoryEmoji,
+            });
+          }
         }
-      }
 
-      return results;
-    });
+        return results;
+      });
 
-    // Step 4: Generate briefing headline + intro
-    const briefingMeta = await step.run("generate-headline", async () => {
-      const storyHeadlines = rewrittenStories
-        .map((s) => `${s.emoji} ${s.headline}`)
-        .join("\n");
+      // Step 5: Generate briefing headline + intro
+      const briefingMeta = await step.run("generate-headline", async () => {
+        const storyHeadlines = rewrittenStories
+          .map((s) => `${s.emoji} ${s.headline}`)
+          .join("\n");
 
-      const result = await generateWithMini(
-        STYLE_GUIDE,
-        `Write the daily briefing header for TheDailyPoop.
+        const result = await generateWithMini(
+          STYLE_GUIDE,
+          `Write the ${config.dropType} briefing header for TheDailyPoop.
 
 Today's stories:
 ${storyHeadlines}
 
-Return a JSON object with:
-"headline": A punchy 3-8 word title that captures today's vibe. Think newspaper headline meets meme. Max 60 chars. Examples: "Tech Bros Are Down Bad Today", "Your Portfolio Called. It's Crying.", "Everyone Got Fired Except AI"
-"introText": 2-3 sentences that make people NEED to scroll down. Be specific — reference 1-2 of the craziest stories. Don't be generic. Bad: "Another big day in the news!" Good: "Apple somehow made $90 billion while also forgetting how math works, TikTok's CEO went full savage in Congress, and someone just paid $4M for a JPEG. Happy Tuesday."
+${config.headlineStyle}
 
 Return ONLY JSON.`
-      );
-
-      try {
-        return JSON.parse(extractJSON(result));
-      } catch {
-        return {
-          headline: "Your Daily Scoop Is Here",
-          introText:
-            "Another day, another pile of news. Here's what matters.",
-        };
-      }
-    });
-
-    // Step 5: Save everything to Supabase
-    const saved = await step.run("save-to-db", async () => {
-      // Insert briefing
-      const { data: briefing, error: briefingError } = await db
-        .from("briefings")
-        .insert({
-          publish_date: today,
-          headline: briefingMeta.headline,
-          intro_text: briefingMeta.introText,
-          story_count: rewrittenStories.length,
-          free_story_count: rewrittenStories.filter((s) => s.isFree).length,
-          status: "published",
-          published_at: new Date().toISOString(),
-        })
-        .select("id")
-        .single();
-
-      if (briefingError || !briefing) {
-        throw new Error(
-          `Failed to insert briefing: ${briefingError?.message}`
         );
-      }
 
-      // Insert stories
-      const storyRows = rewrittenStories.map((s) => ({
-        briefing_id: briefing.id,
-        sort_order: s.sortOrder,
-        is_free: s.isFree,
-        category: s.category,
-        headline: s.headline,
-        body: s.body,
-        tldr: s.tldr,
-        source_url: s.sourceUrl,
-        source_name: s.sourceName,
-        image_url: s.imageUrl,
-        emoji: s.emoji,
-      }));
+        try {
+          return JSON.parse(extractJSON(result));
+        } catch {
+          return {
+            headline: config.dropType === "morning"
+              ? "Your Daily Scoop Is Here"
+              : config.dropType === "midday"
+              ? "Midday Drop Just Landed"
+              : "Evening Wrap Is In",
+            introText: "Here's what matters right now.",
+          };
+        }
+      });
 
-      const { error: storiesError } = await db
-        .from("stories")
-        .insert(storyRows);
+      // Step 6: Save everything to Supabase
+      const saved = await step.run("save-to-db", async () => {
+        const { data: briefing, error: briefingError } = await db
+          .from("briefings")
+          .insert({
+            publish_date: today,
+            drop_type: config.dropType,
+            headline: briefingMeta.headline,
+            intro_text: briefingMeta.introText,
+            story_count: rewrittenStories.length,
+            free_story_count: rewrittenStories.filter((s) => s.isFree).length,
+            status: "published",
+            published_at: new Date().toISOString(),
+          })
+          .select("id")
+          .single();
 
-      if (storiesError) {
-        throw new Error(
-          `Failed to insert stories: ${storiesError.message}`
-        );
-      }
+        if (briefingError || !briefing) {
+          throw new Error(
+            `Failed to insert briefing: ${briefingError?.message}`
+          );
+        }
 
-      return { briefingId: briefing.id, storyCount: storyRows.length };
-    });
+        const storyRows = rewrittenStories.map((s) => ({
+          briefing_id: briefing.id,
+          sort_order: s.sortOrder,
+          is_free: s.isFree,
+          category: s.category,
+          headline: s.headline,
+          body: s.body,
+          tldr: s.tldr,
+          source_url: s.sourceUrl,
+          source_name: s.sourceName,
+          image_url: s.imageUrl,
+          emoji: s.emoji,
+        }));
 
-    return {
-      success: true,
-      briefingId: saved.briefingId,
-      storyCount: saved.storyCount,
-      headline: briefingMeta.headline,
-    };
-  }
-);
+        const { error: storiesError } = await db
+          .from("stories")
+          .insert(storyRows);
+
+        if (storiesError) {
+          throw new Error(
+            `Failed to insert stories: ${storiesError.message}`
+          );
+        }
+
+        return { briefingId: briefing.id, storyCount: storyRows.length };
+      });
+
+      // Trigger Word Drop game generation
+      await step.sendEvent("trigger-word-game", {
+        name: "briefing/published",
+        data: {
+          briefingId: saved.briefingId,
+          dropType: config.dropType,
+          publishDate: today,
+        },
+      });
+
+      return {
+        success: true,
+        dropType: config.dropType,
+        briefingId: saved.briefingId,
+        storyCount: saved.storyCount,
+        headline: briefingMeta.headline,
+      };
+    }
+  );
+}
+
+// Morning Drop — 10 stories, runs at 5 AM
+export const generateMorningDrop = createDropFunction({
+  id: "generate-morning-drop",
+  name: "Generate Morning Drop",
+  cron: "0 5 * * *",
+  dropType: "morning",
+  storyCount: 10,
+  freeCount: 3,
+  headlineStyle: `Return a JSON object with:
+"headline": A punchy 3-8 word title that captures today's vibe. Think newspaper headline meets meme. Max 60 chars. Examples: "Tech Bros Are Down Bad Today", "Your Portfolio Called. It's Crying.", "Everyone Got Fired Except AI"
+"introText": 2-3 sentences that make people NEED to scroll down. Be specific — reference 1-2 of the craziest stories. Don't be generic. Bad: "Another big day in the news!" Good: "Apple somehow made $90 billion while also forgetting how math works, TikTok's CEO went full savage in Congress, and someone just paid $4M for a JPEG. Happy Tuesday."`,
+});
+
+// Midday Drop — 5 stories, runs at 12 PM
+export const generateMiddayDrop = createDropFunction({
+  id: "generate-midday-drop",
+  name: "Generate Midday Drop",
+  cron: "0 12 * * *",
+  dropType: "midday",
+  storyCount: 5,
+  freeCount: 1,
+  timeFocus: "Focus ONLY on stories that broke or developed significantly in the LAST 6 HOURS. I want fresh breaking news, not stories from this morning. If a story has been developing, give me the latest update.",
+  headlineStyle: `Return a JSON object with:
+"headline": A punchy 3-6 word title for the MIDDAY update. Max 50 chars. Examples: "Afternoon Plot Twist", "Lunch Break Chaos", "Things Just Got Spicy"
+"introText": 1-2 sentences teasing the hottest story that just broke. Keep it urgent — this is breaking news energy.`,
+});
+
+// Evening Drop — 3 stories, runs at 5 PM
+export const generateEveningDrop = createDropFunction({
+  id: "generate-evening-drop",
+  name: "Generate Evening Drop",
+  cron: "0 17 * * *",
+  dropType: "evening",
+  storyCount: 3,
+  freeCount: 1,
+  timeFocus: "Focus on the BIGGEST stories of the entire day — the ones everyone is talking about tonight. Include stories that developed or escalated throughout the day, and any late-breaking stories from the afternoon.",
+  headlineStyle: `Return a JSON object with:
+"headline": A punchy 3-6 word title wrapping up the day. Max 50 chars. Examples: "Today Was a Movie", "That's a Wrap, Folks", "Day's Final Plot Twist"
+"introText": 1-2 sentences that sum up today's vibe. What was the theme? What will people be talking about at dinner?`,
+});
+
+// Keep backward-compat export name for existing registrations
+export const generateDailyBriefing = generateMorningDrop;

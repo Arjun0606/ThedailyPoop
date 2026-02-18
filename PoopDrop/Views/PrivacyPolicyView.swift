@@ -2,12 +2,12 @@ import SwiftUI
 
 struct PrivacyPolicyView: View {
     @Environment(\.dismiss) var dismiss
-    
+
     var body: some View {
         NavigationView {
             ZStack {
                 Color.black.ignoresSafeArea()
-                
+
                 ScrollView {
                     VStack(alignment: .leading, spacing: 20) {
                         Text("Privacy Policy")
@@ -15,245 +15,178 @@ struct PrivacyPolicyView: View {
                             .fontWeight(.bold)
                             .foregroundColor(.white)
                             .padding(.bottom, 8)
-                        
-                        Text("Last Updated: September 30, 2025")
+
+                        Text("Last Updated: February 2026")
                             .font(.footnote)
                             .foregroundColor(.gray)
                             .padding(.bottom, 16)
-                        
+
                         SwiftUI.Group {
                             SectionHeader(title: "Introduction")
                             BodyText(text: """
                             TheDailyPoop ("we," "us," or "our") respects your privacy. This Privacy Policy explains how we collect, use, store, and protect your personal information when you use the TheDailyPoop app ("the App").
-                            
+
                             By using TheDailyPoop, you agree to the collection and use of information as described in this policy.
                             """)
-                            
+
                             SectionHeader(title: "1. Information We Collect")
                             BodyText(text: """
                             We collect the following types of information:
-                            
+
                             A. Account Information:
-                            • Apple ID (encrypted identifier from Sign in with Apple)
-                            • Username (chosen by you)
-                            • Profile picture (optional, if uploaded)
-                            • Date of birth
-                            • Gender (optional)
-                            • Email address (if you choose to share it via Sign in with Apple)
-                            
-                            B. Location Data:
-                            • City, state, and country when you log a drop
-                            • GPS coordinates (converted to city/state; exact coordinates are not stored long-term)
-                            • Location history for map and statistics features
-                            
-                            C. Usage Data:
-                            • Drops you log (timestamp, emoji, caption, location)
-                            • Friends list and friend requests
-                            • Reactions and interactions with other users' content
-                            • Statistics and achievements
-                            • Gossip posts and reveals
-                            • App usage analytics (screens viewed, features used)
-                            
-                            D. Device Information:
-                            • Device model and operating system version
-                            • Unique device identifiers (for app functionality)
-                            • App version and language settings
+                            \u{2022} Apple ID (encrypted identifier from Sign in with Apple)
+                            \u{2022} Username (chosen by you)
+                            \u{2022} Display name (optional)
+                            \u{2022} Profile picture (optional, if uploaded)
+                            \u{2022} Email address (if you choose to share it via Sign in with Apple)
+
+                            B. Usage Data:
+                            \u{2022} Stories you read and reading history
+                            \u{2022} Reading streak and engagement statistics
+                            \u{2022} Subscription status
+                            \u{2022} App usage analytics (screens viewed, features used)
+
+                            C. Device Information:
+                            \u{2022} Device model and operating system version
+                            \u{2022} Push notification token (for notifications)
+                            \u{2022} App version
+
+                            D. Approximate Location (Live Globe):
+                            \u{2022} IP-based geolocation (city/country level) when you read a story
+                            \u{2022} Used solely for the live reader globe visualization
+                            \u{2022} No GPS or precise location data is collected
                             """)
-                            
+
                             SectionHeader(title: "2. How We Use Your Information")
                             BodyText(text: """
                             We use your information to:
-                            • Provide and maintain the TheDailyPoop service
-                            • Display your drops on maps and in feeds
-                            • Calculate statistics and achievements
-                            • Facilitate social features (friends, gossip, notifications)
-                            • Send push notifications (drop alerts, gossip mentions, friend activity)
-                            • Improve app performance and user experience
-                            • Prevent fraud, abuse, and violations of our Terms of Service
-                            • Comply with legal obligations
+                            \u{2022} Provide and maintain the TheDailyPoop service
+                            \u{2022} Deliver daily news briefings
+                            \u{2022} Track reading streaks and engagement stats
+                            \u{2022} Display the live reader globe (approximate location only)
+                            \u{2022} Send push notifications (briefing alerts, streak reminders)
+                            \u{2022} Process subscription payments via Apple
+                            \u{2022} Improve app performance and user experience
+                            \u{2022} Prevent fraud and abuse
                             """)
                         }
-                        
+
                         SwiftUI.Group {
                             SectionHeader(title: "3. How We Share Your Information")
                             BodyText(text: """
-                            Your privacy is important to us. We DO NOT sell your personal information to third parties.
-                            
+                            We DO NOT sell your personal information to third parties.
+
                             We share information only in these circumstances:
-                            
-                            A. With Your Friends:
-                            • Your drops (emoji, caption, city/state, timestamp) are visible to friends you've accepted
-                            • Your profile (username, avatar, stats) is visible to friends
-                            • Your location history is visible to friends on the map
-                            
-                            B. With Service Providers:
-                            • Apple CloudKit (for secure data storage and sync)
-                            • Apple Push Notification Service (for notifications)
-                            
-                            C. For Legal Reasons:
-                            • To comply with laws, regulations, or legal processes
-                            • To protect our rights, property, or safety
-                            • To prevent fraud or illegal activity
-                            
-                            D. Business Transfers:
-                            • If TheDailyPoop is acquired or merged, your data may be transferred to the new entity
+
+                            A. Live Globe (Public):
+                            \u{2022} Your username and approximate city/country may appear on the live reader globe when you read a story
+                            \u{2022} This is visible to other users of the App
+
+                            B. Service Providers:
+                            \u{2022} Supabase (database and authentication)
+                            \u{2022} Apple Push Notification Service (notifications)
+                            \u{2022} RevenueCat (subscription management)
+                            \u{2022} Vercel (API hosting, IP geolocation headers)
+
+                            C. Legal Reasons:
+                            \u{2022} To comply with laws, regulations, or legal processes
+                            \u{2022} To protect our rights, property, or safety
+                            \u{2022} To prevent fraud or illegal activity
                             """)
-                            
-                            SectionHeader(title: "4. Third-Party Services")
+
+                            SectionHeader(title: "4. Data Storage and Security")
                             BodyText(text: """
-                            TheDailyPoop uses the following third-party services:
-                            • Apple CloudKit (for secure data storage and synchronization)
-                            • Apple Push Notification Service (for notifications)
-                            
-                            We do not use advertising networks or tracking services. We do not sell your data to third parties.
-                            
-                            Learn more about Apple's privacy practices at: https://www.apple.com/privacy
-                            """)
-                            
-                            SectionHeader(title: "5. Data Storage and Security")
-                            BodyText(text: """
-                            Your data is stored securely using Apple CloudKit, which provides:
-                            • End-to-end encryption for private data
-                            • Secure data centers in multiple regions
-                            • Regular security audits and compliance certifications
-                            
-                            We implement industry-standard security measures, but no system is 100% secure. Use TheDailyPoop at your own risk.
-                            
+                            Your data is stored securely using Supabase (PostgreSQL), which provides:
+                            \u{2022} Row-level security policies
+                            \u{2022} Encrypted data at rest and in transit
+                            \u{2022} Regular security audits
+
+                            We implement industry-standard security measures, but no system is 100% secure.
+
                             Data Retention:
-                            • Drops are visible for 3 days in feeds, but stored indefinitely for map and stats
-                            • Account data is retained until you delete your account
-                            • Deleted accounts are purged within 30 days
+                            \u{2022} Account data is retained until you delete your account
+                            \u{2022} Reader session data (live globe) is automatically deleted after 2 hours
+                            \u{2022} Deleted accounts are purged within 30 days
                             """)
-                        }
-                        
-                        SwiftUI.Group {
-                            SectionHeader(title: "6. Location Privacy")
-                            BodyText(text: """
-                            TheDailyPoop collects location data to provide map and location-based features. We prioritize your privacy:
-                            
-                            • Only city/state/country is displayed (not exact coordinates)
-                            • Location data is collected only when you log a drop
-                            • You can disable location access in Settings (app functionality will be limited)
-                            • Location history is visible only to you and your friends
-                            
-                            We do not share your location with advertisers or third parties beyond what's necessary for service operation.
-                            """)
-                            
-                            SectionHeader(title: "7. Your Privacy Rights")
+
+                            SectionHeader(title: "5. Your Privacy Rights")
                             BodyText(text: """
                             You have the right to:
-                            • Access your personal data (view in Profile and Settings)
-                            • Correct inaccurate information (edit profile in Settings)
-                            • Delete your account (in Settings > Delete Account)
-                            • Opt out of personalized ads (iOS device settings)
-                            • Control push notifications (iOS device settings)
-                            • Control location permissions (iOS device settings)
-                            
+                            \u{2022} Access your personal data (view in Profile and Settings)
+                            \u{2022} Correct inaccurate information (edit profile in Settings)
+                            \u{2022} Delete your account (in Settings > Delete Account)
+                            \u{2022} Control push notifications (iOS device settings)
+
                             To exercise these rights, use the in-app settings or contact us at karjunvarma2001@gmail.com.
-                            
+
                             For users in the EU/EEA: You have additional rights under GDPR, including data portability and the right to object to processing.
                             """)
-                            
-                            SectionHeader(title: "8. Children's Privacy")
+                        }
+
+                        SwiftUI.Group {
+                            SectionHeader(title: "6. Children's Privacy")
                             BodyText(text: """
                             TheDailyPoop is not intended for children under 13. We do not knowingly collect data from children under 13.
-                            
+
                             If you are a parent and believe your child has created an account, please contact us immediately, and we will delete it.
-                            
+
                             Users aged 13-17 should obtain parental consent before using TheDailyPoop.
                             """)
-                            
-                            SectionHeader(title: "9. International Data Transfers")
-                            BodyText(text: """
-                            TheDailyPoop is operated from India. Your data may be transferred to and stored in servers located outside your country of residence, including the United States (CloudKit data centers).
-                            
-                            By using TheDailyPoop, you consent to the transfer of your data to these locations. We ensure appropriate safeguards are in place to protect your data.
-                            """)
-                        }
-                        
-                        SwiftUI.Group {
-                            SectionHeader(title: "10. Push Notifications")
+
+                            SectionHeader(title: "7. Push Notifications")
                             BodyText(text: """
                             With your permission, we send push notifications for:
-                            • Friend drop alerts
-                            • Gossip mentions and replies
-                            • Friend requests and acceptances
-                            • Reactions to your drops
-                            
+                            \u{2022} New briefing alerts (morning, midday, evening)
+                            \u{2022} Streak reminders
+                            \u{2022} Breaking news (rare, high-impact stories only)
+
                             You can disable notifications in iOS Settings > Notifications > TheDailyPoop.
                             """)
-                            
-                            SectionHeader(title: "11. Cookies and Tracking")
+
+                            SectionHeader(title: "8. Cookies and Tracking")
                             BodyText(text: """
-                            TheDailyPoop does not use cookies or tracking technologies. As a native iOS app, we do not track you for advertising or analytics purposes beyond what is necessary for app functionality.
-                            
-                            We respect your privacy and do not sell your data to third parties.
+                            TheDailyPoop does not use cookies or third-party advertising trackers. As a native iOS app, we do not track you for advertising purposes.
+
+                            We do not participate in cross-app tracking and respect Apple's App Tracking Transparency framework.
                             """)
-                            
-                            SectionHeader(title: "12. Changes to This Policy")
-                            BodyText(text: """
-                            We may update this Privacy Policy from time to time. Changes will be posted in-app with an updated "Last Updated" date.
-                            
-                            Significant changes will be communicated via:
-                            • In-app notification
-                            • Email (if you've provided one)
-                            
-                            Continued use of TheDailyPoop after changes constitutes acceptance of the new Privacy Policy.
-                            """)
-                            
-                            SectionHeader(title: "13. Your California Privacy Rights (CCPA)")
+                        }
+
+                        SwiftUI.Group {
+                            SectionHeader(title: "9. California Privacy Rights (CCPA)")
                             BodyText(text: """
                             If you are a California resident, you have the right to:
-                            • Know what personal information we collect and how it's used
-                            • Request deletion of your personal information
-                            • Opt out of the "sale" of personal information (we do not sell data)
-                            
+                            \u{2022} Know what personal information we collect and how it's used
+                            \u{2022} Request deletion of your personal information
+                            \u{2022} Opt out of the "sale" of personal information (we do not sell data)
+
                             To exercise these rights, contact us at karjunvarma2001@gmail.com or delete your account in Settings.
                             """)
-                            
-                            SectionHeader(title: "14. Data Breach Notification")
+
+                            SectionHeader(title: "10. Changes to This Policy")
                             BodyText(text: """
-                            In the event of a data breach that affects your personal information, we will:
-                            • Notify affected users within 72 hours (if feasible)
-                            • Provide details about the breach and steps we're taking
-                            • Recommend actions you can take to protect yourself
-                            
-                            We will also notify relevant authorities as required by law.
+                            We may update this Privacy Policy from time to time. Changes will be posted in-app with an updated "Last Updated" date. Continued use of TheDailyPoop after changes constitutes acceptance of the new Privacy Policy.
                             """)
-                        }
-                        
-                        SwiftUI.Group {
-                            SectionHeader(title: "15. Contact Information")
+
+                            SectionHeader(title: "11. Contact Information")
                             BodyText(text: """
-                            If you have questions, concerns, or requests regarding this Privacy Policy or your personal data, contact us:
-                            
+                            If you have questions about this Privacy Policy, contact us:
+
                             Email: karjunvarma2001@gmail.com
                             X/Twitter: @Arjun06061
-                            
+
                             We will respond to privacy inquiries within 7 business days.
                             """)
-                            
-                            SectionHeader(title: "16. Consent")
-                            BodyText(text: """
-                            By using TheDailyPoop, you consent to:
-                            • Collection and use of your information as described
-                            • Display of your drops and profile to friends
-                            • Use of location data for map and stats features
-                            • Transfer of data to service providers (CloudKit, Apple Push Notifications)
-                            
-                            You can withdraw consent by deleting your account or discontinuing use of the App.
-                            """)
                         }
-                        
+
                         Text("Your privacy matters to us. We are committed to protecting your data and providing transparency about how we use it.")
                             .font(.body)
                             .foregroundColor(.white)
                             .padding(.vertical, 20)
                             .padding(.horizontal, 16)
-                            .background(Color.brown.opacity(0.2))
+                            .background(Theme.accent.opacity(0.1))
                             .cornerRadius(12)
                             .padding(.top, 16)
-                        
+
                         Spacer(minLength: 50)
                     }
                     .padding(20)

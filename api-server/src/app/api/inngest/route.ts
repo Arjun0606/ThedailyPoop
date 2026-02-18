@@ -1,8 +1,13 @@
 import { serve } from "inngest/next";
 import { inngest } from "@/inngest/client";
 import {
-  generateDailyBriefing,
+  generateMorningDrop,
+  generateMiddayDrop,
+  generateEveningDrop,
+  generateWordGame,
   morningPush,
+  middayPush,
+  eveningPush,
   streakCheck,
   cleanupSessions,
   weeklyDigest,
@@ -11,8 +16,13 @@ import {
 export const { GET, POST, PUT } = serve({
   client: inngest,
   functions: [
-    generateDailyBriefing, // 5am — AI briefing generation
-    morningPush,           // 7am — push notification
+    generateMorningDrop,   // 5am — morning briefing (10 stories)
+    generateMiddayDrop,    // 12pm — midday drop (5 stories)
+    generateEveningDrop,   // 5pm — evening wrap (3 stories)
+    generateWordGame,      // event-driven — word game after briefing
+    morningPush,           // 7am — morning push notification
+    middayPush,            // 12:30pm — midday push notification
+    eveningPush,           // 5:30pm — evening push notification
     streakCheck,           // midnight — update/reset streaks
     cleanupSessions,       // hourly — delete old reader sessions
     weeklyDigest,          // Sunday 10am — weekly recap push

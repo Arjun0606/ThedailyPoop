@@ -31,5 +31,10 @@ struct ContentView: View {
                 showProfileSetup = user.username.isEmpty
             }
         }
+        .onChange(of: authManager.currentUser?.username) { _, username in
+            if authManager.isAuthenticated, let username = username {
+                showProfileSetup = username.isEmpty
+            }
+        }
     }
 }

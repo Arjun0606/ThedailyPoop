@@ -6,6 +6,12 @@ struct SwipeReadingView: View {
     @EnvironmentObject var authManager: AuthenticationManager
     @Environment(\.dismiss) private var dismiss
     @State private var currentIndex = 0
+    @State private var dragOffset: CGFloat = 0
+
+    private var progress: CGFloat {
+        guard !stories.isEmpty else { return 0 }
+        return CGFloat(currentIndex + 1) / CGFloat(stories.count)
+    }
 
     var body: some View {
         ZStack {
@@ -29,30 +35,56 @@ struct SwipeReadingView: View {
             }
 
             // Top bar
-            VStack {
-                HStack {
-                    // Progress dots
-                    HStack(spacing: 4) {
+            VStack(spacing: 0) {
+                HStack(spacing: 16) {
+                    // Segmented progress bar
+                    HStack(spacing: 3) {
                         ForEach(0..<stories.count, id: \.self) { i in
                             Capsule()
-                                .fill(i == currentIndex ? Color.white : Color.white.opacity(0.2))
-                                .frame(width: i == currentIndex ? 20 : 6, height: 4)
-                                .animation(.easeInOut(duration: 0.2), value: currentIndex)
+                                .fill(
+                                    i < currentIndex ? Theme.accent :
+                                    i == currentIndex ? Color.white :
+                                    Color.white.opacity(0.15)
+                                )
+                                .frame(height: 3)
+                                .animation(.spring(response: 0.3), value: currentIndex)
                         }
                     }
 
-                    Spacer()
+                    // Counter
+                    Text("\(currentIndex + 1)/\(stories.count)")
+                        .font(.system(size: 12, weight: .bold).monospacedDigit())
+                        .foregroundStyle(Theme.textSecondary)
+                        .frame(width: 36)
 
+                    // Close
                     Button {
                         dismiss()
                     } label: {
-                        Image(systemName: "xmark.circle.fill")
-                            .font(.title2)
-                            .foregroundStyle(.white.opacity(0.6))
+                        Image(systemName: "xmark")
+                            .font(.system(size: 13, weight: .bold))
+                            .foregroundStyle(.white)
+                            .frame(width: 32, height: 32)
+                            .background(.ultraThinMaterial.opacity(0.5))
+                            .background(Color.white.opacity(0.1))
+                            .clipShape(Circle())
                     }
                 }
-                .padding(.horizontal, 20)
+                .padding(.horizontal, Theme.pagePadding)
                 .padding(.top, 8)
+                .padding(.bottom, 12)
+                .background(
+                    LinearGradient(
+                        stops: [
+                            .init(color: .black.opacity(0.9), location: 0),
+                            .init(color: .black.opacity(0.5), location: 0.7),
+                            .init(color: .clear, location: 1.0),
+                        ],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                    .allowsHitTesting(false)
+                )
 
                 Spacer()
             }
@@ -90,132 +122,171 @@ struct SwipeCardContent: View {
     let index: Int
     let total: Int
 
+    private var catColor: Color {
+        Theme.categoryColor(for: story.category)
+    }
+
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
+        ScrollView(showsIndicators: false) {
+            VStack(alignment: .leading, spacing: 20) {
                 Spacer(minLength: 50)
 
-                // Story number + category
+                // Category + index
                 HStack {
-                    Text("\(story.categoryEmoji) \(story.categoryLabel)")
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(.white.opacity(0.6))
+                    CategoryPill(category: story.category, emoji: story.categoryEmoji)
 
                     Spacer()
 
-                    Text("\(index + 1)/\(total)")
-                        .font(.caption.monospaced())
-                        .foregroundStyle(.secondary)
+                    if isRead {
+                        HStack(spacing: 3) {
+                            Image(systemName: "checkmark")
+                                .font(.system(size: 9, weight: .bold))
+                            Text("Read")
+                                .font(.caption2.weight(.medium))
+                        }
+                        .foregroundStyle(.green.opacity(0.7))
+                    }
                 }
 
                 // Hero image
                 if let imageUrl = story.imageUrl, let url = URL(string: imageUrl) {
-                    VStack(alignment: .trailing, spacing: 4) {
+                    VStack(alignment: .trailing, spacing: 6) {
                         AsyncImage(url: url) { phase in
                             switch phase {
                             case .success(let image):
                                 image
                                     .resizable()
                                     .aspectRatio(contentMode: .fill)
-                                    .frame(maxHeight: 180)
+                                    .frame(maxHeight: 200)
                                     .clipped()
-                                    .cornerRadius(12)
+                                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                             case .failure:
                                 EmptyView()
                             default:
-                                RoundedRectangle(cornerRadius: 12)
-                                    .fill(Color.white.opacity(0.05))
-                                    .frame(height: 180)
-                                    .overlay(ProgressView().tint(.secondary))
+                                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                    .fill(catColor.opacity(0.08))
+                                    .frame(height: 200)
+                                    .overlay(ProgressView().tint(Theme.textTertiary))
                             }
                         }
 
                         if let source = story.sourceName {
                             Text("Image: \(source)")
-                                .font(.system(size: 10))
-                                .foregroundStyle(.white.opacity(0.4))
+                                .font(.system(size: 10, weight: .medium))
+                                .foregroundStyle(Theme.textTertiary)
                         }
                     }
                 }
 
                 // Headline
                 Text(story.headline)
-                    .font(.title2.bold())
+                    .font(.system(size: 26, weight: .black))
                     .foregroundStyle(.white)
                     .fixedSize(horizontal: false, vertical: true)
+                    .lineSpacing(2)
 
-                // Reading time
-                Label("\(story.readingTimeMinutes) min read", systemImage: "clock")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                // Meta row
+                HStack(spacing: 12) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "clock")
+                            .font(.system(size: 10))
+                        Text("\(story.readingTimeMinutes) min read")
+                            .font(.caption2.weight(.medium))
+                    }
+                    .foregroundStyle(Theme.textTertiary)
+
+                    if let source = story.sourceName {
+                        HStack(spacing: 4) {
+                            Image(systemName: "link")
+                                .font(.system(size: 10))
+                            Text(source)
+                                .font(.caption2.weight(.medium))
+                        }
+                        .foregroundStyle(Theme.textTertiary)
+                    }
+                }
 
                 if isLocked {
-                    // Locked state
-                    VStack(spacing: 16) {
-                        Spacer(minLength: 40)
+                    // Locked premium state
+                    VStack(spacing: 20) {
+                        Spacer(minLength: 30)
 
-                        Image(systemName: "lock.fill")
-                            .font(.largeTitle)
-                            .foregroundStyle(.yellow)
+                        ZStack {
+                            Circle()
+                                .fill(Theme.accent.opacity(0.1))
+                                .frame(width: 80, height: 80)
 
-                        Text("Premium Story")
-                            .font(.headline)
-                            .foregroundStyle(.white)
+                            Image(systemName: "lock.fill")
+                                .font(.system(size: 28))
+                                .foregroundStyle(Theme.accent)
+                        }
 
-                        Text("Upgrade to read all 10 stories")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
+                        VStack(spacing: 8) {
+                            Text("Premium Story")
+                                .font(.title3.weight(.bold))
+                                .foregroundStyle(.white)
 
-                        Spacer(minLength: 40)
+                            Text("Upgrade to unlock all stories")
+                                .font(.subheadline)
+                                .foregroundStyle(Theme.textSecondary)
+                        }
+
+                        Spacer(minLength: 30)
                     }
                     .frame(maxWidth: .infinity)
                 } else {
                     // Body
                     Text(story.body)
-                        .font(.body)
+                        .font(.system(size: 16.5, weight: .regular))
                         .foregroundStyle(.white.opacity(0.9))
-                        .lineSpacing(6)
+                        .lineSpacing(7)
                         .fixedSize(horizontal: false, vertical: true)
 
-                    // TLDR
+                    // TLDR card
                     if let tldr = story.tldr {
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("TLDR")
-                                .font(.caption.weight(.bold))
-                                .foregroundStyle(.brown)
-                                .tracking(1)
+                        VStack(alignment: .leading, spacing: 10) {
+                            HStack(spacing: 6) {
+                                Text("TLDR")
+                                    .font(.system(size: 11, weight: .heavy))
+                                    .tracking(1.5)
+                                    .foregroundStyle(catColor)
+                                RoundedRectangle(cornerRadius: 1)
+                                    .fill(catColor.opacity(0.3))
+                                    .frame(height: 1)
+                            }
 
                             Text(tldr)
                                 .font(.subheadline)
                                 .foregroundStyle(.white.opacity(0.8))
                                 .italic()
+                                .lineSpacing(3)
                         }
-                        .padding()
+                        .padding(16)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(Color.white.opacity(0.05))
-                        .cornerRadius(12)
+                        .background(catColor.opacity(0.06))
+                        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                .stroke(catColor.opacity(0.15), lineWidth: 0.5)
+                        )
                     }
 
-                    // Source
+                    // Source link
                     if let source = story.sourceName {
                         if let sourceUrl = story.sourceUrl, let url = URL(string: sourceUrl) {
                             Link(destination: url) {
-                                HStack(spacing: 6) {
-                                    Image(systemName: "arrow.up.right.square")
+                                HStack(spacing: 8) {
+                                    Image(systemName: "arrow.up.right.square.fill")
                                         .font(.caption)
-                                    Text(source)
-                                        .font(.caption.weight(.medium))
+                                    Text("Read on \(source)")
+                                        .font(.caption.weight(.semibold))
                                 }
-                                .foregroundStyle(.blue.opacity(0.8))
+                                .foregroundStyle(catColor)
+                                .padding(.horizontal, 16)
+                                .padding(.vertical, 10)
+                                .background(catColor.opacity(0.08))
+                                .clipShape(Capsule())
                             }
-                        } else {
-                            HStack(spacing: 6) {
-                                Image(systemName: "link")
-                                    .font(.caption)
-                                Text("Source: \(source)")
-                                    .font(.caption)
-                            }
-                            .foregroundStyle(.secondary)
                         }
                     }
 
@@ -225,13 +296,34 @@ struct SwipeCardContent: View {
                             Spacer()
                             HStack(spacing: 6) {
                                 Text("Swipe for next")
-                                    .font(.caption)
+                                    .font(.caption2.weight(.medium))
                                 Image(systemName: "chevron.right")
-                                    .font(.caption2)
+                                    .font(.system(size: 9, weight: .bold))
                             }
-                            .foregroundStyle(.white.opacity(0.3))
+                            .foregroundStyle(Theme.textTertiary)
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 8)
+                            .background(Color.white.opacity(0.04))
+                            .clipShape(Capsule())
                         }
-                        .padding(.top, 8)
+                        .padding(.top, 4)
+                    }
+
+                    // "You're all caught up" on last story
+                    if index == total - 1 {
+                        HStack {
+                            Spacer()
+                            VStack(spacing: 6) {
+                                Text("You're all caught up")
+                                    .font(.caption.weight(.semibold))
+                                    .foregroundStyle(Theme.textSecondary)
+                                Text("That's all \(total) stories")
+                                    .font(.caption2)
+                                    .foregroundStyle(Theme.textTertiary)
+                            }
+                            Spacer()
+                        }
+                        .padding(.vertical, 20)
                     }
                 }
 

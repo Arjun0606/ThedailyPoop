@@ -62,9 +62,7 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
 
         switch type {
         case "new_drop":
-            NotificationCenter.default.post(name: Notification.Name("SWITCH_TO_MAP_TAB"), object: nil)
-        case "new_gossip":
-            NotificationCenter.default.post(name: Notification.Name("SWITCH_TO_GOSSIP_TAB"), object: nil)
+            NotificationCenter.default.post(name: Notification.Name("SWITCH_TO_TODAY_TAB"), object: nil)
         case "group_invite":
             if let code = userInfo["inviteCode"] as? String {
                 NotificationCenter.default.post(
