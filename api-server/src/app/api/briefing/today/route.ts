@@ -8,15 +8,27 @@ export async function GET() {
   const today = new Date().toISOString().split("T")[0];
 
   // Fetch all published drops for today
-  const { data: briefings, error: briefingError } = await db
+  let { data: briefings } = await db
     .from("briefings")
     .select("*")
     .eq("publish_date", today)
     .eq("status", "published");
 
-  if (briefingError || !briefings?.length) {
+  // Fallback: if no briefings today, return the most recent available
+  if (!briefings?.length) {
+    const { data: latest } = await db
+      .from("briefings")
+      .select("*")
+      .eq("status", "published")
+      .order("publish_date", { ascending: false })
+      .limit(3);
+
+    briefings = latest;
+  }
+
+  if (!briefings?.length) {
     return NextResponse.json(
-      { error: "No briefing available for today" },
+      { error: "No briefings available yet" },
       { status: 404 }
     );
   }
