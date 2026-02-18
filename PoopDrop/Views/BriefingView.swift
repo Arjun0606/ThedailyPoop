@@ -379,25 +379,66 @@ struct DropDivider: View {
 // MARK: - No Briefing
 struct NoBriefingView: View {
     @State private var pulse = false
+    @State private var countdown = ""
+    let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+
+    private var nextDropTime: Date {
+        let cal = Calendar.current
+        let now = Date()
+        let dropHours = [7, 12, 17]
+        for hour in dropHours {
+            if let candidate = cal.date(bySettingHour: hour, minute: 0, second: 0, of: now),
+               candidate > now {
+                return candidate
+            }
+        }
+        let tomorrow = cal.date(byAdding: .day, value: 1, to: now)!
+        return cal.date(bySettingHour: 7, minute: 0, second: 0, of: tomorrow)!
+    }
+
+    private func updateCountdown() {
+        let diff = nextDropTime.timeIntervalSince(Date())
+        if diff <= 0 { countdown = "any moment now"; return }
+        let hours = Int(diff) / 3600
+        let minutes = (Int(diff) % 3600) / 60
+        let seconds = Int(diff) % 60
+        if hours > 0 {
+            countdown = "\(hours)h \(minutes)m \(seconds)s"
+        } else {
+            countdown = "\(minutes)m \(seconds)s"
+        }
+    }
 
     var body: some View {
-        VStack(spacing: 24) {
+        VStack(spacing: 32) {
             AppLogoView(size: 80)
                 .scaleEffect(pulse ? 1.05 : 0.95)
                 .animation(.easeInOut(duration: 2).repeatForever(autoreverses: true), value: pulse)
 
-            VStack(spacing: 8) {
-                Text("No Briefing Yet")
+            VStack(spacing: 12) {
+                Text("Your First Drop Is Brewing")
                     .font(.title2.bold())
                     .foregroundStyle(.white)
 
-                Text("Today's briefing drops at 7 AM.\nCheck back soon!")
+                Text("Fresh stories landing in")
                     .font(.subheadline)
                     .foregroundStyle(Theme.textSecondary)
-                    .multilineTextAlignment(.center)
+
+                Text(countdown)
+                    .font(.system(size: 28, weight: .bold).monospacedDigit())
+                    .foregroundStyle(Theme.accent)
+
+                Text("Pull down to refresh when it hits")
+                    .font(.caption)
+                    .foregroundStyle(Theme.textTertiary)
+                    .padding(.top, 4)
             }
         }
-        .onAppear { pulse = true }
+        .onAppear {
+            pulse = true
+            updateCountdown()
+        }
+        .onReceive(timer) { _ in updateCountdown() }
     }
 }
 

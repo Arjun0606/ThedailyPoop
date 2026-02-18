@@ -13,7 +13,7 @@ struct ArchiveView: View {
             VStack(spacing: 0) {
                 // Top bar
                 HStack {
-                    Text("Archive")
+                    Text("Catch Up")
                         .font(.system(size: 28, weight: .black))
                         .foregroundStyle(.white)
                     Spacer()
@@ -29,14 +29,15 @@ struct ArchiveView: View {
                 } else if briefings.isEmpty {
                     Spacer()
                     VStack(spacing: 16) {
-                        Text("📚")
+                        Text("🏃")
                             .font(.system(size: 52))
-                        Text("No Archives Yet")
+                        Text("You're All Caught Up")
                             .font(.title3.weight(.bold))
                             .foregroundStyle(.white)
-                        Text("Past briefings will appear here.")
+                        Text("Past drops will show up here.\nNever miss a story.")
                             .font(.subheadline)
                             .foregroundStyle(Theme.textSecondary)
+                            .multilineTextAlignment(.center)
                     }
                     Spacer()
                 } else {

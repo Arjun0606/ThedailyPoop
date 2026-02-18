@@ -127,12 +127,24 @@ class SupabaseManager: ObservableObject {
     func fetchTodayDrops() async throws -> [BriefingDrop] {
         let today = dateString(for: Date())
 
-        let briefings: [Briefing] = try await client.from("briefings")
+        var briefings: [Briefing] = try await client.from("briefings")
             .select()
             .eq("publish_date", value: today)
             .eq("status", value: "published")
             .execute()
             .value
+
+        // Fallback: if no briefings today, fetch the most recent day's briefings
+        // This ensures users NEVER see an empty screen
+        if briefings.isEmpty {
+            briefings = try await client.from("briefings")
+                .select()
+                .eq("status", value: "published")
+                .order("publish_date", ascending: false)
+                .limit(3)
+                .execute()
+                .value
+        }
 
         guard !briefings.isEmpty else { return [] }
 

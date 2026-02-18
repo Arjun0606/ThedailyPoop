@@ -7,7 +7,7 @@ struct MainTabView: View {
     private let tabs: [(icon: String, iconFill: String, label: String)] = [
         ("newspaper", "newspaper.fill", "Today"),
         ("globe.americas", "globe.americas.fill", "Live"),
-        ("archivebox", "archivebox.fill", "Archive"),
+        ("clock.arrow.circlepath", "clock.arrow.circlepath", "Catch Up"),
         ("person", "person.fill", "You"),
     ]
 
