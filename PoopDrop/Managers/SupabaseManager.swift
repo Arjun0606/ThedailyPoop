@@ -491,18 +491,22 @@ class SupabaseManager: ObservableObject {
     // MARK: - Account Deletion
 
     func deleteAccount(userID: String) async throws {
-        // Delete related data (ignore errors for tables that may not exist yet)
-        try? await client.from("user_reads").delete().eq("user_id", value: userID).execute()
-        try? await client.from("story_reactions").delete().eq("user_id", value: userID).execute()
-        try? await client.from("story_bookmarks").delete().eq("user_id", value: userID).execute()
-        try? await client.from("reader_sessions").delete().eq("user_id", value: userID).execute()
-        try? await client.from("device_tokens").delete().eq("user_id", value: userID).execute()
+        // Server-side deletion handles: all related tables + Supabase Auth record
+        guard let url = URL(string: "\(Config.apiServerURL)/api/user/delete") else {
+            throw NSError(domain: "SupabaseManager", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid API URL"])
+        }
 
-        // Delete user profile (this one must succeed)
-        try await client.from("users")
-            .delete()
-            .eq("id", value: userID)
-            .execute()
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try JSONEncoder().encode(["userId": userID])
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            let errorMsg = (try? JSONDecoder().decode([String: String].self, from: data))?["error"] ?? "Unknown error"
+            throw NSError(domain: "SupabaseManager", code: -1, userInfo: [NSLocalizedDescriptionKey: "Delete failed: \(errorMsg)"])
+        }
     }
 
     // MARK: - Word Drop Games
