@@ -216,16 +216,15 @@ struct GlobeSceneView: UIViewRepresentable {
 
         let material = SCNMaterial()
 
-        // NASA Black Marble texture — dark earth with city lights
+        // Dark political-style earth texture (continents visible, no city lights)
         if let earthTexture = UIImage(named: "earth_dark") {
             material.diffuse.contents = earthTexture
-            material.emission.contents = earthTexture   // city lights glow
-            material.emission.intensity = 0.4           // subtle self-illumination
         } else {
             material.diffuse.contents = UIColor(red: 0.08, green: 0.14, blue: 0.28, alpha: 1.0)
         }
-        material.specular.contents = UIColor(white: 0.15, alpha: 1.0)
-        material.shininess = 0.2
+        material.specular.contents = UIColor(white: 0.1, alpha: 1.0)
+        material.shininess = 0.1
+        material.lightingModel = .lambert  // flat matte look like DataFast
 
         sphere.materials = [material]
 
