@@ -167,21 +167,12 @@ struct GlobeSceneView: UIViewRepresentable {
         cameraNode.name = "camera"
         scene.rootNode.addChildNode(cameraNode)
 
-        // Ambient light — bright enough to see the globe
+        // Ambient light (needed for reader dots)
         let ambientLight = SCNNode()
         ambientLight.light = SCNLight()
         ambientLight.light?.type = .ambient
-        ambientLight.light?.color = UIColor(white: 0.6, alpha: 1.0)
+        ambientLight.light?.color = UIColor(white: 1.0, alpha: 1.0)
         scene.rootNode.addChildNode(ambientLight)
-
-        // Directional light for highlight / depth
-        let directionalLight = SCNNode()
-        directionalLight.light = SCNLight()
-        directionalLight.light?.type = .directional
-        directionalLight.light?.color = UIColor(white: 0.5, alpha: 1.0)
-        directionalLight.position = SCNVector3(2, 2, 3)
-        directionalLight.look(at: SCNVector3(0, 0, 0))
-        scene.rootNode.addChildNode(directionalLight)
 
         // Globe sphere
         let globe = createGlobe()
@@ -216,15 +207,13 @@ struct GlobeSceneView: UIViewRepresentable {
 
         let material = SCNMaterial()
 
-        // Dark political-style earth texture (continents visible, no city lights)
+        // Dark political map texture — self-lit like DataFast
         if let earthTexture = UIImage(named: "earth_dark") {
             material.diffuse.contents = earthTexture
         } else {
             material.diffuse.contents = UIColor(red: 0.08, green: 0.14, blue: 0.28, alpha: 1.0)
         }
-        material.specular.contents = UIColor(white: 0.1, alpha: 1.0)
-        material.shininess = 0.1
-        material.lightingModel = .lambert  // flat matte look like DataFast
+        material.lightingModel = .constant  // self-illuminated, no light shading
 
         sphere.materials = [material]
 
