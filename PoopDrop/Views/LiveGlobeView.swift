@@ -212,80 +212,37 @@ struct GlobeSceneView: UIViewRepresentable {
 
     private func createGlobe() -> SCNNode {
         let sphere = SCNSphere(radius: 1.0)
-        sphere.segmentCount = 64
+        sphere.segmentCount = 72
 
         let material = SCNMaterial()
-        // Visible dark blue base (NOT near-black)
-        material.diffuse.contents = UIColor(red: 0.08, green: 0.14, blue: 0.28, alpha: 1.0)
-        material.specular.contents = UIColor(white: 0.25, alpha: 1.0)
-        material.shininess = 0.4
 
-        // If we have the earth texture, use it
+        // NASA Black Marble texture — dark earth with city lights
         if let earthTexture = UIImage(named: "earth_dark") {
             material.diffuse.contents = earthTexture
+            material.emission.contents = earthTexture   // city lights glow
+            material.emission.intensity = 0.4           // subtle self-illumination
+        } else {
+            material.diffuse.contents = UIColor(red: 0.08, green: 0.14, blue: 0.28, alpha: 1.0)
         }
+        material.specular.contents = UIColor(white: 0.15, alpha: 1.0)
+        material.shininess = 0.2
 
         sphere.materials = [material]
 
         let node = SCNNode(geometry: sphere)
 
-        // Wireframe overlay for techy grid look
-        let wireframe = SCNSphere(radius: 1.003)
-        wireframe.segmentCount = 36
-        let wireMaterial = SCNMaterial()
-        wireMaterial.diffuse.contents = UIColor(red: 0.2, green: 0.9, blue: 0.5, alpha: 0.12)
-        wireMaterial.fillMode = .lines
-        wireframe.materials = [wireMaterial]
-        let wireNode = SCNNode(geometry: wireframe)
-        wireNode.name = "wireframe"
-        node.addChildNode(wireNode)
-
-        // Grid lines
-        addGridLines(to: node)
-
         return node
     }
 
-    private func addGridLines(to node: SCNNode) {
-        // Latitude lines
-        for lat in stride(from: -60, through: 60, by: 30) {
-            let radius = cos(Double(lat) * .pi / 180)
-            let y = sin(Double(lat) * .pi / 180)
-
-            let ring = SCNTorus(ringRadius: CGFloat(radius), pipeRadius: 0.0015)
-            let material = SCNMaterial()
-            material.diffuse.contents = UIColor(red: 0.2, green: 0.9, blue: 0.5, alpha: 0.08)
-            material.emission.contents = UIColor(red: 0.2, green: 0.9, blue: 0.5, alpha: 0.04)
-            ring.materials = [material]
-
-            let ringNode = SCNNode(geometry: ring)
-            ringNode.position.y = Float(y)
-            node.addChildNode(ringNode)
-        }
-
-        // Longitude lines (vertical great-circle arcs using thin torus rotated)
-        for lng in stride(from: 0, to: 180, by: 30) {
-            let ring = SCNTorus(ringRadius: 1.001, pipeRadius: 0.0015)
-            let material = SCNMaterial()
-            material.diffuse.contents = UIColor(red: 0.2, green: 0.9, blue: 0.5, alpha: 0.06)
-            ring.materials = [material]
-
-            let ringNode = SCNNode(geometry: ring)
-            ringNode.eulerAngles.x = .pi / 2
-            ringNode.eulerAngles.z = Float(Double(lng) * .pi / 180)
-            node.addChildNode(ringNode)
-        }
-    }
-
     private func createAtmosphere() -> SCNNode {
-        let sphere = SCNSphere(radius: 1.06)
+        let sphere = SCNSphere(radius: 1.04)
         sphere.segmentCount = 48
 
         let material = SCNMaterial()
-        material.diffuse.contents = UIColor(red: 0.2, green: 0.9, blue: 0.5, alpha: 0.06)
-        material.emission.contents = UIColor(red: 0.2, green: 0.9, blue: 0.5, alpha: 0.03)
+        material.diffuse.contents = UIColor(red: 0.3, green: 0.6, blue: 1.0, alpha: 0.03)
+        material.emission.contents = UIColor(red: 0.3, green: 0.6, blue: 1.0, alpha: 0.02)
         material.isDoubleSided = true
-        material.transparency = 0.35
+        material.transparency = 0.4
         sphere.materials = [material]
 
         return SCNNode(geometry: sphere)
