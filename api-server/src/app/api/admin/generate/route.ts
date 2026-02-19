@@ -1,10 +1,14 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase";
 import { fetchAllCategories } from "@/lib/perplexity";
+import { validateAdminRequest } from "@/lib/admin-auth";
 
 // Direct debug endpoint — runs just the news fetch step to test
 // GET /api/admin/generate — tests Perplexity + returns raw stories
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const authError = validateAdminRequest(request);
+  if (authError) return authError;
+
   const db = createServiceClient();
   const today = new Date().toISOString().split("T")[0];
 

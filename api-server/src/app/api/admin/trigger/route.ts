@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase";
 import { inngest } from "@/inngest/client";
+import { validateAdminRequest } from "@/lib/admin-auth";
 
 // GET /api/admin/trigger — health check + system status
 export async function GET(request: NextRequest) {
+  const authError = validateAdminRequest(request);
+  if (authError) return authError;
+
   const db = createServiceClient();
 
   const { data: briefings, error: dbError } = await db
@@ -36,6 +40,9 @@ export async function GET(request: NextRequest) {
 
 // POST /api/admin/trigger — manually trigger daily briefing generation or word games
 export async function POST(request: NextRequest) {
+  const authError = validateAdminRequest(request);
+  if (authError) return authError;
+
   const db = createServiceClient();
   const body = await request.json().catch(() => ({}));
 
