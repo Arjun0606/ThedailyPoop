@@ -33,8 +33,11 @@ struct PaywallView: View {
 
                     // Hero
                     VStack(spacing: 12) {
-                        Text("\u{1F4A9}")
-                            .font(.system(size: 56))
+                        Image("AppLogo")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 72, height: 72)
+                            .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
 
                         Text("Unlock Everything")
                             .font(.system(size: 28, weight: .black))
@@ -50,9 +53,10 @@ struct PaywallView: View {
                     VStack(spacing: 16) {
                         featureRow(icon: "newspaper.fill", text: "All 20 daily stories", sub: "Not just 10")
                         featureRow(icon: "gamecontroller.fill", text: "3 Word Drop games daily", sub: "Free gets 1")
+                        featureRow(icon: "hand.thumbsup.fill", text: "Poop or Scoop", sub: "Real or fake headlines")
                         featureRow(icon: "trophy.fill", text: "Public leaderboard", sub: "Flex on your friends")
                         featureRow(icon: "headphones", text: "Audio briefings", sub: "Listen hands-free")
-                        featureRow(icon: "clock.arrow.circlepath", text: "7-day archive", sub: "Never miss a story")
+                        featureRow(icon: "clock.arrow.circlepath", text: "10-day archive", sub: "Free gets 3 days")
                     }
                     .padding(.horizontal, Theme.pagePadding)
 
@@ -90,7 +94,7 @@ struct PaywallView: View {
                             if subscriptionManager.isLoading {
                                 ProgressView().tint(.black)
                             } else {
-                                Text("Start Free Trial")
+                                Text("Subscribe Now")
                                     .font(.system(size: 17, weight: .bold))
                             }
                         }
@@ -113,7 +117,7 @@ struct PaywallView: View {
                                 .foregroundStyle(Theme.textSecondary)
                         }
 
-                        Text("7-day free trial. Cancel anytime.\nNo charge until trial ends.")
+                        Text("Cancel anytime. Subscription auto-renews.")
                             .font(.caption2)
                             .foregroundStyle(Theme.textTertiary)
                             .multilineTextAlignment(.center)
@@ -239,7 +243,7 @@ struct InlinePaywallCard: View {
                         .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                 }
 
-                Text("7-day free trial \u{2022} Cancel anytime")
+                Text("Upgrade to PRO \u{2022} Cancel anytime")
                     .font(.caption2)
                     .foregroundStyle(Theme.textTertiary)
             }

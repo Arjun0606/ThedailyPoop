@@ -252,22 +252,35 @@ struct BriefingView: View {
                         .overlay(Circle().stroke(Theme.cardBorder, lineWidth: 0.5))
                 }
 
-                // Audio
+                // Audio (premium only)
                 Button {
-                    if audioManager.isPlaying {
+                    if !(authManager.currentUser?.isPremium ?? false) {
+                        showingPaywall = true
+                    } else if audioManager.isPlaying {
                         audioManager.togglePlayPause()
                     } else {
-                        let playable = allStories.filter { $0.isFree || (authManager.currentUser?.isPremium ?? false) }
-                        audioManager.startBriefing(stories: playable)
+                        audioManager.startBriefing(stories: allStories)
                     }
                 } label: {
-                    Image(systemName: audioManager.isPlaying ? "pause.fill" : "headphones")
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundStyle(audioManager.isPlaying ? Theme.accent : .white.opacity(0.7))
-                        .frame(width: 36, height: 36)
-                        .background(audioManager.isPlaying ? Theme.accentDim : Theme.cardBg)
-                        .clipShape(Circle())
-                        .overlay(Circle().stroke(audioManager.isPlaying ? Theme.accent.opacity(0.3) : Theme.cardBorder, lineWidth: 0.5))
+                    ZStack {
+                        Image(systemName: audioManager.isPlaying ? "pause.fill" : "headphones")
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundStyle(audioManager.isPlaying ? Theme.accent : .white.opacity(0.7))
+                            .frame(width: 36, height: 36)
+                            .background(audioManager.isPlaying ? Theme.accentDim : Theme.cardBg)
+                            .clipShape(Circle())
+                            .overlay(Circle().stroke(audioManager.isPlaying ? Theme.accent.opacity(0.3) : Theme.cardBorder, lineWidth: 0.5))
+
+                        if !(authManager.currentUser?.isPremium ?? false) {
+                            Image(systemName: "lock.fill")
+                                .font(.system(size: 7, weight: .bold))
+                                .foregroundStyle(.white)
+                                .padding(3)
+                                .background(Color.pink)
+                                .clipShape(Circle())
+                                .offset(x: 12, y: -12)
+                        }
+                    }
                 }
             }
         }

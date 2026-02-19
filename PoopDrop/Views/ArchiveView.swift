@@ -5,6 +5,26 @@ struct ArchiveView: View {
     @State private var briefings: [Briefing] = []
     @State private var isLoading = true
     @State private var selectedBriefing: Briefing?
+    @State private var showingPaywall = false
+
+    private var isPremium: Bool {
+        authManager.currentUser?.isPremium ?? false
+    }
+
+    private var archiveDaysLimit: Int {
+        isPremium ? 10 : 3
+    }
+
+    private var filteredBriefings: [Briefing] {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        formatter.timeZone = TimeZone(identifier: "America/New_York")
+        let cutoff = Calendar.current.date(byAdding: .day, value: -archiveDaysLimit, to: Date()) ?? Date()
+        return briefings.filter { briefing in
+            guard let date = formatter.date(from: briefing.publishDate) else { return false }
+            return date >= cutoff
+        }
+    }
 
     var body: some View {
         ZStack {
@@ -26,10 +46,10 @@ struct ArchiveView: View {
                     Spacer()
                     ProgressView().tint(Theme.textSecondary)
                     Spacer()
-                } else if briefings.isEmpty {
+                } else if filteredBriefings.isEmpty {
                     Spacer()
                     VStack(spacing: 16) {
-                        Text("🏃")
+                        Text("\u{1F3C3}")
                             .font(.system(size: 52))
                         Text("You're All Caught Up")
                             .font(.title3.weight(.bold))
@@ -43,11 +63,49 @@ struct ArchiveView: View {
                 } else {
                     ScrollView(showsIndicators: false) {
                         LazyVStack(spacing: 10) {
-                            ForEach(briefings) { briefing in
+                            ForEach(filteredBriefings) { briefing in
                                 Button { selectedBriefing = briefing } label: {
                                     ArchiveRow(briefing: briefing)
                                 }
                                 .buttonStyle(PressableButtonStyle())
+                            }
+
+                            // Upsell for free users
+                            if !isPremium {
+                                Button { showingPaywall = true } label: {
+                                    HStack(spacing: 10) {
+                                        Image(systemName: "clock.arrow.circlepath")
+                                            .font(.system(size: 14, weight: .semibold))
+                                            .foregroundStyle(Theme.accent)
+
+                                        VStack(alignment: .leading, spacing: 2) {
+                                            Text("See more with PRO")
+                                                .font(.caption.weight(.bold))
+                                                .foregroundStyle(.white)
+                                            Text("Upgrade for 10 days of archive")
+                                                .font(.caption2)
+                                                .foregroundStyle(Theme.textSecondary)
+                                        }
+
+                                        Spacer()
+
+                                        Text("PRO")
+                                            .font(.system(size: 10, weight: .heavy))
+                                            .foregroundStyle(.black)
+                                            .padding(.horizontal, 8)
+                                            .padding(.vertical, 4)
+                                            .background(Theme.accent)
+                                            .clipShape(Capsule())
+                                    }
+                                    .padding(14)
+                                    .background(Theme.accent.opacity(0.06))
+                                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                            .stroke(Theme.accent.opacity(0.15), lineWidth: 0.5)
+                                    )
+                                }
+                                .buttonStyle(.plain)
                             }
                         }
                         .padding(.horizontal, Theme.pagePadding)
@@ -59,6 +117,9 @@ struct ArchiveView: View {
         .task { await loadArchive() }
         .sheet(item: $selectedBriefing) { briefing in
             ArchiveBriefingView(briefing: briefing)
+        }
+        .sheet(isPresented: $showingPaywall) {
+            PaywallView()
         }
     }
 
@@ -156,6 +217,11 @@ struct ArchiveBriefingView: View {
     @State private var stories: [Story] = []
     @State private var isLoading = true
     @State private var selectedStory: Story?
+    @State private var showingPaywall = false
+
+    private var isPremium: Bool {
+        authManager.currentUser?.isPremium ?? false
+    }
 
     var body: some View {
         NavigationView {
@@ -165,21 +231,40 @@ struct ArchiveBriefingView: View {
                 if isLoading {
                     ProgressView().tint(Theme.textSecondary)
                 } else {
+                    let freeStories = stories.filter { $0.isFree }
+                    let premiumStories = stories.filter { !$0.isFree }
+
                     ScrollView(showsIndicators: false) {
                         LazyVStack(spacing: 0) {
                             DropHeaderView(briefing: briefing, isFirst: true)
 
-                            ForEach(stories) { story in
+                            ForEach(freeStories) { story in
                                 StoryCardView(
                                     story: story,
-                                    isPremiumUser: authManager.currentUser?.isPremium ?? false,
+                                    isPremiumUser: isPremium,
                                     isRead: false,
-                                    onTap: {
-                                        if story.isFree || (authManager.currentUser?.isPremium ?? false) {
-                                            selectedStory = story
-                                        }
-                                    }
+                                    onTap: { selectedStory = story }
                                 )
+                            }
+
+                            // Soft paywall after free stories
+                            if !isPremium && !premiumStories.isEmpty {
+                                InlinePaywallCard(
+                                    remainingCount: premiumStories.count,
+                                    onUpgrade: { showingPaywall = true }
+                                )
+                            }
+
+                            // Premium stories only for subscribers
+                            if isPremium {
+                                ForEach(premiumStories) { story in
+                                    StoryCardView(
+                                        story: story,
+                                        isPremiumUser: true,
+                                        isRead: false,
+                                        onTap: { selectedStory = story }
+                                    )
+                                }
                             }
                         }
                         .padding(.bottom, 40)
@@ -199,6 +284,9 @@ struct ArchiveBriefingView: View {
         .task { await loadStories() }
         .sheet(item: $selectedStory) { story in
             StoryDetailView(story: story)
+        }
+        .sheet(isPresented: $showingPaywall) {
+            PaywallView()
         }
     }
 
