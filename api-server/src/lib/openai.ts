@@ -25,7 +25,7 @@ export async function generateWithMini(
   return response.choices[0]?.message?.content ?? "";
 }
 
-// gpt-5.2: standard model for long-form creative writing (weekly recaps)
+// gpt-5.2: standard model for long-form creative writing
 export async function generateWithPremium(
   systemPrompt: string,
   userPrompt: string
@@ -36,7 +36,7 @@ export async function generateWithPremium(
       { role: "system", content: systemPrompt },
       { role: "user", content: userPrompt },
     ],
-    max_completion_tokens: 8000,
+    max_completion_tokens: 16000,
   });
   return response.choices[0]?.message?.content ?? "";
 }

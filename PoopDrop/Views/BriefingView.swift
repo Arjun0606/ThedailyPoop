@@ -54,14 +54,38 @@ struct BriefingView: View {
                                 .padding(.vertical, 8)
                             }
 
-                            ForEach(drop.stories) { story in
+                            let isPremium = authManager.currentUser?.isPremium ?? false
+                            let freeStories = drop.stories.filter { $0.isFree }
+                            let premiumStories = drop.stories.filter { !$0.isFree }
+
+                            ForEach(freeStories) { story in
                                 StoryCardView(
                                     story: story,
-                                    isPremiumUser: authManager.currentUser?.isPremium ?? false,
+                                    isPremiumUser: isPremium,
                                     isRead: readStoryIDs.contains(story.id),
                                     totalReactions: storyReactionCounts[story.id] ?? 0,
                                     onTap: { handleStoryTap(story) }
                                 )
+                            }
+
+                            // Soft paywall after free stories
+                            if !isPremium && !premiumStories.isEmpty {
+                                InlinePaywallCard(
+                                    remainingCount: premiumStories.count,
+                                    onUpgrade: { showingPaywall = true }
+                                )
+                            }
+
+                            if isPremium {
+                                ForEach(premiumStories) { story in
+                                    StoryCardView(
+                                        story: story,
+                                        isPremiumUser: true,
+                                        isRead: readStoryIDs.contains(story.id),
+                                        totalReactions: storyReactionCounts[story.id] ?? 0,
+                                        onTap: { handleStoryTap(story) }
+                                    )
+                                }
                             }
 
                             if drop.id != drops.last?.id {
@@ -761,227 +785,6 @@ struct StoryDetailView: View {
         Task {
             let result = try? await SupabaseManager.shared.toggleBookmark(userId: user.id, storyId: story.id)
             if let result { isBookmarked = result }
-        }
-    }
-}
-
-// MARK: - Paywall
-struct PaywallView: View {
-    @Environment(\.dismiss) private var dismiss
-    @EnvironmentObject var subscriptionManager: SubscriptionManager
-    @State private var animate = false
-    @State private var purchaseError: String?
-
-    var body: some View {
-        NavigationView {
-            ZStack {
-                // Animated gradient background
-                LinearGradient(
-                    colors: [
-                        Color.black,
-                        Theme.accent.opacity(0.2),
-                        Color.black,
-                    ],
-                    startPoint: animate ? .topLeading : .bottomTrailing,
-                    endPoint: animate ? .bottomTrailing : .topLeading
-                )
-                .ignoresSafeArea()
-                .animation(.easeInOut(duration: 4).repeatForever(autoreverses: true), value: animate)
-
-                ScrollView {
-                    VStack(spacing: 32) {
-                        Spacer(minLength: 40)
-
-                        // Logo
-                        VStack(spacing: 16) {
-                            AppLogoView(size: 72)
-
-                            Text("Go Premium")
-                                .font(.system(size: 32, weight: .black))
-                                .foregroundStyle(.white)
-
-                            Text("Unlock every story across all daily drops.\nNever miss the news that matters.")
-                                .font(.subheadline)
-                                .foregroundStyle(Theme.textSecondary)
-                                .multilineTextAlignment(.center)
-                                .lineSpacing(4)
-                        }
-
-                        // Features
-                        VStack(spacing: 14) {
-                            PaywallFeature(icon: "newspaper.fill", text: "18 stories daily (3 drops)", color: Theme.accent)
-                            PaywallFeature(icon: "bell.badge.fill", text: "Morning, midday & evening pushes", color: .orange)
-                            PaywallFeature(icon: "archivebox.fill", text: "Full briefing archive", color: .cyan)
-                            PaywallFeature(icon: "flame.fill", text: "Reading streak tracking", color: .red)
-                            PaywallFeature(icon: "headphones", text: "Audio briefings", color: .purple)
-                        }
-                        .padding(.horizontal, 24)
-
-                        // Pricing cards
-                        VStack(spacing: 12) {
-                            // Monthly
-                            Button(action: { purchaseMonthly() }) {
-                                HStack {
-                                    VStack(alignment: .leading, spacing: 2) {
-                                        Text("Monthly")
-                                            .font(.headline)
-                                            .foregroundStyle(.white)
-                                        Text("Cancel anytime")
-                                            .font(.caption)
-                                            .foregroundStyle(Theme.textTertiary)
-                                    }
-                                    Spacer()
-                                    Text("$7.99/mo")
-                                        .font(.title3.bold())
-                                        .foregroundStyle(.white)
-                                }
-                                .padding(18)
-                                .background(Theme.elevatedBg)
-                                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                        .stroke(Theme.cardBorder, lineWidth: 0.5)
-                                )
-                            }
-
-                            // Annual (highlighted)
-                            Button(action: { purchaseAnnual() }) {
-                                HStack {
-                                    VStack(alignment: .leading, spacing: 2) {
-                                        HStack(spacing: 6) {
-                                            Text("Annual")
-                                                .font(.headline)
-                                            Text("SAVE 37%")
-                                                .font(.system(size: 10, weight: .heavy))
-                                                .foregroundStyle(.black)
-                                                .padding(.horizontal, 6)
-                                                .padding(.vertical, 2)
-                                                .background(Theme.accent)
-                                                .clipShape(Capsule())
-                                        }
-                                        .foregroundStyle(.black)
-                                        Text("$4.99/mo billed yearly")
-                                            .font(.caption)
-                                            .foregroundStyle(.black.opacity(0.6))
-                                    }
-                                    Spacer()
-                                    Text("$59.99/yr")
-                                        .font(.title3.bold())
-                                        .foregroundStyle(.black)
-                                }
-                                .padding(18)
-                                .background(Color.white)
-                                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-                            }
-                        }
-                        .padding(.horizontal, 24)
-
-                        Button("Restore Purchases") {
-                            restorePurchases()
-                        }
-                        .font(.caption.weight(.medium))
-                        .foregroundStyle(Theme.textTertiary)
-
-                        if subscriptionManager.isLoading {
-                            ProgressView()
-                                .tint(Theme.accent)
-                        }
-
-                        if let error = purchaseError {
-                            Text(error)
-                                .font(.caption)
-                                .foregroundStyle(.red)
-                                .multilineTextAlignment(.center)
-                        }
-
-                        Spacer(minLength: 40)
-                    }
-                }
-            }
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button {
-                        dismiss()
-                    } label: {
-                        Image(systemName: "xmark")
-                            .font(.system(size: 14, weight: .bold))
-                            .foregroundStyle(.white.opacity(0.5))
-                            .frame(width: 30, height: 30)
-                            .background(.ultraThinMaterial.opacity(0.5))
-                            .clipShape(Circle())
-                    }
-                }
-            }
-        }
-        .preferredColorScheme(.dark)
-        .onAppear { animate = true }
-        .disabled(subscriptionManager.isLoading)
-    }
-
-    private func purchaseMonthly() {
-        purchaseError = nil
-        Task {
-            let success = await subscriptionManager.purchase(productID: SubscriptionManager.monthlyProductID)
-            if success { dismiss() }
-            else if !subscriptionManager.isLoading { purchaseError = "Purchase could not be completed." }
-        }
-    }
-
-    private func purchaseAnnual() {
-        purchaseError = nil
-        Task {
-            let success = await subscriptionManager.purchase(productID: SubscriptionManager.annualProductID)
-            if success { dismiss() }
-            else if !subscriptionManager.isLoading { purchaseError = "Purchase could not be completed." }
-        }
-    }
-
-    private func restorePurchases() {
-        purchaseError = nil
-        Task {
-            let success = await subscriptionManager.restorePurchases()
-            if success { dismiss() }
-            else { purchaseError = "No active subscription found." }
-        }
-    }
-}
-
-struct PaywallFeature: View {
-    let icon: String
-    let text: String
-    let color: Color
-
-    var body: some View {
-        HStack(spacing: 14) {
-            Image(systemName: icon)
-                .font(.system(size: 15))
-                .foregroundStyle(color)
-                .frame(width: 28)
-            Text(text)
-                .font(.subheadline.weight(.medium))
-                .foregroundStyle(.white)
-            Spacer()
-            Image(systemName: "checkmark")
-                .font(.caption.weight(.bold))
-                .foregroundStyle(.green.opacity(0.6))
-        }
-    }
-}
-
-struct FeatureRow: View {
-    let icon: String
-    let text: String
-
-    var body: some View {
-        HStack(spacing: 14) {
-            Image(systemName: icon)
-                .foregroundStyle(Theme.accent)
-                .frame(width: 24)
-            Text(text)
-                .font(.subheadline)
-                .foregroundStyle(.white)
-            Spacer()
         }
     }
 }

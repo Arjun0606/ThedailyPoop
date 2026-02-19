@@ -38,6 +38,7 @@
 		RCAT0010000000000000001 /* SubscriptionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = RCAT0020000000000000001 /* SubscriptionManager.swift */; };
 		SPM00003000000000000001 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = SPM00002000000000000001 /* Supabase */; };
 		RCAT0030000000000000001 /* RevenueCat in Frameworks */ = {isa = PBXBuildFile; productRef = RCAT0040000000000000001 /* RevenueCat */; };
+		PAYW0010000000000000001 /* PaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = PAYW0020000000000000001 /* PaywallView.swift */; };
 		WDCRD0010000000000000001 /* WordDropCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = WDCRD0020000000000000001 /* WordDropCardView.swift */; };
 		WDGAM0010000000000000001 /* WordDropGameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = WDGAM0020000000000000001 /* WordDropGameView.swift */; };
 		WDRST0010000000000000001 /* WordDropResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = WDRST0020000000000000001 /* WordDropResultView.swift */; };
@@ -87,6 +88,7 @@
 		SWIPE0020000000000000001 /* SwipeReadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwipeReadingView.swift; sourceTree = "<group>"; };
 		THEME0020000000000000001 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
 		RCAT0020000000000000001 /* SubscriptionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionManager.swift; sourceTree = "<group>"; };
+		PAYW0020000000000000001 /* PaywallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaywallView.swift; sourceTree = "<group>"; };
 		WDCRD0020000000000000001 /* WordDropCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordDropCardView.swift; sourceTree = "<group>"; };
 		WDGAM0020000000000000001 /* WordDropGameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordDropGameView.swift; sourceTree = "<group>"; };
 		WDRST0020000000000000001 /* WordDropResultView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordDropResultView.swift; sourceTree = "<group>"; };
@@ -215,6 +217,7 @@
 			isa = PBXGroup;
 			children = (
 				A1000018294A0000000000001 /* MainTabView.swift */,
+				PAYW0020000000000000001 /* PaywallView.swift */,
 				BVIEW0020000000000000001 /* BriefingView.swift */,
 				SCVEW0020000000000000001 /* StoryCardView.swift */,
 				AVIEW0020000000000000001 /* ArchiveView.swift */,
@@ -371,6 +374,7 @@
 				NEW00005000000000000001 /* SupabaseManager.swift in Sources */,
 				VIRAL0050000000000000001 /* PushNotificationService.swift in Sources */,
 				A1000017294A0000000000001 /* MainTabView.swift in Sources */,
+				PAYW0010000000000000001 /* PaywallView.swift in Sources */,
 				BVIEW0010000000000000001 /* BriefingView.swift in Sources */,
 				SCVEW0010000000000000001 /* StoryCardView.swift in Sources */,
 				AVIEW0010000000000000001 /* ArchiveView.swift in Sources */,

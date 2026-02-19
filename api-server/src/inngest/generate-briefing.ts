@@ -179,10 +179,13 @@ Examples of BAD headlines (do NOT write like this):
 - "Apple Releases Update to Address AI Concerns"
 - "JPMorgan Reports Strong Q4 Earnings"
 
-"body": The full story in 200-400 words. Structure:
-1. HOOK (first 1-2 sentences): Start with the most insane detail, a wild stat, or a spicy take. NOT "So here's what happened" — more like "Netflix just spent $17 billion on content this year. That's enough to buy every house in Wyoming. Twice."
-2. CONTEXT (2-3 short paragraphs): Explain what happened AND why it matters to the reader. Use analogies to make complex stuff click. Break down numbers into relatable terms.
-3. THE BOTTOM LINE: End with exactly "The Bottom Line:" followed by a one-liner that's quotable, sharp, and makes people want to share it. This is the line that goes on their Instagram story.
+"body": The full story in 1500-2000 words (a 10-minute read). Structure:
+1. HOOK (first 2-3 sentences): Start with the most insane detail, a wild stat, or a spicy take. NOT "So here's what happened" — more like "Netflix just spent $17 billion on content this year. That's enough to buy every house in Wyoming. Twice."
+2. THE BACKSTORY (2-3 paragraphs): What led to this moment? Give the full context — timelines, previous events, key players. Make the reader feel like an insider who actually understands the story.
+3. WHAT ACTUALLY HAPPENED (3-4 paragraphs): The meat of the story. Details, quotes, numbers, reactions. Go deep — this is a 10-minute read, not a tweet thread. Use analogies to make complex stuff click. Break down numbers into relatable terms.
+4. WHY THIS MATTERS TO YOU (2-3 paragraphs): Connect it to the reader's life. How does this affect their money, career, social media, or daily routine? Be specific.
+5. WHAT HAPPENS NEXT (1-2 paragraphs): What are the stakes going forward? What should readers watch for?
+6. THE BOTTOM LINE: End with exactly "The Bottom Line:" followed by a one-liner that's quotable, sharp, and makes people want to share it. This is the line that goes on their Instagram story.
 
 "tldr": One sentence, casual tone, that captures the vibe. Like something you'd text: "basically apple fumbled again lol"
 
@@ -325,41 +328,41 @@ Return ONLY JSON.`
   );
 }
 
-// Morning Drop — 10 stories, runs at 5 AM
+// Morning Drop — 15 stories, runs at 5 AM
 export const generateMorningDrop = createDropFunction({
   id: "generate-morning-drop",
   name: "Generate Morning Drop",
   cron: "0 5 * * *",
   dropType: "morning",
-  storyCount: 10,
-  freeCount: 3,
+  storyCount: 15,
+  freeCount: 4,
   headlineStyle: `Return a JSON object with:
 "headline": A punchy 3-8 word title that captures today's vibe. Think newspaper headline meets meme. Max 60 chars. Examples: "Tech Bros Are Down Bad Today", "Your Portfolio Called. It's Crying.", "Everyone Got Fired Except AI"
 "introText": 2-3 sentences that make people NEED to scroll down. Be specific — reference 1-2 of the craziest stories. Don't be generic. Bad: "Another big day in the news!" Good: "Apple somehow made $90 billion while also forgetting how math works, TikTok's CEO went full savage in Congress, and someone just paid $4M for a JPEG. Happy Tuesday."`,
 });
 
-// Midday Drop — 5 stories, runs at 12 PM
+// Midday Drop — 10 stories, runs at 12 PM
 export const generateMiddayDrop = createDropFunction({
   id: "generate-midday-drop",
   name: "Generate Midday Drop",
   cron: "0 12 * * *",
   dropType: "midday",
-  storyCount: 5,
-  freeCount: 1,
+  storyCount: 10,
+  freeCount: 4,
   timeFocus: "Focus ONLY on stories that broke or developed significantly in the LAST 6 HOURS. I want fresh breaking news, not stories from this morning. If a story has been developing, give me the latest update.",
   headlineStyle: `Return a JSON object with:
 "headline": A punchy 3-6 word title for the MIDDAY update. Max 50 chars. Examples: "Afternoon Plot Twist", "Lunch Break Chaos", "Things Just Got Spicy"
 "introText": 1-2 sentences teasing the hottest story that just broke. Keep it urgent — this is breaking news energy.`,
 });
 
-// Evening Drop — 3 stories, runs at 5 PM
+// Evening Drop — 10 stories, runs at 5 PM
 export const generateEveningDrop = createDropFunction({
   id: "generate-evening-drop",
   name: "Generate Evening Drop",
   cron: "0 17 * * *",
   dropType: "evening",
-  storyCount: 3,
-  freeCount: 1,
+  storyCount: 10,
+  freeCount: 4,
   timeFocus: "Focus on the BIGGEST stories of the entire day — the ones everyone is talking about tonight. Include stories that developed or escalated throughout the day, and any late-breaking stories from the afternoon.",
   headlineStyle: `Return a JSON object with:
 "headline": A punchy 3-6 word title wrapping up the day. Max 50 chars. Examples: "Today Was a Movie", "That's a Wrap, Folks", "Day's Final Plot Twist"
