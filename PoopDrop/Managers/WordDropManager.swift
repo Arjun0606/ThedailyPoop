@@ -75,6 +75,16 @@ class WordDropManager: ObservableObject {
             return
         }
 
+        // Validate against the server's valid word list
+        let validSet = currentGame?.validWordSet ?? []
+        if !validSet.isEmpty && !validSet.contains(word) {
+            invalidWordShake = true
+            UINotificationFeedbackGenerator().notificationOccurred(.error)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { self.invalidWordShake = false }
+            clearCurrentWord()
+            return
+        }
+
         foundWords.append(word)
         clearCurrentWord()
         UINotificationFeedbackGenerator().notificationOccurred(.success)

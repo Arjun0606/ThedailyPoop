@@ -6,10 +6,13 @@ struct WordDropResultView: View {
     let wordsFound: [String]
     let onDismiss: () -> Void
 
+    @EnvironmentObject var authManager: AuthenticationManager
+
     @State private var animatedScore: Int = 0
     @State private var showConfetti = false
     @State private var showingLeaderboard = false
     @State private var showingShareCard = false
+    @State private var showingPaywall = false
     @State private var contentAppeared = false
 
     var body: some View {
@@ -128,19 +131,35 @@ struct WordDropResultView: View {
                     // Action buttons
                     VStack(spacing: 10) {
                         Button {
-                            showingLeaderboard = true
+                            if authManager.currentUser?.isPremium == true {
+                                showingLeaderboard = true
+                            } else {
+                                showingPaywall = true
+                            }
                         } label: {
                             HStack(spacing: 8) {
                                 Image(systemName: "trophy.fill")
                                 Text("Leaderboard")
                                     .fontWeight(.bold)
+                                if authManager.currentUser?.isPremium != true {
+                                    Image(systemName: "lock.fill")
+                                        .font(.system(size: 10))
+                                }
                             }
                             .font(.subheadline)
-                            .foregroundStyle(.black)
+                            .foregroundStyle(authManager.currentUser?.isPremium == true ? .black : .white)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 14)
-                            .background(Theme.accent)
+                            .background(authManager.currentUser?.isPremium == true ? Theme.accent : Theme.elevatedBg)
                             .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                            .overlay(
+                                Group {
+                                    if authManager.currentUser?.isPremium != true {
+                                        RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                            .stroke(Theme.accent.opacity(0.3), lineWidth: 0.5)
+                                    }
+                                }
+                            )
                         }
 
                         HStack(spacing: 10) {
@@ -213,6 +232,9 @@ struct WordDropResultView: View {
         }
         .sheet(isPresented: $showingShareCard) {
             WordDropShareSheet(result: result, game: game, wordsFound: wordsFound)
+        }
+        .sheet(isPresented: $showingPaywall) {
+            PaywallView()
         }
     }
 }

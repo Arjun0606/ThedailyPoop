@@ -25,11 +25,11 @@ export async function GET(request: NextRequest) {
     userId = request.nextUrl.searchParams.get("userId");
   }
 
-  // Fetch today's games (exclude valid_words and key_word)
+  // Fetch today's games (include valid_words for client-side validation)
   let { data: games, error } = await db
     .from("word_games")
     .select(
-      "id, briefing_id, drop_type, publish_date, letters, key_word, story_headline, story_id, created_at"
+      "id, briefing_id, drop_type, publish_date, letters, key_word, valid_words, story_headline, story_id, created_at"
     )
     .eq("publish_date", today)
     .order("created_at", { ascending: true });
@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
     const fallback = await db
       .from("word_games")
       .select(
-        "id, briefing_id, drop_type, publish_date, letters, key_word, story_headline, story_id, created_at"
+        "id, briefing_id, drop_type, publish_date, letters, key_word, valid_words, story_headline, story_id, created_at"
       )
       .order("publish_date", { ascending: false })
       .order("created_at", { ascending: true })
@@ -51,7 +51,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ games: [] });
   }
 
-  // Sanitize: hide key_word, expose keyWordLength
+  // Sanitize: hide key_word, expose keyWordLength + validWords for instant client validation
   const sanitized = games.map((g) => ({
     id: g.id,
     briefingId: g.briefing_id,
@@ -59,6 +59,7 @@ export async function GET(request: NextRequest) {
     publishDate: g.publish_date,
     letters: g.letters,
     keyWordLength: g.key_word.length,
+    validWords: Object.keys(g.valid_words ?? {}),
     storyHeadline: g.story_headline,
     storyId: g.story_id,
     played: false as boolean,

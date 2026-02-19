@@ -7,10 +7,16 @@ struct WordGame: Identifiable, Codable {
     let publishDate: String
     let letters: [String]
     let keyWordLength: Int
+    let validWords: [String]?
     let storyHeadline: String
     let storyId: String?
     var played: Bool
     var userScore: WordGameUserScore?
+
+    /// Set of valid words for instant client-side validation
+    var validWordSet: Set<String> {
+        Set(validWords ?? [])
+    }
 }
 
 struct WordGameUserScore: Codable {
