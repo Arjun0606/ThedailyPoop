@@ -46,6 +46,12 @@
 		WDLTL0010000000000000001 /* LetterTileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = WDLTL0020000000000000001 /* LetterTileView.swift */; };
 		WDMGR0010000000000000001 /* WordDropManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = WDMGR0020000000000000001 /* WordDropManager.swift */; };
 		WDMDL0010000000000000001 /* WordGame.swift in Sources */ = {isa = PBXBuildFile; fileRef = WDMDL0020000000000000001 /* WordGame.swift */; };
+		LACT0010000000000000001 /* LiveActivityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = LACT0020000000000000001 /* LiveActivityManager.swift */; };
+		SHRD0010000000000000001 /* PoopDropActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHRD0020000000000000001 /* PoopDropActivityAttributes.swift */; };
+		SHRD0030000000000000001 /* PoopDropActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHRD0020000000000000001 /* PoopDropActivityAttributes.swift */; };
+		WEXT0010000000000000001 /* PoopDropWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = WEXT0020000000000000001 /* PoopDropWidget.swift */; };
+		WEXT0030000000000000001 /* PoopDropLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = WEXT0040000000000000001 /* PoopDropLiveActivity.swift */; };
+		WEXT0050000000000000001 /* PoopDropWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = WEXT0060000000000000001 /* PoopDropWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -89,6 +95,11 @@
 		WDLTL0020000000000000001 /* LetterTileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LetterTileView.swift; sourceTree = "<group>"; };
 		WDMGR0020000000000000001 /* WordDropManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordDropManager.swift; sourceTree = "<group>"; };
 		WDMDL0020000000000000001 /* WordGame.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordGame.swift; sourceTree = "<group>"; };
+		LACT0020000000000000001 /* LiveActivityManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityManager.swift; sourceTree = "<group>"; };
+		SHRD0020000000000000001 /* PoopDropActivityAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PoopDropActivityAttributes.swift; sourceTree = "<group>"; };
+		WEXT0020000000000000001 /* PoopDropWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PoopDropWidget.swift; sourceTree = "<group>"; };
+		WEXT0040000000000000001 /* PoopDropLiveActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PoopDropLiveActivity.swift; sourceTree = "<group>"; };
+		WEXT0060000000000000001 /* PoopDropWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = PoopDropWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -101,6 +112,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		WEXT0110000000000000001 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -108,6 +126,8 @@
 			isa = PBXGroup;
 			children = (
 				A1000003294A0000000000888 /* PoopDrop */,
+				SHRD0040000000000000001 /* Shared */,
+				WEXT0070000000000000001 /* PoopDropWidget */,
 				A1000002294A0000000000888 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -116,8 +136,26 @@
 			isa = PBXGroup;
 			children = (
 				A1000001294A0000000000000 /* TheDailyPoop.app */,
+				WEXT0060000000000000001 /* PoopDropWidgetExtension.appex */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		SHRD0040000000000000001 /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				SHRD0020000000000000001 /* PoopDropActivityAttributes.swift */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		WEXT0070000000000000001 /* PoopDropWidget */ = {
+			isa = PBXGroup;
+			children = (
+				WEXT0020000000000000001 /* PoopDropWidget.swift */,
+				WEXT0040000000000000001 /* PoopDropLiveActivity.swift */,
+			);
+			path = PoopDropWidget;
 			sourceTree = "<group>";
 		};
 		A1000003294A0000000000888 /* PoopDrop */ = {
@@ -168,6 +206,7 @@
 				AUDIO0020000000000000001 /* AudioBriefingManager.swift */,
 				RCAT0020000000000000001 /* SubscriptionManager.swift */,
 				WDMGR0020000000000000001 /* WordDropManager.swift */,
+				LACT0020000000000000001 /* LiveActivityManager.swift */,
 			);
 			path = Managers;
 			sourceTree = "<group>";
@@ -224,10 +263,12 @@
 				A0FFFFFF294A0000000000998 /* Sources */,
 				A0FFFFFF294A0000000000999 /* Frameworks */,
 				A1000001294A0000000000777 /* Resources */,
+				WEXT0130000000000000001 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				WEXT0150000000000000001 /* PBXTargetDependency */,
 			);
 			name = PoopDrop;
 			packageProductDependencies = (
@@ -237,6 +278,23 @@
 			productName = PoopDrop;
 			productReference = A1000001294A0000000000000 /* TheDailyPoop.app */;
 			productType = "com.apple.product-type.application";
+		};
+		WEXT0090000000000000001 /* PoopDropWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = WEXT0100000000000000001 /* Build configuration list for PBXNativeTarget "PoopDropWidgetExtension" */;
+			buildPhases = (
+				WEXT0080000000000000001 /* Sources */,
+				WEXT0110000000000000001 /* Frameworks */,
+				WEXT0120000000000000001 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = PoopDropWidgetExtension;
+			productName = PoopDropWidgetExtension;
+			productReference = WEXT0060000000000000001 /* PoopDropWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -249,6 +307,9 @@
 				LastUpgradeCheck = 2600;
 				TargetAttributes = {
 					A1000000294A0000000000000 = {
+						CreatedOnToolsVersion = 15.0;
+					};
+					WEXT0090000000000000001 = {
 						CreatedOnToolsVersion = 15.0;
 					};
 				};
@@ -271,6 +332,7 @@
 			projectRoot = "";
 			targets = (
 				A1000000294A0000000000000 /* PoopDrop */,
+				WEXT0090000000000000001 /* PoopDropWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
@@ -282,6 +344,13 @@
 			files = (
 				A1000007294A0000000000001 /* Preview Assets.xcassets in Resources */,
 				A1000005294A0000000000001 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		WEXT0120000000000000001 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -327,10 +396,54 @@
 				WDLTL0010000000000000001 /* LetterTileView.swift in Sources */,
 				WDMGR0010000000000000001 /* WordDropManager.swift in Sources */,
 				WDMDL0010000000000000001 /* WordGame.swift in Sources */,
+				LACT0010000000000000001 /* LiveActivityManager.swift in Sources */,
+				SHRD0010000000000000001 /* PoopDropActivityAttributes.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		WEXT0080000000000000001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				WEXT0010000000000000001 /* PoopDropWidget.swift in Sources */,
+				WEXT0030000000000000001 /* PoopDropLiveActivity.swift in Sources */,
+				SHRD0030000000000000001 /* PoopDropActivityAttributes.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		WEXT0130000000000000001 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				WEXT0050000000000000001 /* PoopDropWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXContainerItemProxy section */
+		WEXT0140000000000000001 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A0FFFFFF294A0000000000777 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = WEXT0090000000000000001;
+			remoteInfo = PoopDropWidgetExtension;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXTargetDependency section */
+		WEXT0150000000000000001 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = WEXT0090000000000000001 /* PoopDropWidgetExtension */;
+			targetProxy = WEXT0140000000000000001 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		A1000002294A0000000000555 /* Debug */ = {
@@ -528,6 +641,62 @@
 			};
 			name = Release;
 		};
+		WEXT0160000000000000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 3;
+				DEVELOPMENT_TEAM = UDGYWMMVJS;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = PoopDropWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = PoopDropWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.03;
+				PRODUCT_BUNDLE_IDENTIFIER = com.thedailypoop.app.widget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		WEXT0170000000000000001 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 3;
+				DEVELOPMENT_TEAM = UDGYWMMVJS;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = PoopDropWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = PoopDropWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.03;
+				PRODUCT_BUNDLE_IDENTIFIER = com.thedailypoop.app.widget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -545,6 +714,15 @@
 			buildConfigurations = (
 				A1000004294A0000000000555 /* Debug */,
 				A1000005294A0000000000555 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		WEXT0100000000000000001 /* Build configuration list for PBXNativeTarget "PoopDropWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				WEXT0160000000000000001 /* Debug */,
+				WEXT0170000000000000001 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

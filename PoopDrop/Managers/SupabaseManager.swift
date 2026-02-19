@@ -324,6 +324,23 @@ class SupabaseManager: ObservableObject {
         }
     }
 
+    func fetchDailyReaderStats() async throws -> (uniqueReaders: Int, totalReads: Int) {
+        let startOfDay = Calendar.current.startOfDay(for: Date())
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+
+        let rows: [ReaderSession] = try await client.from("reader_sessions")
+            .select()
+            .gt("created_at", value: formatter.string(from: startOfDay))
+            .order("created_at", ascending: false)
+            .limit(500)
+            .execute()
+            .value
+
+        let uniqueUsers = Set(rows.map { $0.userId })
+        return (uniqueReaders: uniqueUsers.count, totalReads: rows.count)
+    }
+
     // MARK: - Reactions
 
     func fetchReactionCounts(storyId: String) async throws -> [String: Int] {

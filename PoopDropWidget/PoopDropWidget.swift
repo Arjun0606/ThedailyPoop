@@ -15,9 +15,9 @@ struct BriefingEntry: TimelineEntry {
             headline: "Today's Briefing",
             storyCount: 10,
             topStories: [
-                WidgetStory(emoji: "\ud83d\udcb0", headline: "Markets rally on tech earnings"),
-                WidgetStory(emoji: "\ud83d\udcf1", headline: "Apple unveils new AI features"),
-                WidgetStory(emoji: "\ud83c\udfac", headline: "Oscar nominations announced")
+                WidgetStory(emoji: "\u{1F4B0}", headline: "Markets rally on tech earnings"),
+                WidgetStory(emoji: "\u{1F4F1}", headline: "Apple unveils new AI features"),
+                WidgetStory(emoji: "\u{1F3AC}", headline: "Oscar nominations announced")
             ],
             isPlaceholder: true
         )
@@ -68,7 +68,7 @@ struct BriefingProvider: TimelineProvider {
 
         let stories = storiesData.prefix(3).map { dict in
             WidgetStory(
-                emoji: dict["emoji"] ?? "\ud83d\udcf0",
+                emoji: dict["emoji"] ?? "\u{1F4F0}",
                 headline: dict["headline"] ?? ""
             )
         }
@@ -210,5 +210,6 @@ struct WidgetContent: View {
 struct PoopDropWidgetBundle: WidgetBundle {
     var body: some Widget {
         PoopDropWidget()
+        PoopDropLiveActivity()
     }
 }

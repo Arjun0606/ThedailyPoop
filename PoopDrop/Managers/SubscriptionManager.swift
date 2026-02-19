@@ -20,8 +20,7 @@ class SubscriptionManager: ObservableObject {
     @Published var isPremium = false
     @Published var isLoading = false
 
-    // TODO: Replace with your actual RevenueCat API key from dashboard
-    private static let apiKey = "YOUR_REVENUECAT_API_KEY"
+    private static let apiKey = "appl_xaQHfcpaycQoenMwgCIeJRYiTFp"
 
     private static let entitlementID = "premium"
     static let monthlyProductID = "tdp_monthly"

@@ -160,15 +160,22 @@ struct ProfileHeaderCard: View {
     var body: some View {
         HStack(spacing: 16) {
             // Avatar
-            if let url = user.avatarURL,
-               let data = try? Data(contentsOf: url),
-               let image = UIImage(data: data) {
-                Image(uiImage: image)
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: 64, height: 64)
-                    .clipShape(Circle())
-                    .overlay(Circle().stroke(Theme.accent.opacity(0.4), lineWidth: 2))
+            if let url = user.avatarURL {
+                AsyncImage(url: url) { image in
+                    image
+                        .resizable()
+                        .scaledToFill()
+                } placeholder: {
+                    ZStack {
+                        Circle()
+                            .fill(Theme.accent.opacity(0.3))
+                        ProgressView()
+                            .tint(.white)
+                    }
+                }
+                .frame(width: 64, height: 64)
+                .clipShape(Circle())
+                .overlay(Circle().stroke(Theme.accent.opacity(0.4), lineWidth: 2))
             } else {
                 ZStack {
                     Circle()

@@ -1,11 +1,53 @@
 import SwiftUI
 import SceneKit
+import CoreLocation
+
+// MARK: - Location Manager (lightweight, single-use)
+
+class UserLocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
+    private let manager = CLLocationManager()
+    @Published var latitude: Double?
+    @Published var longitude: Double?
+
+    override init() {
+        super.init()
+        manager.delegate = self
+        manager.desiredAccuracy = kCLLocationAccuracyKilometer
+        manager.requestWhenInUseAuthorization()
+    }
+
+    func requestLocation() {
+        manager.requestLocation()
+    }
+
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        if let loc = locations.last {
+            latitude = loc.coordinate.latitude
+            longitude = loc.coordinate.longitude
+        }
+    }
+
+    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+        print("Location error: \(error.localizedDescription)")
+    }
+
+    func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
+        if manager.authorizationStatus == .authorizedWhenInUse ||
+            manager.authorizationStatus == .authorizedAlways {
+            manager.requestLocation()
+        }
+    }
+}
 
 // MARK: - Live Globe Tab
+
 struct LiveGlobeView: View {
     @EnvironmentObject var authManager: AuthenticationManager
+    @StateObject private var locationManager = UserLocationManager()
     @State private var sessions: [ReaderSession] = []
     @State private var recentActivity: [ReaderSession] = []
+    @State private var totalReadsToday: Int = 0
+    @State private var uniqueReadersToday: Int = 0
     @State private var isLoading = true
     @State private var realtimeTask: Task<Void, Never>?
 
@@ -19,9 +61,23 @@ struct LiveGlobeView: View {
                     .padding(.horizontal, 16)
                     .padding(.top, 8)
 
-                // 3D Globe
-                GlobeSceneView(sessions: sessions)
+                // 3D Globe with counter overlay
+                ZStack {
+                    GlobeSceneView(
+                        sessions: sessions,
+                        userLatitude: locationManager.latitude,
+                        userLongitude: locationManager.longitude
+                    )
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+                    // Counter overlay on globe
+                    GlobeCounterOverlay(
+                        activeCount: sessions.count,
+                        totalReads: totalReadsToday,
+                        uniqueReaders: uniqueReadersToday,
+                        hasUserLocation: locationManager.latitude != nil
+                    )
+                }
 
                 // Activity feed at bottom
                 ActivityFeedView(activity: recentActivity)
@@ -29,7 +85,9 @@ struct LiveGlobeView: View {
             }
         }
         .task {
+            locationManager.requestLocation()
             await loadRecentSessions()
+            await loadDailyStats()
             startRealtime()
         }
         .onDisappear {
@@ -50,6 +108,16 @@ struct LiveGlobeView: View {
         isLoading = false
     }
 
+    private func loadDailyStats() async {
+        do {
+            let stats = try await SupabaseManager.shared.fetchDailyReaderStats()
+            uniqueReadersToday = stats.uniqueReaders
+            totalReadsToday = stats.totalReads
+        } catch {
+            print("Failed to load daily stats: \(error)")
+        }
+    }
+
     private func startRealtime() {
         realtimeTask = Task {
             await SupabaseManager.shared.subscribeToReaderSessions { newSession in
@@ -60,6 +128,7 @@ struct LiveGlobeView: View {
                         if recentActivity.count > 10 {
                             recentActivity.removeLast()
                         }
+                        totalReadsToday += 1
                     }
 
                     // Auto-remove after 60 seconds
@@ -78,7 +147,80 @@ struct LiveGlobeView: View {
     }
 }
 
+// MARK: - Globe Counter Overlay
+
+struct GlobeCounterOverlay: View {
+    let activeCount: Int
+    let totalReads: Int
+    let uniqueReaders: Int
+    let hasUserLocation: Bool
+
+    var body: some View {
+        VStack {
+            Spacer()
+
+            HStack(spacing: 24) {
+                // Active readers
+                VStack(spacing: 2) {
+                    Text("\(activeCount)")
+                        .font(.system(size: 28, weight: .black, design: .rounded).monospacedDigit())
+                        .foregroundStyle(.green)
+                    Text("reading now")
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundStyle(.white.opacity(0.5))
+                }
+
+                Rectangle()
+                    .fill(.white.opacity(0.15))
+                    .frame(width: 1, height: 32)
+
+                // Total reads today
+                VStack(spacing: 2) {
+                    Text("\(totalReads)")
+                        .font(.system(size: 28, weight: .black, design: .rounded).monospacedDigit())
+                        .foregroundStyle(.white)
+                    Text("reads today")
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundStyle(.white.opacity(0.5))
+                }
+
+                Rectangle()
+                    .fill(.white.opacity(0.15))
+                    .frame(width: 1, height: 32)
+
+                // Unique readers
+                VStack(spacing: 2) {
+                    Text("\(uniqueReaders)")
+                        .font(.system(size: 28, weight: .black, design: .rounded).monospacedDigit())
+                        .foregroundStyle(.orange)
+                    Text("readers")
+                        .font(.system(size: 10, weight: .semibold))
+                        .foregroundStyle(.white.opacity(0.5))
+                }
+            }
+            .padding(.horizontal, 20)
+            .padding(.vertical, 14)
+            .background(.ultraThinMaterial.opacity(0.7))
+            .cornerRadius(16)
+
+            if hasUserLocation {
+                HStack(spacing: 4) {
+                    Circle()
+                        .fill(Color.blue)
+                        .frame(width: 6, height: 6)
+                    Text("You're on the globe")
+                        .font(.system(size: 10, weight: .medium))
+                        .foregroundStyle(.white.opacity(0.4))
+                }
+                .padding(.top, 4)
+            }
+        }
+        .padding(.bottom, 8)
+    }
+}
+
 // MARK: - Stats Overlay
+
 struct StatsOverlayView: View {
     let sessions: [ReaderSession]
 
@@ -97,9 +239,15 @@ struct StatsOverlayView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
+                // Pulsing green dot
                 Circle()
                     .fill(Color.green)
                     .frame(width: 8, height: 8)
+                    .overlay(
+                        Circle()
+                            .stroke(Color.green.opacity(0.4), lineWidth: 2)
+                            .scaleEffect(1.8)
+                    )
 
                 Text("\(sessions.count) reading right now")
                     .font(.subheadline.weight(.semibold))
@@ -146,8 +294,11 @@ struct StatsOverlayView: View {
 }
 
 // MARK: - SceneKit Globe
+
 struct GlobeSceneView: UIViewRepresentable {
     let sessions: [ReaderSession]
+    let userLatitude: Double?
+    let userLongitude: Double?
 
     func makeUIView(context: Context) -> SCNView {
         let sceneView = SCNView()
@@ -167,7 +318,7 @@ struct GlobeSceneView: UIViewRepresentable {
         cameraNode.name = "camera"
         scene.rootNode.addChildNode(cameraNode)
 
-        // Ambient light (needed for reader dots)
+        // Ambient light
         let ambientLight = SCNNode()
         ambientLight.light = SCNLight()
         ambientLight.light?.type = .ambient
@@ -195,6 +346,7 @@ struct GlobeSceneView: UIViewRepresentable {
 
     func updateUIView(_ sceneView: SCNView, context: Context) {
         context.coordinator.updateDots(sessions: sessions)
+        context.coordinator.updateUserDot(latitude: userLatitude, longitude: userLongitude)
     }
 
     func makeCoordinator() -> Coordinator {
@@ -207,19 +359,15 @@ struct GlobeSceneView: UIViewRepresentable {
 
         let material = SCNMaterial()
 
-        // Dark political map texture — self-lit like DataFast
         if let earthTexture = UIImage(named: "earth_dark") {
             material.diffuse.contents = earthTexture
         } else {
             material.diffuse.contents = UIColor(red: 0.08, green: 0.14, blue: 0.28, alpha: 1.0)
         }
-        material.lightingModel = .constant  // self-illuminated, no light shading
+        material.lightingModel = .constant
 
         sphere.materials = [material]
-
-        let node = SCNNode(geometry: sphere)
-
-        return node
+        return SCNNode(geometry: sphere)
     }
 
     private func createAtmosphere() -> SCNNode {
@@ -237,17 +385,21 @@ struct GlobeSceneView: UIViewRepresentable {
     }
 
     // MARK: - Coordinator
+
     class Coordinator {
         var sceneView: SCNView?
         var globeNode: SCNNode?
         var activeDots: [String: SCNNode] = [:]
+        var userDotNode: SCNNode?
+
+        // MARK: Reader Dots (Heatmap Style)
 
         func updateDots(sessions: [ReaderSession]) {
             guard let globe = globeNode else { return }
 
             let sessionIDs = Set(sessions.map { $0.id })
 
-            // Remove dots that are no longer in sessions
+            // Remove dots no longer in sessions
             for (id, node) in activeDots {
                 if !sessionIDs.contains(id) {
                     node.runAction(SCNAction.sequence([
@@ -261,9 +413,10 @@ struct GlobeSceneView: UIViewRepresentable {
             // Add new dots
             for session in sessions {
                 if activeDots[session.id] == nil {
-                    let dot = createDot(
+                    let dot = createHeatmapDot(
                         latitude: session.latitude,
-                        longitude: session.longitude
+                        longitude: session.longitude,
+                        style: .reader
                     )
                     dot.name = session.id
                     globe.addChildNode(dot)
@@ -287,45 +440,127 @@ struct GlobeSceneView: UIViewRepresentable {
             }
         }
 
-        private func createDot(latitude: Double, longitude: Double) -> SCNNode {
-            let dotGeometry = SCNSphere(radius: 0.018)
+        // MARK: User "You Are Here" Dot
 
-            let material = SCNMaterial()
-            material.diffuse.contents = UIColor(red: 0.2, green: 0.9, blue: 0.5, alpha: 1.0)
-            material.emission.contents = UIColor(red: 0.2, green: 0.9, blue: 0.5, alpha: 0.8)
-            dotGeometry.materials = [material]
+        func updateUserDot(latitude: Double?, longitude: Double?) {
+            guard let globe = globeNode, let lat = latitude, let lng = longitude else { return }
 
-            let dotNode = SCNNode(geometry: dotGeometry)
+            // Only create once
+            if userDotNode != nil { return }
 
-            // Convert lat/lng to 3D position on sphere surface
+            let dot = createHeatmapDot(latitude: lat, longitude: lng, style: .userSelf)
+            dot.name = "user_self"
+            globe.addChildNode(dot)
+            userDotNode = dot
+
+            // Animate in
+            dot.scale = SCNVector3(0, 0, 0)
+            dot.opacity = 0
+            dot.runAction(SCNAction.group([
+                SCNAction.scale(to: 1.0, duration: 0.6),
+                SCNAction.fadeIn(duration: 0.6)
+            ]))
+
+            // Slow breathe animation
+            let breathe = SCNAction.sequence([
+                SCNAction.scale(to: 1.2, duration: 1.2),
+                SCNAction.scale(to: 1.0, duration: 1.2)
+            ])
+            dot.runAction(SCNAction.repeatForever(breathe))
+        }
+
+        // MARK: Heatmap Dot Factory
+
+        enum DotStyle {
+            case reader   // green heatmap
+            case userSelf // blue "you" marker
+        }
+
+        private func createHeatmapDot(latitude: Double, longitude: Double, style: DotStyle) -> SCNNode {
+            let container = SCNNode()
+
+            // Position on globe surface
             let latRad = latitude * .pi / 180
             let lngRad = longitude * .pi / 180
-            let r: Double = 1.02 // slightly above globe surface
+            let r: Double = 1.02
 
             let x = r * cos(latRad) * cos(lngRad)
             let y = r * sin(latRad)
-            let z = r * cos(latRad) * sin(-lngRad) // negate for correct orientation
+            let z = r * cos(latRad) * sin(-lngRad)
 
-            dotNode.position = SCNVector3(Float(x), Float(y), Float(z))
+            container.position = SCNVector3(Float(x), Float(y), Float(z))
 
-            // Add a glow ring around the dot
-            let ring = SCNTorus(ringRadius: 0.03, pipeRadius: 0.003)
-            let ringMaterial = SCNMaterial()
-            ringMaterial.diffuse.contents = UIColor(red: 0.2, green: 0.9, blue: 0.5, alpha: 0.3)
-            ringMaterial.emission.contents = UIColor(red: 0.2, green: 0.9, blue: 0.5, alpha: 0.2)
-            ring.materials = [ringMaterial]
+            let baseColor: UIColor
+            switch style {
+            case .reader:
+                baseColor = UIColor(red: 0.2, green: 0.95, blue: 0.5, alpha: 1.0)
+            case .userSelf:
+                baseColor = UIColor(red: 0.3, green: 0.55, blue: 1.0, alpha: 1.0)
+            }
 
-            let ringNode = SCNNode(geometry: ring)
-            // Orient ring to face outward from globe center
-            ringNode.look(at: SCNVector3(0, 0, 0))
-            dotNode.addChildNode(ringNode)
+            // Layer 1: Inner core (bright white center)
+            let core = SCNSphere(radius: 0.012)
+            let coreMat = SCNMaterial()
+            coreMat.diffuse.contents = UIColor.white
+            coreMat.emission.contents = baseColor
+            coreMat.lightingModel = .constant
+            core.materials = [coreMat]
+            container.addChildNode(SCNNode(geometry: core))
 
-            return dotNode
+            // Layer 2: Mid glow
+            let mid = SCNSphere(radius: 0.035)
+            mid.segmentCount = 24
+            let midMat = SCNMaterial()
+            midMat.diffuse.contents = baseColor.withAlphaComponent(0.45)
+            midMat.emission.contents = baseColor.withAlphaComponent(0.35)
+            midMat.lightingModel = .constant
+            midMat.isDoubleSided = true
+            mid.materials = [midMat]
+            container.addChildNode(SCNNode(geometry: mid))
+
+            // Layer 3: Outer heatmap glow (large, faint)
+            let outerRadius: CGFloat = style == .userSelf ? 0.10 : 0.07
+            let outer = SCNSphere(radius: outerRadius)
+            outer.segmentCount = 24
+            let outerMat = SCNMaterial()
+            outerMat.diffuse.contents = baseColor.withAlphaComponent(0.12)
+            outerMat.emission.contents = baseColor.withAlphaComponent(0.08)
+            outerMat.lightingModel = .constant
+            outerMat.isDoubleSided = true
+            outer.materials = [outerMat]
+            container.addChildNode(SCNNode(geometry: outer))
+
+            // Layer 4: Heatmap spread (very large, very faint — overlaps create density)
+            let spread = SCNSphere(radius: style == .userSelf ? 0.18 : 0.14)
+            spread.segmentCount = 16
+            let spreadMat = SCNMaterial()
+            spreadMat.diffuse.contents = baseColor.withAlphaComponent(0.04)
+            spreadMat.emission.contents = baseColor.withAlphaComponent(0.03)
+            spreadMat.lightingModel = .constant
+            spreadMat.isDoubleSided = true
+            spread.materials = [spreadMat]
+            container.addChildNode(SCNNode(geometry: spread))
+
+            // Ring around "you" dot for distinction
+            if style == .userSelf {
+                let ring = SCNTorus(ringRadius: 0.05, pipeRadius: 0.003)
+                let ringMat = SCNMaterial()
+                ringMat.diffuse.contents = baseColor.withAlphaComponent(0.3)
+                ringMat.emission.contents = baseColor.withAlphaComponent(0.2)
+                ringMat.lightingModel = .constant
+                ring.materials = [ringMat]
+                let ringNode = SCNNode(geometry: ring)
+                ringNode.look(at: SCNVector3(0, 0, 0))
+                container.addChildNode(ringNode)
+            }
+
+            return container
         }
     }
 }
 
 // MARK: - Activity Feed
+
 struct ActivityFeedView: View {
     let activity: [ReaderSession]
 

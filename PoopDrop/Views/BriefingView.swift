@@ -1,3 +1,4 @@
+import ActivityKit
 import SwiftUI
 import WidgetKit
 
@@ -229,6 +230,15 @@ struct BriefingView: View {
 
                 if let morningDrop = fetchedDrops.first {
                     updateWidgetData(briefing: morningDrop.briefing, stories: morningDrop.stories)
+
+                    // Start Dynamic Island Live Activity for the latest drop
+                    let latestDrop = fetchedDrops.last!
+                    let topEmoji = latestDrop.stories.first?.categoryEmoji ?? "\u{1F4A9}"
+                    LiveActivityManager.shared.startDropActivity(
+                        briefing: latestDrop.briefing,
+                        storyCount: latestDrop.stories.count,
+                        topStoryEmoji: topEmoji
+                    )
                 }
             }
         } catch {

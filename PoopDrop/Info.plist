@@ -47,5 +47,9 @@
 	<array>
 		<string>remote-notification</string>
 	</array>
+	<key>NSSupportsLiveActivities</key>
+	<true/>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>TheDailyPoop shows your location on the live reader globe so others can see where you're reading from.</string>
 </dict>
 </plist>
