@@ -34,8 +34,40 @@ export async function GET(request: NextRequest) {
   });
 }
 
-// POST /api/admin/trigger — manually trigger daily briefing generation
-export async function POST(_request: NextRequest) {
+// POST /api/admin/trigger — manually trigger daily briefing generation or word games
+export async function POST(request: NextRequest) {
+  const db = createServiceClient();
+  const body = await request.json().catch(() => ({}));
+
+  // If action=games, trigger word games for today's existing briefing
+  if (body.action === "games") {
+    const today = new Date().toLocaleDateString("en-CA", { timeZone: "America/New_York" });
+    const { data: briefing } = await db
+      .from("briefings")
+      .select("id")
+      .eq("publish_date", today)
+      .eq("status", "published")
+      .single();
+
+    if (!briefing) {
+      return NextResponse.json({ error: "No briefing found for today" }, { status: 404 });
+    }
+
+    const events = ["morning", "midday", "evening"].map((dropType) => ({
+      name: "briefing/published" as const,
+      data: { briefingId: briefing.id, dropType, publishDate: today },
+    }));
+
+    const result = await inngest.send(events);
+    return NextResponse.json({
+      triggered: true,
+      action: "games",
+      briefingId: briefing.id,
+      events: events.length,
+      inngestResult: result,
+    });
+  }
+
   try {
     // Send event via Inngest
     const result = await inngest.send({
