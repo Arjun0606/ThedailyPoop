@@ -1,14 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase";
+import { inngest } from "@/inngest/client";
 
-// Health check + admin status endpoint
-// GET /api/admin/trigger — returns system status
-// Useful for verifying everything is connected
-
+// GET /api/admin/trigger — health check + system status
 export async function GET(request: NextRequest) {
   const db = createServiceClient();
 
-  // Check DB connection
   const { data: briefings, error: dbError } = await db
     .from("briefings")
     .select("id, publish_date, drop_type, headline, status")
@@ -16,7 +13,6 @@ export async function GET(request: NextRequest) {
     .order("publish_date", { ascending: false })
     .limit(5);
 
-  // Check env vars
   const envStatus = {
     SUPABASE_URL: !!process.env.SUPABASE_URL,
     SUPABASE_SERVICE_ROLE_KEY: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
@@ -34,5 +30,27 @@ export async function GET(request: NextRequest) {
     envVars: envStatus,
     recentBriefings: briefings?.length ?? 0,
     latestBriefings: briefings ?? [],
+    hint: "POST to this endpoint to manually trigger briefing generation",
   });
+}
+
+// POST /api/admin/trigger — manually trigger daily briefing generation
+export async function POST(_request: NextRequest) {
+  try {
+    await inngest.send({
+      name: "admin/trigger-briefing",
+      data: { triggeredAt: new Date().toISOString() },
+    });
+
+    return NextResponse.json({
+      triggered: true,
+      message: "Daily briefing generation triggered. Check Inngest dashboard for progress.",
+      time: new Date().toISOString(),
+    });
+  } catch (error) {
+    return NextResponse.json(
+      { error: `Failed to trigger: ${error}` },
+      { status: 500 }
+    );
+  }
 }

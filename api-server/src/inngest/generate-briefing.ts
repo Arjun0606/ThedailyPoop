@@ -88,7 +88,7 @@ const STORY_COUNT = 20;
 // Generated at 4 AM ET so content is ready when America wakes up
 export const generateDailyBriefing = inngest.createFunction(
   { id: "generate-daily-briefing", name: "Generate Daily Briefing" },
-  { cron: "0 9 * * *" }, // 9 AM UTC = 4 AM ET
+  [{ cron: "0 9 * * *" }, { event: "admin/trigger-briefing" }], // 9 AM UTC = 4 AM ET + manual trigger
   async ({ step }) => {
     const db = createServiceClient();
     const today = new Date().toISOString().split("T")[0];
