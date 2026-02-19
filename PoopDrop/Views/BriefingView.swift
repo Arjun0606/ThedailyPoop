@@ -66,6 +66,38 @@ struct BriefingView: View {
                                     onUpgrade: { showingPaywall = true }
                                 )
                             }
+
+                            // Slim upsell: tell free users about 2 more daily games
+                            if !(authManager.currentUser?.isPremium ?? false) && wordGames.count > 1 {
+                                Button { showingPaywall = true } label: {
+                                    HStack(spacing: 8) {
+                                        Image(systemName: "plus.circle.fill")
+                                            .font(.system(size: 14))
+                                        Text("2 more daily Word Drops with")
+                                            .font(.caption.weight(.medium))
+                                        Text("PRO")
+                                            .font(.system(size: 10, weight: .heavy))
+                                            .foregroundStyle(.black)
+                                            .padding(.horizontal, 7)
+                                            .padding(.vertical, 2)
+                                            .background(Theme.accent)
+                                            .clipShape(Capsule())
+                                        Spacer()
+                                        Image(systemName: "chevron.right")
+                                            .font(.system(size: 10, weight: .bold))
+                                    }
+                                    .foregroundStyle(Theme.accent)
+                                    .padding(.horizontal, 14)
+                                    .padding(.vertical, 10)
+                                    .background(Theme.accent.opacity(0.06))
+                                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 10, style: .continuous)
+                                            .stroke(Theme.accent.opacity(0.12), lineWidth: 0.5)
+                                    )
+                                }
+                                .buttonStyle(.plain)
+                            }
                         }
                         .padding(.horizontal, Theme.pagePadding)
                         .padding(.vertical, 8)
