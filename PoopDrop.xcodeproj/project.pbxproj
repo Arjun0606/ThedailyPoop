@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		18C93C69C717BE42F314D4B1 /* PrivacyPolicyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4210E055649FE550A178E211 /* PrivacyPolicyView.swift */; };
 		4FA795EE06D93D608BC822CE /* PoopOrScoopCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A95487D800C5C329910D6BD /* PoopOrScoopCardView.swift */; };
+		8D707714A2B57C60343FA5C8 /* LeaderboardPreviewCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42687D8F4281C00A784137C /* LeaderboardPreviewCard.swift */; };
 		9122A731B4202D13CB528ADC /* TermsOfServiceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 119BCB7C76A3A13ECAA1ECFC /* TermsOfServiceView.swift */; };
 		A1000001294A0000000000001 /* PoopDropApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000002294A0000000000001 /* PoopDropApp.swift */; };
 		A1000002294A0000000000003 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000003294A0000000000003 /* AppDelegate.swift */; };
@@ -108,6 +109,7 @@
 		BRIEF0020000000000000001 /* Briefing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Briefing.swift; sourceTree = "<group>"; };
 		BVIEW0020000000000000001 /* BriefingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BriefingView.swift; sourceTree = "<group>"; };
 		E304B02ABDBA140D9A2DC0AC /* PoopOrScoopGameView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PoopOrScoopGameView.swift; sourceTree = "<group>"; };
+		F42687D8F4281C00A784137C /* LeaderboardPreviewCard.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LeaderboardPreviewCard.swift; sourceTree = "<group>"; };
 		GLOBE0020000000000000001 /* LiveGlobeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveGlobeView.swift; sourceTree = "<group>"; };
 		LACT0020000000000000001 /* LiveActivityManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityManager.swift; sourceTree = "<group>"; };
 		NEW00006000000000000001 /* SupabaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseManager.swift; sourceTree = "<group>"; };
@@ -285,6 +287,7 @@
 				WDLDR0020000000000000001 /* WordDropLeaderboardView.swift */,
 				WDSHR0020000000000000001 /* WordDropShareCardView.swift */,
 				WDLTL0020000000000000001 /* LetterTileView.swift */,
+				F42687D8F4281C00A784137C /* LeaderboardPreviewCard.swift */,
 			);
 			path = WordDrop;
 			sourceTree = "<group>";
@@ -447,6 +450,7 @@
 				A39F8F0241918A8BA1C9A941 /* PoopOrScoop.swift in Sources */,
 				4FA795EE06D93D608BC822CE /* PoopOrScoopCardView.swift in Sources */,
 				F854C93225B5D69CCE8FDE41 /* PoopOrScoopGameView.swift in Sources */,
+				8D707714A2B57C60343FA5C8 /* LeaderboardPreviewCard.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

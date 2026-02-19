@@ -16,6 +16,7 @@ struct BriefingView: View {
     @State private var selectedWordGame: WordGame?
     @State private var scoopGame: ScoopGame?
     @State private var showingScoopGame = false
+    @State private var showingLeaderboard = false
 
     private var allStories: [Story] {
         drops.flatMap { $0.stories }
@@ -66,6 +67,16 @@ struct BriefingView: View {
                         }
                         .padding(.horizontal, Theme.pagePadding)
                         .padding(.vertical, 8)
+
+                        // Leaderboard preview
+                        LeaderboardPreviewCard(
+                            date: todayDrop.briefing.publishDate,
+                            isPremium: authManager.currentUser?.isPremium ?? false,
+                            onShowFull: { showingLeaderboard = true },
+                            onUpgrade: { showingPaywall = true }
+                        )
+                        .padding(.horizontal, Theme.pagePadding)
+                        .padding(.bottom, 8)
 
                         let isPremium = authManager.currentUser?.isPremium ?? false
                         let freeStories = todayDrop.stories.filter { $0.isFree }
@@ -123,6 +134,12 @@ struct BriefingView: View {
         .task { await loadBriefing() }
         .sheet(isPresented: $showingPaywall) {
             PaywallView()
+        }
+        .sheet(isPresented: $showingLeaderboard) {
+            if let drop = drops.first {
+                WordDropLeaderboardView(date: drop.briefing.publishDate, dropType: "morning")
+                    .environmentObject(authManager)
+            }
         }
         .sheet(item: $selectedStory) { story in
             StoryDetailView(story: story)

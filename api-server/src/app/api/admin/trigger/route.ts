@@ -37,20 +37,49 @@ export async function GET(request: NextRequest) {
 // POST /api/admin/trigger — manually trigger daily briefing generation
 export async function POST(_request: NextRequest) {
   try {
-    await inngest.send({
+    // Send event via Inngest
+    const result = await inngest.send({
       name: "admin/trigger-briefing",
       data: { triggeredAt: new Date().toISOString() },
     });
 
     return NextResponse.json({
       triggered: true,
-      message: "Daily briefing generation triggered. Check Inngest dashboard for progress.",
+      inngestResult: result,
+      message: "Daily briefing generation triggered via Inngest event.",
       time: new Date().toISOString(),
     });
-  } catch (error) {
-    return NextResponse.json(
-      { error: `Failed to trigger: ${error}` },
-      { status: 500 }
-    );
+  } catch (error: unknown) {
+    const errMsg = error instanceof Error ? error.message : String(error);
+
+    // Fallback: try to run the first step (fetch news) directly
+    // This won't complete the full pipeline but shows if the API keys work
+    try {
+      const { fetchAllCategories } = await import("@/lib/perplexity");
+      const categories = await fetchAllCategories();
+      const storyCount = categories.reduce((sum, c) => sum + c.stories.length, 0);
+
+      return NextResponse.json({
+        triggered: false,
+        inngestError: errMsg,
+        fallbackTest: {
+          perplexityWorking: storyCount > 0,
+          storiesFetched: storyCount,
+          categories: categories.map((c) => ({
+            name: c.category,
+            count: c.stories.length,
+          })),
+        },
+        message: "Inngest event failed, but Perplexity API is working. Check Inngest dashboard.",
+      });
+    } catch (fallbackError: unknown) {
+      return NextResponse.json(
+        {
+          error: errMsg,
+          fallbackError: fallbackError instanceof Error ? fallbackError.message : String(fallbackError),
+        },
+        { status: 500 }
+      );
+    }
   }
 }
