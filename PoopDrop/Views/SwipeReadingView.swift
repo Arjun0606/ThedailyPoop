@@ -157,7 +157,7 @@ struct SwipeCardContent: View {
                                 image
                                     .resizable()
                                     .aspectRatio(contentMode: .fill)
-                                    .frame(maxHeight: 200)
+                                    .frame(maxWidth: UIScreen.main.bounds.width - 48, maxHeight: 200)
                                     .clipped()
                                     .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
                             case .failure:

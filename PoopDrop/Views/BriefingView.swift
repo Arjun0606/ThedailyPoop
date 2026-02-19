@@ -55,8 +55,10 @@ struct BriefingView: View {
                                 onUpgrade: { showingPaywall = true }
                             )
 
-                            // Word Drop games
-                            ForEach(wordGames, id: \.id) { game in
+                            // Word Drop — only show playable/played games (hide locked cards for free users)
+                            ForEach(wordGames.filter { g in
+                                (authManager.currentUser?.isPremium ?? false) || g.dropType == "morning" || g.played
+                            }, id: \.id) { game in
                                 WordDropCardView(
                                     game: game,
                                     isPremium: authManager.currentUser?.isPremium ?? false,
@@ -549,8 +551,7 @@ struct StoryDetailView: View {
                                         image
                                             .resizable()
                                             .aspectRatio(contentMode: .fill)
-                                            .frame(maxWidth: .infinity)
-                                            .frame(height: 240)
+                                            .frame(width: UIScreen.main.bounds.width, height: 240)
                                             .clipped()
                                     case .failure:
                                         Rectangle()
@@ -587,8 +588,7 @@ struct StoryDetailView: View {
                                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
                                 }
                             }
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 240)
+                            .frame(width: UIScreen.main.bounds.width, height: 240)
                             .clipped()
                         }
 
