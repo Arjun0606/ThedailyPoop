@@ -549,6 +549,7 @@ struct StoryDetailView: View {
                                         image
                                             .resizable()
                                             .aspectRatio(contentMode: .fill)
+                                            .frame(maxWidth: .infinity)
                                             .frame(height: 240)
                                             .clipped()
                                     case .failure:
@@ -586,7 +587,9 @@ struct StoryDetailView: View {
                                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
                                 }
                             }
+                            .frame(maxWidth: .infinity)
                             .frame(height: 240)
+                            .clipped()
                         }
 
                         // Content

@@ -8,11 +8,9 @@ struct PoopOrScoopCardView: View {
 
     var body: some View {
         Button {
-            if !isPremium {
-                onUpgrade()
-            } else if game?.played == true {
+            if game?.played == true {
                 // Already played — just show score
-            } else {
+            } else if game != nil {
                 onPlay()
             }
         } label: {
@@ -46,13 +44,6 @@ struct PoopOrScoopCardView: View {
                         Text("Real or fake? You figured it out")
                             .font(.caption2)
                             .foregroundStyle(Theme.textTertiary)
-                    } else if !isPremium {
-                        Text("Upgrade to play")
-                            .font(.subheadline.weight(.medium))
-                            .foregroundStyle(.white)
-                        Text("Swipe real vs fake headlines")
-                            .font(.caption2)
-                            .foregroundStyle(Theme.textTertiary)
                     } else if game != nil {
                         Text("Real or fake headline?")
                             .font(.subheadline.weight(.medium))
@@ -73,14 +64,6 @@ struct PoopOrScoopCardView: View {
                     Image(systemName: "checkmark.circle.fill")
                         .font(.title3)
                         .foregroundStyle(.green)
-                } else if !isPremium {
-                    Text("PRO")
-                        .font(.system(size: 10, weight: .heavy))
-                        .foregroundStyle(.black)
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 6)
-                        .background(Color.pink)
-                        .clipShape(Capsule())
                 } else if game != nil {
                     Text("PLAY")
                         .font(.system(size: 12, weight: .heavy))
