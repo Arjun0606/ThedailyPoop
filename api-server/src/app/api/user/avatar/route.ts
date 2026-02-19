@@ -1,8 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase";
+import { validateUserRequest } from "@/lib/user-auth";
 
 export async function POST(request: NextRequest) {
   const db = createServiceClient();
+
+  // Clone request to read auth header before consuming form data
+  const auth = await validateUserRequest(request);
+  if (auth instanceof NextResponse) return auth;
 
   const formData = await request.formData();
   const userId = formData.get("userId") as string;
@@ -12,6 +17,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       { error: "Missing required fields: userId, file" },
       { status: 400 }
+    );
+  }
+
+  // Verify the token matches the userId
+  if (auth.userId !== userId) {
+    return NextResponse.json(
+      { error: "Forbidden: token does not match userId" },
+      { status: 403 }
     );
   }
 

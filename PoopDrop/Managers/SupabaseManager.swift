@@ -58,6 +58,7 @@ class SupabaseManager: ObservableObject {
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        await addAuthHeader(to: &request)
 
         let body: [String: Any] = [
             "userId": user.id,
@@ -502,6 +503,7 @@ class SupabaseManager: ObservableObject {
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+        await addAuthHeader(to: &request)
 
         var body = Data()
         // userId field
@@ -557,6 +559,7 @@ class SupabaseManager: ObservableObject {
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        await addAuthHeader(to: &request)
         request.httpBody = try JSONEncoder().encode(["userId": userID])
 
         let (data, response) = try await URLSession.shared.data(for: request)
@@ -605,6 +608,7 @@ class SupabaseManager: ObservableObject {
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        await addAuthHeader(to: &request)
 
         let body: [String: Any] = [
             "userId": userId,
@@ -669,6 +673,7 @@ class SupabaseManager: ObservableObject {
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        await addAuthHeader(to: &request)
 
         let body: [String: Any] = [
             "userId": userId,
@@ -682,6 +687,12 @@ class SupabaseManager: ObservableObject {
     }
 
     // MARK: - Helpers
+
+    private func addAuthHeader(to request: inout URLRequest) async {
+        if let session = try? await client.auth.session {
+            request.setValue("Bearer \(session.accessToken)", forHTTPHeaderField: "Authorization")
+        }
+    }
 
     private func dateString(for date: Date) -> String {
         let formatter = DateFormatter()

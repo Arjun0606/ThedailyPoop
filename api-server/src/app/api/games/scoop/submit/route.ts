@@ -1,5 +1,6 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase";
+import { validateUserRequest } from "@/lib/user-auth";
 
 interface SubmitBody {
   userId: string;
@@ -7,13 +8,17 @@ interface SubmitBody {
   answers: { headline: string; guessedReal: boolean }[];
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   const body: SubmitBody = await request.json();
   const { userId, gameId, answers } = body;
 
   if (!userId || !gameId || !answers?.length) {
     return NextResponse.json({ error: "Missing fields" }, { status: 400 });
   }
+
+  // Verify the requester is the user submitting
+  const auth = await validateUserRequest(request, userId);
+  if (auth instanceof NextResponse) return auth;
 
   const db = createServiceClient();
 

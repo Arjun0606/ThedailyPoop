@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServiceClient } from "@/lib/supabase";
+import { validateUserRequest } from "@/lib/user-auth";
 
 export async function POST(request: NextRequest) {
   const db = createServiceClient();
@@ -19,6 +20,10 @@ export async function POST(request: NextRequest) {
       { status: 400 }
     );
   }
+
+  // Verify the requester owns this account
+  const auth = await validateUserRequest(request, userId);
+  if (auth instanceof NextResponse) return auth;
 
   // Verify the user exists
   const { data: user } = await db
