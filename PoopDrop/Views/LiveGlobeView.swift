@@ -484,9 +484,9 @@ struct GlobeSceneView: UIViewRepresentable {
             let lngRad = longitude * .pi / 180
             let r: Double = 1.02
 
-            let x = r * cos(latRad) * cos(lngRad)
+            let x = r * cos(latRad) * sin(lngRad)
             let y = r * sin(latRad)
-            let z = r * cos(latRad) * sin(-lngRad)
+            let z = r * cos(latRad) * cos(lngRad)
 
             container.position = SCNVector3(Float(x), Float(y), Float(z))
 
