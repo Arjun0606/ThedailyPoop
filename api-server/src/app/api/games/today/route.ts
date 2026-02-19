@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
   }
 
   // Fetch today's games (exclude valid_words and key_word)
-  const { data: games, error } = await db
+  let { data: games, error } = await db
     .from("word_games")
     .select(
       "id, briefing_id, drop_type, publish_date, letters, key_word, story_headline, story_id, created_at"
@@ -34,7 +34,20 @@ export async function GET(request: NextRequest) {
     .eq("publish_date", today)
     .order("created_at", { ascending: true });
 
+  // Fallback: if no games today, fetch most recent games
   if (error || !games?.length) {
+    const fallback = await db
+      .from("word_games")
+      .select(
+        "id, briefing_id, drop_type, publish_date, letters, key_word, story_headline, story_id, created_at"
+      )
+      .order("publish_date", { ascending: false })
+      .order("created_at", { ascending: true })
+      .limit(3);
+    games = fallback.data;
+  }
+
+  if (!games?.length) {
     return NextResponse.json({ games: [] });
   }
 

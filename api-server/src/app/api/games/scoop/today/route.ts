@@ -6,15 +6,29 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const userId = searchParams.get("userId");
 
-  const today = new Date().toISOString().split("T")[0];
+  // Use Eastern time for date consistency with briefing generation
+  const today = new Date().toLocaleDateString("en-CA", {
+    timeZone: "America/New_York",
+  });
 
-  const { data: game, error } = await db
+  let { data: game, error } = await db
     .from("scoop_games")
     .select("id, publish_date, headlines, created_at")
     .eq("publish_date", today)
     .single();
 
+  // Fallback: if no game today, fetch most recent game
   if (error || !game) {
+    const fallback = await db
+      .from("scoop_games")
+      .select("id, publish_date, headlines, created_at")
+      .order("publish_date", { ascending: false })
+      .limit(1)
+      .single();
+    game = fallback.data;
+  }
+
+  if (!game) {
     return NextResponse.json({ game: null });
   }
 
