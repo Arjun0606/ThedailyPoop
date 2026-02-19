@@ -16,14 +16,28 @@ export const generateWordGame = inngest.createFunction(
     const { briefingId, dropType, publishDate } = event.data;
     const db = createServiceClient();
 
-    // Step 1: Fetch the top story headline
+    // Step 1: Fetch a story headline — each drop uses a different story
+    // morning=1st story, midday=2nd, evening=3rd for variety
+    const sortOrder = dropType === "morning" ? 1 : dropType === "midday" ? 2 : 3;
+
     const topStory = await step.run("fetch-top-story", async () => {
       const { data } = await db
         .from("stories")
         .select("id, headline")
         .eq("briefing_id", briefingId)
-        .eq("sort_order", 1)
+        .eq("sort_order", sortOrder)
         .single();
+
+      // Fallback to sort_order=1 if the preferred story doesn't exist
+      if (!data) {
+        const { data: fallback } = await db
+          .from("stories")
+          .select("id, headline")
+          .eq("briefing_id", briefingId)
+          .eq("sort_order", 1)
+          .single();
+        return fallback;
+      }
       return data;
     });
 

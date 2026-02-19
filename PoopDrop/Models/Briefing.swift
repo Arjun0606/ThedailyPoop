@@ -27,15 +27,17 @@ struct Briefing: Identifiable, Codable {
 
     var dropLabel: String {
         switch dropType {
+        case "daily": return "TODAY'S BRIEFING"
         case "morning": return "MORNING DROP"
         case "midday": return "MIDDAY DROP"
         case "evening": return "EVENING WRAP"
-        default: return "DROP"
+        default: return "BRIEFING"
         }
     }
 
     var dropEmoji: String {
         switch dropType {
+        case "daily": return "💩"
         case "morning": return "☀️"
         case "midday": return "🔥"
         case "evening": return "🌙"

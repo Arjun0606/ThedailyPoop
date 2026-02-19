@@ -48,11 +48,11 @@ struct PaywallView: View {
 
                     // Features
                     VStack(spacing: 16) {
-                        featureRow(icon: "newspaper.fill", text: "All 35 daily stories", sub: "Not just 4")
-                        featureRow(icon: "gamecontroller.fill", text: "Word Drop on every drop", sub: "3 games per day")
+                        featureRow(icon: "newspaper.fill", text: "All 20 daily stories", sub: "Not just 10")
+                        featureRow(icon: "gamecontroller.fill", text: "3 Word Drop games daily", sub: "Free gets 1")
                         featureRow(icon: "trophy.fill", text: "Public leaderboard", sub: "Flex on your friends")
                         featureRow(icon: "headphones", text: "Audio briefings", sub: "Listen hands-free")
-                        featureRow(icon: "bolt.fill", text: "Early access", sub: "Stories before anyone else")
+                        featureRow(icon: "clock.arrow.circlepath", text: "7-day archive", sub: "Never miss a story")
                     }
                     .padding(.horizontal, Theme.pagePadding)
 

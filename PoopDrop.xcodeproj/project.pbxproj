@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		18C93C69C717BE42F314D4B1 /* PrivacyPolicyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4210E055649FE550A178E211 /* PrivacyPolicyView.swift */; };
+		4FA795EE06D93D608BC822CE /* PoopOrScoopCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A95487D800C5C329910D6BD /* PoopOrScoopCardView.swift */; };
 		9122A731B4202D13CB528ADC /* TermsOfServiceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 119BCB7C76A3A13ECAA1ECFC /* TermsOfServiceView.swift */; };
 		A1000001294A0000000000001 /* PoopDropApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000002294A0000000000001 /* PoopDropApp.swift */; };
 		A1000002294A0000000000003 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1000003294A0000000000003 /* AppDelegate.swift */; };
@@ -21,44 +22,72 @@
 		A1000029294A0000000000001 /* AuthenticationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100002A294A0000000000001 /* AuthenticationView.swift */; };
 		A100002B294A0000000000001 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100002C294A0000000000001 /* OnboardingView.swift */; };
 		A1000049294A0000000000002 /* ProfileSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A100004A294A0000000000002 /* ProfileSetupView.swift */; };
-		D9AC1536EA6A48F4FEAFB2CE /* ContactView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27F25651DCDE162B6C18444A /* ContactView.swift */; };
-		NEW00005000000000000001 /* SupabaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = NEW00006000000000000001 /* SupabaseManager.swift */; };
-		VIRAL0050000000000000001 /* PushNotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = VIRAL0060000000000000001 /* PushNotificationService.swift */; };
-		BRIEF0010000000000000001 /* Briefing.swift in Sources */ = {isa = PBXBuildFile; fileRef = BRIEF0020000000000000001 /* Briefing.swift */; };
-		STORY0010000000000000001 /* Story.swift in Sources */ = {isa = PBXBuildFile; fileRef = STORY0020000000000000001 /* Story.swift */; };
-		BVIEW0010000000000000001 /* BriefingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BVIEW0020000000000000001 /* BriefingView.swift */; };
-		SCVEW0010000000000000001 /* StoryCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SCVEW0020000000000000001 /* StoryCardView.swift */; };
-		AVIEW0010000000000000001 /* ArchiveView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AVIEW0020000000000000001 /* ArchiveView.swift */; };
-		RSESS0010000000000000001 /* ReaderSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = RSESS0020000000000000001 /* ReaderSession.swift */; };
-		GLOBE0010000000000000001 /* LiveGlobeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = GLOBE0020000000000000001 /* LiveGlobeView.swift */; };
+		A39F8F0241918A8BA1C9A941 /* PoopOrScoop.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7153DF33C8706061CA2FF894 /* PoopOrScoop.swift */; };
 		AUDIO0010000000000000001 /* AudioBriefingManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = AUDIO0020000000000000001 /* AudioBriefingManager.swift */; };
-		SHARE0010000000000000001 /* ShareCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHARE0020000000000000001 /* ShareCardView.swift */; };
-		SWIPE0010000000000000001 /* SwipeReadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SWIPE0020000000000000001 /* SwipeReadingView.swift */; };
-		THEME0010000000000000001 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = THEME0020000000000000001 /* Theme.swift */; };
-		RCAT0010000000000000001 /* SubscriptionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = RCAT0020000000000000001 /* SubscriptionManager.swift */; };
-		SPM00003000000000000001 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = SPM00002000000000000001 /* Supabase */; };
-		RCAT0030000000000000001 /* RevenueCat in Frameworks */ = {isa = PBXBuildFile; productRef = RCAT0040000000000000001 /* RevenueCat */; };
-		PAYW0010000000000000001 /* PaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = PAYW0020000000000000001 /* PaywallView.swift */; };
-		WDCRD0010000000000000001 /* WordDropCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = WDCRD0020000000000000001 /* WordDropCardView.swift */; };
-		WDGAM0010000000000000001 /* WordDropGameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = WDGAM0020000000000000001 /* WordDropGameView.swift */; };
-		WDRST0010000000000000001 /* WordDropResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = WDRST0020000000000000001 /* WordDropResultView.swift */; };
-		WDLDR0010000000000000001 /* WordDropLeaderboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = WDLDR0020000000000000001 /* WordDropLeaderboardView.swift */; };
-		WDSHR0010000000000000001 /* WordDropShareCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = WDSHR0020000000000000001 /* WordDropShareCardView.swift */; };
-		WDLTL0010000000000000001 /* LetterTileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = WDLTL0020000000000000001 /* LetterTileView.swift */; };
-		WDMGR0010000000000000001 /* WordDropManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = WDMGR0020000000000000001 /* WordDropManager.swift */; };
-		WDMDL0010000000000000001 /* WordGame.swift in Sources */ = {isa = PBXBuildFile; fileRef = WDMDL0020000000000000001 /* WordGame.swift */; };
+		AVIEW0010000000000000001 /* ArchiveView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AVIEW0020000000000000001 /* ArchiveView.swift */; };
+		BRIEF0010000000000000001 /* Briefing.swift in Sources */ = {isa = PBXBuildFile; fileRef = BRIEF0020000000000000001 /* Briefing.swift */; };
+		BVIEW0010000000000000001 /* BriefingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BVIEW0020000000000000001 /* BriefingView.swift */; };
+		D9AC1536EA6A48F4FEAFB2CE /* ContactView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27F25651DCDE162B6C18444A /* ContactView.swift */; };
+		F854C93225B5D69CCE8FDE41 /* PoopOrScoopGameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E304B02ABDBA140D9A2DC0AC /* PoopOrScoopGameView.swift */; };
+		GLOBE0010000000000000001 /* LiveGlobeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = GLOBE0020000000000000001 /* LiveGlobeView.swift */; };
 		LACT0010000000000000001 /* LiveActivityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = LACT0020000000000000001 /* LiveActivityManager.swift */; };
+		NEW00005000000000000001 /* SupabaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = NEW00006000000000000001 /* SupabaseManager.swift */; };
+		PAYW0010000000000000001 /* PaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = PAYW0020000000000000001 /* PaywallView.swift */; };
+		RCAT0010000000000000001 /* SubscriptionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = RCAT0020000000000000001 /* SubscriptionManager.swift */; };
+		RCAT0030000000000000001 /* RevenueCat in Frameworks */ = {isa = PBXBuildFile; productRef = RCAT0040000000000000001 /* RevenueCat */; };
+		RSESS0010000000000000001 /* ReaderSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = RSESS0020000000000000001 /* ReaderSession.swift */; };
+		SCVEW0010000000000000001 /* StoryCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SCVEW0020000000000000001 /* StoryCardView.swift */; };
+		SHARE0010000000000000001 /* ShareCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHARE0020000000000000001 /* ShareCardView.swift */; };
 		SHRD0010000000000000001 /* PoopDropActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHRD0020000000000000001 /* PoopDropActivityAttributes.swift */; };
 		SHRD0030000000000000001 /* PoopDropActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = SHRD0020000000000000001 /* PoopDropActivityAttributes.swift */; };
+		SPM00003000000000000001 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = SPM00002000000000000001 /* Supabase */; };
+		STORY0010000000000000001 /* Story.swift in Sources */ = {isa = PBXBuildFile; fileRef = STORY0020000000000000001 /* Story.swift */; };
+		SWIPE0010000000000000001 /* SwipeReadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SWIPE0020000000000000001 /* SwipeReadingView.swift */; };
+		THEME0010000000000000001 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = THEME0020000000000000001 /* Theme.swift */; };
+		VIRAL0050000000000000001 /* PushNotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = VIRAL0060000000000000001 /* PushNotificationService.swift */; };
+		WDCRD0010000000000000001 /* WordDropCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = WDCRD0020000000000000001 /* WordDropCardView.swift */; };
+		WDGAM0010000000000000001 /* WordDropGameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = WDGAM0020000000000000001 /* WordDropGameView.swift */; };
+		WDLDR0010000000000000001 /* WordDropLeaderboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = WDLDR0020000000000000001 /* WordDropLeaderboardView.swift */; };
+		WDLTL0010000000000000001 /* LetterTileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = WDLTL0020000000000000001 /* LetterTileView.swift */; };
+		WDMDL0010000000000000001 /* WordGame.swift in Sources */ = {isa = PBXBuildFile; fileRef = WDMDL0020000000000000001 /* WordGame.swift */; };
+		WDMGR0010000000000000001 /* WordDropManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = WDMGR0020000000000000001 /* WordDropManager.swift */; };
+		WDRST0010000000000000001 /* WordDropResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = WDRST0020000000000000001 /* WordDropResultView.swift */; };
+		WDSHR0010000000000000001 /* WordDropShareCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = WDSHR0020000000000000001 /* WordDropShareCardView.swift */; };
 		WEXT0010000000000000001 /* PoopDropWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = WEXT0020000000000000001 /* PoopDropWidget.swift */; };
 		WEXT0030000000000000001 /* PoopDropLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = WEXT0040000000000000001 /* PoopDropLiveActivity.swift */; };
 		WEXT0050000000000000001 /* PoopDropWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = WEXT0060000000000000001 /* PoopDropWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		WEXT0140000000000000001 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A0FFFFFF294A0000000000777 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = WEXT0090000000000000001;
+			remoteInfo = PoopDropWidgetExtension;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		WEXT0130000000000000001 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				WEXT0050000000000000001 /* PoopDropWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		119BCB7C76A3A13ECAA1ECFC /* TermsOfServiceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TermsOfServiceView.swift; sourceTree = "<group>"; };
 		27F25651DCDE162B6C18444A /* ContactView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactView.swift; sourceTree = "<group>"; };
 		4210E055649FE550A178E211 /* PrivacyPolicyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivacyPolicyView.swift; sourceTree = "<group>"; };
+		4A95487D800C5C329910D6BD /* PoopOrScoopCardView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PoopOrScoopCardView.swift; sourceTree = "<group>"; };
+		7153DF33C8706061CA2FF894 /* PoopOrScoop.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PoopOrScoop.swift; sourceTree = "<group>"; };
 		A1000001294A0000000000000 /* TheDailyPoop.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TheDailyPoop.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1000002294A0000000000001 /* PoopDropApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PoopDropApp.swift; sourceTree = "<group>"; };
 		A1000003294A0000000000003 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -74,31 +103,32 @@
 		A100002D294A0000000000001 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A100002E294A0000000000001 /* PoopDrop.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PoopDrop.entitlements; sourceTree = "<group>"; };
 		A100004A294A0000000000002 /* ProfileSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSetupView.swift; sourceTree = "<group>"; };
-		NEW00006000000000000001 /* SupabaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseManager.swift; sourceTree = "<group>"; };
-		VIRAL0060000000000000001 /* PushNotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationService.swift; sourceTree = "<group>"; };
-		BRIEF0020000000000000001 /* Briefing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Briefing.swift; sourceTree = "<group>"; };
-		STORY0020000000000000001 /* Story.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Story.swift; sourceTree = "<group>"; };
-		BVIEW0020000000000000001 /* BriefingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BriefingView.swift; sourceTree = "<group>"; };
-		SCVEW0020000000000000001 /* StoryCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryCardView.swift; sourceTree = "<group>"; };
-		AVIEW0020000000000000001 /* ArchiveView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchiveView.swift; sourceTree = "<group>"; };
-		RSESS0020000000000000001 /* ReaderSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderSession.swift; sourceTree = "<group>"; };
-		GLOBE0020000000000000001 /* LiveGlobeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveGlobeView.swift; sourceTree = "<group>"; };
 		AUDIO0020000000000000001 /* AudioBriefingManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioBriefingManager.swift; sourceTree = "<group>"; };
+		AVIEW0020000000000000001 /* ArchiveView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArchiveView.swift; sourceTree = "<group>"; };
+		BRIEF0020000000000000001 /* Briefing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Briefing.swift; sourceTree = "<group>"; };
+		BVIEW0020000000000000001 /* BriefingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BriefingView.swift; sourceTree = "<group>"; };
+		E304B02ABDBA140D9A2DC0AC /* PoopOrScoopGameView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PoopOrScoopGameView.swift; sourceTree = "<group>"; };
+		GLOBE0020000000000000001 /* LiveGlobeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveGlobeView.swift; sourceTree = "<group>"; };
+		LACT0020000000000000001 /* LiveActivityManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityManager.swift; sourceTree = "<group>"; };
+		NEW00006000000000000001 /* SupabaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseManager.swift; sourceTree = "<group>"; };
+		PAYW0020000000000000001 /* PaywallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaywallView.swift; sourceTree = "<group>"; };
+		RCAT0020000000000000001 /* SubscriptionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionManager.swift; sourceTree = "<group>"; };
+		RSESS0020000000000000001 /* ReaderSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReaderSession.swift; sourceTree = "<group>"; };
+		SCVEW0020000000000000001 /* StoryCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryCardView.swift; sourceTree = "<group>"; };
 		SHARE0020000000000000001 /* ShareCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareCardView.swift; sourceTree = "<group>"; };
+		SHRD0020000000000000001 /* PoopDropActivityAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PoopDropActivityAttributes.swift; sourceTree = "<group>"; };
+		STORY0020000000000000001 /* Story.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Story.swift; sourceTree = "<group>"; };
 		SWIPE0020000000000000001 /* SwipeReadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwipeReadingView.swift; sourceTree = "<group>"; };
 		THEME0020000000000000001 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
-		RCAT0020000000000000001 /* SubscriptionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionManager.swift; sourceTree = "<group>"; };
-		PAYW0020000000000000001 /* PaywallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaywallView.swift; sourceTree = "<group>"; };
+		VIRAL0060000000000000001 /* PushNotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushNotificationService.swift; sourceTree = "<group>"; };
 		WDCRD0020000000000000001 /* WordDropCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordDropCardView.swift; sourceTree = "<group>"; };
 		WDGAM0020000000000000001 /* WordDropGameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordDropGameView.swift; sourceTree = "<group>"; };
-		WDRST0020000000000000001 /* WordDropResultView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordDropResultView.swift; sourceTree = "<group>"; };
 		WDLDR0020000000000000001 /* WordDropLeaderboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordDropLeaderboardView.swift; sourceTree = "<group>"; };
-		WDSHR0020000000000000001 /* WordDropShareCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordDropShareCardView.swift; sourceTree = "<group>"; };
 		WDLTL0020000000000000001 /* LetterTileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LetterTileView.swift; sourceTree = "<group>"; };
-		WDMGR0020000000000000001 /* WordDropManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordDropManager.swift; sourceTree = "<group>"; };
 		WDMDL0020000000000000001 /* WordGame.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordGame.swift; sourceTree = "<group>"; };
-		LACT0020000000000000001 /* LiveActivityManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiveActivityManager.swift; sourceTree = "<group>"; };
-		SHRD0020000000000000001 /* PoopDropActivityAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PoopDropActivityAttributes.swift; sourceTree = "<group>"; };
+		WDMGR0020000000000000001 /* WordDropManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordDropManager.swift; sourceTree = "<group>"; };
+		WDRST0020000000000000001 /* WordDropResultView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordDropResultView.swift; sourceTree = "<group>"; };
+		WDSHR0020000000000000001 /* WordDropShareCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordDropShareCardView.swift; sourceTree = "<group>"; };
 		WEXT0020000000000000001 /* PoopDropWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PoopDropWidget.swift; sourceTree = "<group>"; };
 		WEXT0040000000000000001 /* PoopDropLiveActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PoopDropLiveActivity.swift; sourceTree = "<group>"; };
 		WEXT0060000000000000001 /* PoopDropWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = PoopDropWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -124,6 +154,16 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		5A03778DBD14E058B6566013 /* PoopOrScoop */ = {
+			isa = PBXGroup;
+			children = (
+				4A95487D800C5C329910D6BD /* PoopOrScoopCardView.swift */,
+				E304B02ABDBA140D9A2DC0AC /* PoopOrScoopGameView.swift */,
+			);
+			name = PoopOrScoop;
+			path = PoopOrScoop;
+			sourceTree = "<group>";
+		};
 		A0FFFFFF294A0000000000888 = {
 			isa = PBXGroup;
 			children = (
@@ -141,23 +181,6 @@
 				WEXT0060000000000000001 /* PoopDropWidgetExtension.appex */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		SHRD0040000000000000001 /* Shared */ = {
-			isa = PBXGroup;
-			children = (
-				SHRD0020000000000000001 /* PoopDropActivityAttributes.swift */,
-			);
-			path = Shared;
-			sourceTree = "<group>";
-		};
-		WEXT0070000000000000001 /* PoopDropWidget */ = {
-			isa = PBXGroup;
-			children = (
-				WEXT0020000000000000001 /* PoopDropWidget.swift */,
-				WEXT0040000000000000001 /* PoopDropLiveActivity.swift */,
-			);
-			path = PoopDropWidget;
 			sourceTree = "<group>";
 		};
 		A1000003294A0000000000888 /* PoopDrop */ = {
@@ -195,6 +218,7 @@
 				STORY0020000000000000001 /* Story.swift */,
 				RSESS0020000000000000001 /* ReaderSession.swift */,
 				WDMDL0020000000000000001 /* WordGame.swift */,
+				7153DF33C8706061CA2FF894 /* PoopOrScoop.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -232,6 +256,7 @@
 				SHARE0020000000000000001 /* ShareCardView.swift */,
 				SWIPE0020000000000000001 /* SwipeReadingView.swift */,
 				WDGRP0010000000000000001 /* WordDrop */,
+				5A03778DBD14E058B6566013 /* PoopOrScoop */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -241,6 +266,14 @@
 			children = (
 			);
 			path = Extensions;
+			sourceTree = "<group>";
+		};
+		SHRD0040000000000000001 /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				SHRD0020000000000000001 /* PoopDropActivityAttributes.swift */,
+			);
+			path = Shared;
 			sourceTree = "<group>";
 		};
 		WDGRP0010000000000000001 /* WordDrop */ = {
@@ -254,6 +287,15 @@
 				WDLTL0020000000000000001 /* LetterTileView.swift */,
 			);
 			path = WordDrop;
+			sourceTree = "<group>";
+		};
+		WEXT0070000000000000001 /* PoopDropWidget */ = {
+			isa = PBXGroup;
+			children = (
+				WEXT0020000000000000001 /* PoopDropWidget.swift */,
+				WEXT0040000000000000001 /* PoopDropLiveActivity.swift */,
+			);
+			path = PoopDropWidget;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -402,6 +444,9 @@
 				WDMDL0010000000000000001 /* WordGame.swift in Sources */,
 				LACT0010000000000000001 /* LiveActivityManager.swift in Sources */,
 				SHRD0010000000000000001 /* PoopDropActivityAttributes.swift in Sources */,
+				A39F8F0241918A8BA1C9A941 /* PoopOrScoop.swift in Sources */,
+				4FA795EE06D93D608BC822CE /* PoopOrScoopCardView.swift in Sources */,
+				F854C93225B5D69CCE8FDE41 /* PoopOrScoopGameView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -416,30 +461,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXCopyFilesBuildPhase section */
-		WEXT0130000000000000001 /* Embed Foundation Extensions */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 13;
-			files = (
-				WEXT0050000000000000001 /* PoopDropWidgetExtension.appex in Embed Foundation Extensions */,
-			);
-			name = "Embed Foundation Extensions";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXCopyFilesBuildPhase section */
-
-/* Begin PBXContainerItemProxy section */
-		WEXT0140000000000000001 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = A0FFFFFF294A0000000000777 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = WEXT0090000000000000001;
-			remoteInfo = PoopDropWidgetExtension;
-		};
-/* End PBXContainerItemProxy section */
 
 /* Begin PBXTargetDependency section */
 		WEXT0150000000000000001 /* PBXTargetDependency */ = {
@@ -734,14 +755,6 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		SPM00001000000000000001 /* XCRemoteSwiftPackageReference "supabase-swift" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/supabase/supabase-swift.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 2.0.0;
-			};
-		};
 		RCAT0050000000000000001 /* XCRemoteSwiftPackageReference "purchases-ios" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/RevenueCat/purchases-ios.git";
@@ -750,22 +763,28 @@
 				minimumVersion = 5.0.0;
 			};
 		};
+		SPM00001000000000000001 /* XCRemoteSwiftPackageReference "supabase-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/supabase/supabase-swift.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		SPM00002000000000000001 /* Supabase */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = SPM00001000000000000001 /* XCRemoteSwiftPackageReference "supabase-swift" */;
-			productName = Supabase;
-		};
 		RCAT0040000000000000001 /* RevenueCat */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = RCAT0050000000000000001 /* XCRemoteSwiftPackageReference "purchases-ios" */;
 			productName = RevenueCat;
 		};
+		SPM00002000000000000001 /* Supabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = SPM00001000000000000001 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Supabase;
+		};
 /* End XCSwiftPackageProductDependency section */
-
-
 	};
 	rootObject = A0FFFFFF294A0000000000777 /* Project object */;
 }

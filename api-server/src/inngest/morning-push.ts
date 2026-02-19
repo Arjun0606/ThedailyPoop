@@ -27,7 +27,7 @@ function getRandomTitle(): string {
 // Runs at 7:00 AM ET — sends push notification for today's briefing
 export const morningPush = inngest.createFunction(
   { id: "morning-push", name: "Morning Push Notification" },
-  { cron: "0 7 * * *" }, // 7:00 AM UTC (adjust for ET)
+  { cron: "0 12 * * *" }, // 12:00 UTC = 7:00 AM ET
   async ({ step }) => {
     const db = createServiceClient();
     const today = new Date().toISOString().split("T")[0];
@@ -38,7 +38,7 @@ export const morningPush = inngest.createFunction(
         .from("briefings")
         .select("id, headline")
         .eq("publish_date", today)
-        .eq("drop_type", "morning")
+        .eq("drop_type", "daily")
         .eq("status", "published")
         .single();
       return data;

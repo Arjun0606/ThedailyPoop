@@ -14,6 +14,8 @@ struct BriefingView: View {
     @State private var storyReactionCounts: [String: Int] = [:]
     @State private var wordGames: [WordGame] = []
     @State private var selectedWordGame: WordGame?
+    @State private var scoopGame: ScoopGame?
+    @State private var showingScoopGame = false
 
     private var allStories: [Story] {
         drops.flatMap { $0.stories }
@@ -31,65 +33,73 @@ struct BriefingView: View {
 
             if isLoading {
                 loadingView
-            } else if !drops.isEmpty {
+            } else if !drops.isEmpty, let todayDrop = drops.first {
                 ScrollView {
                     LazyVStack(spacing: 0) {
-                        ForEach(drops) { drop in
-                            DropHeaderView(
-                                briefing: drop.briefing,
-                                isFirst: drop.id == drops.first?.id,
-                                readCount: drop.stories.filter { readStoryIDs.contains($0.id) }.count,
-                                totalCount: drop.stories.count
+                        // Briefing header
+                        DropHeaderView(
+                            briefing: todayDrop.briefing,
+                            isFirst: true,
+                            readCount: todayDrop.stories.filter { readStoryIDs.contains($0.id) }.count,
+                            totalCount: todayDrop.stories.count
+                        )
+
+                        // Games section
+                        VStack(spacing: 8) {
+                            // Poop or Scoop
+                            PoopOrScoopCardView(
+                                game: scoopGame,
+                                isPremium: authManager.currentUser?.isPremium ?? false,
+                                onPlay: { showingScoopGame = true },
+                                onUpgrade: { showingPaywall = true }
                             )
 
-                            // Word Drop challenge card
-                            if let game = wordGames.first(where: { $0.dropType == drop.briefing.dropType }) {
+                            // Word Drop games
+                            ForEach(wordGames, id: \.id) { game in
                                 WordDropCardView(
                                     game: game,
                                     isPremium: authManager.currentUser?.isPremium ?? false,
                                     onPlay: { selectedWordGame = game },
                                     onUpgrade: { showingPaywall = true }
                                 )
-                                .padding(.horizontal, Theme.pagePadding)
-                                .padding(.vertical, 8)
                             }
+                        }
+                        .padding(.horizontal, Theme.pagePadding)
+                        .padding(.vertical, 8)
 
-                            let isPremium = authManager.currentUser?.isPremium ?? false
-                            let freeStories = drop.stories.filter { $0.isFree }
-                            let premiumStories = drop.stories.filter { !$0.isFree }
+                        let isPremium = authManager.currentUser?.isPremium ?? false
+                        let freeStories = todayDrop.stories.filter { $0.isFree }
+                        let premiumStories = todayDrop.stories.filter { !$0.isFree }
 
-                            ForEach(freeStories) { story in
+                        // Free stories
+                        ForEach(freeStories) { story in
+                            StoryCardView(
+                                story: story,
+                                isPremiumUser: isPremium,
+                                isRead: readStoryIDs.contains(story.id),
+                                totalReactions: storyReactionCounts[story.id] ?? 0,
+                                onTap: { handleStoryTap(story) }
+                            )
+                        }
+
+                        // Soft paywall after free stories
+                        if !isPremium && !premiumStories.isEmpty {
+                            InlinePaywallCard(
+                                remainingCount: premiumStories.count,
+                                onUpgrade: { showingPaywall = true }
+                            )
+                        }
+
+                        // Premium stories (visible to subscribers)
+                        if isPremium {
+                            ForEach(premiumStories) { story in
                                 StoryCardView(
                                     story: story,
-                                    isPremiumUser: isPremium,
+                                    isPremiumUser: true,
                                     isRead: readStoryIDs.contains(story.id),
                                     totalReactions: storyReactionCounts[story.id] ?? 0,
                                     onTap: { handleStoryTap(story) }
                                 )
-                            }
-
-                            // Soft paywall after free stories
-                            if !isPremium && !premiumStories.isEmpty {
-                                InlinePaywallCard(
-                                    remainingCount: premiumStories.count,
-                                    onUpgrade: { showingPaywall = true }
-                                )
-                            }
-
-                            if isPremium {
-                                ForEach(premiumStories) { story in
-                                    StoryCardView(
-                                        story: story,
-                                        isPremiumUser: true,
-                                        isRead: readStoryIDs.contains(story.id),
-                                        totalReactions: storyReactionCounts[story.id] ?? 0,
-                                        onTap: { handleStoryTap(story) }
-                                    )
-                                }
-                            }
-
-                            if drop.id != drops.last?.id {
-                                DropDivider()
                             }
                         }
 
@@ -132,6 +142,19 @@ struct BriefingView: View {
                         }
                     }
                 }
+        }
+        .fullScreenCover(isPresented: $showingScoopGame) {
+            if let game = scoopGame {
+                PoopOrScoopGameView(game: game)
+                    .environmentObject(authManager)
+                    .onDisappear {
+                        Task {
+                            if let user = authManager.currentUser {
+                                scoopGame = try? await SupabaseManager.shared.fetchTodayScoopGame(userId: user.id)
+                            }
+                        }
+                    }
+            }
         }
     }
 
@@ -242,8 +265,9 @@ struct BriefingView: View {
             let fetchedDrops = try await SupabaseManager.shared.fetchTodayDrops()
             drops = fetchedDrops
 
-            // Load word games
+            // Load games
             wordGames = (try? await SupabaseManager.shared.fetchTodayGames(userId: user.id)) ?? []
+            scoopGame = try? await SupabaseManager.shared.fetchTodayScoopGame(userId: user.id)
 
             if !fetchedDrops.isEmpty {
                 let briefingIds = fetchedDrops.map { $0.briefing.id }
@@ -419,12 +443,10 @@ struct NoBriefingView: View {
     private var nextDropTime: Date {
         let cal = Calendar.current
         let now = Date()
-        let dropHours = [7, 12, 17]
-        for hour in dropHours {
-            if let candidate = cal.date(bySettingHour: hour, minute: 0, second: 0, of: now),
-               candidate > now {
-                return candidate
-            }
+        // Daily briefing drops at 7 AM ET
+        if let today7am = cal.date(bySettingHour: 7, minute: 0, second: 0, of: now),
+           today7am > now {
+            return today7am
         }
         let tomorrow = cal.date(byAdding: .day, value: 1, to: now)!
         return cal.date(bySettingHour: 7, minute: 0, second: 0, of: tomorrow)!
@@ -450,7 +472,7 @@ struct NoBriefingView: View {
                 .animation(.easeInOut(duration: 2).repeatForever(autoreverses: true), value: pulse)
 
             VStack(spacing: 12) {
-                Text("Your First Drop Is Brewing")
+                Text("Today's Briefing Is Brewing")
                     .font(.title2.bold())
                     .foregroundStyle(.white)
 

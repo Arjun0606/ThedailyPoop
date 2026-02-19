@@ -134,26 +134,22 @@ class SupabaseManager: ObservableObject {
             .execute()
             .value
 
-        // Fallback: if no briefings today, fetch the most recent day's briefings
+        // Fallback: if no briefings today, fetch the most recent published briefing
         // This ensures users NEVER see an empty screen
         if briefings.isEmpty {
             briefings = try await client.from("briefings")
                 .select()
                 .eq("status", value: "published")
                 .order("publish_date", ascending: false)
-                .limit(3)
+                .limit(1)
                 .execute()
                 .value
         }
 
         guard !briefings.isEmpty else { return [] }
 
-        // Sort: morning → midday → evening
-        let dropOrder = ["morning", "midday", "evening"]
-        let sorted = briefings.sorted { dropOrder.firstIndex(of: $0.dropType) ?? 99 < dropOrder.firstIndex(of: $1.dropType) ?? 99 }
-
-        // Fetch all stories for all briefings at once
-        let briefingIds = sorted.map { $0.id }
+        // Fetch all stories for the briefing
+        let briefingIds = briefings.map { $0.id }
         let allStories: [Story] = try await client.from("stories")
             .select()
             .in("briefing_id", values: briefingIds)
@@ -164,7 +160,7 @@ class SupabaseManager: ObservableObject {
         // Group stories by briefing
         let storiesByBriefing = Dictionary(grouping: allStories, by: { $0.briefingId })
 
-        return sorted.map { briefing in
+        return briefings.map { briefing in
             BriefingDrop(briefing: briefing, stories: storiesByBriefing[briefing.id] ?? [])
         }
     }
@@ -634,6 +630,55 @@ class SupabaseManager: ObservableObject {
         }
 
         return try JSONDecoder().decode(Response.self, from: data).leaderboard
+    }
+
+    // MARK: - Poop or Scoop
+
+    func fetchTodayScoopGame(userId: String? = nil) async throws -> ScoopGame? {
+        var urlString = "\(Config.apiServerURL)/api/games/scoop/today"
+        if let userId = userId {
+            urlString += "?userId=\(userId)"
+        }
+        guard let url = URL(string: urlString) else { return nil }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+
+        if let session = try? await client.auth.session {
+            request.setValue("Bearer \(session.accessToken)", forHTTPHeaderField: "Authorization")
+        }
+
+        let (data, _) = try await URLSession.shared.data(for: request)
+
+        struct Response: Decodable {
+            let game: ScoopGame?
+        }
+
+        return try JSONDecoder().decode(Response.self, from: data).game
+    }
+
+    func submitScoopGame(
+        userId: String,
+        gameId: String,
+        answers: [[String: Any]]
+    ) async throws -> ScoopSubmitResponse {
+        guard let url = URL(string: "\(Config.apiServerURL)/api/games/scoop/submit") else {
+            throw SupabaseError.noData
+        }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+        let body: [String: Any] = [
+            "userId": userId,
+            "gameId": gameId,
+            "answers": answers,
+        ]
+        request.httpBody = try JSONSerialization.data(withJSONObject: body)
+
+        let (data, _) = try await URLSession.shared.data(for: request)
+        return try JSONDecoder().decode(ScoopSubmitResponse.self, from: data)
     }
 
     // MARK: - Helpers

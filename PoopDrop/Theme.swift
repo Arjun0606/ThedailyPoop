@@ -35,6 +35,7 @@ enum Theme {
     // MARK: Drop Colors
     static func dropColor(for dropType: String) -> Color {
         switch dropType {
+        case "daily": return .init(red: 1.0, green: 0.76, blue: 0.28)     // Warm gold (brand)
         case "morning": return .init(red: 1.0, green: 0.76, blue: 0.28)   // Warm gold
         case "midday": return .init(red: 1.0, green: 0.55, blue: 0.2)     // Hot orange
         case "evening": return .init(red: 0.5, green: 0.4, blue: 1.0)     // Deep indigo
