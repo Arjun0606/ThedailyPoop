@@ -6,9 +6,15 @@ struct PoopOrScoopCardView: View {
     let onPlay: () -> Void
     let onUpgrade: () -> Void
 
+    private var isLocked: Bool {
+        !isPremium && game?.played != true
+    }
+
     var body: some View {
         Button {
-            if game?.played == true {
+            if isLocked {
+                onUpgrade()
+            } else if game?.played == true {
                 // Already played — just show score
             } else if game != nil {
                 onPlay()
@@ -32,16 +38,31 @@ struct PoopOrScoopCardView: View {
                 }
 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("POOP OR SCOOP")
-                        .font(.system(size: 10, weight: .heavy))
-                        .foregroundStyle(Color.pink)
-                        .tracking(1.5)
+                    HStack(spacing: 6) {
+                        Text("POOP OR SCOOP")
+                            .font(.system(size: 10, weight: .heavy))
+                            .foregroundStyle(Color.pink)
+                            .tracking(1.5)
+
+                        if isLocked {
+                            Image(systemName: "lock.fill")
+                                .font(.system(size: 8))
+                                .foregroundStyle(Color.pink)
+                        }
+                    }
 
                     if let game, game.played, let userScore = game.userScore {
                         Text("\(userScore.score)/\(userScore.total) correct")
                             .font(.subheadline.weight(.bold))
                             .foregroundStyle(.white)
                         Text("Real or fake? You figured it out")
+                            .font(.caption2)
+                            .foregroundStyle(Theme.textTertiary)
+                    } else if isLocked {
+                        Text("Upgrade to play")
+                            .font(.subheadline.weight(.medium))
+                            .foregroundStyle(.white)
+                        Text("Real or fake headlines — PRO only")
                             .font(.caption2)
                             .foregroundStyle(Theme.textTertiary)
                     } else if game != nil {
@@ -64,6 +85,14 @@ struct PoopOrScoopCardView: View {
                     Image(systemName: "checkmark.circle.fill")
                         .font(.title3)
                         .foregroundStyle(.green)
+                } else if isLocked {
+                    Text("PRO")
+                        .font(.system(size: 10, weight: .heavy))
+                        .foregroundStyle(.black)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 6)
+                        .background(Color.pink)
+                        .clipShape(Capsule())
                 } else if game != nil {
                     Text("PLAY")
                         .font(.system(size: 12, weight: .heavy))

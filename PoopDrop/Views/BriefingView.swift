@@ -67,13 +67,13 @@ struct BriefingView: View {
                                 )
                             }
 
-                            // Slim upsell: tell free users about 2 more daily games
-                            if !(authManager.currentUser?.isPremium ?? false) && wordGames.count > 1 {
+                            // Slim upsell: tell free users about locked games
+                            if !(authManager.currentUser?.isPremium ?? false) {
                                 Button { showingPaywall = true } label: {
                                     HStack(spacing: 8) {
                                         Image(systemName: "plus.circle.fill")
                                             .font(.system(size: 14))
-                                        Text("2 more daily Word Drops with")
+                                        Text("Unlock all games with")
                                             .font(.caption.weight(.medium))
                                         Text("PRO")
                                             .font(.system(size: 10, weight: .heavy))
