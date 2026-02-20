@@ -14,8 +14,10 @@ struct PoopDropLiveActivity: Widget {
                 // EXPANDED view (long press / large state)
                 DynamicIslandExpandedRegion(.leading) {
                     HStack(spacing: 6) {
-                        Text(PoopDropActivityAttributes.dropEmoji(for: context.state.dropType))
-                            .font(.title3)
+                        Image("AppLogo")
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 20, height: 20)
                         Text(PoopDropActivityAttributes.dropLabel(for: context.state.dropType))
                             .font(.system(size: 11, weight: .heavy))
                             .tracking(1)
@@ -58,8 +60,10 @@ struct PoopDropLiveActivity: Widget {
             } compactLeading: {
                 // COMPACT leading (small pill — left side)
                 HStack(spacing: 4) {
-                    Text(PoopDropActivityAttributes.dropEmoji(for: context.state.dropType))
-                        .font(.system(size: 14))
+                    Image("AppLogo")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 16, height: 16)
                     Text("DROP")
                         .font(.system(size: 10, weight: .heavy))
                         .foregroundStyle(dropColor(for: context.state.dropType))
@@ -71,8 +75,10 @@ struct PoopDropLiveActivity: Widget {
                     .foregroundStyle(dropColor(for: context.state.dropType))
             } minimal: {
                 // MINIMAL (tiny circle when another activity is present)
-                Text("\u{1F4A9}")
-                    .font(.system(size: 14))
+                Image("AppLogo")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 16, height: 16)
             }
         }
     }
@@ -111,8 +117,10 @@ struct LockScreenView: View {
             VStack(alignment: .leading, spacing: 6) {
                 // Drop label
                 HStack(spacing: 6) {
-                    Text(PoopDropActivityAttributes.dropEmoji(for: state.dropType))
-                        .font(.caption)
+                    Image("AppLogo")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 16, height: 16)
                     Text(PoopDropActivityAttributes.dropLabel(for: state.dropType))
                         .font(.system(size: 10, weight: .heavy))
                         .tracking(1)

@@ -17,13 +17,13 @@ function getRandomTitle(): string {
   return EVENING_TITLES[Math.floor(Math.random() * EVENING_TITLES.length)];
 }
 
-// Runs at 5 PM ET (10 PM UTC) — notifies about evening Word Drop unlock
+// Runs at 5 PM ET — notifies about evening Word Drop unlock
 export const eveningPush = inngest.createFunction(
-  { id: "evening-push", name: "Evening Word Drop Push" },
-  { cron: "0 22 * * *" }, // 10 PM UTC = 5 PM ET
+  { id: "evening-push", name: "Evening Word Drop Push", retries: 2 },
+  { cron: "TZ=America/New_York 0 17 * * *" },
   async ({ step }) => {
     const db = createServiceClient();
-    const today = new Date().toISOString().split("T")[0];
+    const today = new Date().toLocaleDateString("en-CA", { timeZone: "America/New_York" });
 
     // Check that today's evening game exists
     const game = await step.run("check-game", async () => {

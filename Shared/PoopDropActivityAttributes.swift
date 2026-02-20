@@ -25,7 +25,7 @@ struct PoopDropActivityAttributes: ActivityAttributes {
         case "morning": return "\u{2600}\u{FE0F}"  // sun
         case "midday": return "\u{1F525}"           // fire
         case "evening": return "\u{1F319}"          // moon
-        default: return "\u{1F4A9}"                 // poop
+        default: return "\u{1F4F0}"                 // newspaper
         }
     }
 

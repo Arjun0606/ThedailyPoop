@@ -166,14 +166,23 @@ const QUICK_HIT_PROMPT = `"body": The story in 150-200 words. Speed round — hi
 
 const STORY_COUNT = 20;
 
+/** Get today's date in Eastern Time (yyyy-mm-dd) — single source of truth */
+function todayET(): string {
+  return new Date().toLocaleDateString("en-CA", { timeZone: "America/New_York" });
+}
+
 // ONE daily briefing — 20 articles (5 deep dives, 8 standard, 7 quick hits)
-// Generated at 4 AM ET so content is ready when America wakes up
+// Generated at 5:30 AM ET — fresh news, ready before East Coast commuters
 export const generateDailyBriefing = inngest.createFunction(
-  { id: "generate-daily-briefing", name: "Generate Daily Briefing" },
-  [{ cron: "0 9 * * *" }, { event: "admin/trigger-briefing" }], // 9 AM UTC = 4 AM ET + manual trigger
+  {
+    id: "generate-daily-briefing",
+    name: "Generate Daily Briefing",
+    retries: 2,
+  },
+  [{ cron: "TZ=America/New_York 30 5 * * *" }, { event: "admin/trigger-briefing" }],
   async ({ step }) => {
     const db = createServiceClient();
-    const today = new Date().toISOString().split("T")[0];
+    const today = todayET();
 
     const existing = await step.run("check-existing", async () => {
       const { data } = await db

@@ -5,7 +5,7 @@ const DROP_ORDER = ["morning", "midday", "evening"];
 
 export async function GET() {
   const db = createServiceClient();
-  const today = new Date().toISOString().split("T")[0];
+  const today = new Date().toLocaleDateString("en-CA", { timeZone: "America/New_York" });
 
   // Fetch all published drops for today
   let { data: briefings } = await db

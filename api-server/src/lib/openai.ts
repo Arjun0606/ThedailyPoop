@@ -4,7 +4,10 @@ import OpenAI from "openai";
 let _openai: OpenAI | null = null;
 function getClient(): OpenAI {
   if (!_openai) {
-    _openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! });
+    _openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY!,
+      timeout: 90_000, // 90s global timeout — prevents Vercel function hangs
+    });
   }
   return _openai;
 }

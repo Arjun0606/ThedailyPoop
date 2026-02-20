@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
   if (authError) return authError;
 
   const db = createServiceClient();
-  const today = new Date().toISOString().split("T")[0];
+  const today = new Date().toLocaleDateString("en-CA", { timeZone: "America/New_York" });
 
   try {
     // Step 1: Check if briefing already exists

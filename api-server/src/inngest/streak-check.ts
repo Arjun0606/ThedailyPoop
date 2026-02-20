@@ -2,10 +2,10 @@ import { inngest } from "./client";
 import { createServiceClient } from "@/lib/supabase";
 import { pushToUser } from "@/lib/push";
 
-// Runs at midnight — update streaks based on story reads
+// Runs at midnight ET — update streaks based on story reads
 export const streakCheck = inngest.createFunction(
-  { id: "streak-check", name: "Daily Streak Check" },
-  { cron: "0 0 * * *" },
+  { id: "streak-check", name: "Daily Streak Check", retries: 2 },
+  { cron: "TZ=America/New_York 0 0 * * *" },
   async ({ step }) => {
     const db = createServiceClient();
 
@@ -57,7 +57,7 @@ export const streakCheck = inngest.createFunction(
           .from("users")
           .update({
             streak_count: newStreak,
-            streak_last_active: new Date().toISOString().split("T")[0],
+            streak_last_active: new Date().toLocaleDateString("en-CA", { timeZone: "America/New_York" }),
           })
           .eq("id", userId);
 
@@ -116,13 +116,16 @@ export const streakCheck = inngest.createFunction(
 
     // Reset broken streaks
     const reset = await step.run("reset-broken-streaks", async () => {
-      const twoDaysAgo = new Date();
-      twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+      const twoDaysAgoET = new Date(
+        new Date().toLocaleDateString("en-CA", { timeZone: "America/New_York" })
+      );
+      twoDaysAgoET.setDate(twoDaysAgoET.getDate() - 2);
+      const twoDaysAgoStr = twoDaysAgoET.toISOString().split("T")[0];
 
       const { data } = await db
         .from("users")
         .update({ streak_count: 0 })
-        .lt("streak_last_active", twoDaysAgo.toISOString().split("T")[0])
+        .lt("streak_last_active", twoDaysAgoStr)
         .gt("streak_count", 0)
         .select("id");
 
