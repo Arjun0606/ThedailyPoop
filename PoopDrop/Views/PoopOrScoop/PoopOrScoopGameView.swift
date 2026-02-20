@@ -125,7 +125,7 @@ struct PoopOrScoopGameView: View {
         ZStack {
             // Poop/Scoop labels that appear during swipe
             if cardOffset < -30 {
-                Text("\u{1F4A9} POOP")
+                Text("\u{274C} POOP")
                     .font(.system(size: 20, weight: .black))
                     .foregroundStyle(Color.red)
                     .opacity(min(1, Double(-cardOffset) / 100))
@@ -299,7 +299,7 @@ struct PoopOrScoopGameView: View {
 
                         ForEach(Array(result.allHeadlines.enumerated()), id: \.offset) { _, item in
                             HStack(alignment: .top, spacing: 10) {
-                                Text(item.isReal ? "\u{2705}" : "\u{1F4A9}")
+                                Text(item.isReal ? "\u{2705}" : "\u{274C}")
                                     .font(.body)
 
                                 VStack(alignment: .leading, spacing: 2) {

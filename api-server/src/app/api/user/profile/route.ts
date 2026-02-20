@@ -12,13 +12,20 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
-  const { userId, username, displayName, avatarUrl, appleUserId } = body;
+  const { userId, displayName, avatarUrl, appleUserId } = body;
+  let { username } = body;
 
-  if (!userId || !username) {
+  if (!userId) {
     return NextResponse.json(
-      { error: "Missing required fields: userId, username" },
+      { error: "Missing required field: userId" },
       { status: 400 }
     );
+  }
+
+  // Auto-generate username if not provided
+  if (!username) {
+    const suffix = Math.floor(1000 + Math.random() * 9000);
+    username = `user${suffix}_${userId.slice(0, 6)}`;
   }
 
   // Verify the requester owns this account

@@ -92,11 +92,18 @@ extension AuthenticationManager: ASAuthorizationControllerDelegate {
             return
         }
 
+        // Extract name from Apple credential (only provided on FIRST sign-in)
+        let fullName = credential.fullName
+        let givenName = fullName?.givenName
+        let familyName = fullName?.familyName
+
         Task {
             do {
                 let user = try await SupabaseManager.shared.signInWithApple(
                     idToken: tokenString,
-                    nonce: nonce
+                    nonce: nonce,
+                    givenName: givenName,
+                    familyName: familyName
                 )
                 self.currentUser = user
                 self.isAuthenticated = true

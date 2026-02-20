@@ -81,12 +81,15 @@ struct WordDropShareCardView: View {
             }
 
             // Footer
-            HStack {
-                Text("\u{1f4a9}")
-                    .font(.caption)
+            HStack(spacing: 8) {
+                Image("AppLogo")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 20, height: 20)
+                    .clipShape(RoundedRectangle(cornerRadius: 5, style: .continuous))
                 Text("thedailypoop.app")
-                    .font(.caption2.weight(.medium))
-                    .foregroundStyle(.white.opacity(0.4))
+                    .font(.caption2.weight(.semibold))
+                    .foregroundStyle(.white.opacity(0.5))
             }
         }
         .padding(24)

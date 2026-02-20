@@ -66,4 +66,12 @@ struct Story: Identifiable, Codable {
         }
         return after.isEmpty ? nil : after
     }
+
+    /// Body text with "The Bottom Line:" section stripped out (rendered separately)
+    var bodyWithoutBottomLine: String {
+        guard let range = body.range(of: "\nThe Bottom Line:", options: .caseInsensitive) ?? body.range(of: "The Bottom Line:", options: .caseInsensitive) else {
+            return body
+        }
+        return String(body[body.startIndex..<range.lowerBound]).trimmingCharacters(in: .whitespacesAndNewlines)
+    }
 }

@@ -22,7 +22,7 @@ class SupabaseManager: ObservableObject {
 
     // MARK: - Auth
 
-    func signInWithApple(idToken: String, nonce: String) async throws -> User {
+    func signInWithApple(idToken: String, nonce: String, givenName: String? = nil, familyName: String? = nil) async throws -> User {
         let session = try await client.auth.signInWithIdToken(
             credentials: .init(provider: .apple, idToken: idToken, nonce: nonce)
         )
@@ -33,10 +33,38 @@ class SupabaseManager: ObservableObject {
             return existing
         }
 
-        // New user — create via server endpoint (bypasses RLS)
-        let newUser = User(id: uid, username: "", appleUserID: uid)
+        // New user — generate username and display name
+        let displayName: String? = [givenName, familyName]
+            .compactMap { $0 }
+            .joined(separator: " ")
+            .isEmpty ? nil : [givenName, familyName].compactMap { $0 }.joined(separator: " ")
+
+        let username = generateUsername(from: givenName)
+
+        let newUser = User(id: uid, username: username, displayName: displayName, appleUserID: uid)
         try await saveUser(newUser)
+
+        // Return saved user from server (has correct data)
+        if let saved = try await fetchUser(id: uid) {
+            return saved
+        }
         return newUser
+    }
+
+    /// Generate a username from Apple name or random fallback
+    private func generateUsername(from givenName: String?) -> String {
+        let suffix = String(Int.random(in: 1000...9999))
+        if let name = givenName?.lowercased()
+            .replacingOccurrences(of: " ", with: "")
+            .filter({ $0.isLetter || $0.isNumber }),
+           !name.isEmpty {
+            return "\(name)\(suffix)"
+        }
+        let adjectives = ["chill", "bold", "swift", "daily", "fresh", "sharp", "slick", "witty"]
+        let nouns = ["reader", "scoop", "insider", "dropper", "herald", "scout", "lurker", "panda"]
+        let adj = adjectives.randomElement()!
+        let noun = nouns.randomElement()!
+        return "\(adj)\(noun)\(suffix)"
     }
 
     func signOut() async throws {

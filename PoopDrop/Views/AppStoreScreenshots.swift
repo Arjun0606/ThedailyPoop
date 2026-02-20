@@ -40,8 +40,11 @@ struct Screenshot_Feed: View {
                 // Briefing header
                 VStack(alignment: .leading, spacing: 8) {
                     HStack(spacing: 4) {
-                        Text("\u{1F4A9}")
-                            .font(.system(size: 8))
+                        Image("AppLogo")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 10, height: 10)
+                            .clipShape(RoundedRectangle(cornerRadius: 2, style: .continuous))
                         Text("TODAY'S BRIEFING")
                             .font(.system(size: 7, weight: .heavy))
                             .tracking(1)
@@ -57,7 +60,7 @@ struct Screenshot_Feed: View {
 
                 // Game cards
                 VStack(spacing: 6) {
-                    MockGameCard(emoji: "\u{1F4A9}", title: "POOP OR SCOOP", subtitle: "Real or fake headline?", accent: .pink, buttonText: "PLAY")
+                    MockGameCard(emoji: "", title: "POOP OR SCOOP", subtitle: "Real or fake headline?", accent: .pink, buttonText: "PLAY", useAppLogo: true)
                     MockGameCard(emoji: "Aa", title: "WORD DROP", subtitle: "Unscramble today's headline", accent: brandGold, buttonText: "PLAY")
                 }
                 .padding(.horizontal, 14)
@@ -253,8 +256,9 @@ struct Screenshot_PoopOrScoop: View {
                             Circle()
                                 .fill(Color.red.opacity(0.12))
                                 .frame(width: 56, height: 56)
-                            Text("\u{1F4A9}")
-                                .font(.system(size: 24))
+                            Image(systemName: "xmark")
+                                .font(.system(size: 24, weight: .bold))
+                                .foregroundStyle(Color.red)
                         }
                         Text("FAKE")
                             .font(.system(size: 9, weight: .heavy))
@@ -419,8 +423,11 @@ struct Screenshot_Social: View {
                     // Mini share card
                     VStack(spacing: 8) {
                         HStack {
-                            Text("\u{1F4A9}")
-                                .font(.system(size: 12))
+                            Image("AppLogo")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 14, height: 14)
+                                .clipShape(RoundedRectangle(cornerRadius: 3, style: .continuous))
                             Text("TheDailyPoop")
                                 .font(.system(size: 10, weight: .black))
                                 .foregroundStyle(.white)
@@ -536,6 +543,7 @@ private struct MockGameCard: View {
     let subtitle: String
     let accent: Color
     let buttonText: String
+    var useAppLogo: Bool = false
 
     var body: some View {
         HStack(spacing: 10) {
@@ -543,9 +551,17 @@ private struct MockGameCard: View {
                 RoundedRectangle(cornerRadius: 8, style: .continuous)
                     .fill(accent.opacity(0.15))
                     .frame(width: 36, height: 36)
-                Text(emoji)
-                    .font(.system(size: emoji.count > 2 ? 14 : 16, weight: .black, design: .rounded))
-                    .foregroundStyle(accent)
+                if useAppLogo {
+                    Image("AppLogo")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 20, height: 20)
+                        .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
+                } else {
+                    Text(emoji)
+                        .font(.system(size: emoji.count > 2 ? 14 : 16, weight: .black, design: .rounded))
+                        .foregroundStyle(accent)
+                }
             }
 
             VStack(alignment: .leading, spacing: 2) {

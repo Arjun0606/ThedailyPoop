@@ -37,12 +37,16 @@ struct Briefing: Identifiable, Codable {
 
     var dropEmoji: String {
         switch dropType {
-        case "daily": return "💩"
         case "morning": return "☀️"
         case "midday": return "🔥"
         case "evening": return "🌙"
-        default: return "💩"
+        default: return ""  // daily/default uses AppLogo image instead
         }
+    }
+
+    /// Whether this drop type should show the app logo instead of an emoji
+    var usesAppLogo: Bool {
+        dropType == "daily" || dropEmoji.isEmpty
     }
 }
 

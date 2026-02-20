@@ -145,8 +145,16 @@ struct ArchiveRow: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
                 HStack(spacing: 6) {
-                    Text(briefing.dropEmoji)
-                        .font(.caption)
+                    if briefing.usesAppLogo {
+                        Image("AppLogo")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 14, height: 14)
+                            .clipShape(RoundedRectangle(cornerRadius: 3, style: .continuous))
+                    } else {
+                        Text(briefing.dropEmoji)
+                            .font(.caption)
+                    }
                     Text(briefing.dropLabel)
                         .font(.system(size: 10, weight: .heavy))
                         .tracking(0.5)

@@ -345,7 +345,7 @@ struct BriefingView: View {
 
                     // Start Dynamic Island Live Activity for the latest drop
                     let latestDrop = fetchedDrops.last!
-                    let topEmoji = latestDrop.stories.first?.categoryEmoji ?? "\u{1F4A9}"
+                    let topEmoji = latestDrop.stories.first?.categoryEmoji ?? "📰"
                     LiveActivityManager.shared.startDropActivity(
                         briefing: latestDrop.briefing,
                         storyCount: latestDrop.stories.count,
@@ -413,8 +413,16 @@ struct DropHeaderView: View {
             // Drop type label + progress
             HStack {
                 HStack(spacing: 6) {
-                    Text(briefing.dropEmoji)
-                        .font(.caption)
+                    if briefing.usesAppLogo {
+                        Image("AppLogo")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 16, height: 16)
+                            .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
+                    } else {
+                        Text(briefing.dropEmoji)
+                            .font(.caption)
+                    }
                     Text(briefing.dropLabel)
                         .font(.caption.weight(.black))
                         .tracking(1.5)
@@ -657,12 +665,38 @@ struct StoryDetailView: View {
                                 .fixedSize(horizontal: false, vertical: true)
                                 .lineSpacing(2)
 
-                            // Body
-                            Text(story.body)
-                                .font(.system(size: 16))
-                                .foregroundStyle(.white.opacity(0.88))
-                                .lineSpacing(8)
-                                .fixedSize(horizontal: false, vertical: true)
+                            // Body (with signature elements styled)
+                            StoryBodyView(storyText: story.bodyWithoutBottomLine, catColor: catColor)
+
+                            // The Bottom Line — signature element
+                            if let bottomLine = story.bottomLine {
+                                VStack(alignment: .leading, spacing: 8) {
+                                    HStack(spacing: 6) {
+                                        Rectangle()
+                                            .fill(Theme.accent)
+                                            .frame(width: 3, height: 16)
+                                            .clipShape(Capsule())
+                                        Text("THE BOTTOM LINE")
+                                            .font(.system(size: 11, weight: .black))
+                                            .foregroundStyle(Theme.accent)
+                                            .tracking(2)
+                                    }
+
+                                    Text(bottomLine)
+                                        .font(.system(size: 17, weight: .semibold))
+                                        .foregroundStyle(.white)
+                                        .lineSpacing(4)
+                                        .fixedSize(horizontal: false, vertical: true)
+                                }
+                                .padding(16)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .background(Theme.accent.opacity(0.06))
+                                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                        .stroke(Theme.accent.opacity(0.2), lineWidth: 1)
+                                )
+                            }
 
                             // TLDR
                             if let tldr = story.tldr {
@@ -755,9 +789,9 @@ struct StoryDetailView: View {
                             // Action buttons
                             HStack(spacing: 10) {
                                 ShareLink(
-                                    item: "\(story.headline)\n\nRead more on TheDailyPoop",
+                                    item: "\(story.headline)\n\n\(story.bottomLine ?? story.tldr ?? story.headline)\n\n— TheDailyPoop | thedailypoop.app",
                                     subject: Text(story.headline),
-                                    message: Text(story.tldr ?? story.headline)
+                                    message: Text(story.bottomLine ?? story.tldr ?? story.headline)
                                 ) {
                                     HStack(spacing: 6) {
                                         Image(systemName: "square.and.arrow.up")
@@ -873,6 +907,116 @@ struct StoryDetailView: View {
             let result = try? await SupabaseManager.shared.toggleBookmark(userId: user.id, storyId: story.id)
             if let result { isBookmarked = result }
         }
+    }
+}
+
+// MARK: - Story Body View (rich rendering with signature elements)
+struct StoryBodyView: View {
+    let storyText: String
+    let catColor: Color
+
+    /// Splits body into segments: plain text, "Translation:" callouts, and "The Number:" callouts
+    private var segments: [BodySegment] {
+        var result: [BodySegment] = []
+        let paragraphs = storyText.components(separatedBy: "\n\n")
+
+        for paragraph in paragraphs {
+            let trimmed = paragraph.trimmingCharacters(in: .whitespacesAndNewlines)
+            if trimmed.isEmpty { continue }
+
+            if trimmed.hasPrefix("Translation:") || trimmed.contains("\nTranslation:") {
+                // Check if "Translation:" is inline within a larger paragraph
+                if let range = trimmed.range(of: "Translation:", options: .caseInsensitive) {
+                    let before = String(trimmed[trimmed.startIndex..<range.lowerBound]).trimmingCharacters(in: .whitespacesAndNewlines)
+                    let translationText = String(trimmed[range.upperBound...]).trimmingCharacters(in: .whitespacesAndNewlines)
+                    if !before.isEmpty {
+                        result.append(.text(before))
+                    }
+                    if !translationText.isEmpty {
+                        result.append(.translation(translationText))
+                    }
+                }
+            } else if trimmed.lowercased().hasPrefix("the number:") {
+                let content = String(trimmed.dropFirst("The Number:".count)).trimmingCharacters(in: .whitespacesAndNewlines)
+                result.append(.theNumber(content))
+            } else {
+                result.append(.text(trimmed))
+            }
+        }
+        return result
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            ForEach(Array(segments.enumerated()), id: \.offset) { _, segment in
+                switch segment {
+                case .text(let content):
+                    Text(content)
+                        .font(.system(size: 16))
+                        .foregroundStyle(.white.opacity(0.88))
+                        .lineSpacing(8)
+                        .fixedSize(horizontal: false, vertical: true)
+
+                case .translation(let content):
+                    HStack(alignment: .top, spacing: 10) {
+                        Rectangle()
+                            .fill(catColor)
+                            .frame(width: 3)
+                            .clipShape(Capsule())
+
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("TRANSLATION")
+                                .font(.system(size: 9, weight: .black))
+                                .foregroundStyle(catColor)
+                                .tracking(2)
+                            Text(content)
+                                .font(.system(size: 15, weight: .medium))
+                                .foregroundStyle(.white.opacity(0.95))
+                                .lineSpacing(4)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                    }
+                    .padding(12)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(catColor.opacity(0.05))
+                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+
+                case .theNumber(let content):
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("THE NUMBER")
+                            .font(.system(size: 9, weight: .black))
+                            .foregroundStyle(Theme.accent)
+                            .tracking(2)
+                        Text(content)
+                            .font(.system(size: 17, weight: .bold))
+                            .foregroundStyle(.white)
+                            .lineSpacing(4)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    .padding(14)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(
+                        LinearGradient(
+                            colors: [Theme.accent.opacity(0.08), Theme.accent.opacity(0.02)],
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                    )
+                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    .overlay(alignment: .leading) {
+                        Theme.accent
+                            .frame(width: 3)
+                            .clipShape(Capsule())
+                    }
+                }
+            }
+        }
+    }
+
+    private enum BodySegment {
+        case text(String)
+        case translation(String)
+        case theNumber(String)
     }
 }
 

@@ -235,12 +235,38 @@ struct SwipeCardContent: View {
                     }
                     .frame(maxWidth: .infinity)
                 } else {
-                    // Body
-                    Text(story.body)
-                        .font(.system(size: 16.5, weight: .regular))
-                        .foregroundStyle(.white.opacity(0.9))
-                        .lineSpacing(7)
-                        .fixedSize(horizontal: false, vertical: true)
+                    // Body (with signature elements styled)
+                    StoryBodyView(storyText: story.bodyWithoutBottomLine, catColor: catColor)
+
+                    // The Bottom Line — signature element
+                    if let bottomLine = story.bottomLine {
+                        VStack(alignment: .leading, spacing: 8) {
+                            HStack(spacing: 6) {
+                                Rectangle()
+                                    .fill(Theme.accent)
+                                    .frame(width: 3, height: 16)
+                                    .clipShape(Capsule())
+                                Text("THE BOTTOM LINE")
+                                    .font(.system(size: 11, weight: .black))
+                                    .foregroundStyle(Theme.accent)
+                                    .tracking(2)
+                            }
+
+                            Text(bottomLine)
+                                .font(.system(size: 17, weight: .semibold))
+                                .foregroundStyle(.white)
+                                .lineSpacing(4)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                        .padding(16)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(Theme.accent.opacity(0.06))
+                        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                .stroke(Theme.accent.opacity(0.2), lineWidth: 1)
+                        )
+                    }
 
                     // TLDR card
                     if let tldr = story.tldr {

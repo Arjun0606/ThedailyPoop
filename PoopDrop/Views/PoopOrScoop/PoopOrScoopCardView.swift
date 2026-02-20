@@ -33,8 +33,11 @@ struct PoopOrScoopCardView: View {
                         )
                         .frame(width: 52, height: 52)
 
-                    Text("\u{1F4A9}")
-                        .font(.system(size: 24))
+                    Image("AppLogo")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 28, height: 28)
+                        .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
                 }
 
                 VStack(alignment: .leading, spacing: 4) {

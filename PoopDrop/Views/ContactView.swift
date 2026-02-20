@@ -107,7 +107,7 @@ struct ContactView: View {
                         }
                         
                         // Footer
-                        Text("We read every message and appreciate your feedback! 💩")
+                        Text("We read every message and appreciate your feedback!")
                             .font(.footnote)
                             .foregroundColor(.gray)
                             .multilineTextAlignment(.center)
