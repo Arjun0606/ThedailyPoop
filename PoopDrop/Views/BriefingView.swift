@@ -319,6 +319,7 @@ struct BriefingView: View {
     private var formattedToday: String {
         let formatter = DateFormatter()
         formatter.dateFormat = "EEEE, MMM d"
+        formatter.timeZone = TimeZone(identifier: "America/New_York")
         return formatter.string(from: Date())
     }
 
