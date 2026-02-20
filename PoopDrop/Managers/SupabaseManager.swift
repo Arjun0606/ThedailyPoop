@@ -22,7 +22,8 @@ class SupabaseManager: ObservableObject {
 
     // MARK: - Auth
 
-    func signInWithApple(idToken: String, nonce: String, givenName: String? = nil, familyName: String? = nil) async throws -> User {
+    /// Returns (user, isNewUser) — isNewUser is true when this is a fresh account
+    func signInWithApple(idToken: String, nonce: String, givenName: String? = nil, familyName: String? = nil) async throws -> (User, Bool) {
         let session = try await client.auth.signInWithIdToken(
             credentials: .init(provider: .apple, idToken: idToken, nonce: nonce)
         )
@@ -30,7 +31,7 @@ class SupabaseManager: ObservableObject {
 
         // Check if user profile already exists
         if let existing = try await fetchUser(id: uid) {
-            return existing
+            return (existing, false)
         }
 
         // New user — generate username and display name
@@ -46,9 +47,9 @@ class SupabaseManager: ObservableObject {
 
         // Return saved user from server (has correct data)
         if let saved = try await fetchUser(id: uid) {
-            return saved
+            return (saved, true)
         }
-        return newUser
+        return (newUser, true)
     }
 
     /// Generate a username from Apple name or random fallback

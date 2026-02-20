@@ -4,7 +4,6 @@ struct ContentView: View {
     @EnvironmentObject var authManager: AuthenticationManager
 
     @State private var showOnboarding = !UserDefaults.standard.bool(forKey: "hasSeenOnboarding")
-    @State private var showProfileSetup = false
 
     var body: some View {
         SwiftUI.Group {
@@ -15,26 +14,16 @@ struct ContentView: View {
                 }
             } else if !authManager.isAuthenticated {
                 AuthenticationView()
-            } else if showProfileSetup {
+            } else if authManager.needsProfileSetup {
                 ProfileSetupView {
-                    showProfileSetup = false
+                    authManager.needsProfileSetup = false
                 }
             } else {
                 MainTabView()
             }
         }
         .animation(.easeInOut(duration: 0.3), value: showOnboarding)
-        .animation(.easeInOut(duration: 0.3), value: showProfileSetup)
+        .animation(.easeInOut(duration: 0.3), value: authManager.needsProfileSetup)
         .animation(.easeInOut(duration: 0.3), value: authManager.isAuthenticated)
-        .onChange(of: authManager.isAuthenticated) { _, isAuthenticated in
-            if isAuthenticated, let user = authManager.currentUser {
-                showProfileSetup = user.username.isEmpty
-            }
-        }
-        .onChange(of: authManager.currentUser?.username) { _, username in
-            if authManager.isAuthenticated, let username = username {
-                showProfileSetup = username.isEmpty
-            }
-        }
     }
 }

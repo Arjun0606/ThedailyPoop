@@ -8,6 +8,7 @@ class AuthenticationManager: NSObject, ObservableObject {
     @Published var currentUser: User?
     @Published var isLoading = false
     @Published var errorMessage: String?
+    @Published var needsProfileSetup = false
 
     private var currentNonce: String?
 
@@ -99,7 +100,7 @@ extension AuthenticationManager: ASAuthorizationControllerDelegate {
 
         Task {
             do {
-                let user = try await SupabaseManager.shared.signInWithApple(
+                let (user, isNewUser) = try await SupabaseManager.shared.signInWithApple(
                     idToken: tokenString,
                     nonce: nonce,
                     givenName: givenName,
@@ -107,6 +108,7 @@ extension AuthenticationManager: ASAuthorizationControllerDelegate {
                 )
                 self.currentUser = user
                 self.isAuthenticated = true
+                self.needsProfileSetup = isNewUser
                 UserDefaults.standard.set(user.id, forKey: "currentUserID")
                 NotificationCenter.default.post(name: Notification.Name("USER_SIGNED_IN"), object: nil)
             } catch {
