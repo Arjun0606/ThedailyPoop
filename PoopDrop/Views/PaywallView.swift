@@ -60,6 +60,19 @@ struct PaywallView: View {
                     }
                     .padding(.horizontal, Theme.pagePadding)
 
+                    // Indie-dev honesty
+                    VStack(spacing: 4) {
+                        Text("We don't do ads.\nIf you get Pro, I can afford my own food\nand stop stealing from the pigeon\noutside my window.")
+                            .font(.caption)
+                            .foregroundStyle(Theme.textTertiary)
+                            .multilineTextAlignment(.center)
+                            .lineSpacing(3)
+                        Text("Do it for the pigeon.")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(Theme.textSecondary)
+                    }
+                    .padding(.horizontal, Theme.pagePadding)
+
                     // Plan picker
                     VStack(spacing: 12) {
                         planCard(

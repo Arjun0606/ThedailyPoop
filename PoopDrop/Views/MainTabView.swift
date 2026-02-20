@@ -7,6 +7,7 @@ struct MainTabView: View {
     private let tabs: [(icon: String, iconFill: String, label: String)] = [
         ("newspaper", "newspaper.fill", "Today"),
         ("globe.americas", "globe.americas.fill", "Live"),
+        ("gamecontroller", "gamecontroller.fill", "Play"),
         ("clock.arrow.circlepath", "clock.arrow.circlepath", "Catch Up"),
         ("person", "person.fill", "You"),
     ]
@@ -18,8 +19,9 @@ struct MainTabView: View {
                 switch selectedTab {
                 case 0: BriefingView()
                 case 1: LiveGlobeView()
-                case 2: ArchiveView()
-                case 3: ProfileView()
+                case 2: PlayTabView()
+                case 3: ArchiveView()
+                case 4: ProfileView()
                 default: BriefingView()
                 }
             }

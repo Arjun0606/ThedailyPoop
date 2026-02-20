@@ -58,6 +58,7 @@
 		WEXT0030000000000000001 /* PoopDropLiveActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = WEXT0040000000000000001 /* PoopDropLiveActivity.swift */; };
 		WEXT0050000000000000001 /* PoopDropWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = WEXT0060000000000000001 /* PoopDropWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		WEXT0180000000000000001 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = WEXT0190000000000000001 /* Assets.xcassets */; };
+		PLAY0010000000000000001 /* PlayTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = PLAY0020000000000000001 /* PlayTabView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -136,6 +137,7 @@
 		WEXT0040000000000000001 /* PoopDropLiveActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PoopDropLiveActivity.swift; sourceTree = "<group>"; };
 		WEXT0060000000000000001 /* PoopDropWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = PoopDropWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		WEXT0190000000000000001 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		PLAY0020000000000000001 /* PlayTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayTabView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -245,6 +247,7 @@
 			isa = PBXGroup;
 			children = (
 				A1000018294A0000000000001 /* MainTabView.swift */,
+				PLAY0020000000000000001 /* PlayTabView.swift */,
 				PAYW0020000000000000001 /* PaywallView.swift */,
 				BVIEW0020000000000000001 /* BriefingView.swift */,
 				SCVEW0020000000000000001 /* StoryCardView.swift */,
@@ -423,6 +426,7 @@
 				NEW00005000000000000001 /* SupabaseManager.swift in Sources */,
 				VIRAL0050000000000000001 /* PushNotificationService.swift in Sources */,
 				A1000017294A0000000000001 /* MainTabView.swift in Sources */,
+				PLAY0010000000000000001 /* PlayTabView.swift in Sources */,
 				PAYW0010000000000000001 /* PaywallView.swift in Sources */,
 				BVIEW0010000000000000001 /* BriefingView.swift in Sources */,
 				SCVEW0010000000000000001 /* StoryCardView.swift in Sources */,

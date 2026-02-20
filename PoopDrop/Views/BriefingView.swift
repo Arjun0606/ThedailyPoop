@@ -12,11 +12,6 @@ struct BriefingView: View {
     @State private var selectedStory: Story?
     @State private var showingSwipeMode = false
     @State private var storyReactionCounts: [String: Int] = [:]
-    @State private var wordGames: [WordGame] = []
-    @State private var selectedWordGame: WordGame?
-    @State private var scoopGame: ScoopGame?
-    @State private var showingScoopGame = false
-    @State private var showingLeaderboard = false
     @State private var now = Date()
 
     private var allStories: [Story] {
@@ -45,73 +40,6 @@ struct BriefingView: View {
                             readCount: todayDrop.stories.filter { readStoryIDs.contains($0.id) }.count,
                             totalCount: todayDrop.stories.count
                         )
-
-                        // Games section
-                        VStack(spacing: 8) {
-                            // Poop or Scoop
-                            PoopOrScoopCardView(
-                                game: scoopGame,
-                                isPremium: authManager.currentUser?.isPremium ?? false,
-                                onPlay: { showingScoopGame = true },
-                                onUpgrade: { showingPaywall = true }
-                            )
-
-                            // Word Drop — only show playable/played games (hide locked cards for free users)
-                            ForEach(wordGames.filter { g in
-                                (authManager.currentUser?.isPremium ?? false) || g.dropType == "morning" || g.played
-                            }, id: \.id) { game in
-                                WordDropCardView(
-                                    game: game,
-                                    isPremium: authManager.currentUser?.isPremium ?? false,
-                                    onPlay: { selectedWordGame = game },
-                                    onUpgrade: { showingPaywall = true }
-                                )
-                            }
-
-                            // Slim upsell: tell free users about locked games
-                            if !(authManager.currentUser?.isPremium ?? false) {
-                                Button { showingPaywall = true } label: {
-                                    HStack(spacing: 8) {
-                                        Image(systemName: "plus.circle.fill")
-                                            .font(.system(size: 14))
-                                        Text("Unlock all games with")
-                                            .font(.caption.weight(.medium))
-                                        Text("PRO")
-                                            .font(.system(size: 10, weight: .heavy))
-                                            .foregroundStyle(.black)
-                                            .padding(.horizontal, 7)
-                                            .padding(.vertical, 2)
-                                            .background(Theme.accent)
-                                            .clipShape(Capsule())
-                                        Spacer()
-                                        Image(systemName: "chevron.right")
-                                            .font(.system(size: 10, weight: .bold))
-                                    }
-                                    .foregroundStyle(Theme.accent)
-                                    .padding(.horizontal, 14)
-                                    .padding(.vertical, 10)
-                                    .background(Theme.accent.opacity(0.06))
-                                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 10, style: .continuous)
-                                            .stroke(Theme.accent.opacity(0.12), lineWidth: 0.5)
-                                    )
-                                }
-                                .buttonStyle(.plain)
-                            }
-                        }
-                        .padding(.horizontal, Theme.pagePadding)
-                        .padding(.vertical, 8)
-
-                        // Leaderboard preview
-                        LeaderboardPreviewCard(
-                            date: todayDrop.briefing.publishDate,
-                            isPremium: authManager.currentUser?.isPremium ?? false,
-                            onShowFull: { showingLeaderboard = true },
-                            onUpgrade: { showingPaywall = true }
-                        )
-                        .padding(.horizontal, Theme.pagePadding)
-                        .padding(.bottom, 8)
 
                         let isPremium = authManager.currentUser?.isPremium ?? false
                         let freeStories = todayDrop.stories.filter { $0.isFree }
@@ -170,12 +98,6 @@ struct BriefingView: View {
         .sheet(isPresented: $showingPaywall) {
             PaywallView()
         }
-        .sheet(isPresented: $showingLeaderboard) {
-            if let drop = drops.first {
-                WordDropLeaderboardView(date: drop.briefing.publishDate, dropType: "morning")
-                    .environmentObject(authManager)
-            }
-        }
         .sheet(item: $selectedStory) { story in
             StoryDetailView(story: story)
                 .environmentObject(authManager)
@@ -183,30 +105,6 @@ struct BriefingView: View {
         .fullScreenCover(isPresented: $showingSwipeMode) {
             SwipeReadingView(stories: allStories, readStoryIDs: $readStoryIDs)
                 .environmentObject(authManager)
-        }
-        .fullScreenCover(item: $selectedWordGame) { game in
-            WordDropGameView(game: game)
-                .environmentObject(authManager)
-                .onDisappear {
-                    Task {
-                        if let user = authManager.currentUser {
-                            wordGames = (try? await SupabaseManager.shared.fetchTodayGames(userId: user.id)) ?? wordGames
-                        }
-                    }
-                }
-        }
-        .fullScreenCover(isPresented: $showingScoopGame) {
-            if let game = scoopGame {
-                PoopOrScoopGameView(game: game)
-                    .environmentObject(authManager)
-                    .onDisappear {
-                        Task {
-                            if let user = authManager.currentUser {
-                                scoopGame = try? await SupabaseManager.shared.fetchTodayScoopGame(userId: user.id)
-                            }
-                        }
-                    }
-            }
         }
     }
 
@@ -400,10 +298,6 @@ struct BriefingView: View {
             let fetchedDrops = try await SupabaseManager.shared.fetchTodayDrops()
             drops = fetchedDrops
 
-            // Load games
-            wordGames = (try? await SupabaseManager.shared.fetchTodayGames(userId: user.id)) ?? []
-            scoopGame = try? await SupabaseManager.shared.fetchTodayScoopGame(userId: user.id)
-
             if !fetchedDrops.isEmpty {
                 let briefingIds = fetchedDrops.map { $0.briefing.id }
                 readStoryIDs = try await SupabaseManager.shared.fetchReadStoryIDs(userID: user.id, briefingIds: briefingIds)
@@ -508,7 +402,7 @@ struct DropHeaderView: View {
                         .foregroundStyle(Theme.textTertiary)
                 }
 
-                if isFirst {
+                if !isFirst {
                     Text(formattedDate)
                         .font(.caption2.weight(.medium))
                         .foregroundStyle(Theme.textTertiary)
@@ -527,7 +421,7 @@ struct DropHeaderView: View {
                 Text(intro)
                     .font(.subheadline)
                     .foregroundStyle(Theme.textSecondary)
-                    .fixedSize(horizontal: false, vertical: true)
+                    .lineLimit(3)
                     .lineSpacing(3)
             }
         }

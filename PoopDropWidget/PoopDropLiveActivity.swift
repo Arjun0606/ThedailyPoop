@@ -85,7 +85,7 @@ struct PoopDropLiveActivity: Widget {
 
     private func dropColor(for dropType: String) -> Color {
         switch dropType {
-        case "morning": return Color(red: 1.0, green: 0.76, blue: 0.28)
+        case "daily", "morning": return Color(red: 1.0, green: 0.76, blue: 0.28)
         case "midday": return Color(red: 1.0, green: 0.55, blue: 0.2)
         case "evening": return Color(red: 0.5, green: 0.4, blue: 1.0)
         default: return .white.opacity(0.6)
@@ -100,7 +100,7 @@ struct LockScreenView: View {
 
     private var color: Color {
         switch state.dropType {
-        case "morning": return Color(red: 1.0, green: 0.76, blue: 0.28)
+        case "daily", "morning": return Color(red: 1.0, green: 0.76, blue: 0.28)
         case "midday": return Color(red: 1.0, green: 0.55, blue: 0.2)
         case "evening": return Color(red: 0.5, green: 0.4, blue: 1.0)
         default: return .white.opacity(0.6)

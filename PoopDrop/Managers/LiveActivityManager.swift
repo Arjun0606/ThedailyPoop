@@ -9,11 +9,17 @@ class LiveActivityManager: ObservableObject {
     static let shared = LiveActivityManager()
 
     private var currentActivity: Activity<PoopDropActivityAttributes>?
+    private var currentBriefingId: String?
 
     // MARK: - Start Live Activity
 
     /// Call when a new briefing drop loads. Shows on Dynamic Island + Lock Screen.
     func startDropActivity(briefing: Briefing, storyCount: Int, topStoryEmoji: String) {
+        // Skip if we already have an activity for this exact briefing
+        if currentBriefingId == briefing.id && currentActivity != nil {
+            return
+        }
+
         // Only iOS 16.2+ supports Live Activities
         guard ActivityAuthorizationInfo().areActivitiesEnabled else {
             print("Live Activities not enabled")
@@ -52,6 +58,7 @@ class LiveActivityManager: ObservableObject {
                 content: content,
                 pushType: nil  // Local only (no push updates needed)
             )
+            currentBriefingId = briefing.id
             print("Live Activity started: \(briefing.dropLabel)")
 
             // Auto-end after 30 minutes (urgency driver)
@@ -72,6 +79,7 @@ class LiveActivityManager: ObservableObject {
         Task {
             await activity.end(nil, dismissalPolicy: .immediate)
             currentActivity = nil
+            currentBriefingId = nil
         }
     }
 
@@ -82,6 +90,7 @@ class LiveActivityManager: ObservableObject {
                 await activity.end(nil, dismissalPolicy: .immediate)
             }
             currentActivity = nil
+            currentBriefingId = nil
         }
     }
 }

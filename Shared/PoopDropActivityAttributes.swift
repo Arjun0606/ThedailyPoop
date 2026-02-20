@@ -22,15 +22,16 @@ struct PoopDropActivityAttributes: ActivityAttributes {
     // Helpers
     static func dropEmoji(for dropType: String) -> String {
         switch dropType {
-        case "morning": return "\u{2600}\u{FE0F}"  // sun
-        case "midday": return "\u{1F525}"           // fire
-        case "evening": return "\u{1F319}"          // moon
-        default: return "\u{1F4F0}"                 // newspaper
+        case "daily", "morning": return "\u{2600}\u{FE0F}"  // sun
+        case "midday": return "\u{1F525}"                     // fire
+        case "evening": return "\u{1F319}"                    // moon
+        default: return "\u{1F4F0}"                           // newspaper
         }
     }
 
     static func dropLabel(for dropType: String) -> String {
         switch dropType {
+        case "daily": return "TODAY'S BRIEFING"
         case "morning": return "MORNING DROP"
         case "midday": return "MIDDAY DROP"
         case "evening": return "EVENING WRAP"
