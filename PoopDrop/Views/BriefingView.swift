@@ -17,6 +17,7 @@ struct BriefingView: View {
     @State private var scoopGame: ScoopGame?
     @State private var showingScoopGame = false
     @State private var showingLeaderboard = false
+    @State private var now = Date()
 
     private var allStories: [Story] {
         drops.flatMap { $0.stories }
@@ -216,9 +217,22 @@ struct BriefingView: View {
                 Text("TheDailyPoop")
                     .font(.system(size: 22, weight: .black))
                     .foregroundStyle(.white)
-                Text(formattedToday)
-                    .font(.caption2.weight(.medium))
-                    .foregroundStyle(Theme.textTertiary)
+                HStack(spacing: 6) {
+                    Text(formattedToday)
+                        .font(.caption2.weight(.medium))
+                        .foregroundStyle(Theme.textTertiary)
+                    if let drop = nextDropInfo {
+                        Text("·")
+                            .font(.caption2)
+                            .foregroundStyle(Theme.textTertiary)
+                        Text("\(drop.label) in \(drop.countdown)")
+                            .font(.caption2.weight(.semibold).monospacedDigit())
+                            .foregroundStyle(Theme.accent)
+                    }
+                }
+            }
+            .onReceive(Timer.publish(every: 1, on: .main, in: .common).autoconnect()) { _ in
+                now = Date()
             }
 
             Spacer()
@@ -321,6 +335,62 @@ struct BriefingView: View {
         formatter.dateFormat = "EEEE, MMM d"
         formatter.timeZone = TimeZone(identifier: "America/New_York")
         return formatter.string(from: Date())
+    }
+
+    // MARK: - Next Drop Timer
+
+    private let dropTimesET: [(hour: Int, minute: Int, label: String)] = [
+        (7, 0, "Morning drop"),
+        (12, 0, "Midday drop"),
+        (17, 0, "Evening drop"),
+    ]
+
+    private var nextDropInfo: (label: String, countdown: String)? {
+        let et = TimeZone(identifier: "America/New_York")!
+        var cal = Calendar.current
+        cal.timeZone = et
+
+        let comps = cal.dateComponents([.hour, .minute, .second], from: now)
+        let nowMinutes = (comps.hour ?? 0) * 60 + (comps.minute ?? 0)
+
+        for drop in dropTimesET {
+            let dropMinutes = drop.hour * 60 + drop.minute
+            if nowMinutes < dropMinutes {
+                var target = cal.dateComponents([.year, .month, .day], from: now)
+                target.hour = drop.hour
+                target.minute = drop.minute
+                target.second = 0
+                if let targetDate = cal.date(from: target) {
+                    let diff = Int(targetDate.timeIntervalSince(now))
+                    if diff > 0 {
+                        let h = diff / 3600
+                        let m = (diff % 3600) / 60
+                        let s = diff % 60
+                        let str = h > 0
+                            ? String(format: "%d:%02d:%02d", h, m, s)
+                            : String(format: "%d:%02d", m, s)
+                        return (drop.label, str)
+                    }
+                }
+            }
+        }
+
+        // After evening drop — show tomorrow morning
+        var tomorrow = cal.dateComponents([.year, .month, .day], from: now)
+        tomorrow.day = (tomorrow.day ?? 0) + 1
+        tomorrow.hour = dropTimesET[0].hour
+        tomorrow.minute = dropTimesET[0].minute
+        tomorrow.second = 0
+        if let targetDate = cal.date(from: tomorrow) {
+            let diff = Int(targetDate.timeIntervalSince(now))
+            if diff > 0 {
+                let h = diff / 3600
+                let m = (diff % 3600) / 60
+                let s = diff % 60
+                return (dropTimesET[0].label, String(format: "%d:%02d:%02d", h, m, s))
+            }
+        }
+        return nil
     }
 
     // MARK: - Data
