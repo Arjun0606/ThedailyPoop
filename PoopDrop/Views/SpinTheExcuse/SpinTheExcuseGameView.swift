@@ -247,7 +247,7 @@ struct SpinTheExcuseGameView: View {
                     : result.results.map { $0.correct ? "\u{2705}" : "\u{274C}" }.joined()
 
                 ShareLink(
-                    item: "\u{1F5DE}\u{FE0F} Spin the Excuse \(result.score)/\(result.total)\n\(pattern)\n\nCan you spot the real corporate BS?\nTheDailyPoop \u{2014} news that hits different\nhttps://apps.apple.com/app/thedailypoop/id6743040953"
+                    item: "\u{1F5DE}\u{FE0F} Spin the Excuse \(result.score)/\(result.total)\n\(pattern)\n\nCan you spot the real corporate BS?\nTheDailyPoop \u{2014} news that hits different\nthedailypoop.app"
                 ) {
                     HStack(spacing: 6) {
                         Image(systemName: "square.and.arrow.up")

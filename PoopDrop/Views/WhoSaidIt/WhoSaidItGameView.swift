@@ -244,7 +244,7 @@ struct WhoSaidItGameView: View {
                     : result.results.map { $0.correct ? "\u{2705}" : "\u{274C}" }.joined()
 
                 ShareLink(
-                    item: "\u{1F3A4} Who Said It? \(result.score)/\(result.total)\n\(pattern)\n\nCEO, dictator, cult leader, or reality TV star?\nTheDailyPoop \u{2014} news that hits different\nhttps://apps.apple.com/app/thedailypoop/id6743040953"
+                    item: "\u{1F3A4} Who Said It? \(result.score)/\(result.total)\n\(pattern)\n\nCEO, dictator, cult leader, or reality TV star?\nTheDailyPoop \u{2014} news that hits different\nthedailypoop.app"
                 ) {
                     HStack(spacing: 6) {
                         Image(systemName: "square.and.arrow.up")

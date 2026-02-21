@@ -340,7 +340,7 @@ struct TheRoastGameView: View {
                 .padding(.top, 8)
 
                 ShareLink(
-                    item: "\u{1F525} The Roast \u{2014} \(result.aiScore)/5 \u{2B50}\n\n\u{201C}\(result.entry.text)\u{201D}\n\nCan you write a better one?\nTheDailyPoop \u{2014} news that hits different\nhttps://apps.apple.com/app/thedailypoop/id6743040953"
+                    item: "\u{1F525} The Roast \u{2014} \(result.aiScore)/5 \u{2B50}\n\n\u{201C}\(result.entry.text)\u{201D}\n\nCan you write a better one?\nTheDailyPoop \u{2014} news that hits different\nthedailypoop.app"
                 ) {
                     HStack(spacing: 6) {
                         Image(systemName: "square.and.arrow.up")
