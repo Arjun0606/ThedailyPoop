@@ -260,12 +260,31 @@ Return ONLY valid JSON. No code fences, no extra text.`
 
         try {
           const parsed = JSON.parse(extractJSON(result));
+          // Strip structural labels the LLM sometimes outputs despite instructions
+          let cleanBody: string = parsed.body ?? story.summary;
+          const stripLabels = [
+            "HOOK:", "HOOK", "THE HOOK:", "THE HOOK",
+            "THE FACTS:", "THE FACTS", "WHAT WENT DOWN:", "WHAT WENT DOWN",
+            "WHY IT MATTERS:", "WHY IT MATTERS", "WHY THIS HITS:", "WHY THIS HITS",
+            "WHAT HAPPENED:", "WHAT HAPPENED", "THE STORY:", "THE STORY",
+            "THE CONTEXT:", "THE CONTEXT", "CONTEXT:", "CONTEXT",
+            "THE IMPACT:", "THE IMPACT", "IMPACT:", "IMPACT",
+          ];
+          for (const label of stripLabels) {
+            cleanBody = cleanBody.replace(new RegExp(`\\n${label.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\n`, 'gi'), '\n');
+          }
+          // Also strip if at very start
+          for (const label of stripLabels) {
+            if (cleanBody.toUpperCase().startsWith(label.toUpperCase())) {
+              cleanBody = cleanBody.slice(label.length).trimStart();
+            }
+          }
           results.push({
             sortOrder: i + 1,
             isFree,
             category: story.category,
             headline: parsed.headline ?? story.title,
-            body: parsed.body ?? story.summary,
+            body: cleanBody,
             tldr: parsed.tldr ?? null,
             sourceUrl: story.sourceUrl ?? null,
             sourceName: story.sourceName ?? null,

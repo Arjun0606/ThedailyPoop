@@ -10,6 +10,7 @@ struct TheRoastGameView: View {
     @State private var isSubmitting = false
     @State private var submitResult: RoastSubmitResponse?
     @State private var showingResult = false
+    @State private var showError = false
 
     private let accentColor = Color.red
     private let maxChars = 280
@@ -75,6 +76,12 @@ struct TheRoastGameView: View {
             }
         }
         .task { await loadRoast() }
+        .alert("Couldn't submit", isPresented: $showError) {
+            Button("Try Again") { submitRoast() }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Check your connection and try again.")
+        }
     }
 
     // MARK: - Roast Input
@@ -388,7 +395,7 @@ struct TheRoastGameView: View {
                 )
                 withAnimation { showingResult = true }
             } catch {
-                print("Roast submit error: \(error)")
+                withAnimation { showError = true }
             }
             isSubmitting = false
         }

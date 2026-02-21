@@ -105,7 +105,7 @@ class AudioBriefingManager: ObservableObject {
         headlineUtterance.voice = AVSpeechSynthesisVoice(language: "en-US")
 
         // Speak body
-        let bodyUtterance = AVSpeechUtterance(string: story.body)
+        let bodyUtterance = AVSpeechUtterance(string: story.bodyWithoutBottomLine)
         bodyUtterance.rate = 0.5
         bodyUtterance.pitchMultiplier = 1.0
         bodyUtterance.preUtteranceDelay = 0.5

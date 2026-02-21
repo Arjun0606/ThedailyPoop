@@ -76,17 +76,32 @@ struct Story: Identifiable, Codable {
             text = String(text[text.startIndex..<range.lowerBound])
         }
 
-        // Strip structural labels the AI sometimes outputs
+        // Strip structural labels the AI sometimes outputs (with and without colons)
         let labels = [
-            "HOOK:", "THE HOOK:",
-            "THE FACTS:", "WHAT WENT DOWN:",
-            "WHY IT MATTERS:", "WHY THIS HITS:",
-            "WHAT HAPPENED:", "THE STORY:",
-            "THE CONTEXT:", "CONTEXT:",
-            "THE IMPACT:", "IMPACT:",
+            "HOOK:", "HOOK",
+            "THE HOOK:", "THE HOOK",
+            "THE FACTS:", "THE FACTS",
+            "WHAT WENT DOWN:", "WHAT WENT DOWN",
+            "WHY IT MATTERS:", "WHY IT MATTERS",
+            "WHY THIS HITS:", "WHY THIS HITS",
+            "WHAT HAPPENED:", "WHAT HAPPENED",
+            "THE STORY:", "THE STORY",
+            "THE CONTEXT:", "THE CONTEXT",
+            "CONTEXT:", "CONTEXT",
+            "THE IMPACT:", "THE IMPACT",
+            "IMPACT:", "IMPACT",
         ]
+        // Replace labels that appear on their own line
         for label in labels {
-            text = text.replacingOccurrences(of: label, with: "", options: .caseInsensitive)
+            text = text.replacingOccurrences(of: "\n\(label)\n", with: "\n", options: .caseInsensitive)
+            text = text.replacingOccurrences(of: "\n\(label)\r\n", with: "\n", options: .caseInsensitive)
+        }
+        // Also strip if at the very start of the text
+        for label in labels {
+            if text.uppercased().hasPrefix(label.uppercased()) {
+                let idx = text.index(text.startIndex, offsetBy: label.count)
+                text = String(text[idx...]).trimmingCharacters(in: .whitespacesAndNewlines)
+            }
         }
 
         return text.trimmingCharacters(in: .whitespacesAndNewlines)

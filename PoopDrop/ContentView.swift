@@ -12,6 +12,18 @@ struct ContentView: View {
                     showOnboarding = false
                     UserDefaults.standard.set(true, forKey: "hasSeenOnboarding")
                 }
+            } else if authManager.isCheckingAuth {
+                // Splash screen while restoring session
+                ZStack {
+                    Color.black.ignoresSafeArea()
+                    VStack(spacing: 16) {
+                        Image("AppLogo")
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 80, height: 80)
+                            .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+                    }
+                }
             } else if !authManager.isAuthenticated {
                 AuthenticationView()
             } else if authManager.needsProfileSetup {
@@ -25,5 +37,6 @@ struct ContentView: View {
         .animation(.easeInOut(duration: 0.3), value: showOnboarding)
         .animation(.easeInOut(duration: 0.3), value: authManager.needsProfileSetup)
         .animation(.easeInOut(duration: 0.3), value: authManager.isAuthenticated)
+        .animation(.easeInOut(duration: 0.3), value: authManager.isCheckingAuth)
     }
 }

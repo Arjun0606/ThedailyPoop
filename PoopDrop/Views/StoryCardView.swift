@@ -62,7 +62,7 @@ struct StoryCardView: View {
 
                 // TLDR / body preview
                 if isLocked {
-                    Text(story.body.prefix(80) + "...")
+                    Text(story.bodyWithoutBottomLine.prefix(80) + "...")
                         .font(.subheadline)
                         .foregroundStyle(.white.opacity(0.25))
                         .lineLimit(2)

@@ -9,6 +9,7 @@ class AuthenticationManager: NSObject, ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage: String?
     @Published var needsProfileSetup = false
+    @Published var isCheckingAuth = true
 
     private var currentNonce: String?
 
@@ -21,6 +22,7 @@ class AuthenticationManager: NSObject, ObservableObject {
 
     func checkAuthenticationState() {
         Task {
+            defer { self.isCheckingAuth = false }
             if let session = await SupabaseManager.shared.getCurrentSession() {
                 let userID = session.user.id.uuidString.lowercased()
                 if let user = try? await SupabaseManager.shared.fetchUser(id: userID) {
