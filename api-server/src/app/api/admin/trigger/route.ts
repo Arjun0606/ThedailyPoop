@@ -77,9 +77,10 @@ export async function POST(request: NextRequest) {
 
   try {
     // Send event via Inngest
+    const force = body.force === true;
     const result = await inngest.send({
       name: "admin/trigger-briefing",
-      data: { triggeredAt: new Date().toISOString() },
+      data: { triggeredAt: new Date().toISOString(), force },
     });
 
     return NextResponse.json({

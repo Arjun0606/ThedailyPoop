@@ -1,32 +1,28 @@
 import ActivityKit
 import Foundation
 
-// MARK: - Live Activity Manager
-// Starts, updates, and ends Dynamic Island live activities for new drops.
-
 @MainActor
 class LiveActivityManager: ObservableObject {
     static let shared = LiveActivityManager()
 
     private var currentActivity: Activity<PoopDropActivityAttributes>?
     private var currentBriefingId: String?
+    private var currentState: PoopDropActivityAttributes.ContentState?
 
-    // MARK: - Start Live Activity
+    // MARK: - Start
 
-    /// Call when a new briefing drop loads. Shows on Dynamic Island + Lock Screen.
-    func startDropActivity(briefing: Briefing, storyCount: Int, topStoryEmoji: String) {
-        // Skip if we already have an activity for this exact briefing
+    func startDropActivity(briefing: Briefing, storyCount: Int, readCount: Int) {
+        // Skip if same briefing already active
         if currentBriefingId == briefing.id && currentActivity != nil {
+            // But still update read progress
+            if readCount != currentState?.readCount {
+                updateReadProgress(readCount: readCount)
+            }
             return
         }
 
-        // Only iOS 16.2+ supports Live Activities
-        guard ActivityAuthorizationInfo().areActivitiesEnabled else {
-            print("Live Activities not enabled")
-            return
-        }
+        guard ActivityAuthorizationInfo().areActivitiesEnabled else { return }
 
-        // End any existing activity first
         endCurrentActivity()
 
         let attributes = PoopDropActivityAttributes(briefingId: briefing.id)
@@ -46,24 +42,26 @@ class LiveActivityManager: ObservableObject {
             headline: briefing.headline,
             dropType: briefing.dropType,
             storyCount: storyCount,
-            topEmoji: topStoryEmoji,
+            readCount: readCount,
+            vibeEmoji: briefing.vibeEmoji ?? "",
+            vibeLabel: briefing.vibeLabel ?? "",
             publishDate: displayDate
         )
 
-        let content = ActivityContent(state: state, staleDate: Date().addingTimeInterval(30 * 60))
+        let content = ActivityContent(state: state, staleDate: Date().addingTimeInterval(4 * 60 * 60))
 
         do {
             currentActivity = try Activity.request(
                 attributes: attributes,
                 content: content,
-                pushType: nil  // Local only (no push updates needed)
+                pushType: nil
             )
             currentBriefingId = briefing.id
-            print("Live Activity started: \(briefing.dropLabel)")
+            currentState = state
 
-            // Auto-end after 30 minutes (urgency driver)
+            // Auto-end after 4 hours
             Task {
-                try? await Task.sleep(for: .seconds(30 * 60))
+                try? await Task.sleep(for: .seconds(4 * 60 * 60))
                 endCurrentActivity()
             }
         } catch {
@@ -71,7 +69,40 @@ class LiveActivityManager: ObservableObject {
         }
     }
 
-    // MARK: - End Activity
+    // MARK: - Update Progress
+
+    func updateReadProgress(readCount: Int) {
+        guard let activity = currentActivity,
+              let state = currentState,
+              readCount != state.readCount else { return }
+
+        let newState = PoopDropActivityAttributes.ContentState(
+            headline: state.headline,
+            dropType: state.dropType,
+            storyCount: state.storyCount,
+            readCount: readCount,
+            vibeEmoji: state.vibeEmoji,
+            vibeLabel: state.vibeLabel,
+            publishDate: state.publishDate
+        )
+        currentState = newState
+
+        let content = ActivityContent(state: newState, staleDate: Date().addingTimeInterval(4 * 60 * 60))
+
+        Task {
+            await activity.update(content)
+        }
+
+        // Auto-dismiss when all stories read
+        if readCount >= state.storyCount {
+            Task {
+                try? await Task.sleep(for: .seconds(60))
+                endCurrentActivity()
+            }
+        }
+    }
+
+    // MARK: - End
 
     func endCurrentActivity() {
         guard let activity = currentActivity else { return }
@@ -80,10 +111,10 @@ class LiveActivityManager: ObservableObject {
             await activity.end(nil, dismissalPolicy: .immediate)
             currentActivity = nil
             currentBriefingId = nil
+            currentState = nil
         }
     }
 
-    /// End all activities (call on app terminate or user logout)
     func endAllActivities() {
         Task {
             for activity in Activity<PoopDropActivityAttributes>.activities {
@@ -91,6 +122,7 @@ class LiveActivityManager: ObservableObject {
             }
             currentActivity = nil
             currentBriefingId = nil
+            currentState = nil
         }
     }
 }

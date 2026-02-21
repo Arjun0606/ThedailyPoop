@@ -114,7 +114,7 @@ struct ProfileView: View {
                         .padding(.horizontal, Theme.pagePadding)
 
                         // Version
-                        Text("TheDailyPoop v1.0")
+                        Text("TheDailyPoop v2.0")
                             .font(.caption2)
                             .foregroundStyle(Theme.textTertiary)
                             .padding(.top, 8)
@@ -301,7 +301,7 @@ struct SubscriptionCard: View {
                     Text("Premium Member")
                         .font(.subheadline.weight(.bold))
                         .foregroundStyle(.white)
-                    Text("All stories unlocked")
+                    Text("All stories & games unlocked")
                         .font(.caption)
                         .foregroundStyle(.green)
                 }
@@ -341,7 +341,7 @@ struct SubscriptionCard: View {
                         Text("Upgrade to Premium")
                             .font(.subheadline.weight(.bold))
                             .foregroundStyle(.white)
-                        Text("Unlock all daily stories")
+                        Text("Unlock all stories & games")
                             .font(.caption)
                             .foregroundStyle(Theme.accent)
                     }
@@ -817,7 +817,7 @@ struct ShareStatsView: View {
                     ShareLink(
                         item: "I'm on a \(user.streakCount)-day streak on TheDailyPoop! Join me.",
                         subject: Text("TheDailyPoop"),
-                        message: Text("Check out TheDailyPoop - the daily news briefing that's actually fun to read!")
+                        message: Text("Check out TheDailyPoop - 25 stories, 6 games, zero boring. The daily news ritual that slaps.")
                     ) {
                         HStack(spacing: 8) {
                             Image(systemName: "square.and.arrow.up")
@@ -900,7 +900,7 @@ struct ShareCard: View {
                 .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
             }
 
-            Text("Your daily scoop — actually fun to read.")
+            Text("News that hits different.")
                 .font(.caption.weight(.semibold))
                 .foregroundStyle(.white.opacity(0.7))
         }

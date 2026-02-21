@@ -8,6 +8,8 @@ struct Briefing: Identifiable, Codable {
     let introText: String?
     let storyCount: Int
     let freeStoryCount: Int
+    let vibeLabel: String?
+    let vibeEmoji: String?
     let status: String
     let publishedAt: Date?
     let createdAt: Date
@@ -20,6 +22,8 @@ struct Briefing: Identifiable, Codable {
         case introText = "intro_text"
         case storyCount = "story_count"
         case freeStoryCount = "free_story_count"
+        case vibeLabel = "vibe_label"
+        case vibeEmoji = "vibe_emoji"
         case status
         case publishedAt = "published_at"
         case createdAt = "created_at"

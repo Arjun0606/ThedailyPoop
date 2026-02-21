@@ -101,6 +101,7 @@ struct SwipeReadingView: View {
 
         if story.isFree || user.isPremium {
             readStoryIDs.insert(story.id)
+            LiveActivityManager.shared.updateReadProgress(readCount: readStoryIDs.count)
             Task {
                 try? await SupabaseManager.shared.markStoryRead(userID: user.id, storyID: story.id)
                 try? await SupabaseManager.shared.pingReaderLocation(
@@ -145,36 +146,6 @@ struct SwipeCardContent: View {
                                 .font(.caption2.weight(.medium))
                         }
                         .foregroundStyle(.green.opacity(0.7))
-                    }
-                }
-
-                // Hero image
-                if let imageUrl = story.imageUrl, let url = URL(string: imageUrl) {
-                    VStack(alignment: .trailing, spacing: 6) {
-                        AsyncImage(url: url) { phase in
-                            switch phase {
-                            case .success(let image):
-                                image
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fill)
-                                    .frame(maxWidth: UIScreen.main.bounds.width - 48, maxHeight: 200)
-                                    .clipped()
-                                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-                            case .failure:
-                                EmptyView()
-                            default:
-                                RoundedRectangle(cornerRadius: 14, style: .continuous)
-                                    .fill(catColor.opacity(0.08))
-                                    .frame(height: 200)
-                                    .overlay(ProgressView().tint(Theme.textTertiary))
-                            }
-                        }
-
-                        if let source = story.sourceName {
-                            Text("Image: \(source)")
-                                .font(.system(size: 10, weight: .medium))
-                                .foregroundStyle(Theme.textTertiary)
-                        }
                     }
                 }
 
@@ -316,6 +287,9 @@ struct SwipeCardContent: View {
                         }
                     }
 
+                    // Reactions, share, bookmark
+                    SwipeEngagementBar(story: story, catColor: catColor)
+
                     // Swipe hint
                     if index < total - 1 {
                         HStack {
@@ -357,5 +331,293 @@ struct SwipeCardContent: View {
             }
             .padding(.horizontal, 24)
         }
+    }
+}
+
+// MARK: - Swipe Engagement Bar (reactions + share + bookmark)
+struct SwipeEngagementBar: View {
+    let story: Story
+    let catColor: Color
+    @EnvironmentObject var authManager: AuthenticationManager
+    @State private var userReaction: String?
+    @State private var isBookmarked = false
+    @State private var showingShareCard = false
+    @State private var comments: [StoryComment] = []
+    @State private var commentText = ""
+    @State private var isPostingComment = false
+    @State private var showAllComments = false
+
+    private let quickReactions = ["\u{1F525}", "\u{1F480}", "\u{1F602}", "\u{1F92F}", "\u{1F4A9}", "\u{1F921}"]
+
+    var body: some View {
+        VStack(spacing: 14) {
+            // Quick reaction row
+            HStack(spacing: 0) {
+                ForEach(quickReactions, id: \.self) { emoji in
+                    Button {
+                        handleReaction(emoji)
+                    } label: {
+                        Text(emoji)
+                            .font(.title3)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 8)
+                            .background(
+                                userReaction == emoji
+                                    ? catColor.opacity(0.15)
+                                    : Color.clear
+                            )
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .padding(6)
+            .background(Theme.cardBg)
+            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .stroke(Theme.cardBorder, lineWidth: 0.5)
+            )
+
+            // Share + Bookmark row
+            HStack(spacing: 10) {
+                ShareLink(
+                    item: "\(story.headline)\n\n\(story.bottomLine ?? story.tldr ?? story.headline)\n\n\u{2014} TheDailyPoop | thedailypoop.app",
+                    subject: Text(story.headline),
+                    message: Text(story.bottomLine ?? story.tldr ?? story.headline)
+                ) {
+                    HStack(spacing: 6) {
+                        Image(systemName: "square.and.arrow.up")
+                        Text("Share")
+                            .fontWeight(.bold)
+                    }
+                    .font(.subheadline)
+                    .foregroundStyle(.black)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+                    .background(Color.white)
+                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                }
+
+                if story.bottomLine != nil || story.tldr != nil {
+                    Button { showingShareCard = true } label: {
+                        HStack(spacing: 6) {
+                            Image(systemName: "photo")
+                            Text("Card")
+                                .fontWeight(.bold)
+                        }
+                        .font(.subheadline)
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .background(Theme.elevatedBg)
+                        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                .stroke(Theme.cardBorder, lineWidth: 0.5)
+                        )
+                    }
+                }
+
+                Button {
+                    toggleBookmark()
+                } label: {
+                    Image(systemName: isBookmarked ? "bookmark.fill" : "bookmark")
+                        .font(.title3)
+                        .foregroundStyle(isBookmarked ? catColor : Theme.textTertiary)
+                        .symbolEffect(.bounce, value: isBookmarked)
+                        .frame(width: 48, height: 44)
+                        .background(Theme.cardBg)
+                        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                .stroke(Theme.cardBorder, lineWidth: 0.5)
+                        )
+                }
+            }
+
+            // Comments section
+            VStack(alignment: .leading, spacing: 12) {
+                HStack {
+                    Text("COMMENTS")
+                        .font(.system(size: 10, weight: .heavy))
+                        .foregroundStyle(Theme.textTertiary)
+                        .tracking(1.5)
+
+                    Spacer()
+
+                    if comments.count > 3 {
+                        Button {
+                            showAllComments.toggle()
+                        } label: {
+                            Text(showAllComments ? "Show less" : "See all \(comments.count)")
+                                .font(.caption2.weight(.semibold))
+                                .foregroundStyle(catColor)
+                        }
+                    }
+                }
+
+                // Comment input
+                if authManager.currentUser != nil {
+                    HStack(spacing: 10) {
+                        TextField("Add a comment...", text: $commentText)
+                            .font(.subheadline)
+                            .foregroundStyle(.white)
+                            .textFieldStyle(.plain)
+
+                        Button {
+                            postComment()
+                        } label: {
+                            if isPostingComment {
+                                ProgressView()
+                                    .tint(catColor)
+                                    .scaleEffect(0.8)
+                            } else {
+                                Image(systemName: "arrow.up.circle.fill")
+                                    .font(.title3)
+                                    .foregroundStyle(
+                                        commentText.trimmingCharacters(in: .whitespaces).isEmpty
+                                        ? Theme.textTertiary
+                                        : catColor
+                                    )
+                            }
+                        }
+                        .disabled(commentText.trimmingCharacters(in: .whitespaces).isEmpty || isPostingComment)
+                    }
+                    .padding(12)
+                    .background(Theme.elevatedBg)
+                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12, style: .continuous)
+                            .stroke(Theme.cardBorder, lineWidth: 0.5)
+                    )
+                }
+
+                // Comments list
+                let visibleComments = showAllComments ? comments : Array(comments.prefix(3))
+                ForEach(visibleComments) { comment in
+                    HStack(alignment: .top, spacing: 10) {
+                        VStack(alignment: .leading, spacing: 4) {
+                            HStack(spacing: 6) {
+                                Text("@\(comment.username)")
+                                    .font(.caption2.weight(.bold))
+                                    .foregroundStyle(catColor)
+
+                                Text(relativeTime(comment.createdAt))
+                                    .font(.caption2)
+                                    .foregroundStyle(Theme.textTertiary)
+                            }
+
+                            Text(comment.text)
+                                .font(.subheadline)
+                                .foregroundStyle(.white.opacity(0.9))
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+
+                        Spacer()
+
+                        Button {
+                            guard let user = authManager.currentUser else { return }
+                            Task {
+                                try? await SupabaseManager.shared.upvoteComment(
+                                    userId: user.id, commentId: comment.id
+                                )
+                            }
+                        } label: {
+                            VStack(spacing: 2) {
+                                Image(systemName: "arrow.up")
+                                    .font(.system(size: 10, weight: .bold))
+                                if comment.upvotes > 0 {
+                                    Text("\(comment.upvotes)")
+                                        .font(.system(size: 9, weight: .bold).monospacedDigit())
+                                }
+                            }
+                            .foregroundStyle(Theme.textTertiary)
+                            .frame(width: 28)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                    .padding(10)
+                    .background(Theme.cardBg)
+                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                }
+
+                if comments.isEmpty {
+                    Text("Be the first to comment")
+                        .font(.caption)
+                        .foregroundStyle(Theme.textTertiary)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 8)
+                }
+            }
+        }
+        .task { await loadState() }
+        .sheet(isPresented: $showingShareCard) {
+            ShareCardSheet(story: story)
+        }
+    }
+
+    private func loadState() async {
+        guard let user = authManager.currentUser else { return }
+        userReaction = try? await SupabaseManager.shared.fetchUserReaction(userId: user.id, storyId: story.id)
+        isBookmarked = (try? await SupabaseManager.shared.isBookmarked(userId: user.id, storyId: story.id)) ?? false
+        comments = (try? await SupabaseManager.shared.fetchComments(storyId: story.id)) ?? []
+    }
+
+    private func handleReaction(_ emoji: String) {
+        guard let user = authManager.currentUser else { return }
+        let impact = UIImpactFeedbackGenerator(style: userReaction == emoji ? .light : .medium)
+        impact.impactOccurred()
+
+        if userReaction == emoji {
+            userReaction = nil
+        } else {
+            userReaction = emoji
+        }
+
+        Task {
+            try? await SupabaseManager.shared.toggleReaction(userId: user.id, storyId: story.id, reaction: emoji)
+        }
+    }
+
+    private func toggleBookmark() {
+        guard let user = authManager.currentUser else { return }
+        let notification = UINotificationFeedbackGenerator()
+        notification.notificationOccurred(isBookmarked ? .warning : .success)
+        isBookmarked.toggle()
+
+        Task {
+            let result = try? await SupabaseManager.shared.toggleBookmark(userId: user.id, storyId: story.id)
+            if let result { isBookmarked = result }
+        }
+    }
+
+    private func postComment() {
+        guard let user = authManager.currentUser else { return }
+        let text = commentText.trimmingCharacters(in: .whitespaces)
+        guard !text.isEmpty else { return }
+        isPostingComment = true
+
+        Task {
+            do {
+                try await SupabaseManager.shared.postComment(userId: user.id, storyId: story.id, text: text)
+                comments = try await SupabaseManager.shared.fetchComments(storyId: story.id)
+                commentText = ""
+            } catch {
+                print("Post comment error: \(error)")
+            }
+            isPostingComment = false
+        }
+    }
+
+    private func relativeTime(_ dateString: String) -> String {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        guard let date = formatter.date(from: dateString) else { return "" }
+        let diff = Date().timeIntervalSince(date)
+        if diff < 60 { return "now" }
+        if diff < 3600 { return "\(Int(diff / 60))m" }
+        if diff < 86400 { return "\(Int(diff / 3600))h" }
+        return "\(Int(diff / 86400))d"
     }
 }

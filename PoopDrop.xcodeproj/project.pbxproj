@@ -59,6 +59,23 @@
 		WEXT0050000000000000001 /* PoopDropWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = WEXT0060000000000000001 /* PoopDropWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		WEXT0180000000000000001 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = WEXT0190000000000000001 /* Assets.xcassets */; };
 		PLAY0010000000000000001 /* PlayTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = PLAY0020000000000000001 /* PlayTabView.swift */; };
+		WSMDL0010000000000000001 /* WhoSaidIt.swift in Sources */ = {isa = PBXBuildFile; fileRef = WSMDL0020000000000000001 /* WhoSaidIt.swift */; };
+		SEMDL0010000000000000001 /* SpinTheExcuse.swift in Sources */ = {isa = PBXBuildFile; fileRef = SEMDL0020000000000000001 /* SpinTheExcuse.swift */; };
+		HRMDL0010000000000000001 /* HeadlineRoulette.swift in Sources */ = {isa = PBXBuildFile; fileRef = HRMDL0020000000000000001 /* HeadlineRoulette.swift */; };
+		PRMDL0010000000000000001 /* Predictions.swift in Sources */ = {isa = PBXBuildFile; fileRef = PRMDL0020000000000000001 /* Predictions.swift */; };
+		TRMDL0010000000000000001 /* TheRoast.swift in Sources */ = {isa = PBXBuildFile; fileRef = TRMDL0020000000000000001 /* TheRoast.swift */; };
+		WSGAM0010000000000000001 /* WhoSaidItGameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = WSGAM0020000000000000001 /* WhoSaidItGameView.swift */; };
+		WSCRD0010000000000000001 /* WhoSaidItCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = WSCRD0020000000000000001 /* WhoSaidItCardView.swift */; };
+		SEGAM0010000000000000001 /* SpinTheExcuseGameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SEGAM0020000000000000001 /* SpinTheExcuseGameView.swift */; };
+		SECRD0010000000000000001 /* SpinTheExcuseCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = SECRD0020000000000000001 /* SpinTheExcuseCardView.swift */; };
+		HRGAM0010000000000000001 /* HeadlineRouletteGameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = HRGAM0020000000000000001 /* HeadlineRouletteGameView.swift */; };
+		HRCRD0010000000000000001 /* HeadlineRouletteCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = HRCRD0020000000000000001 /* HeadlineRouletteCardView.swift */; };
+		PTGAM0010000000000000001 /* PredictThePoopView.swift in Sources */ = {isa = PBXBuildFile; fileRef = PTGAM0020000000000000001 /* PredictThePoopView.swift */; };
+		PTCRD0010000000000000001 /* PredictThePoopCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = PTCRD0020000000000000001 /* PredictThePoopCardView.swift */; };
+		TRGAM0010000000000000001 /* TheRoastGameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = TRGAM0020000000000000001 /* TheRoastGameView.swift */; };
+		TRCRD0010000000000000001 /* TheRoastCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = TRCRD0020000000000000001 /* TheRoastCardView.swift */; };
+		EMOJI0010000000000000001 /* EmojiPickerSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = EMOJI0020000000000000001 /* EmojiPickerSheet.swift */; };
+		ASSCR0010000000000000001 /* AppStoreScreenshots.swift in Sources */ = {isa = PBXBuildFile; fileRef = ASSCR0020000000000000001 /* AppStoreScreenshots.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -138,6 +155,23 @@
 		WEXT0060000000000000001 /* PoopDropWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = PoopDropWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		WEXT0190000000000000001 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		PLAY0020000000000000001 /* PlayTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayTabView.swift; sourceTree = "<group>"; };
+		WSMDL0020000000000000001 /* WhoSaidIt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhoSaidIt.swift; sourceTree = "<group>"; };
+		SEMDL0020000000000000001 /* SpinTheExcuse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpinTheExcuse.swift; sourceTree = "<group>"; };
+		HRMDL0020000000000000001 /* HeadlineRoulette.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeadlineRoulette.swift; sourceTree = "<group>"; };
+		PRMDL0020000000000000001 /* Predictions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Predictions.swift; sourceTree = "<group>"; };
+		TRMDL0020000000000000001 /* TheRoast.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TheRoast.swift; sourceTree = "<group>"; };
+		WSGAM0020000000000000001 /* WhoSaidItGameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhoSaidItGameView.swift; sourceTree = "<group>"; };
+		WSCRD0020000000000000001 /* WhoSaidItCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WhoSaidItCardView.swift; sourceTree = "<group>"; };
+		SEGAM0020000000000000001 /* SpinTheExcuseGameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpinTheExcuseGameView.swift; sourceTree = "<group>"; };
+		SECRD0020000000000000001 /* SpinTheExcuseCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpinTheExcuseCardView.swift; sourceTree = "<group>"; };
+		HRGAM0020000000000000001 /* HeadlineRouletteGameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeadlineRouletteGameView.swift; sourceTree = "<group>"; };
+		HRCRD0020000000000000001 /* HeadlineRouletteCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeadlineRouletteCardView.swift; sourceTree = "<group>"; };
+		PTGAM0020000000000000001 /* PredictThePoopView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PredictThePoopView.swift; sourceTree = "<group>"; };
+		PTCRD0020000000000000001 /* PredictThePoopCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PredictThePoopCardView.swift; sourceTree = "<group>"; };
+		TRGAM0020000000000000001 /* TheRoastGameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TheRoastGameView.swift; sourceTree = "<group>"; };
+		TRCRD0020000000000000001 /* TheRoastCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TheRoastCardView.swift; sourceTree = "<group>"; };
+		EMOJI0020000000000000001 /* EmojiPickerSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiPickerSheet.swift; sourceTree = "<group>"; };
+		ASSCR0020000000000000001 /* AppStoreScreenshots.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStoreScreenshots.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -225,6 +259,11 @@
 				RSESS0020000000000000001 /* ReaderSession.swift */,
 				WDMDL0020000000000000001 /* WordGame.swift */,
 				7153DF33C8706061CA2FF894 /* PoopOrScoop.swift */,
+				WSMDL0020000000000000001 /* WhoSaidIt.swift */,
+				SEMDL0020000000000000001 /* SpinTheExcuse.swift */,
+				HRMDL0020000000000000001 /* HeadlineRoulette.swift */,
+				PRMDL0020000000000000001 /* Predictions.swift */,
+				TRMDL0020000000000000001 /* TheRoast.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -264,6 +303,13 @@
 				SWIPE0020000000000000001 /* SwipeReadingView.swift */,
 				WDGRP0010000000000000001 /* WordDrop */,
 				5A03778DBD14E058B6566013 /* PoopOrScoop */,
+				WSGRP0010000000000000001 /* WhoSaidIt */,
+				SEGRP0010000000000000001 /* SpinTheExcuse */,
+				HRGRP0010000000000000001 /* HeadlineRoulette */,
+				PTGRP0010000000000000001 /* PredictThePoop */,
+				TRGRP0010000000000000001 /* TheRoast */,
+				EMOJI0020000000000000001 /* EmojiPickerSheet.swift */,
+				ASSCR0020000000000000001 /* AppStoreScreenshots.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -295,6 +341,51 @@
 				F42687D8F4281C00A784137C /* LeaderboardPreviewCard.swift */,
 			);
 			path = WordDrop;
+			sourceTree = "<group>";
+		};
+		WSGRP0010000000000000001 /* WhoSaidIt */ = {
+			isa = PBXGroup;
+			children = (
+				WSCRD0020000000000000001 /* WhoSaidItCardView.swift */,
+				WSGAM0020000000000000001 /* WhoSaidItGameView.swift */,
+			);
+			path = WhoSaidIt;
+			sourceTree = "<group>";
+		};
+		SEGRP0010000000000000001 /* SpinTheExcuse */ = {
+			isa = PBXGroup;
+			children = (
+				SECRD0020000000000000001 /* SpinTheExcuseCardView.swift */,
+				SEGAM0020000000000000001 /* SpinTheExcuseGameView.swift */,
+			);
+			path = SpinTheExcuse;
+			sourceTree = "<group>";
+		};
+		HRGRP0010000000000000001 /* HeadlineRoulette */ = {
+			isa = PBXGroup;
+			children = (
+				HRCRD0020000000000000001 /* HeadlineRouletteCardView.swift */,
+				HRGAM0020000000000000001 /* HeadlineRouletteGameView.swift */,
+			);
+			path = HeadlineRoulette;
+			sourceTree = "<group>";
+		};
+		PTGRP0010000000000000001 /* PredictThePoop */ = {
+			isa = PBXGroup;
+			children = (
+				PTCRD0020000000000000001 /* PredictThePoopCardView.swift */,
+				PTGAM0020000000000000001 /* PredictThePoopView.swift */,
+			);
+			path = PredictThePoop;
+			sourceTree = "<group>";
+		};
+		TRGRP0010000000000000001 /* TheRoast */ = {
+			isa = PBXGroup;
+			children = (
+				TRCRD0020000000000000001 /* TheRoastCardView.swift */,
+				TRGAM0020000000000000001 /* TheRoastGameView.swift */,
+			);
+			path = TheRoast;
 			sourceTree = "<group>";
 		};
 		WEXT0070000000000000001 /* PoopDropWidget */ = {
@@ -459,6 +550,23 @@
 				4FA795EE06D93D608BC822CE /* PoopOrScoopCardView.swift in Sources */,
 				F854C93225B5D69CCE8FDE41 /* PoopOrScoopGameView.swift in Sources */,
 				8D707714A2B57C60343FA5C8 /* LeaderboardPreviewCard.swift in Sources */,
+				WSMDL0010000000000000001 /* WhoSaidIt.swift in Sources */,
+				SEMDL0010000000000000001 /* SpinTheExcuse.swift in Sources */,
+				HRMDL0010000000000000001 /* HeadlineRoulette.swift in Sources */,
+				PRMDL0010000000000000001 /* Predictions.swift in Sources */,
+				TRMDL0010000000000000001 /* TheRoast.swift in Sources */,
+				WSGAM0010000000000000001 /* WhoSaidItGameView.swift in Sources */,
+				WSCRD0010000000000000001 /* WhoSaidItCardView.swift in Sources */,
+				SEGAM0010000000000000001 /* SpinTheExcuseGameView.swift in Sources */,
+				SECRD0010000000000000001 /* SpinTheExcuseCardView.swift in Sources */,
+				HRGAM0010000000000000001 /* HeadlineRouletteGameView.swift in Sources */,
+				HRCRD0010000000000000001 /* HeadlineRouletteCardView.swift in Sources */,
+				PTGAM0010000000000000001 /* PredictThePoopView.swift in Sources */,
+				PTCRD0010000000000000001 /* PredictThePoopCardView.swift in Sources */,
+				TRGAM0010000000000000001 /* TheRoastGameView.swift in Sources */,
+				TRCRD0010000000000000001 /* TheRoastCardView.swift in Sources */,
+				EMOJI0010000000000000001 /* EmojiPickerSheet.swift in Sources */,
+				ASSCR0010000000000000001 /* AppStoreScreenshots.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

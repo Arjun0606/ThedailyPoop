@@ -14,8 +14,8 @@ struct OnboardingView: View {
         ),
         OnboardingPage(
             emoji: "📰",
-            title: "20 Stories.\nEvery Morning.",
-            description: "Deep dives, quick hits, and everything in between — fresh every day at 7 AM. 10 free stories daily, upgrade for the full 20.",
+            title: "25 Stories.\nEvery Morning.",
+            description: "Deep dives, quick hits, and everything in between — fresh every day at 7 AM. 15 free stories daily, upgrade for all 25.",
             accent: Color(red: 1.0, green: 0.55, blue: 0.2)
         ),
         OnboardingPage(

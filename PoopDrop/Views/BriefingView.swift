@@ -3,6 +3,8 @@ import SwiftUI
 import WidgetKit
 
 struct BriefingView: View {
+    var onSwitchToPlay: (() -> Void)? = nil
+
     @EnvironmentObject var authManager: AuthenticationManager
     @StateObject private var audioManager = AudioBriefingManager.shared
     @State private var drops: [BriefingDrop] = []
@@ -33,12 +35,13 @@ struct BriefingView: View {
             } else if !drops.isEmpty, let todayDrop = drops.first {
                 ScrollView {
                     LazyVStack(spacing: 0) {
-                        // Briefing header
+                        // Briefing header (tappable — launches swipe reading)
                         DropHeaderView(
                             briefing: todayDrop.briefing,
                             isFirst: true,
                             readCount: todayDrop.stories.filter { readStoryIDs.contains($0.id) }.count,
-                            totalCount: todayDrop.stories.count
+                            totalCount: todayDrop.stories.count,
+                            onStartReading: { showingSwipeMode = true }
                         )
 
                         let isPremium = authManager.currentUser?.isPremium ?? false
@@ -64,18 +67,44 @@ struct BriefingView: View {
                             )
                         }
 
-                        // Premium stories (visible to subscribers)
-                        if isPremium {
-                            ForEach(premiumStories) { story in
-                                StoryCardView(
-                                    story: story,
-                                    isPremiumUser: true,
-                                    isRead: readStoryIDs.contains(story.id),
-                                    totalReactions: storyReactionCounts[story.id] ?? 0,
-                                    onTap: { handleStoryTap(story) }
-                                )
-                            }
+                        // Premium stories — always visible (locked for free users = FOMO)
+                        ForEach(premiumStories) { story in
+                            StoryCardView(
+                                story: story,
+                                isPremiumUser: isPremium,
+                                isRead: readStoryIDs.contains(story.id),
+                                totalReactions: storyReactionCounts[story.id] ?? 0,
+                                onTap: { handleStoryTap(story) }
+                            )
                         }
+
+                        // Final CTA for free users after seeing locked stories
+                        if !isPremium && !premiumStories.isEmpty {
+                            Button { showingPaywall = true } label: {
+                                HStack(spacing: 8) {
+                                    Image(systemName: "crown.fill")
+                                        .font(.system(size: 14))
+                                    Text("Unlock All \(todayDrop.stories.count) Stories")
+                                        .font(.system(size: 15, weight: .bold))
+                                }
+                                .foregroundStyle(.black)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 50)
+                                .background(Theme.accent)
+                                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                            }
+                            .buttonStyle(PressableButtonStyle())
+                            .padding(.horizontal, Theme.pagePadding)
+                            .padding(.top, 8)
+                        }
+
+                        // Games promo strip
+                        GamesPromoStrip(
+                            isPremium: authManager.currentUser?.isPremium ?? false,
+                            onPlay: onSwitchToPlay ?? {},
+                            onUpgrade: { showingPaywall = true }
+                        )
+                        .padding(.top, 24)
 
                         Spacer(minLength: 120)
                     }
@@ -308,13 +337,13 @@ struct BriefingView: View {
                 if let morningDrop = fetchedDrops.first {
                     updateWidgetData(briefing: morningDrop.briefing, stories: morningDrop.stories)
 
-                    // Start Dynamic Island Live Activity for the latest drop
+                    // Start Dynamic Island Live Activity
                     let latestDrop = fetchedDrops.last!
-                    let topEmoji = latestDrop.stories.first?.categoryEmoji ?? "📰"
+                    let dropReadCount = latestDrop.stories.filter { readStoryIDs.contains($0.id) }.count
                     LiveActivityManager.shared.startDropActivity(
                         briefing: latestDrop.briefing,
                         storyCount: latestDrop.stories.count,
-                        topStoryEmoji: topEmoji
+                        readCount: dropReadCount
                     )
                 }
             }
@@ -350,6 +379,7 @@ struct BriefingView: View {
             Task {
                 try? await SupabaseManager.shared.markStoryRead(userID: user.id, storyID: story.id)
                 readStoryIDs.insert(story.id)
+                LiveActivityManager.shared.updateReadProgress(readCount: readStoryIDs.count)
 
                 try? await SupabaseManager.shared.pingReaderLocation(
                     userId: user.id,
@@ -368,6 +398,7 @@ struct DropHeaderView: View {
     let isFirst: Bool
     var readCount: Int = 0
     var totalCount: Int = 0
+    var onStartReading: (() -> Void)? = nil
 
     private var dropColor: Color {
         Theme.dropColor(for: briefing.dropType)
@@ -409,6 +440,22 @@ struct DropHeaderView: View {
                 }
             }
 
+            // Today's Vibe
+            if let vibeEmoji = briefing.vibeEmoji, let vibeLabel = briefing.vibeLabel {
+                HStack(spacing: 6) {
+                    Text(vibeEmoji)
+                        .font(.caption)
+                    Text("Today's Vibe: \(vibeLabel)")
+                        .font(.caption2.weight(.bold))
+                        .foregroundStyle(Theme.textSecondary)
+                        .tracking(0.5)
+                }
+                .padding(.horizontal, 10)
+                .padding(.vertical, 5)
+                .background(Color.white.opacity(0.05))
+                .clipShape(Capsule())
+            }
+
             // Headline
             Text(briefing.headline)
                 .font(.system(size: 24, weight: .black))
@@ -424,6 +471,24 @@ struct DropHeaderView: View {
                     .lineLimit(3)
                     .lineSpacing(3)
             }
+
+            // Start Reading CTA
+            if let onStartReading, isFirst {
+                Button(action: onStartReading) {
+                    HStack(spacing: 8) {
+                        Text("Start Reading")
+                            .font(.system(size: 14, weight: .bold))
+                        Image(systemName: "arrow.right")
+                            .font(.system(size: 11, weight: .bold))
+                    }
+                    .foregroundStyle(.black)
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 10)
+                    .background(Theme.accent)
+                    .clipShape(Capsule())
+                }
+                .buttonStyle(PressableButtonStyle())
+            }
         }
         .padding(Theme.pagePadding)
         .padding(.top, isFirst ? 8 : 0)
@@ -434,6 +499,10 @@ struct DropHeaderView: View {
                 endPoint: .bottom
             )
         )
+        .contentShape(Rectangle())
+        .onTapGesture {
+            onStartReading?()
+        }
     }
 
     private var formattedDate: String {
@@ -544,10 +613,14 @@ struct StoryDetailView: View {
     @State private var userReaction: String?
     @State private var isBookmarked = false
     @State private var showingShareCard = false
+    @State private var showingEmojiPicker = false
+    @State private var comments: [StoryComment] = []
+    @State private var commentText = ""
+    @State private var isPostingComment = false
+    @State private var showAllComments = false
 
-    private let reactions: [(key: String, emoji: String)] = [
-        ("fire", "\u{1F525}"), ("skull", "\u{1F480}"), ("laugh", "\u{1F602}"), ("mindblown", "\u{1F92F}")
-    ]
+    // Quick-pick emojis (most popular) + users can tap "+" for full emoji keyboard
+    private let quickReactions = ["🔥", "💀", "😂", "🤯", "💩", "🤡"]
 
     private var catColor: Color {
         Theme.categoryColor(for: story.category)
@@ -560,56 +633,6 @@ struct StoryDetailView: View {
 
                 ScrollView {
                     VStack(alignment: .leading, spacing: 0) {
-                        // Hero image (full bleed)
-                        if let imageUrl = story.imageUrl, let url = URL(string: imageUrl) {
-                            ZStack(alignment: .bottomLeading) {
-                                AsyncImage(url: url) { phase in
-                                    switch phase {
-                                    case .success(let image):
-                                        image
-                                            .resizable()
-                                            .aspectRatio(contentMode: .fill)
-                                            .frame(width: UIScreen.main.bounds.width, height: 240)
-                                            .clipped()
-                                    case .failure:
-                                        Rectangle()
-                                            .fill(catColor.opacity(0.1))
-                                            .frame(height: 240)
-                                    default:
-                                        Rectangle()
-                                            .fill(Color.white.opacity(0.03))
-                                            .frame(height: 240)
-                                            .overlay(ProgressView().tint(.secondary))
-                                    }
-                                }
-
-                                // Gradient overlay
-                                LinearGradient(
-                                    stops: [
-                                        .init(color: .clear, location: 0.3),
-                                        .init(color: .black, location: 1.0),
-                                    ],
-                                    startPoint: .top,
-                                    endPoint: .bottom
-                                )
-
-                                // Source credit
-                                if let source = story.sourceName {
-                                    Text(source)
-                                        .font(.system(size: 10, weight: .medium))
-                                        .foregroundStyle(.white.opacity(0.4))
-                                        .padding(.horizontal, 8)
-                                        .padding(.vertical, 4)
-                                        .background(.black.opacity(0.5))
-                                        .clipShape(Capsule())
-                                        .padding(12)
-                                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
-                                }
-                            }
-                            .frame(width: UIScreen.main.bounds.width, height: 240)
-                            .clipped()
-                        }
-
                         // Content
                         VStack(alignment: .leading, spacing: 20) {
                             // Category + reading time
@@ -687,31 +710,177 @@ struct StoryDetailView: View {
                                 )
                             }
 
-                            // Reactions
+                            // Reactions — any emoji
                             GlassCard {
-                                HStack(spacing: 0) {
-                                    ForEach(reactions, id: \.key) { reaction in
-                                        Button {
-                                            handleReaction(reaction.key)
-                                        } label: {
-                                            VStack(spacing: 5) {
-                                                Text(reaction.emoji)
-                                                    .font(.title3)
-                                                Text("\(reactionCounts[reaction.key] ?? 0)")
-                                                    .font(.caption2.weight(.bold).monospacedDigit())
-                                                    .foregroundStyle(userReaction == reaction.key ? .white : Theme.textTertiary)
+                                VStack(spacing: 8) {
+                                    // Top reactions from other users
+                                    if !reactionCounts.isEmpty {
+                                        HStack(spacing: 12) {
+                                            ForEach(topReactions, id: \.emoji) { item in
+                                                HStack(spacing: 4) {
+                                                    Text(item.emoji)
+                                                        .font(.callout)
+                                                    Text("\(item.count)")
+                                                        .font(.caption2.weight(.bold).monospacedDigit())
+                                                        .foregroundStyle(Theme.textTertiary)
+                                                }
                                             }
-                                            .frame(maxWidth: .infinity)
-                                            .padding(.vertical, 8)
-                                            .background(
-                                                userReaction == reaction.key
-                                                    ? catColor.opacity(0.15)
-                                                    : Color.clear
-                                            )
-                                            .clipShape(RoundedRectangle(cornerRadius: 10))
+                                            Spacer()
+                                            if totalReactionCount > 0 {
+                                                Text("\(totalReactionCount)")
+                                                    .font(.caption2.weight(.medium).monospacedDigit())
+                                                    .foregroundStyle(Theme.textTertiary)
+                                            }
+                                        }
+                                    }
+
+                                    // Quick-pick row + emoji picker
+                                    HStack(spacing: 0) {
+                                        ForEach(quickReactions, id: \.self) { emoji in
+                                            Button {
+                                                handleReaction(emoji)
+                                            } label: {
+                                                Text(emoji)
+                                                    .font(.title3)
+                                                    .frame(maxWidth: .infinity)
+                                                    .padding(.vertical, 6)
+                                                    .background(
+                                                        userReaction == emoji
+                                                            ? catColor.opacity(0.15)
+                                                            : Color.clear
+                                                    )
+                                                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                                            }
+                                            .buttonStyle(.plain)
+                                        }
+
+                                        // "+" button for full emoji picker
+                                        Button {
+                                            showingEmojiPicker = true
+                                        } label: {
+                                            Image(systemName: "plus")
+                                                .font(.system(size: 14, weight: .medium))
+                                                .foregroundStyle(Theme.textTertiary)
+                                                .frame(maxWidth: .infinity)
+                                                .padding(.vertical, 6)
                                         }
                                         .buttonStyle(.plain)
                                     }
+                                }
+                            }
+
+                            // Comments section
+                            VStack(alignment: .leading, spacing: 12) {
+                                HStack {
+                                    Text("COMMENTS")
+                                        .font(.system(size: 10, weight: .heavy))
+                                        .foregroundStyle(Theme.textTertiary)
+                                        .tracking(1.5)
+
+                                    Spacer()
+
+                                    if comments.count > 3 {
+                                        Button {
+                                            showAllComments.toggle()
+                                        } label: {
+                                            Text(showAllComments ? "Show less" : "See all \(comments.count)")
+                                                .font(.caption2.weight(.semibold))
+                                                .foregroundStyle(catColor)
+                                        }
+                                    }
+                                }
+
+                                // Comment input
+                                if authManager.currentUser != nil {
+                                    HStack(spacing: 10) {
+                                        TextField("Add a comment...", text: $commentText)
+                                            .font(.subheadline)
+                                            .foregroundStyle(.white)
+                                            .textFieldStyle(.plain)
+
+                                        Button {
+                                            postComment()
+                                        } label: {
+                                            if isPostingComment {
+                                                ProgressView()
+                                                    .tint(catColor)
+                                                    .scaleEffect(0.8)
+                                            } else {
+                                                Image(systemName: "arrow.up.circle.fill")
+                                                    .font(.title3)
+                                                    .foregroundStyle(
+                                                        commentText.trimmingCharacters(in: .whitespaces).isEmpty
+                                                        ? Theme.textTertiary
+                                                        : catColor
+                                                    )
+                                            }
+                                        }
+                                        .disabled(commentText.trimmingCharacters(in: .whitespaces).isEmpty || isPostingComment)
+                                    }
+                                    .padding(12)
+                                    .background(Theme.elevatedBg)
+                                    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                            .stroke(Theme.cardBorder, lineWidth: 0.5)
+                                    )
+                                }
+
+                                // Comments list
+                                let visibleComments = showAllComments ? comments : Array(comments.prefix(3))
+                                ForEach(visibleComments) { comment in
+                                    HStack(alignment: .top, spacing: 10) {
+                                        VStack(alignment: .leading, spacing: 4) {
+                                            HStack(spacing: 6) {
+                                                Text("@\(comment.username)")
+                                                    .font(.caption2.weight(.bold))
+                                                    .foregroundStyle(catColor)
+
+                                                Text(relativeTime(comment.createdAt))
+                                                    .font(.caption2)
+                                                    .foregroundStyle(Theme.textTertiary)
+                                            }
+
+                                            Text(comment.text)
+                                                .font(.subheadline)
+                                                .foregroundStyle(.white.opacity(0.9))
+                                                .fixedSize(horizontal: false, vertical: true)
+                                        }
+
+                                        Spacer()
+
+                                        Button {
+                                            guard let user = authManager.currentUser else { return }
+                                            Task {
+                                                try? await SupabaseManager.shared.upvoteComment(
+                                                    userId: user.id, commentId: comment.id
+                                                )
+                                            }
+                                        } label: {
+                                            VStack(spacing: 2) {
+                                                Image(systemName: "arrow.up")
+                                                    .font(.system(size: 10, weight: .bold))
+                                                if comment.upvotes > 0 {
+                                                    Text("\(comment.upvotes)")
+                                                        .font(.system(size: 9, weight: .bold).monospacedDigit())
+                                                }
+                                            }
+                                            .foregroundStyle(Theme.textTertiary)
+                                            .frame(width: 28)
+                                        }
+                                        .buttonStyle(.plain)
+                                    }
+                                    .padding(10)
+                                    .background(Theme.cardBg)
+                                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                                }
+
+                                if comments.isEmpty {
+                                    Text("Be the first to comment")
+                                        .font(.caption)
+                                        .foregroundStyle(Theme.textTertiary)
+                                        .frame(maxWidth: .infinity)
+                                        .padding(.vertical, 8)
                                 }
                             }
 
@@ -820,6 +989,13 @@ struct StoryDetailView: View {
         .sheet(isPresented: $showingShareCard) {
             ShareCardSheet(story: story)
         }
+        .sheet(isPresented: $showingEmojiPicker) {
+            EmojiPickerSheet { emoji in
+                handleReaction(emoji)
+                showingEmojiPicker = false
+            }
+            .presentationDetents([.medium])
+        }
     }
 
     private func loadReactionsAndBookmark() async {
@@ -828,13 +1004,58 @@ struct StoryDetailView: View {
             async let counts = SupabaseManager.shared.fetchReactionCounts(storyId: story.id)
             async let reaction = SupabaseManager.shared.fetchUserReaction(userId: user.id, storyId: story.id)
             async let bookmarked = SupabaseManager.shared.isBookmarked(userId: user.id, storyId: story.id)
+            async let storyComments = SupabaseManager.shared.fetchComments(storyId: story.id)
 
             reactionCounts = try await counts
             userReaction = try await reaction
             isBookmarked = try await bookmarked
+            comments = (try? await storyComments) ?? []
         } catch {
             print("Load reactions error: \(error)")
         }
+    }
+
+    private func postComment() {
+        guard let user = authManager.currentUser else { return }
+        let text = commentText.trimmingCharacters(in: .whitespaces)
+        guard !text.isEmpty else { return }
+        isPostingComment = true
+
+        Task {
+            do {
+                try await SupabaseManager.shared.postComment(userId: user.id, storyId: story.id, text: text)
+                // Refetch to get the comment with proper ID
+                comments = try await SupabaseManager.shared.fetchComments(storyId: story.id)
+                commentText = ""
+            } catch {
+                print("Post comment error: \(error)")
+            }
+            isPostingComment = false
+        }
+    }
+
+    private func relativeTime(_ dateString: String) -> String {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        guard let date = formatter.date(from: dateString) else { return "" }
+        let diff = Date().timeIntervalSince(date)
+        if diff < 60 { return "now" }
+        if diff < 3600 { return "\(Int(diff / 60))m" }
+        if diff < 86400 { return "\(Int(diff / 3600))h" }
+        return "\(Int(diff / 86400))d"
+    }
+
+    /// Top 5 reactions by count (for display above quick-pick row)
+    private var topReactions: [(emoji: String, count: Int)] {
+        reactionCounts
+            .filter { $0.value > 0 }
+            .sorted { $0.value > $1.value }
+            .prefix(5)
+            .map { (emoji: $0.key, count: $0.value) }
+    }
+
+    private var totalReactionCount: Int {
+        reactionCounts.values.reduce(0, +)
     }
 
     private func handleReaction(_ reaction: String) {
@@ -1043,6 +1264,93 @@ struct AudioPlayerBar: View {
             .padding(.horizontal, 16)
             .padding(.vertical, 10)
             .background(.ultraThinMaterial)
+        }
+    }
+}
+
+// MARK: - Games Promo Strip (Today tab cross-promotion)
+struct GamesPromoStrip: View {
+    let isPremium: Bool
+    let onPlay: () -> Void
+    let onUpgrade: () -> Void
+
+    private let games: [(emoji: String, title: String, color: Color, isPro: Bool)] = [
+        ("\u{1F4A9}", "Poop or Scoop", .pink, false),
+        ("\u{1F524}", "Word Drop", .cyan, false),
+        ("\u{1F4AC}", "Who Said It?", .purple, true),
+        ("\u{1F3B0}", "Headline Roulette", .cyan, true),
+        ("\u{1F52E}", "Predict the Poop", .indigo, true),
+        ("\u{1F525}", "The Roast", .red, true),
+    ]
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text("TODAY'S GAMES")
+                    .font(.system(size: 10, weight: .heavy))
+                    .foregroundStyle(Theme.textTertiary)
+                    .tracking(1.5)
+
+                Spacer()
+
+                Button(action: onPlay) {
+                    HStack(spacing: 4) {
+                        Text("Play All")
+                            .font(.caption2.weight(.bold))
+                        Image(systemName: "arrow.right")
+                            .font(.system(size: 8, weight: .bold))
+                    }
+                    .foregroundStyle(Theme.accent)
+                }
+            }
+            .padding(.horizontal, Theme.pagePadding)
+
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 10) {
+                    ForEach(games, id: \.title) { game in
+                        Button {
+                            if game.isPro && !isPremium {
+                                onUpgrade()
+                            } else {
+                                onPlay()
+                            }
+                        } label: {
+                            VStack(spacing: 8) {
+                                Text(game.emoji)
+                                    .font(.title2)
+
+                                Text(game.title)
+                                    .font(.system(size: 11, weight: .bold))
+                                    .foregroundStyle(.white)
+                                    .lineLimit(1)
+
+                                if game.isPro && !isPremium {
+                                    Text("PRO")
+                                        .font(.system(size: 8, weight: .heavy))
+                                        .foregroundStyle(.black)
+                                        .padding(.horizontal, 6)
+                                        .padding(.vertical, 2)
+                                        .background(Theme.accent)
+                                        .clipShape(Capsule())
+                                } else {
+                                    Text("Play")
+                                        .font(.system(size: 10, weight: .semibold))
+                                        .foregroundStyle(game.color)
+                                }
+                            }
+                            .frame(width: 100, height: 95)
+                            .background(game.color.opacity(0.08))
+                            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                    .stroke(game.color.opacity(0.15), lineWidth: 0.5)
+                            )
+                        }
+                        .buttonStyle(PressableButtonStyle())
+                    }
+                }
+                .padding(.horizontal, Theme.pagePadding)
+            }
         }
     }
 }

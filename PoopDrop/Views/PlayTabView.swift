@@ -4,11 +4,23 @@ struct PlayTabView: View {
     @EnvironmentObject var authManager: AuthenticationManager
     @State private var wordGames: [WordGame] = []
     @State private var scoopGame: ScoopGame?
+    @State private var whoSaidItGame: WhoSaidItGame?
+    @State private var excuseGame: ExcuseGame?
+    @State private var rouletteGame: HeadlineRouletteGame?
     @State private var selectedWordGame: WordGame?
     @State private var showingScoopGame = false
+    @State private var showingWhoSaidIt = false
+    @State private var showingExcuse = false
+    @State private var showingRoulette = false
+    @State private var showingPredictions = false
+    @State private var showingRoast = false
     @State private var showingLeaderboard = false
     @State private var showingPaywall = false
     @State private var isLoading = true
+
+    private var isPremium: Bool {
+        authManager.currentUser?.isPremium ?? false
+    }
 
     private var streak: Int {
         authManager.currentUser?.streakCount ?? 0
@@ -88,23 +100,62 @@ struct PlayTabView: View {
                             .padding(.vertical, 30)
                         } else {
                             VStack(spacing: 8) {
-                                // Poop or Scoop
+                                // Free game: Poop or Scoop
                                 PoopOrScoopCardView(
                                     game: scoopGame,
-                                    isPremium: authManager.currentUser?.isPremium ?? false,
+                                    isPremium: true, // Always unlocked (free game)
                                     onPlay: { showingScoopGame = true },
                                     onUpgrade: { showingPaywall = true }
                                 )
 
-                                // Word Drop games
-                                ForEach(wordGames, id: \.id) { game in
+                                // Word Drop games (show all when premium, just 1 when free)
+                                let visibleWordGames = isPremium ? wordGames : Array(wordGames.prefix(1))
+                                ForEach(visibleWordGames, id: \.id) { game in
                                     WordDropCardView(
                                         game: game,
-                                        isPremium: authManager.currentUser?.isPremium ?? false,
+                                        isPremium: true, // First game always free; premium sees all
                                         onPlay: { selectedWordGame = game },
                                         onUpgrade: { showingPaywall = true }
                                     )
                                 }
+
+                                // Who Said It
+                                WhoSaidItCardView(
+                                    game: whoSaidItGame,
+                                    isPremium: isPremium,
+                                    onPlay: { showingWhoSaidIt = true },
+                                    onUpgrade: { showingPaywall = true }
+                                )
+
+                                // Spin the Excuse
+                                SpinTheExcuseCardView(
+                                    game: excuseGame,
+                                    isPremium: isPremium,
+                                    onPlay: { showingExcuse = true },
+                                    onUpgrade: { showingPaywall = true }
+                                )
+
+                                // Headline Roulette
+                                HeadlineRouletteCardView(
+                                    game: rouletteGame,
+                                    isPremium: isPremium,
+                                    onPlay: { showingRoulette = true },
+                                    onUpgrade: { showingPaywall = true }
+                                )
+
+                                // Predict the Poop
+                                PredictThePoopCardView(
+                                    isPremium: isPremium,
+                                    onPlay: { showingPredictions = true },
+                                    onUpgrade: { showingPaywall = true }
+                                )
+
+                                // The Roast
+                                TheRoastCardView(
+                                    isPremium: isPremium,
+                                    onPlay: { showingRoast = true },
+                                    onUpgrade: { showingPaywall = true }
+                                )
                             }
                             .padding(.horizontal, Theme.pagePadding)
                         }
@@ -115,7 +166,7 @@ struct PlayTabView: View {
                     if let date = wordGames.first?.publishDate ?? todayDateString {
                         LeaderboardPreviewCard(
                             date: date,
-                            isPremium: authManager.currentUser?.isPremium ?? false,
+                            isPremium: isPremium,
                             onShowFull: { showingLeaderboard = true },
                             onUpgrade: { showingPaywall = true }
                         )
@@ -124,13 +175,13 @@ struct PlayTabView: View {
                     }
 
                     // MARK: - Premium Upsell (free users)
-                    if !(authManager.currentUser?.isPremium ?? false) {
+                    if !isPremium {
                         Button { showingPaywall = true } label: {
                             VStack(spacing: 8) {
                                 Text("Unlock All Games")
                                     .font(.subheadline.weight(.bold))
                                     .foregroundStyle(.white)
-                                Text("3 Word Drop games daily + Poop or Scoop + Leaderboard")
+                                Text("Word Drop · Who Said It · Spin the Excuse · Headline Roulette · Predict the Poop · The Roast")
                                     .font(.caption2)
                                     .foregroundStyle(Theme.textSecondary)
                                     .multilineTextAlignment(.center)
@@ -191,6 +242,53 @@ struct PlayTabView: View {
                     }
             }
         }
+        .fullScreenCover(isPresented: $showingWhoSaidIt) {
+            if let game = whoSaidItGame {
+                WhoSaidItGameView(game: game)
+                    .environmentObject(authManager)
+                    .onDisappear {
+                        Task {
+                            if let user = authManager.currentUser {
+                                whoSaidItGame = try? await SupabaseManager.shared.fetchTodayWhoSaidIt(userId: user.id)
+                            }
+                        }
+                    }
+            }
+        }
+        .fullScreenCover(isPresented: $showingExcuse) {
+            if let game = excuseGame {
+                SpinTheExcuseGameView(game: game)
+                    .environmentObject(authManager)
+                    .onDisappear {
+                        Task {
+                            if let user = authManager.currentUser {
+                                excuseGame = try? await SupabaseManager.shared.fetchTodayExcuseGame(userId: user.id)
+                            }
+                        }
+                    }
+            }
+        }
+        .fullScreenCover(isPresented: $showingRoulette) {
+            if let game = rouletteGame {
+                HeadlineRouletteGameView(game: game)
+                    .environmentObject(authManager)
+                    .onDisappear {
+                        Task {
+                            if let user = authManager.currentUser {
+                                rouletteGame = try? await SupabaseManager.shared.fetchTodayHeadlineRoulette(userId: user.id)
+                            }
+                        }
+                    }
+            }
+        }
+        .fullScreenCover(isPresented: $showingPredictions) {
+            PredictThePoopView()
+                .environmentObject(authManager)
+        }
+        .fullScreenCover(isPresented: $showingRoast) {
+            TheRoastGameView()
+                .environmentObject(authManager)
+        }
     }
 
     // MARK: - Top Bar
@@ -235,6 +333,9 @@ struct PlayTabView: View {
         var count = 0
         if scoopGame?.played == true { count += 1 }
         count += wordGames.filter { $0.played }.count
+        if whoSaidItGame?.played == true { count += 1 }
+        if excuseGame?.played == true { count += 1 }
+        if rouletteGame?.played == true { count += 1 }
         return count
     }
 
@@ -290,13 +391,19 @@ struct PlayTabView: View {
 
     private func loadGames() async {
         guard let user = authManager.currentUser else { return }
-        do {
-            async let games = SupabaseManager.shared.fetchTodayGames(userId: user.id)
-            async let scoop = SupabaseManager.shared.fetchTodayScoopGame(userId: user.id)
 
-            wordGames = (try? await games) ?? []
-            scoopGame = try? await scoop
-        }
+        async let games = SupabaseManager.shared.fetchTodayGames(userId: user.id)
+        async let scoop = SupabaseManager.shared.fetchTodayScoopGame(userId: user.id)
+        async let whoSaid = SupabaseManager.shared.fetchTodayWhoSaidIt(userId: user.id)
+        async let excuse = SupabaseManager.shared.fetchTodayExcuseGame(userId: user.id)
+        async let roulette = SupabaseManager.shared.fetchTodayHeadlineRoulette(userId: user.id)
+
+        wordGames = (try? await games) ?? []
+        scoopGame = try? await scoop
+        whoSaidItGame = try? await whoSaid
+        excuseGame = try? await excuse
+        rouletteGame = try? await roulette
+
         isLoading = false
     }
 }

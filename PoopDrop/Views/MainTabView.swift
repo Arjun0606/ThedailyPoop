@@ -17,7 +17,7 @@ struct MainTabView: View {
             // Content
             Group {
                 switch selectedTab {
-                case 0: BriefingView()
+                case 0: BriefingView(onSwitchToPlay: { selectedTab = 2 })
                 case 1: LiveGlobeView()
                 case 2: PlayTabView()
                 case 3: ArchiveView()

@@ -12,7 +12,7 @@ struct ArchiveView: View {
     }
 
     private var archiveDaysLimit: Int {
-        isPremium ? 10 : 3
+        isPremium ? 15 : 3
     }
 
     private var filteredBriefings: [Briefing] {
@@ -82,7 +82,7 @@ struct ArchiveView: View {
                                             Text("See more with PRO")
                                                 .font(.caption.weight(.bold))
                                                 .foregroundStyle(.white)
-                                            Text("Upgrade for 10 days of archive")
+                                            Text("Upgrade for 15 days of archive")
                                                 .font(.caption2)
                                                 .foregroundStyle(Theme.textSecondary)
                                         }

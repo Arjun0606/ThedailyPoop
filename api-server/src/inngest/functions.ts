@@ -1,6 +1,11 @@
 export { generateDailyBriefing } from "./generate-briefing";
 export { generateWordGame } from "./generate-word-game";
 export { generatePoopOrScoop } from "./generate-poop-or-scoop";
+export { generateWhoSaidIt } from "./generate-who-said-it";
+export { generateSpinTheExcuse } from "./generate-spin-the-excuse";
+export { generateRoast } from "./generate-roast";
+export { generatePredictions } from "./generate-predictions";
+export { generateHeadlineRoulette } from "./generate-headline-roulette";
 export { morningPush } from "./morning-push";
 export { middayPush } from "./midday-push";
 export { eveningPush } from "./evening-push";

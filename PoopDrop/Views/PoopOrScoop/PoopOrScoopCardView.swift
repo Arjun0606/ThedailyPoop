@@ -62,10 +62,10 @@ struct PoopOrScoopCardView: View {
                             .font(.caption2)
                             .foregroundStyle(Theme.textTertiary)
                     } else if isLocked {
-                        Text("Upgrade to play")
+                        Text("Real or fake headline?")
                             .font(.subheadline.weight(.medium))
                             .foregroundStyle(.white)
-                        Text("Real or fake headlines — PRO only")
+                        Text("Swipe to guess · 10 headlines")
                             .font(.caption2)
                             .foregroundStyle(Theme.textTertiary)
                     } else if game != nil {
@@ -75,7 +75,7 @@ struct PoopOrScoopCardView: View {
                         Text("Swipe to guess \u{00B7} 10 headlines")
                             .font(.caption2)
                             .foregroundStyle(Theme.textTertiary)
-                    } else {
+                    } else if !isLocked {
                         Text("Coming soon...")
                             .font(.subheadline.weight(.medium))
                             .foregroundStyle(Theme.textSecondary)
@@ -118,6 +118,6 @@ struct PoopOrScoopCardView: View {
             )
         }
         .buttonStyle(.plain)
-        .disabled(game == nil)
+        .disabled(!isLocked && game == nil)
     }
 }

@@ -2,94 +2,131 @@ import ActivityKit
 import SwiftUI
 import WidgetKit
 
-// MARK: - Live Activity Widget (Dynamic Island + Lock Screen)
-
 struct PoopDropLiveActivity: Widget {
     var body: some WidgetConfiguration {
         ActivityConfiguration(for: PoopDropActivityAttributes.self) { context in
-            // LOCK SCREEN banner
             LockScreenView(state: context.state)
         } dynamicIsland: { context in
-            DynamicIsland {
-                // EXPANDED view (long press / large state)
+            let state = context.state
+            let color = dropColor(for: state.dropType)
+            let progress = state.storyCount > 0
+                ? Double(state.readCount) / Double(state.storyCount) : 0
+
+            return DynamicIsland {
+                // EXPANDED — long press on Dynamic Island
                 DynamicIslandExpandedRegion(.leading) {
                     HStack(spacing: 6) {
                         Image("AppLogo")
                             .resizable()
                             .aspectRatio(contentMode: .fit)
                             .frame(width: 20, height: 20)
-                        Text(PoopDropActivityAttributes.dropLabel(for: context.state.dropType))
-                            .font(.system(size: 11, weight: .heavy))
-                            .tracking(1)
-                            .foregroundStyle(dropColor(for: context.state.dropType))
+                            .clipShape(RoundedRectangle(cornerRadius: 5, style: .continuous))
+
+                        VStack(alignment: .leading, spacing: 1) {
+                            Text(PoopDropActivityAttributes.dropLabel(for: state.dropType))
+                                .font(.system(size: 10, weight: .heavy))
+                                .tracking(0.8)
+                                .foregroundStyle(color)
+                            Text(state.publishDate)
+                                .font(.system(size: 9, weight: .medium))
+                                .foregroundStyle(.white.opacity(0.4))
+                        }
                     }
                 }
 
                 DynamicIslandExpandedRegion(.trailing) {
-                    Text("\(context.state.storyCount)")
-                        .font(.system(size: 20, weight: .black).monospacedDigit())
-                        .foregroundStyle(.white)
-                    +
-                    Text(" stories")
-                        .font(.system(size: 12, weight: .medium))
-                        .foregroundStyle(.white.opacity(0.6))
+                    VStack(alignment: .trailing, spacing: 1) {
+                        Text("\(state.readCount)/\(state.storyCount)")
+                            .font(.system(size: 16, weight: .black).monospacedDigit())
+                            .foregroundStyle(.white)
+                        Text("read")
+                            .font(.system(size: 9, weight: .medium))
+                            .foregroundStyle(.white.opacity(0.4))
+                    }
                 }
 
                 DynamicIslandExpandedRegion(.bottom) {
-                    VStack(spacing: 8) {
-                        Text(context.state.headline)
-                            .font(.system(size: 15, weight: .bold))
+                    VStack(spacing: 10) {
+                        // Read progress bar
+                        GeometryReader { geo in
+                            ZStack(alignment: .leading) {
+                                Capsule()
+                                    .fill(.white.opacity(0.08))
+                                    .frame(height: 4)
+                                Capsule()
+                                    .fill(color)
+                                    .frame(width: max(geo.size.width * progress, 4), height: 4)
+                            }
+                        }
+                        .frame(height: 4)
+
+                        // Headline
+                        Text(state.headline)
+                            .font(.system(size: 14, weight: .bold))
                             .foregroundStyle(.white)
                             .lineLimit(2)
                             .frame(maxWidth: .infinity, alignment: .leading)
 
+                        // Bottom row: vibe + CTA
                         HStack {
-                            Text("Tap to read")
-                                .font(.system(size: 12, weight: .semibold))
-                                .foregroundStyle(dropColor(for: context.state.dropType))
+                            if !state.vibeEmoji.isEmpty {
+                                HStack(spacing: 4) {
+                                    Text(state.vibeEmoji)
+                                        .font(.system(size: 12))
+                                    Text(state.vibeLabel)
+                                        .font(.system(size: 10, weight: .semibold))
+                                        .foregroundStyle(.white.opacity(0.5))
+                                }
+                            }
 
                             Spacer()
 
-                            Text(context.state.publishDate)
-                                .font(.system(size: 11, weight: .medium))
-                                .foregroundStyle(.white.opacity(0.4))
+                            Text(state.readCount == 0 ? "Tap to start reading" : "Continue reading")
+                                .font(.system(size: 11, weight: .bold))
+                                .foregroundStyle(color)
                         }
                     }
-                    .padding(.top, 4)
+                    .padding(.top, 2)
                 }
             } compactLeading: {
-                // COMPACT leading (small pill — left side)
+                // COMPACT leading — logo + progress
                 HStack(spacing: 4) {
                     Image("AppLogo")
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                         .frame(width: 16, height: 16)
-                    Text("DROP")
-                        .font(.system(size: 10, weight: .heavy))
-                        .foregroundStyle(dropColor(for: context.state.dropType))
+                        .clipShape(RoundedRectangle(cornerRadius: 3, style: .continuous))
+
+                    if state.readCount > 0 {
+                        Text("\(state.readCount)/\(state.storyCount)")
+                            .font(.system(size: 10, weight: .bold).monospacedDigit())
+                            .foregroundStyle(color)
+                    } else {
+                        Text("NEW")
+                            .font(.system(size: 9, weight: .heavy))
+                            .foregroundStyle(color)
+                    }
                 }
             } compactTrailing: {
-                // COMPACT trailing (small pill — right side)
-                Text("\(context.state.storyCount)")
-                    .font(.system(size: 14, weight: .bold).monospacedDigit())
-                    .foregroundStyle(dropColor(for: context.state.dropType))
+                // COMPACT trailing — vibe emoji or drop emoji
+                Text(state.vibeEmoji.isEmpty
+                    ? PoopDropActivityAttributes.dropEmoji(for: state.dropType)
+                    : state.vibeEmoji)
+                    .font(.system(size: 14))
             } minimal: {
-                // MINIMAL (tiny circle when another activity is present)
+                // MINIMAL — app logo
                 Image("AppLogo")
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 16, height: 16)
+                    .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
             }
         }
     }
 
     private func dropColor(for dropType: String) -> Color {
-        switch dropType {
-        case "daily", "morning": return Color(red: 1.0, green: 0.76, blue: 0.28)
-        case "midday": return Color(red: 1.0, green: 0.55, blue: 0.2)
-        case "evening": return Color(red: 0.5, green: 0.4, blue: 1.0)
-        default: return .white.opacity(0.6)
-        }
+        let rgb = PoopDropActivityAttributes.dropColorRGB(for: dropType)
+        return Color(red: rgb.r, green: rgb.g, blue: rgb.b)
     }
 }
 
@@ -99,48 +136,80 @@ struct LockScreenView: View {
     let state: PoopDropActivityAttributes.ContentState
 
     private var color: Color {
-        switch state.dropType {
-        case "daily", "morning": return Color(red: 1.0, green: 0.76, blue: 0.28)
-        case "midday": return Color(red: 1.0, green: 0.55, blue: 0.2)
-        case "evening": return Color(red: 0.5, green: 0.4, blue: 1.0)
-        default: return .white.opacity(0.6)
-        }
+        let rgb = PoopDropActivityAttributes.dropColorRGB(for: state.dropType)
+        return Color(red: rgb.r, green: rgb.g, blue: rgb.b)
+    }
+
+    private var progress: Double {
+        state.storyCount > 0 ? Double(state.readCount) / Double(state.storyCount) : 0
     }
 
     var body: some View {
-        HStack(spacing: 14) {
-            // Left accent
-            RoundedRectangle(cornerRadius: 2)
-                .fill(color)
-                .frame(width: 4)
-
-            VStack(alignment: .leading, spacing: 6) {
-                // Drop label
-                HStack(spacing: 6) {
-                    Image("AppLogo")
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: 16, height: 16)
-                    Text(PoopDropActivityAttributes.dropLabel(for: state.dropType))
-                        .font(.system(size: 10, weight: .heavy))
-                        .tracking(1)
-                        .foregroundStyle(color)
-
-                    Spacer()
-
-                    Text("\(state.storyCount) stories")
-                        .font(.system(size: 11, weight: .semibold).monospacedDigit())
-                        .foregroundStyle(.white.opacity(0.5))
+        VStack(spacing: 0) {
+            // Progress bar across the top
+            GeometryReader { geo in
+                ZStack(alignment: .leading) {
+                    Rectangle()
+                        .fill(.white.opacity(0.06))
+                    Rectangle()
+                        .fill(color)
+                        .frame(width: geo.size.width * progress)
                 }
-
-                // Headline
-                Text(state.headline)
-                    .font(.system(size: 15, weight: .bold))
-                    .foregroundStyle(.white)
-                    .lineLimit(2)
             }
+            .frame(height: 3)
+
+            HStack(spacing: 14) {
+                // App logo
+                Image("AppLogo")
+                    .resizable()
+                    .interpolation(.high)
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 40, height: 40)
+                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+
+                VStack(alignment: .leading, spacing: 6) {
+                    // Top row: label + read count
+                    HStack(spacing: 6) {
+                        Text(PoopDropActivityAttributes.dropLabel(for: state.dropType))
+                            .font(.system(size: 10, weight: .heavy))
+                            .tracking(1)
+                            .foregroundStyle(color)
+
+                        Spacer()
+
+                        Text("\(state.readCount)/\(state.storyCount) read")
+                            .font(.system(size: 11, weight: .bold).monospacedDigit())
+                            .foregroundStyle(.white.opacity(0.5))
+                    }
+
+                    // Headline
+                    Text(state.headline)
+                        .font(.system(size: 15, weight: .bold))
+                        .foregroundStyle(.white)
+                        .lineLimit(2)
+
+                    // Bottom: vibe + CTA
+                    HStack {
+                        if !state.vibeEmoji.isEmpty {
+                            HStack(spacing: 3) {
+                                Text(state.vibeEmoji)
+                                    .font(.system(size: 11))
+                                Text(state.vibeLabel)
+                                    .font(.system(size: 10, weight: .semibold))
+                                    .foregroundStyle(.white.opacity(0.4))
+                            }
+                        }
+
+                        Spacer()
+
+                        Text(state.readCount == 0 ? "Tap to start" : "Continue")
+                            .font(.system(size: 11, weight: .bold))
+                            .foregroundStyle(color)
+                    }
+                }
+            }
+            .padding(14)
         }
-        .padding(16)
         .background(Color(red: 0.06, green: 0.06, blue: 0.06))
     }
 }

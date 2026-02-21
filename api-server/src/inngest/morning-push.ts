@@ -8,7 +8,7 @@ const PUSH_TITLES = [
   "the world is on fire. here's your update 🔥",
   "you're gonna wanna sit down for this one 💩",
   "your morning briefing is bussin 💩",
-  "10 stories. 5 minutes. zero boring ones 💩",
+  "25 stories. zero boring ones 💩",
   "the news just got interesting 💩",
   "stop doomscrolling. read this instead 💩",
   "your group chat is gonna need this 💩",

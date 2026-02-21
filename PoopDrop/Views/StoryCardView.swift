@@ -17,162 +17,105 @@ struct StoryCardView: View {
 
     var body: some View {
         Button(action: onTap) {
-            VStack(alignment: .leading, spacing: 0) {
-                // Hero image with gradient overlay
-                if let imageUrl = story.imageUrl, let url = URL(string: imageUrl) {
-                    ZStack(alignment: .bottomLeading) {
-                        AsyncImage(url: url) { phase in
-                            switch phase {
-                            case .success(let image):
-                                image
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fill)
-                                    .frame(height: 180)
-                                    .clipped()
-                            case .failure:
-                                imagePlaceholder
-                            default:
-                                imagePlaceholder
-                            }
-                        }
-
-                        // Bottom gradient fade
-                        LinearGradient(
-                            stops: [
-                                .init(color: .clear, location: 0),
-                                .init(color: .black.opacity(0.7), location: 0.7),
-                                .init(color: .black.opacity(0.95), location: 1.0),
-                            ],
-                            startPoint: .top,
-                            endPoint: .bottom
-                        )
-                        .frame(height: 100)
-                        .frame(maxHeight: .infinity, alignment: .bottom)
-
-                        // Category pill on image
-                        HStack(spacing: 8) {
-                            CategoryPill(category: story.category, emoji: story.categoryEmoji)
-
-                            if isLocked {
-                                HStack(spacing: 3) {
-                                    Image(systemName: "lock.fill")
-                                        .font(.system(size: 8))
-                                    Text("PRO")
-                                        .font(.system(size: 9, weight: .heavy))
-                                        .tracking(0.5)
-                                }
-                                .foregroundStyle(.black)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 4)
-                                .background(Theme.accent)
-                                .clipShape(Capsule())
-                            }
-                        }
-                        .padding(12)
-
-                        // Source credit
-                        if let source = story.sourceName {
-                            Text(source)
-                                .font(.system(size: 9, weight: .medium))
-                                .foregroundStyle(.white.opacity(0.5))
-                                .padding(.horizontal, 6)
-                                .padding(.vertical, 3)
-                                .background(.black.opacity(0.6))
-                                .clipShape(Capsule())
-                                .padding(10)
-                                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
-                        }
+            VStack(alignment: .leading, spacing: 10) {
+                // Category + PRO badge
+                HStack(spacing: 8) {
+                    HStack(spacing: 5) {
+                        Text(story.categoryEmoji)
+                            .font(.caption)
+                        Text(story.categoryLabel.uppercased())
+                            .font(.system(size: 10, weight: .heavy))
+                            .foregroundStyle(catColor)
+                            .tracking(1)
                     }
-                    .frame(height: 180)
-                    .clipped()
+
+                    if isLocked {
+                        HStack(spacing: 3) {
+                            Image(systemName: "lock.fill")
+                                .font(.system(size: 7))
+                            Text("PRO")
+                                .font(.system(size: 8, weight: .heavy))
+                                .tracking(0.5)
+                        }
+                        .foregroundStyle(.black)
+                        .padding(.horizontal, 7)
+                        .padding(.vertical, 3)
+                        .background(Theme.accent)
+                        .clipShape(Capsule())
+                    }
+
+                    Spacer()
+
+                    Text("#\(story.sortOrder)")
+                        .font(.caption2.monospacedDigit())
+                        .foregroundStyle(Theme.textTertiary)
                 }
 
-                // Content area
-                VStack(alignment: .leading, spacing: 10) {
-                    // No-image fallback: show category pill here
-                    if story.imageUrl == nil {
-                        HStack(spacing: 8) {
-                            CategoryPill(category: story.category, emoji: story.categoryEmoji)
+                // Headline
+                Text(story.headline)
+                    .font(.system(size: 16, weight: .bold))
+                    .foregroundStyle(isLocked ? .white.opacity(0.5) : .white)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .multilineTextAlignment(.leading)
+                    .lineSpacing(2)
+                    .lineLimit(3)
 
-                            if isLocked {
-                                HStack(spacing: 3) {
-                                    Image(systemName: "lock.fill")
-                                        .font(.system(size: 8))
-                                    Text("PRO")
-                                        .font(.system(size: 9, weight: .heavy))
-                                        .tracking(0.5)
-                                }
-                                .foregroundStyle(.black)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 4)
-                                .background(Theme.accent)
-                                .clipShape(Capsule())
-                            }
-                        }
-                    }
-
-                    // Headline
-                    Text(story.headline)
-                        .font(.system(size: 17, weight: .bold))
-                        .foregroundStyle(.white)
-                        .fixedSize(horizontal: false, vertical: true)
-                        .multilineTextAlignment(.leading)
+                // TLDR / body preview
+                if isLocked {
+                    Text(story.body.prefix(80) + "...")
+                        .font(.subheadline)
+                        .foregroundStyle(.white.opacity(0.25))
+                        .lineLimit(2)
+                        .blur(radius: 2)
+                } else if let tldr = story.tldr {
+                    Text(tldr)
+                        .font(.subheadline)
+                        .foregroundStyle(Theme.textSecondary)
+                        .lineLimit(2)
                         .lineSpacing(2)
+                }
 
-                    // TLDR / body preview
-                    if isLocked {
-                        Text(story.body.prefix(100) + "...")
-                            .font(.subheadline)
-                            .foregroundStyle(.white.opacity(0.4))
-                            .lineLimit(2)
-                            .blur(radius: 3)
-                    } else if let tldr = story.tldr {
-                        Text(tldr)
-                            .font(.subheadline)
-                            .foregroundStyle(Theme.textSecondary)
-                            .lineLimit(2)
+                // Footer: meta info
+                HStack(spacing: 10) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "clock")
+                            .font(.system(size: 9))
+                        Text("\(story.readingTimeMinutes) min")
+                            .font(.caption2.weight(.medium))
                     }
+                    .foregroundStyle(Theme.textTertiary)
 
-                    // Footer: meta info
-                    HStack(spacing: 12) {
-                        HStack(spacing: 4) {
-                            Image(systemName: "clock")
-                                .font(.system(size: 10))
-                            Text("\(story.readingTimeMinutes) min")
+                    if isRead {
+                        HStack(spacing: 3) {
+                            Image(systemName: "checkmark")
+                                .font(.system(size: 8, weight: .bold))
+                            Text("Read")
                                 .font(.caption2.weight(.medium))
                         }
-                        .foregroundStyle(Theme.textTertiary)
+                        .foregroundStyle(.green.opacity(0.7))
+                    }
 
-                        if isRead {
-                            HStack(spacing: 3) {
-                                Image(systemName: "checkmark")
-                                    .font(.system(size: 9, weight: .bold))
-                                Text("Read")
-                                    .font(.caption2.weight(.medium))
-                            }
-                            .foregroundStyle(.green.opacity(0.7))
+                    Spacer()
+
+                    if totalReactions > 0 {
+                        HStack(spacing: 3) {
+                            Text("\u{1F525}")
+                                .font(.system(size: 10))
+                            Text("\(totalReactions)")
+                                .font(.caption2.weight(.bold).monospacedDigit())
+                                .foregroundStyle(.orange.opacity(0.8))
                         }
+                    }
 
-                        Spacer()
-
-                        if totalReactions > 0 {
-                            HStack(spacing: 3) {
-                                Text("\u{1F525}")
-                                    .font(.caption2)
-                                Text("\(totalReactions)")
-                                    .font(.caption2.weight(.bold).monospacedDigit())
-                                    .foregroundStyle(.orange.opacity(0.8))
-                            }
-                        }
-
-                        Text("#\(story.sortOrder)")
-                            .font(.caption2.monospacedDigit())
-                            .foregroundStyle(Theme.textTertiary)
+                    if let source = story.sourceName {
+                        Text(source)
+                            .font(.system(size: 9, weight: .medium))
+                            .foregroundStyle(Theme.textTertiary.opacity(0.6))
                     }
                 }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 14)
             }
+            .padding(.horizontal, 14)
+            .padding(.vertical, 12)
             // Left accent bar
             .overlay(alignment: .leading) {
                 catColor
@@ -186,26 +129,9 @@ struct StoryCardView: View {
                     .stroke(Theme.cardBorder, lineWidth: 0.5)
             )
             .padding(.horizontal, Theme.pagePadding)
-            .padding(.vertical, 6)
+            .padding(.vertical, 4)
         }
         .buttonStyle(PressableButtonStyle())
-    }
-
-    private var imagePlaceholder: some View {
-        Rectangle()
-            .fill(
-                LinearGradient(
-                    colors: [catColor.opacity(0.15), catColor.opacity(0.05)],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-            )
-            .frame(height: 180)
-            .overlay(
-                Image(systemName: "photo")
-                    .font(.title2)
-                    .foregroundStyle(catColor.opacity(0.3))
-            )
     }
 }
 
@@ -228,7 +154,7 @@ struct StoryCardView: View {
                         sourceUrl: nil,
                         sourceName: "TechCrunch",
                         imageUrl: nil,
-                        emoji: "📱",
+                        emoji: nil,
                         createdAt: Date()
                     ),
                     isPremiumUser: false,
@@ -250,7 +176,7 @@ struct StoryCardView: View {
                         sourceUrl: nil,
                         sourceName: "WSJ",
                         imageUrl: nil,
-                        emoji: "💰",
+                        emoji: nil,
                         createdAt: Date()
                     ),
                     isPremiumUser: false,

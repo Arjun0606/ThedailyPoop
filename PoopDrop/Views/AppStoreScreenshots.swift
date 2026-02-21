@@ -12,7 +12,7 @@ struct Screenshot_Feed: View {
     var body: some View {
         ScreenshotFrame(
             headline: "News that\nhits different.",
-            subtitle: "20 stories. Fresh every morning at 7 AM.",
+            subtitle: "25 stories. Fresh every morning at 7 AM.",
             gradient: [brandDark, Color(red: 0.15, green: 0.1, blue: 0.02)]
         ) {
             // Simulated feed

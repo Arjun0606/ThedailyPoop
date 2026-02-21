@@ -715,6 +715,260 @@ class SupabaseManager: ObservableObject {
         return try JSONDecoder().decode(ScoopSubmitResponse.self, from: data)
     }
 
+    // MARK: - Who Said It
+
+    func fetchTodayWhoSaidIt(userId: String? = nil) async throws -> WhoSaidItGame? {
+        var urlString = "\(Config.apiServerURL)/api/games/who-said-it/today"
+        if let userId { urlString += "?userId=\(userId)" }
+        guard let url = URL(string: urlString) else { return nil }
+
+        var request = URLRequest(url: url)
+        await addAuthHeader(to: &request)
+
+        let (data, _) = try await URLSession.shared.data(for: request)
+
+        struct Response: Decodable { let game: WhoSaidItGame? }
+        return try JSONDecoder().decode(Response.self, from: data).game
+    }
+
+    func submitWhoSaidIt(userId: String, gameId: String, answers: [String]) async throws -> WhoSaidItSubmitResponse {
+        guard let url = URL(string: "\(Config.apiServerURL)/api/games/who-said-it/submit") else {
+            throw SupabaseError.noData
+        }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        await addAuthHeader(to: &request)
+
+        let body: [String: Any] = ["userId": userId, "gameId": gameId, "answers": answers]
+        request.httpBody = try JSONSerialization.data(withJSONObject: body)
+
+        let (data, _) = try await URLSession.shared.data(for: request)
+        return try JSONDecoder().decode(WhoSaidItSubmitResponse.self, from: data)
+    }
+
+    // MARK: - Spin the Excuse
+
+    func fetchTodayExcuseGame(userId: String? = nil) async throws -> ExcuseGame? {
+        var urlString = "\(Config.apiServerURL)/api/games/excuse/today"
+        if let userId { urlString += "?userId=\(userId)" }
+        guard let url = URL(string: urlString) else { return nil }
+
+        var request = URLRequest(url: url)
+        await addAuthHeader(to: &request)
+
+        let (data, _) = try await URLSession.shared.data(for: request)
+
+        struct Response: Decodable { let game: ExcuseGame? }
+        return try JSONDecoder().decode(Response.self, from: data).game
+    }
+
+    func submitExcuseGame(userId: String, gameId: String, answers: [String]) async throws -> ExcuseSubmitResponse {
+        guard let url = URL(string: "\(Config.apiServerURL)/api/games/excuse/submit") else {
+            throw SupabaseError.noData
+        }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        await addAuthHeader(to: &request)
+
+        let body: [String: Any] = ["userId": userId, "gameId": gameId, "answers": answers]
+        request.httpBody = try JSONSerialization.data(withJSONObject: body)
+
+        let (data, _) = try await URLSession.shared.data(for: request)
+        return try JSONDecoder().decode(ExcuseSubmitResponse.self, from: data)
+    }
+
+    // MARK: - Headline Roulette
+
+    func fetchTodayHeadlineRoulette(userId: String? = nil) async throws -> HeadlineRouletteGame? {
+        var urlString = "\(Config.apiServerURL)/api/games/headline-roulette/today"
+        if let userId { urlString += "?userId=\(userId)" }
+        guard let url = URL(string: urlString) else { return nil }
+
+        var request = URLRequest(url: url)
+        await addAuthHeader(to: &request)
+
+        let (data, _) = try await URLSession.shared.data(for: request)
+
+        struct Response: Decodable { let game: HeadlineRouletteGame? }
+        return try JSONDecoder().decode(Response.self, from: data).game
+    }
+
+    func submitHeadlineRoulette(userId: String, gameId: String, ranking: [String]) async throws -> RouletteSubmitResponse {
+        guard let url = URL(string: "\(Config.apiServerURL)/api/games/headline-roulette/submit") else {
+            throw SupabaseError.noData
+        }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        await addAuthHeader(to: &request)
+
+        let body: [String: Any] = ["userId": userId, "gameId": gameId, "ranking": ranking]
+        request.httpBody = try JSONSerialization.data(withJSONObject: body)
+
+        let (data, _) = try await URLSession.shared.data(for: request)
+        return try JSONDecoder().decode(RouletteSubmitResponse.self, from: data)
+    }
+
+    // MARK: - Predict the Poop
+
+    func fetchTodayPredictions(userId: String? = nil) async throws -> [Prediction] {
+        var urlString = "\(Config.apiServerURL)/api/games/predictions/today"
+        if let userId { urlString += "?userId=\(userId)" }
+        guard let url = URL(string: urlString) else { return [] }
+
+        var request = URLRequest(url: url)
+        await addAuthHeader(to: &request)
+
+        let (data, _) = try await URLSession.shared.data(for: request)
+
+        struct Response: Decodable { let predictions: [Prediction] }
+        return try JSONDecoder().decode(Response.self, from: data).predictions
+    }
+
+    func submitPredictionBet(userId: String, predictionId: String, bet: Bool) async throws -> PredictionBetResponse {
+        guard let url = URL(string: "\(Config.apiServerURL)/api/games/predictions/bet") else {
+            throw SupabaseError.noData
+        }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        await addAuthHeader(to: &request)
+
+        let body: [String: Any] = ["userId": userId, "predictionId": predictionId, "bet": bet]
+        request.httpBody = try JSONSerialization.data(withJSONObject: body)
+
+        let (data, _) = try await URLSession.shared.data(for: request)
+        return try JSONDecoder().decode(PredictionBetResponse.self, from: data)
+    }
+
+    // MARK: - The Roast
+
+    func fetchTodayRoast(userId: String? = nil) async throws -> RoastPrompt? {
+        var urlString = "\(Config.apiServerURL)/api/games/roast/today"
+        if let userId { urlString += "?userId=\(userId)" }
+        guard let url = URL(string: urlString) else { return nil }
+
+        var request = URLRequest(url: url)
+        await addAuthHeader(to: &request)
+
+        let (data, _) = try await URLSession.shared.data(for: request)
+
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        struct Response: Decodable { let roast: RoastPrompt? }
+        return try decoder.decode(Response.self, from: data).roast
+    }
+
+    func submitRoast(userId: String, roastId: String, text: String) async throws -> RoastSubmitResponse {
+        guard let url = URL(string: "\(Config.apiServerURL)/api/games/roast/submit") else {
+            throw SupabaseError.noData
+        }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        await addAuthHeader(to: &request)
+
+        let body: [String: Any] = ["userId": userId, "roastId": roastId, "text": text]
+        request.httpBody = try JSONSerialization.data(withJSONObject: body)
+
+        let (data, _) = try await URLSession.shared.data(for: request)
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        return try decoder.decode(RoastSubmitResponse.self, from: data)
+    }
+
+    func upvoteRoast(userId: String, entryId: String) async throws {
+        guard let url = URL(string: "\(Config.apiServerURL)/api/games/roast/upvote") else { return }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        await addAuthHeader(to: &request)
+
+        let body: [String: Any] = ["userId": userId, "entryId": entryId]
+        request.httpBody = try JSONSerialization.data(withJSONObject: body)
+
+        let (_, _) = try await URLSession.shared.data(for: request)
+    }
+
+    // MARK: - Comments
+
+    func fetchComments(storyId: String) async throws -> [StoryComment] {
+        struct Row: Decodable {
+            let id: String
+            let user_id: String
+            let story_id: String
+            let text: String
+            let upvotes: Int
+            let created_at: String
+        }
+
+        // Join with users for username
+        let rows: [Row] = try await client.from("story_comments")
+            .select()
+            .eq("story_id", value: storyId)
+            .order("upvotes", ascending: false)
+            .limit(50)
+            .execute()
+            .value
+
+        // Fetch usernames for all comment authors
+        let userIds = Array(Set(rows.map { $0.user_id }))
+        var usernameMap: [String: String] = [:]
+
+        if !userIds.isEmpty {
+            struct UserRow: Decodable { let id: String; let username: String }
+            let users: [UserRow] = try await client.from("users")
+                .select("id, username")
+                .in("id", values: userIds)
+                .execute()
+                .value
+            for u in users { usernameMap[u.id] = u.username }
+        }
+
+        return rows.map { row in
+            StoryComment(
+                id: row.id,
+                userId: row.user_id,
+                storyId: row.story_id,
+                text: row.text,
+                username: usernameMap[row.user_id] ?? "anon",
+                upvotes: row.upvotes,
+                createdAt: row.created_at
+            )
+        }
+    }
+
+    func postComment(userId: String, storyId: String, text: String) async throws {
+        struct CommentInsert: Encodable {
+            let user_id: String
+            let story_id: String
+            let text: String
+        }
+
+        try await client.from("story_comments")
+            .insert(CommentInsert(user_id: userId, story_id: storyId, text: text))
+            .execute()
+    }
+
+    func upvoteComment(userId: String, commentId: String) async throws {
+        struct UpvoteInsert: Encodable {
+            let user_id: String
+            let comment_id: String
+        }
+
+        try await client.from("comment_upvotes")
+            .upsert(UpvoteInsert(user_id: userId, comment_id: commentId))
+            .execute()
+    }
+
     // MARK: - Helpers
 
     private func addAuthHeader(to request: inout URLRequest) async {
@@ -729,6 +983,17 @@ class SupabaseManager: ObservableObject {
         formatter.timeZone = TimeZone(identifier: "America/New_York")
         return formatter.string(from: date)
     }
+}
+
+// MARK: - Story Comment Model
+struct StoryComment: Identifiable {
+    let id: String
+    let userId: String
+    let storyId: String
+    let text: String
+    let username: String
+    let upvotes: Int
+    let createdAt: String
 }
 
 // MARK: - Errors

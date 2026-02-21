@@ -1,87 +1,74 @@
 import SwiftUI
 
-struct WordDropCardView: View {
-    let game: WordGame
+struct WhoSaidItCardView: View {
+    let game: WhoSaidItGame?
     let isPremium: Bool
     let onPlay: () -> Void
     let onUpgrade: () -> Void
 
-    @State private var showingLeaderboard = false
-    @EnvironmentObject var authManager: AuthenticationManager
-
-    private var isLocked: Bool {
-        !isPremium && game.dropType != "morning"
-    }
+    private var isLocked: Bool { !isPremium }
+    private let gameColor = Color.purple
 
     var body: some View {
         Button {
-            if isLocked {
-                onUpgrade()
-            } else if game.played {
-                showingLeaderboard = true
-            } else {
-                onPlay()
-            }
+            if isLocked { onUpgrade() }
+            else if game?.played == true { /* show score */ }
+            else if game != nil { onPlay() }
         } label: {
             HStack(spacing: 14) {
-                // Game icon
                 ZStack {
                     RoundedRectangle(cornerRadius: 12, style: .continuous)
-                        .fill(
-                            LinearGradient(
-                                colors: [Theme.accent.opacity(0.3), Theme.accent.opacity(0.1)],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                        )
+                        .fill(gameColor.opacity(0.2))
                         .frame(width: 52, height: 52)
-
-                    Text("Aa")
-                        .font(.system(size: 22, weight: .black, design: .rounded))
-                        .foregroundStyle(Theme.accent)
+                    Text("\u{201C}")
+                        .font(.system(size: 28, weight: .black))
+                        .foregroundStyle(gameColor)
                 }
 
                 VStack(alignment: .leading, spacing: 4) {
                     HStack(spacing: 6) {
-                        Text("WORD DROP")
+                        Text("WHO SAID IT?")
                             .font(.system(size: 10, weight: .heavy))
-                            .foregroundStyle(Theme.accent)
+                            .foregroundStyle(gameColor)
                             .tracking(1.5)
-
                         if isLocked {
                             Image(systemName: "lock.fill")
                                 .font(.system(size: 8))
-                                .foregroundStyle(Theme.accent)
+                                .foregroundStyle(gameColor)
                         }
                     }
 
-                    if game.played, let userScore = game.userScore {
-                        Text("Score: \(userScore.score) pts")
+                    if let game, game.played, let score = game.userScore {
+                        Text("\(score.score)/\(score.total) correct")
                             .font(.subheadline.weight(.bold))
                             .foregroundStyle(.white)
-                        Text("\(userScore.wordCount) words found\(userScore.foundKeyWord ? " \u{2B50}" : "") \u{00B7} View leaderboard")
+                        Text("CEO, dictator, or reality TV?")
                             .font(.caption2)
                             .foregroundStyle(Theme.textTertiary)
                     } else if isLocked {
-                        Text("Unscramble today's headline")
+                        Text("Who really said this?")
                             .font(.subheadline.weight(.medium))
                             .foregroundStyle(.white)
-                        Text("90 seconds · word puzzle")
+                        Text("CEO, dictator, or reality TV?")
                             .font(.caption2)
                             .foregroundStyle(Theme.textTertiary)
-                    } else {
-                        Text("Unscramble today's headline")
+                    } else if game != nil {
+                        Text("Who really said this?")
                             .font(.subheadline.weight(.medium))
                             .foregroundStyle(.white)
-                        Text("90 seconds \u{00B7} \(game.letters.count) letters")
+                        Text("5 quotes \u{00B7} 4 options each")
                             .font(.caption2)
                             .foregroundStyle(Theme.textTertiary)
+                    } else if !isLocked {
+                        Text("Coming soon...")
+                            .font(.subheadline.weight(.medium))
+                            .foregroundStyle(Theme.textSecondary)
                     }
                 }
 
                 Spacer()
 
-                if game.played {
+                if let game, game.played {
                     Image(systemName: "checkmark.circle.fill")
                         .font(.title3)
                         .foregroundStyle(.green)
@@ -91,15 +78,15 @@ struct WordDropCardView: View {
                         .foregroundStyle(.black)
                         .padding(.horizontal, 10)
                         .padding(.vertical, 6)
-                        .background(Theme.accent)
+                        .background(gameColor)
                         .clipShape(Capsule())
-                } else {
+                } else if game != nil {
                     Text("PLAY")
                         .font(.system(size: 12, weight: .heavy))
                         .foregroundStyle(.black)
                         .padding(.horizontal, 14)
                         .padding(.vertical, 8)
-                        .background(Theme.accent)
+                        .background(gameColor)
                         .clipShape(Capsule())
                 }
             }
@@ -108,13 +95,13 @@ struct WordDropCardView: View {
             .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
             .overlay(
                 RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    .stroke(game.played ? .green.opacity(0.15) : Theme.accent.opacity(0.15), lineWidth: 0.5)
+                    .stroke(
+                        (game?.played == true) ? .green.opacity(0.15) : gameColor.opacity(0.15),
+                        lineWidth: 0.5
+                    )
             )
         }
         .buttonStyle(.plain)
-        .sheet(isPresented: $showingLeaderboard) {
-            WordDropLeaderboardView(date: game.publishDate, dropType: game.dropType)
-                .environmentObject(authManager)
-        }
+        .disabled(!isLocked && game == nil)
     }
 }

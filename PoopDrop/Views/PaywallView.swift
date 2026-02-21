@@ -43,7 +43,7 @@ struct PaywallView: View {
                             .font(.system(size: 28, weight: .black))
                             .foregroundStyle(.white)
 
-                        Text("Read every story. Play every game.\nJoin the leaderboard.")
+                        Text("All 25 stories. All 6 games.\n15 days of history. The full daily ritual.")
                             .font(.subheadline)
                             .foregroundStyle(Theme.textSecondary)
                             .multilineTextAlignment(.center)
@@ -51,25 +51,26 @@ struct PaywallView: View {
 
                     // Features
                     VStack(spacing: 16) {
-                        featureRow(icon: "newspaper.fill", text: "All 20 daily stories", sub: "Not just 10")
-                        featureRow(icon: "gamecontroller.fill", text: "3 Word Drop games daily", sub: "Free gets 1")
-                        featureRow(icon: "hand.thumbsup.fill", text: "Poop or Scoop", sub: "Real or fake headlines")
-                        featureRow(icon: "trophy.fill", text: "Public leaderboard", sub: "Flex on your friends")
-                        featureRow(icon: "headphones", text: "Audio briefings", sub: "Listen hands-free")
-                        featureRow(icon: "clock.arrow.circlepath", text: "10-day archive", sub: "Free gets 3 days")
+                        featureRow(icon: "newspaper.fill", text: "All 25 daily stories", sub: "Free gets 15")
+                        featureRow(icon: "gamecontroller.fill", text: "All 6 daily games", sub: "Free gets Poop or Scoop + Word Drop")
+                        featureRow(icon: "clock.arrow.circlepath", text: "15 days of history", sub: "Free gets 3 days")
+                        featureRow(icon: "headphones", text: "Audio briefing", sub: "Voice memo from your unhinged friend")
+                        featureRow(icon: "flame.fill", text: "The Roast", sub: "Write the funniest one-liner, daily")
+                        featureRow(icon: "chart.line.uptrend.xyaxis", text: "Predict the Poop", sub: "Track your accuracy over time")
                     }
                     .padding(.horizontal, Theme.pagePadding)
 
-                    // Indie-dev honesty
-                    VStack(spacing: 4) {
-                        Text("We don't do ads.\nIf you get Pro, I can afford my own food\nand stop stealing from the pigeon\noutside my window.")
+                    // Indie-dev honesty (rotating pigeon quotes)
+                    VStack(spacing: 6) {
+                        Text(pigeonQuote.main)
                             .font(.caption)
                             .foregroundStyle(Theme.textTertiary)
                             .multilineTextAlignment(.center)
                             .lineSpacing(3)
-                        Text("Do it for the pigeon.")
+                        Text(pigeonQuote.closer)
                             .font(.caption.weight(.semibold))
                             .foregroundStyle(Theme.textSecondary)
+                            .multilineTextAlignment(.center)
                     }
                     .padding(.horizontal, Theme.pagePadding)
 
@@ -140,6 +141,40 @@ struct PaywallView: View {
                 }
             }
         }
+    }
+
+    // MARK: - Pigeon Quotes
+
+    private struct PigeonQuote {
+        let main: String
+        let closer: String
+    }
+
+    private var pigeonQuote: PigeonQuote {
+        let quotes: [PigeonQuote] = [
+            PigeonQuote(
+                main: "No ads. No VC money. No trust fund.\nJust one guy who got disowned by his family\nfor making a news app called TheDailyPoop.\nPro is what stands between me and a park bench.",
+                closer: "I also steal birdseed from a pigeon to survive.\nDo it for the pigeon. \u{1F426}"
+            ),
+            PigeonQuote(
+                main: "My mom stopped talking to me over this app.\nThe least you can do is pay $7.99.",
+                closer: "A pigeon outside my window is my only friend now.\nIf I starve, he starves. Do it for him. \u{1F426}"
+            ),
+            PigeonQuote(
+                main: "I'm literally homeless. Not in a 'startup founder\nsleeping in his office' way. In a real way.\nAnyway, Pro unlocks 10 more stories and 6 games.",
+                closer: "I share a park bench with a pigeon named Gerald.\nHe's counting on you. \u{1F426}"
+            ),
+            PigeonQuote(
+                main: "Every time someone subscribes,\nan angel gets its wings. And I get to eat dinner.",
+                closer: "The pigeon outside Starbucks and I split a croissant.\nYour $4.99 feeds us both. \u{1F426}"
+            ),
+            PigeonQuote(
+                main: "You just read 15 stories for free. I wrote 25.\nThe other 10 are behind this paywall\nalong with the last shred of my dignity.",
+                closer: "A pigeon watched me code this at 3am.\nHe believed in me. Don't let him down. \u{1F426}"
+            ),
+        ]
+        let day = Calendar.current.component(.day, from: Date())
+        return quotes[day % quotes.count]
     }
 
     // MARK: - Feature Row
@@ -232,22 +267,22 @@ struct InlinePaywallCard: View {
 
             VStack(spacing: 12) {
                 HStack(spacing: 6) {
-                    Image(systemName: "lock.open.fill")
+                    Image(systemName: "crown.fill")
                         .font(.system(size: 14))
                         .foregroundStyle(Theme.accent)
 
-                    Text("\(remainingCount) more stories waiting")
+                    Text("\(remainingCount) PRO stories below")
                         .font(.subheadline.weight(.bold))
                         .foregroundStyle(.white)
                 }
 
-                Text("You've read all free stories in this drop.\nUpgrade to unlock everything.")
+                Text("That's your free preview. The rest?\nScroll down to peek, or unlock everything.")
                     .font(.caption)
                     .foregroundStyle(Theme.textSecondary)
                     .multilineTextAlignment(.center)
 
                 Button(action: onUpgrade) {
-                    Text("Unlock All Stories")
+                    Text("Unlock Everything")
                         .font(.system(size: 14, weight: .bold))
                         .foregroundStyle(.black)
                         .frame(maxWidth: .infinity)
@@ -256,7 +291,7 @@ struct InlinePaywallCard: View {
                         .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                 }
 
-                Text("Upgrade to PRO \u{2022} Cancel anytime")
+                Text("From $4.99/mo \u{2022} Cancel anytime")
                     .font(.caption2)
                     .foregroundStyle(Theme.textTertiary)
             }

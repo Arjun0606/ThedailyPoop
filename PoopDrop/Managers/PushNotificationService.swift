@@ -88,7 +88,7 @@ class PushNotificationService {
 
         let content = UNMutableNotificationContent()
         content.title = "Your morning briefing is ready"
-        content.body = "10 stories to start your day. Quick reads, zero fluff."
+        content.body = "25 stories to start your day. Quick reads, zero fluff."
         content.sound = .default
         content.userInfo = ["type": "new_drop"]
 
@@ -105,7 +105,7 @@ class PushNotificationService {
     private func dropTitle(for dropType: String) -> (String, String) {
         switch dropType {
         case "morning":
-            return ("Your morning briefing just dropped", "10 stories to start your day. Read time: 5 min.")
+            return ("Your morning briefing just dropped", "25 stories to start your day.")
         case "midday":
             return ("Midday update is live", "5 stories you need to see before end of day.")
         case "evening":
