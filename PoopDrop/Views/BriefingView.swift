@@ -84,7 +84,7 @@ struct BriefingView: View {
                                 HStack(spacing: 8) {
                                     Image(systemName: "crown.fill")
                                         .font(.system(size: 14))
-                                    Text("Unlock All \(todayDrop.stories.count) Stories")
+                                    Text("Try Free — Unlock All \(todayDrop.stories.count) Stories")
                                         .font(.system(size: 15, weight: .bold))
                                 }
                                 .foregroundStyle(.black)
@@ -152,7 +152,7 @@ struct BriefingView: View {
                         Text("·")
                             .font(.caption2)
                             .foregroundStyle(Theme.textTertiary)
-                        Text("\(drop.label) in \(drop.countdown)")
+                        Text("\(drop.label) \(drop.countdown)")
                             .font(.caption2.weight(.semibold).monospacedDigit())
                             .foregroundStyle(Theme.accent)
                     }
@@ -264,60 +264,37 @@ struct BriefingView: View {
         return formatter.string(from: Date())
     }
 
-    // MARK: - Next Drop Timer
-
-    private let dropTimesET: [(hour: Int, minute: Int, label: String)] = [
-        (7, 0, "Morning drop"),
-        (12, 0, "Midday drop"),
-        (17, 0, "Evening drop"),
-    ]
+    // MARK: - Next Drop Timer (single daily drop at 7 AM ET)
 
     private var nextDropInfo: (label: String, countdown: String)? {
         let et = TimeZone(identifier: "America/New_York")!
         var cal = Calendar.current
         cal.timeZone = et
 
-        let comps = cal.dateComponents([.hour, .minute, .second], from: now)
-        let nowMinutes = (comps.hour ?? 0) * 60 + (comps.minute ?? 0)
+        // If we have today's briefing, point to tomorrow's 7 AM drop
+        let hasBriefing = !drops.isEmpty
 
-        for drop in dropTimesET {
-            let dropMinutes = drop.hour * 60 + drop.minute
-            if nowMinutes < dropMinutes {
-                var target = cal.dateComponents([.year, .month, .day], from: now)
-                target.hour = drop.hour
-                target.minute = drop.minute
-                target.second = 0
-                if let targetDate = cal.date(from: target) {
-                    let diff = Int(targetDate.timeIntervalSince(now))
-                    if diff > 0 {
-                        let h = diff / 3600
-                        let m = (diff % 3600) / 60
-                        let s = diff % 60
-                        let str = h > 0
-                            ? String(format: "%d:%02d:%02d", h, m, s)
-                            : String(format: "%d:%02d", m, s)
-                        return (drop.label, str)
-                    }
-                }
-            }
+        var target = cal.dateComponents([.year, .month, .day], from: now)
+        target.hour = 7
+        target.minute = 0
+        target.second = 0
+
+        guard var dropDate = cal.date(from: target) else { return nil }
+
+        // If briefing is loaded OR it's already past 7 AM, point to tomorrow
+        if hasBriefing || dropDate <= now {
+            dropDate = cal.date(byAdding: .day, value: 1, to: dropDate) ?? dropDate
         }
 
-        // After evening drop — show tomorrow morning
-        var tomorrow = cal.dateComponents([.year, .month, .day], from: now)
-        tomorrow.day = (tomorrow.day ?? 0) + 1
-        tomorrow.hour = dropTimesET[0].hour
-        tomorrow.minute = dropTimesET[0].minute
-        tomorrow.second = 0
-        if let targetDate = cal.date(from: tomorrow) {
-            let diff = Int(targetDate.timeIntervalSince(now))
-            if diff > 0 {
-                let h = diff / 3600
-                let m = (diff % 3600) / 60
-                let s = diff % 60
-                return (dropTimesET[0].label, String(format: "%d:%02d:%02d", h, m, s))
-            }
-        }
-        return nil
+        let diff = Int(dropDate.timeIntervalSince(now))
+        guard diff > 0 else { return nil }
+
+        let h = diff / 3600
+        let m = (diff % 3600) / 60
+        let s = diff % 60
+        let label = hasBriefing ? "Next drop in" : "Drop in"
+        let countdown = String(format: "%d:%02d:%02d", h, m, s)
+        return (label, countdown)
     }
 
     // MARK: - Data

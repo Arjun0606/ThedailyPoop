@@ -64,6 +64,7 @@ RULES:
 - Mix companies and politicians. Include at least 1 tech company, 1 political figure.
 - Scenarios should be specific enough that the player learns something.
 - Try to use at least 1-2 scenarios from today's news if applicable.
+- CRITICAL: Do NOT prefix any field with labels like "Scenario:", "Correct:", "Real:", "Fake:", "(correct)", or any numbering. Just the raw text.
 
 Return JSON array of 5 objects:
 [{"scenario": "...", "correctExcuse": "...", "options": ["excuse1", "excuse2", "excuse3", "excuse4"], "correctIndex": 0}]
@@ -73,7 +74,16 @@ ONLY the JSON array. No other text.`
 
       try {
         const parsed = JSON.parse(extractJSON(result));
-        if (Array.isArray(parsed) && parsed.length >= 5) return parsed.slice(0, 5);
+        if (Array.isArray(parsed) && parsed.length >= 5) {
+          return parsed.slice(0, 5).map((r: any) => ({
+            ...r,
+            // Strip any accidental labels from options
+            options: r.options?.map((o: string) =>
+              o.replace(/^\s*\(?(correct|real|fake|made.?up)\)?\s*[—–\-:]\s*/i, "").trim()
+            ) ?? r.options,
+            scenario: r.scenario?.replace(/^\s*(scenario|round)\s*\d*\s*[—–\-:]\s*/i, "").trim() ?? r.scenario,
+          }));
+        }
       } catch {
         console.error("Spin the Excuse parse failed");
       }

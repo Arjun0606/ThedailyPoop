@@ -60,9 +60,10 @@ Each prediction should:
 
 RULES:
 - Questions should be genuinely uncertain — not obvious yes or obvious no
-- Mix difficulty: 1 easy-ish, 1 medium, 1 spicy/bold
+- Mix difficulty levels but do NOT label them (no "Easy:", "Medium:", "Hard:" prefixes)
 - Include a "resolve by" timeframe in days (1-7)
 - Write questions in TheDailyPoop voice — slightly unhinged, specific, funny
+- CRITICAL: Do NOT prefix questions with labels, numbers, or difficulty tags. Just the raw question text.
 
 Examples:
 - "Will Elon tweet about this before midnight?" (1 day)
@@ -77,7 +78,13 @@ ONLY the JSON array. No other text.`
 
       try {
         const parsed = JSON.parse(extractJSON(result));
-        if (Array.isArray(parsed) && parsed.length >= 3) return parsed.slice(0, 3);
+        if (Array.isArray(parsed) && parsed.length >= 3) {
+          return parsed.slice(0, 3).map((p: any) => ({
+            ...p,
+            // Strip any difficulty labels from questions
+            question: p.question?.replace(/^\s*(easy|medium|hard|spicy|bold)\s*[—–\-:]\s*/i, "").trim() ?? p.question,
+          }));
+        }
       } catch {
         console.error("Predictions parse failed");
       }

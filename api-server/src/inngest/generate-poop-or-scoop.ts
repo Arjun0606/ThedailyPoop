@@ -8,6 +8,13 @@ function extractJSON(text: string): string {
   return text.trim();
 }
 
+function stripHeadlineLabels(headline: string): string {
+  return headline
+    .replace(/^(Fictional|Fake|Real|Made.?up|Fabricated)\s*[—–\-:]\s*/i, "")
+    .replace(/^\d+[\.\)]\s*/, "")
+    .trim();
+}
+
 // Generates a Poop or Scoop game after daily briefing is published
 // Uses real headlines from today + AI-generated fake ones
 export const generatePoopOrScoop = inngest.createFunction(
@@ -81,13 +88,15 @@ Generate exactly 5 FAKE but extremely believable news headlines. They should:
 - Be plausible but NOT actually true
 - NOT be obviously satirical or absurd — they should genuinely fool people
 
+CRITICAL: Return ONLY the headline text. Do NOT prefix with "Fictional", "Fake", "Real", or any label. Do NOT number them. Just the raw headline string as it would appear on a news site.
+
 Return ONLY a JSON array of 5 strings. No other text.`
       );
 
       try {
         const parsed = JSON.parse(extractJSON(result));
         if (Array.isArray(parsed) && parsed.length >= 5) {
-          return parsed.slice(0, 5).map((h: string) => String(h));
+          return parsed.slice(0, 5).map((h: string) => stripHeadlineLabels(String(h)));
         }
       } catch {
         // fallback

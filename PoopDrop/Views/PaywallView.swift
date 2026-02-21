@@ -108,7 +108,7 @@ struct PaywallView: View {
                             if subscriptionManager.isLoading {
                                 ProgressView().tint(.black)
                             } else {
-                                Text("Subscribe Now")
+                                Text("Start Free Trial")
                                     .font(.system(size: 17, weight: .bold))
                             }
                         }
@@ -131,7 +131,7 @@ struct PaywallView: View {
                                 .foregroundStyle(Theme.textSecondary)
                         }
 
-                        Text("Cancel anytime. Subscription auto-renews.")
+                        Text("7-day free trial. Cancel anytime.")
                             .font(.caption2)
                             .foregroundStyle(Theme.textTertiary)
                             .multilineTextAlignment(.center)
@@ -276,13 +276,13 @@ struct InlinePaywallCard: View {
                         .foregroundStyle(.white)
                 }
 
-                Text("That's your free preview. The rest?\nScroll down to peek, or unlock everything.")
+                Text("That's your free preview. The rest?\nScroll down to peek, or start your free trial.")
                     .font(.caption)
                     .foregroundStyle(Theme.textSecondary)
                     .multilineTextAlignment(.center)
 
                 Button(action: onUpgrade) {
-                    Text("Unlock Everything")
+                    Text("Try Free for 7 Days")
                         .font(.system(size: 14, weight: .bold))
                         .foregroundStyle(.black)
                         .frame(maxWidth: .infinity)
@@ -291,7 +291,7 @@ struct InlinePaywallCard: View {
                         .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                 }
 
-                Text("From $4.99/mo \u{2022} Cancel anytime")
+                Text("Free trial \u{2022} Then $4.99/mo \u{2022} Cancel anytime")
                     .font(.caption2)
                     .foregroundStyle(Theme.textTertiary)
             }

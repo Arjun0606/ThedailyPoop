@@ -48,6 +48,7 @@ RULES:
 - Quotes should be unhinged, dramatic, or absurd enough to be funny.
 - Include the person's name in "attribution" for the reveal screen.
 - Prioritize quotes that are funny or shocking, not well-known.
+- CRITICAL: The "quote" field must contain ONLY the quote text. Do NOT include the speaker's name, attribution, category, round number, or any label in the quote field. The attribution goes ONLY in the "attribution" field.
 
 Examples of great quotes:
 - "I could stand in the middle of Fifth Avenue and shoot somebody" — that energy
@@ -62,7 +63,16 @@ ONLY the JSON array. No other text.`
 
       try {
         const parsed = JSON.parse(extractJSON(result));
-        if (Array.isArray(parsed) && parsed.length >= 5) return parsed.slice(0, 5);
+        if (Array.isArray(parsed) && parsed.length >= 5) {
+          return parsed.slice(0, 5).map((r: any) => ({
+            ...r,
+            // Strip any accidental attribution leak from the quote
+            quote: r.quote
+              ?.replace(/\s*[—–\-]\s*(said by|attributed to|by)\s+.*/i, "")
+              ?.replace(/^\d+[\.\)]\s*/, "")
+              ?.trim() ?? r.quote,
+          }));
+        }
       } catch {
         console.error("Who Said It parse failed");
       }
