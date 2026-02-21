@@ -67,11 +67,28 @@ struct Story: Identifiable, Codable {
         return after.isEmpty ? nil : after
     }
 
-    /// Body text with "The Bottom Line:" section stripped out (rendered separately)
+    /// Body text with "The Bottom Line:" stripped and structural labels removed
     var bodyWithoutBottomLine: String {
-        guard let range = body.range(of: "\nThe Bottom Line:", options: .caseInsensitive) ?? body.range(of: "The Bottom Line:", options: .caseInsensitive) else {
-            return body
+        var text = body
+
+        // Strip "The Bottom Line:" and everything after
+        if let range = text.range(of: "\nThe Bottom Line:", options: .caseInsensitive) ?? text.range(of: "The Bottom Line:", options: .caseInsensitive) {
+            text = String(text[text.startIndex..<range.lowerBound])
         }
-        return String(body[body.startIndex..<range.lowerBound]).trimmingCharacters(in: .whitespacesAndNewlines)
+
+        // Strip structural labels the AI sometimes outputs
+        let labels = [
+            "HOOK:", "THE HOOK:",
+            "THE FACTS:", "WHAT WENT DOWN:",
+            "WHY IT MATTERS:", "WHY THIS HITS:",
+            "WHAT HAPPENED:", "THE STORY:",
+            "THE CONTEXT:", "CONTEXT:",
+            "THE IMPACT:", "IMPACT:",
+        ]
+        for label in labels {
+            text = text.replacingOccurrences(of: label, with: "", options: .caseInsensitive)
+        }
+
+        return text.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 }

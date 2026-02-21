@@ -127,25 +127,24 @@ function todayET(): string {
   return new Date().toLocaleDateString("en-CA", { timeZone: "America/New_York" });
 }
 
-const STORY_PROMPT = `"body": The story in 200-400 words. Every word earns its spot. Voice note from your most unhinged but brilliant friend. Structure:
+const STORY_PROMPT = `"body": The story in 200-400 words. Voice note from your most unhinged but brilliant friend.
 
-1. THE HOOK (1-2 sentences): Open with the single most insane, absurd, or consequential detail. A number that makes no sense. A quote that reveals everything. Should work as a standalone tweet.
+DO NOT include ANY section labels, headers, or structural markers like "HOOK:", "THE FACTS:", "WHY IT MATTERS:", "WHAT WENT DOWN:", etc. Just write the story naturally as flowing paragraphs.
 
-2. WHAT WENT DOWN (2-3 short paragraphs): Key facts, specific numbers, who's involved, who got screwed, who benefited. Name names. Follow the money. If there's PR spin, use "Translation:" to expose it. One killer analogy that makes it click.
+Open with the single most insane detail — a number, a quote, a fact that works as a standalone tweet. Then give the key facts: specific numbers, names, who got screwed, who benefited, follow the money. If there's PR spin, use "Translation:" to expose it. End by connecting it to the reader — their wallet, job, rent, rights.
 
-3. WHY THIS HITS (1 paragraph): How does this affect the reader? Their wallet, their job, their rent, their rights? Be specific and personal.
+The ONLY labeled device allowed is "The Bottom Line:" as the final paragraph — ONE quotable mic-drop sentence.
 
-4. The Bottom Line: End with exactly "The Bottom Line:" followed by ONE quotable sentence. Mic drop. Screenshot-worthy. The sharpest line in the piece.
-
-OPTIONAL (use when the story warrants it, not forced):
-- "Translation:" — if anyone uses corporate/political/legal BS language
-- "The Number:" — if there's a stat SO wild it deserves its own moment with comparison math
+OPTIONAL devices (use naturally inline, not as headers):
+- "Translation:" after corporate/political BS language
+- "The Number:" for a stat SO wild it deserves its own moment
 
 REQUIREMENTS:
-- 200-400 words. No filler. Every sentence earns its spot.
+- 200-400 words. No filler.
 - Short paragraphs: 1-3 sentences MAX.
+- NO section labels or headers of any kind.
 - Must end with "The Bottom Line:" as its own paragraph.
-- Dark, satirical, "bro why did I laugh" energy throughout.`;
+- Dark, satirical, "bro why did I laugh" energy.`;
 
 // v2 Pivot: 25 stories (15 free, 10 pro), uniform format, no images, dark jester voice
 export const generateDailyBriefing = inngest.createFunction(
