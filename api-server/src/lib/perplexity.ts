@@ -11,16 +11,23 @@ type Category = "business" | "tech" | "politics" | "sports" | "culture";
 
 const CATEGORY_QUERIES: Record<Category, string> = {
   business:
-    "What are the top 7 business and finance stories happening RIGHT NOW that would make someone under 30 actually stop scrolling? I need stories with SPECIFIC numbers, names, and consequences. Think: shocking earnings misses with exact dollar amounts, CEO firings or scandals with quotes, massive layoffs with headcounts, housing/rent data that makes people angry, wild stock moves with percentages, crypto collapses or surges, billionaire moves that reveal how the system works. Include at least one story about how something directly affects regular people's money (rent, groceries, jobs, student loans). Prioritize US but include global stories that impact Americans. For each: title, 2-3 sentence summary with SPECIFIC NUMBERS AND NAMES, sourceUrl, sourceName. Return ONLY JSON array.",
+    "Top 7 business/finance stories RIGHT NOW that make someone under 30 stop scrolling. Shocking earnings with dollar amounts, CEO scandals with quotes, layoffs with headcounts, housing/rent data, wild stock moves with %, crypto swings, billionaire moves. Include one story affecting regular people's money. Prioritize US, include global if it impacts Americans.",
   tech:
-    "What are the top 7 technology stories happening RIGHT NOW that are blowing up or SHOULD be blowing up? I want: AI developments with real-world implications (not just announcements), big tech doing something sketchy or bold, data breaches or privacy scandals with how many people affected, product changes that piss people off or excite them, startup drama with real numbers, app bans or regulatory moves. Every story needs SPECIFIC details — user numbers, dollar amounts, dates. Not vague summaries. Prioritize stories a non-technical 22-year-old would care about. For each: title, 2-3 sentence summary with SPECIFIC DETAILS, sourceUrl, sourceName. Return ONLY JSON array.",
+    "Top 7 tech stories RIGHT NOW blowing up or should be. AI with real-world impact, big tech doing something sketchy, data breaches with user counts, product changes that anger/excite people, startup drama with numbers, app bans or regulatory moves. Stories a non-technical 22-year-old would care about.",
   politics:
-    "What are the top 7 political stories happening RIGHT NOW that young Americans would actually argue about at dinner? I want: policy changes that directly affect paychecks/rent/healthcare/student loans with SPECIFIC numbers, political scandals with actual quotes or evidence, government spending that seems insane with dollar amounts, voting rights or civil liberties changes, international moves that will affect gas prices or the economy. Skip procedural stuff that only political nerds care about. Every story needs concrete details — bill names, vote counts, dollar figures. For each: title, 2-3 sentence summary with SPECIFIC DETAILS, sourceUrl, sourceName. Return ONLY JSON array.",
+    "Top 7 political stories RIGHT NOW young Americans would argue about at dinner. Policy changes affecting paychecks/rent/healthcare/student loans with numbers, scandals with quotes, insane government spending with dollar amounts, voting rights changes, international moves affecting gas/economy. Skip procedural stuff.",
   sports:
-    "What are the top 7 sports stories happening RIGHT NOW that even non-sports fans would find interesting? I want: record-breaking performances with stats, massive trades with contract dollar amounts, controversial moments with context, athlete stories that transcend sports, rivalry drama, betting or money angles that are wild. Prioritize NFL, NBA, MLB, NHL, college sports, Premier League, Champions League, F1, UFC, tennis — whatever is actually in season and generating buzz RIGHT NOW. Every story needs specific stats, scores, or dollar amounts. For each: title, 2-3 sentence summary with SPECIFIC STATS AND DETAILS, sourceUrl, sourceName. Return ONLY JSON array.",
+    "Top 7 sports stories RIGHT NOW even non-sports fans find interesting. Record-breaking performances with stats, massive trades with contract $, controversial moments, athlete stories transcending sports, rivalry drama, wild betting angles. Cover whatever's in season: NFL, NBA, MLB, NHL, college, Premier League, F1, UFC.",
   culture:
-    "What are the top 7 culture, entertainment, and internet stories happening RIGHT NOW that are dominating group chats and social media? I want: celebrity drama with actual details not just rumors, viral moments with context for why they went viral, streaming/music/film news with numbers (viewership, sales, records broken), internet culture moments that reveal something about society, controversy that people are genuinely split on. Not just 'celebrity did a thing' — I want the WHY behind the virality. For each: title, 2-3 sentence summary with SPECIFIC DETAILS, sourceUrl, sourceName. Return ONLY JSON array.",
+    "Top 7 culture/entertainment/internet stories RIGHT NOW dominating group chats. Celebrity drama with real details, viral moments with WHY context, streaming/music/film numbers (viewership, sales, records), internet culture revealing something about society, controversies people are genuinely split on.",
 };
+
+const SYSTEM_PROMPT = `You are a news research assistant. Find stories with SPECIFIC numbers, names, dates, and consequences — no vague summaries.
+
+Return ONLY a JSON array of exactly 7 objects:
+[{"title": "...", "summary": "2-3 sentences with SPECIFIC details", "sourceUrl": "...", "sourceName": "..."}]
+
+No other text.`;
 
 function extractJSON(text: string): string {
   // Strip markdown code fences if present
@@ -49,8 +56,7 @@ export async function fetchTrendingNews(
       messages: [
         {
           role: "system",
-          content:
-            'You are a news research assistant. Return ONLY a JSON array of objects with keys: title, summary, sourceUrl, sourceName. No other text.',
+          content: SYSTEM_PROMPT,
         },
         {
           role: "user",
