@@ -4,20 +4,42 @@ import { pushToUsers } from "@/lib/push";
 
 // Rotate through different push titles so it never feels stale
 const PUSH_TITLES = [
+  // OG classics
   "wake up babe, new poop just dropped 💩",
   "the world is on fire. here's your update 🔥",
   "you're gonna wanna sit down for this one 💩",
-  "your morning briefing is bussin 💩",
-  "25 stories. zero boring ones 💩",
-  "the news just got interesting 💩",
-  "stop doomscrolling. read this instead 💩",
+  // Unhinged energy
+  "congress did something stupid again. shocking 💩",
+  "a CEO said something unhinged. come guess who 🎤",
+  "the news is so wild today we double-checked it 💩",
+  "your boss hasn't read this yet. stay ahead 💩",
+  "today's news brought to you by poor decisions 💩",
+  "25 stories. 6 games. 1 toilet break 🚽",
+  "the algorithm wants you to read boring news. we don't 💩",
+  // FOMO drivers
   "your group chat is gonna need this 💩",
-  "the poop is hot today 🔥💩",
-  "today's news hits different 💩",
-  "bad news: the world is wild. good news: we made it funny 💩",
-  "breaking: stuff happened. we explained it 💩",
-  "freshly squeezed news, just for you 💩",
-  "your daily scoop awaits 💩",
+  "everyone's talking about today's drop except you 💩",
+  "this is not a drill. today's news is unreal 🔥",
+  "you vs today's Poop or Scoop. who wins? 💩",
+  // Provocative
+  "a politician lied today. we made it funny 🏛️",
+  "billionaires did billionaire things again 💰💩",
+  "someone got caught. someone got fired. someone got roasted 🔥",
+  "the world is a circus and we wrote the reviews 🎪",
+  "today in 'you can't make this up' 💩",
+  "another day another dumpster fire. let's go 🔥💩",
+  // Game hooks
+  "6 news games just dropped. your lunch break is calling 🎮",
+  "can you spot the fake headline? prove it 💩",
+  "Who Said It — CEO, dictator, or cult leader? 🤔",
+  // Short punchy
+  "it's giving chaos 💩",
+  "bro why is today's news like this 💀",
+  "absolute scenes in today's briefing 🔥",
+  "the poop is HOT today 💩🔥",
+  "just... read it. trust us 💩",
+  "5 minutes. 25 stories. zero cringe 💩",
+  "your daily dose of organized chaos 💩",
 ];
 
 function getRandomTitle(): string {

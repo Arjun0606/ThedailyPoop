@@ -199,7 +199,7 @@ struct HeadlineRouletteGameView: View {
                 .padding(.top, 20)
 
                 ShareLink(
-                    item: "Headline Roulette \(result.score)/\(result.maxScore)\n\nRank the insanity!\nTheDailyPoop"
+                    item: "\u{1F92F} Headline Roulette \(result.score)/\(result.maxScore)\n\nCan you rank today's headlines by insanity?\nTheDailyPoop \u{2014} news that hits different\nhttps://apps.apple.com/app/thedailypoop/id6743040953"
                 ) {
                     HStack(spacing: 6) {
                         Image(systemName: "square.and.arrow.up")

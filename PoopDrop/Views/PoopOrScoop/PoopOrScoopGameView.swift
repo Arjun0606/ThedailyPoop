@@ -273,7 +273,7 @@ struct PoopOrScoopGameView: View {
                         .font(.title2)
 
                     ShareLink(
-                        item: "Poop or Scoop \(result.score)/\(result.total)\n\(pattern)\n\nTheDailyPoop \u{2014} real or fake headlines?"
+                        item: "\u{1F4A9} Poop or Scoop \(result.score)/\(result.total)\n\(pattern)\n\nCan you spot the fake headline?\nTheDailyPoop \u{2014} news that hits different\nhttps://apps.apple.com/app/thedailypoop/id6743040953"
                     ) {
                         HStack(spacing: 6) {
                             Image(systemName: "square.and.arrow.up")
