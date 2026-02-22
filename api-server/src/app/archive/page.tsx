@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   description: "Browse past daily drops from TheDailyPoop.",
 };
 
-export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 
 async function getArchive() {
   const db = createServiceClient();
