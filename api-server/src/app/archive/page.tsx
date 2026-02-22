@@ -14,12 +14,16 @@ export const dynamic = "force-dynamic";
 async function getArchive() {
   const db = createServiceClient();
 
-  const { data: briefings } = await db
+  const { data: briefings, error } = await db
     .from("briefings")
     .select("id, publish_date, vibe_label, vibe_emoji, status")
     .eq("status", "published")
     .order("publish_date", { ascending: false })
     .limit(60);
+
+  if (error) {
+    console.error("Archive fetch error:", error);
+  }
 
   // Group by date
   const rows = briefings ?? [];
