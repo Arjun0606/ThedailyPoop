@@ -66,8 +66,8 @@ struct PlayTabView: View {
                         // Stats row
                         HStack(spacing: 12) {
                             statPill(
-                                value: "\(authManager.currentUser?.highestWordScore ?? 0)",
-                                label: "Best Score",
+                                value: "\(todayScore)",
+                                label: "Today's Score",
                                 icon: "trophy.fill"
                             )
                             statPill(
@@ -292,6 +292,24 @@ struct PlayTabView: View {
     }
 
     // MARK: - Helpers
+
+    private var todayScore: Int {
+        var total = 0
+        // Normalize each game to 0-100 (same as leaderboard API)
+        if let s = scoopGame?.userScore?.score {
+            total += Int(Double(s) / 10.0 * 100.0)       // 0-10 → 0-100
+        }
+        if let s = wordGames.first?.userScore?.score {
+            total += Int(Double(min(s, 200)) / 200.0 * 100.0) // 0-200 → 0-100
+        }
+        if let s = whoSaidItGame?.userScore?.score {
+            total += Int(Double(s) / 5.0 * 100.0)         // 0-5 → 0-100
+        }
+        if let s = excuseGame?.userScore?.score {
+            total += Int(Double(s) / 5.0 * 100.0)         // 0-5 → 0-100
+        }
+        return total
+    }
 
     private var gamesPlayedToday: Int {
         var count = 0

@@ -119,6 +119,8 @@ class SupabaseManager: ObservableObject {
             let apple_user_id: String
             let is_premium: Bool?
             let streak_count: Int?
+            let game_streak: Int?
+            let highest_word_score: Int?
             let created_at: String
         }
 
@@ -137,7 +139,9 @@ class SupabaseManager: ObservableObject {
             avatarURL: row.avatar_url.flatMap { URL(string: $0) },
             appleUserID: row.apple_user_id,
             isPremium: row.is_premium ?? false,
-            streakCount: row.streak_count ?? 0
+            streakCount: row.streak_count ?? 0,
+            gameStreak: row.game_streak ?? 0,
+            highestWordScore: row.highest_word_score ?? 0
         )
     }
 

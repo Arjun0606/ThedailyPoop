@@ -20,6 +20,9 @@ class SubscriptionManager: ObservableObject {
     @Published var isPremium = false
     @Published var isLoading = false
 
+    /// Set to true to unlock all features for screenshots. REMOVE before shipping.
+    static let screenshotMode = false
+
     private static let apiKey = "appl_xaQHfcpaycQoenMwgCIeJRYiTFp"
 
     private static let entitlementID = "premium"
@@ -32,6 +35,9 @@ class SubscriptionManager: ObservableObject {
 
     /// Call once at app launch (in PoopDropApp.init or .onAppear)
     func configure() {
+        if Self.screenshotMode {
+            isPremium = true
+        }
         guard Self.apiKey != "YOUR_REVENUECAT_API_KEY" else {
             print("RevenueCat: Skipping configuration (no API key set)")
             return
@@ -132,6 +138,6 @@ class SubscriptionManager: ObservableObject {
     // MARK: - Private
 
     private func updatePremiumStatus(from customerInfo: CustomerInfo) {
-        isPremium = customerInfo.entitlements[Self.entitlementID]?.isActive == true
+        isPremium = Self.screenshotMode || customerInfo.entitlements[Self.entitlementID]?.isActive == true
     }
 }

@@ -12,10 +12,9 @@ struct Screenshot_Feed: View {
     var body: some View {
         ScreenshotFrame(
             headline: "News that\nhits different.",
-            subtitle: "25 stories. Fresh every morning at 7 AM.",
+            subtitle: "25 stories. 6 games. Fresh at 7 AM.",
             gradient: [brandDark, Color(red: 0.15, green: 0.1, blue: 0.02)]
         ) {
-            // Simulated feed
             VStack(spacing: 0) {
                 // Top bar
                 HStack {
@@ -23,7 +22,7 @@ struct Screenshot_Feed: View {
                         Text("TheDailyPoop")
                             .font(.system(size: 16, weight: .black))
                             .foregroundStyle(.white)
-                        Text("Thursday, Feb 19")
+                        Text("Friday, Feb 21")
                             .font(.system(size: 8, weight: .medium))
                             .foregroundStyle(.white.opacity(0.35))
                     }
@@ -31,7 +30,7 @@ struct Screenshot_Feed: View {
                     Circle()
                         .stroke(brandGold, lineWidth: 2)
                         .frame(width: 22, height: 22)
-                        .overlay(Text("8").font(.system(size: 8, weight: .bold)).foregroundStyle(.white))
+                        .overlay(Text("12").font(.system(size: 7, weight: .bold).monospacedDigit()).foregroundStyle(.white))
                 }
                 .padding(.horizontal, 14)
                 .padding(.vertical, 8)
@@ -51,36 +50,68 @@ struct Screenshot_Feed: View {
                     }
                     .foregroundStyle(brandGold)
 
-                    Text("Markets are Sweating, AI Just Got a Promotion, and Congress Can't Agree on Lunch")
+                    HStack {
+                        Text("12/25 read")
+                            .font(.system(size: 7, weight: .medium))
+                            .foregroundStyle(.white.opacity(0.35))
+                        Spacer()
+                        Text("Friday, Feb 21")
+                            .font(.system(size: 7, weight: .medium))
+                            .foregroundStyle(.white.opacity(0.35))
+                    }
+
+                    Text("Everyone's Getting Sued and the Market Loves It")
                         .font(.system(size: 14, weight: .black))
                         .foregroundStyle(.white)
                         .lineSpacing(2)
+
+                    Text("Congress chose violence again, a crypto bro discovered what jail looks like, and Boeing somehow made it worse. It's a lot.")
+                        .font(.system(size: 9))
+                        .foregroundStyle(.white.opacity(0.6))
+                        .lineSpacing(3)
                 }
                 .padding(14)
 
-                // Game cards
-                VStack(spacing: 6) {
-                    MockGameCard(emoji: "", title: "POOP OR SCOOP", subtitle: "Real or fake headline?", accent: .pink, buttonText: "PLAY", useAppLogo: true)
-                    MockGameCard(emoji: "Aa", title: "WORD DROP", subtitle: "Unscramble today's headline", accent: brandGold, buttonText: "PLAY")
+                // Vibe pill
+                HStack(spacing: 5) {
+                    Text("\u{1F525}")
+                        .font(.system(size: 8))
+                    Text("TODAY'S VIBE: DUMPSTER FIRE")
+                        .font(.system(size: 7, weight: .heavy))
+                        .foregroundStyle(.orange)
+                        .tracking(1)
                 }
-                .padding(.horizontal, 14)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 5)
+                .background(Color.orange.opacity(0.1))
+                .clipShape(Capsule())
                 .padding(.bottom, 8)
 
                 // Story cards
                 VStack(spacing: 6) {
                     MockStoryCard(
-                        category: "BUSINESS",
-                        emoji: "\u{1F4B0}",
-                        headline: "Markets Got Jump-Scared by a Hawkish Fed Pick",
-                        readTime: "8 min",
-                        catColor: Color(red: 1.0, green: 0.76, blue: 0.28)
+                        category: "POLITICS",
+                        emoji: "\u{1F3DB}\u{FE0F}",
+                        headline: "Congress Chose Violence and the Budget Chose Death",
+                        readTime: "2 min",
+                        catColor: .red,
+                        isRead: true
                     )
                     MockStoryCard(
                         category: "TECH",
                         emoji: "\u{1F916}",
-                        headline: "AI Agents Just Stopped Being Tools",
-                        readTime: "5 min",
-                        catColor: Color(red: 0.35, green: 0.78, blue: 1.0)
+                        headline: "AI Agents Just Stopped Being Tools and Started Having Opinions",
+                        readTime: "1 min",
+                        catColor: Color(red: 0.35, green: 0.78, blue: 1.0),
+                        isRead: true
+                    )
+                    MockStoryCard(
+                        category: "BUSINESS",
+                        emoji: "\u{1F4B0}",
+                        headline: "Wall Street Discovered Feelings and the Fed Is Not Amused",
+                        readTime: "2 min",
+                        catColor: brandGold,
+                        isRead: false
                     )
                 }
                 .padding(.horizontal, 14)
@@ -92,124 +123,38 @@ struct Screenshot_Feed: View {
     }
 }
 
-// MARK: - Screenshot 2: Word Drop Game
-
-struct Screenshot_WordDrop: View {
-    var body: some View {
-        ScreenshotFrame(
-            headline: "90 seconds.\nHow many words?",
-            subtitle: "Daily word game from today's top headline.",
-            gradient: [brandDark, Color(red: 0.08, green: 0.12, blue: 0.02)]
-        ) {
-            VStack(spacing: 0) {
-                // Top bar
-                HStack {
-                    Circle()
-                        .fill(Color.white.opacity(0.06))
-                        .frame(width: 24, height: 24)
-                        .overlay(
-                            Image(systemName: "xmark")
-                                .font(.system(size: 8, weight: .bold))
-                                .foregroundStyle(.white.opacity(0.5))
-                        )
-                    Spacer()
-                    // Timer
-                    ZStack {
-                        Circle().stroke(Color.white.opacity(0.06), lineWidth: 3)
-                        Circle().trim(from: 0, to: 0.7).stroke(brandGold, style: StrokeStyle(lineWidth: 3, lineCap: .round)).rotationEffect(.degrees(-90))
-                        Text("63").font(.system(size: 14, weight: .black).monospacedDigit()).foregroundStyle(.white)
-                    }
-                    .frame(width: 38, height: 38)
-                    Spacer()
-                    VStack(spacing: 1) {
-                        Text("7").font(.system(size: 13, weight: .black)).foregroundStyle(.white)
-                        Text("words").font(.system(size: 7, weight: .medium)).foregroundStyle(.white.opacity(0.35))
-                    }
-                }
-                .padding(.horizontal, 14)
-                .padding(.top, 8)
-
-                Spacer(minLength: 8)
-
-                // Key word hint
-                HStack(spacing: 3) {
-                    Image(systemName: "star.fill").font(.system(size: 7)).foregroundStyle(brandGold)
-                    Text("Find the 6-letter key word for +50 bonus!")
-                        .font(.system(size: 8, weight: .semibold))
-                        .foregroundStyle(brandGold)
-                }
-                .padding(.horizontal, 8)
-                .padding(.vertical, 4)
-                .background(brandGold.opacity(0.1))
-                .clipShape(Capsule())
-                .padding(.bottom, 10)
-
-                // Current word
-                HStack(spacing: 3) {
-                    ForEach(["T","R","A","D","E"], id: \.self) { letter in
-                        Text(letter)
-                            .font(.system(size: 16, weight: .black, design: .rounded))
-                            .foregroundStyle(.white)
-                            .frame(width: 26, height: 30)
-                            .background(Color.white.opacity(0.06))
-                            .clipShape(RoundedRectangle(cornerRadius: 6))
-                    }
-                }
-                .padding(.bottom, 14)
-
-                // Letter grid
-                let letters = ["T","R","A","D","E","S","M","K","I"]
-                let selected = [0,1,2,3,4]
-                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 3), spacing: 8) {
-                    ForEach(0..<9, id: \.self) { i in
-                        Text(letters[i])
-                            .font(.system(size: 18, weight: .black, design: .rounded))
-                            .foregroundStyle(selected.contains(i) ? .black : .white)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 44)
-                            .background(selected.contains(i) ? brandGold : Color.white.opacity(0.06))
-                            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
-                    }
-                }
-                .padding(.horizontal, 20)
-
-                Spacer(minLength: 12)
-
-                // Found words
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 4) {
-                        ForEach(["MARKETS","TRADE","MASK","RATE","DESK","ATE","SET"], id: \.self) { word in
-                            Text(word)
-                                .font(.system(size: 8, weight: .bold, design: .rounded))
-                                .foregroundStyle(.white.opacity(0.8))
-                                .padding(.horizontal, 7)
-                                .padding(.vertical, 3)
-                                .background(Color.white.opacity(0.04))
-                                .clipShape(Capsule())
-                        }
-                    }
-                    .padding(.horizontal, 14)
-                }
-                .padding(.bottom, 10)
-            }
-            .background(Color.black)
-        }
-    }
-}
-
-// MARK: - Screenshot 3: Poop or Scoop
+// MARK: - Screenshot 2: Poop or Scoop Game
 
 struct Screenshot_PoopOrScoop: View {
     var body: some View {
         ScreenshotFrame(
             headline: "Real headline\nor total BS?",
-            subtitle: "Swipe through 10 headlines. Trust nobody.",
+            subtitle: "Swipe right for real. Left for fake. Trust nobody.",
             gradient: [brandDark, Color(red: 0.15, green: 0.03, blue: 0.06)]
         ) {
             VStack(spacing: 0) {
-                Spacer(minLength: 12)
+                // Header
+                HStack {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("POOP OR SCOOP")
+                            .font(.system(size: 8, weight: .heavy))
+                            .foregroundStyle(.pink)
+                            .tracking(1.5)
+                        Text("Real or fake headline?")
+                            .font(.system(size: 7, weight: .medium))
+                            .foregroundStyle(.white.opacity(0.4))
+                    }
+                    Spacer()
+                    Text("6/10")
+                        .font(.system(size: 10, weight: .bold).monospacedDigit())
+                        .foregroundStyle(.white)
+                }
+                .padding(.horizontal, 14)
+                .padding(.top, 12)
 
-                // Score indicator
+                Spacer(minLength: 8)
+
+                // Progress dots
                 HStack(spacing: 3) {
                     ForEach(0..<10, id: \.self) { i in
                         Capsule()
@@ -256,11 +201,10 @@ struct Screenshot_PoopOrScoop: View {
                             Circle()
                                 .fill(Color.red.opacity(0.12))
                                 .frame(width: 56, height: 56)
-                            Image(systemName: "xmark")
-                                .font(.system(size: 24, weight: .bold))
-                                .foregroundStyle(Color.red)
+                            Text("\u{1F4A9}")
+                                .font(.system(size: 24))
                         }
-                        Text("FAKE")
+                        Text("POOP")
                             .font(.system(size: 9, weight: .heavy))
                             .foregroundStyle(Color.red)
                             .tracking(1)
@@ -271,10 +215,10 @@ struct Screenshot_PoopOrScoop: View {
                             Circle()
                                 .fill(Color.green.opacity(0.12))
                                 .frame(width: 56, height: 56)
-                            Text("\u{2705}")
+                            Text("\u{1F4F0}")
                                 .font(.system(size: 24))
                         }
-                        Text("REAL")
+                        Text("SCOOP")
                             .font(.system(size: 9, weight: .heavy))
                             .foregroundStyle(Color.green)
                             .tracking(1)
@@ -289,34 +233,125 @@ struct Screenshot_PoopOrScoop: View {
     }
 }
 
-// MARK: - Screenshot 4: Story Deep Dive
+// MARK: - Screenshot 3: Who Said It Game
+
+struct Screenshot_WhoSaidIt: View {
+    var body: some View {
+        ScreenshotFrame(
+            headline: "CEO, dictator,\nor cult leader?",
+            subtitle: "6 daily games based on today's insane news.",
+            gradient: [brandDark, Color(red: 0.08, green: 0.02, blue: 0.15)]
+        ) {
+            VStack(spacing: 0) {
+                // Header
+                HStack {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("WHO SAID IT?")
+                            .font(.system(size: 8, weight: .heavy))
+                            .foregroundStyle(.purple)
+                            .tracking(1.5)
+                        Text("Match the quote to the person")
+                            .font(.system(size: 7, weight: .medium))
+                            .foregroundStyle(.white.opacity(0.4))
+                    }
+                    Spacer()
+                    Text("3/5")
+                        .font(.system(size: 10, weight: .bold).monospacedDigit())
+                        .foregroundStyle(.white)
+                }
+                .padding(.horizontal, 14)
+                .padding(.top, 12)
+                .padding(.bottom, 8)
+
+                // Progress bar
+                GeometryReader { geo in
+                    ZStack(alignment: .leading) {
+                        Rectangle().fill(Color.white.opacity(0.08)).frame(height: 3)
+                        Rectangle()
+                            .fill(Color.purple)
+                            .frame(width: geo.size.width * 0.6, height: 3)
+                    }
+                }
+                .frame(height: 3)
+                .padding(.horizontal, 14)
+
+                Spacer(minLength: 16)
+
+                // Quote card
+                VStack(spacing: 16) {
+                    Text("\u{1F3A4}")
+                        .font(.system(size: 32))
+
+                    Text("\"Move fast and break things. Boundaries exist to be crossed.\"")
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundStyle(.white)
+                        .multilineTextAlignment(.center)
+                        .lineSpacing(4)
+                        .padding(.horizontal, 12)
+
+                    Text("Who said this?")
+                        .font(.system(size: 9, weight: .medium))
+                        .foregroundStyle(.white.opacity(0.4))
+                }
+                .padding(20)
+                .frame(maxWidth: .infinity)
+                .background(Color.white.opacity(0.04))
+                .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 20, style: .continuous)
+                        .stroke(Color.purple.opacity(0.2), lineWidth: 1)
+                )
+                .padding(.horizontal, 14)
+
+                Spacer(minLength: 16)
+
+                // Options
+                VStack(spacing: 8) {
+                    ForEach(Array(["Elon Musk — CEO", "Jim Jones — Cult Leader", "Mark Zuckerberg — CEO", "Kim Jong-un — Dictator"].enumerated()), id: \.offset) { idx, option in
+                        HStack(spacing: 10) {
+                            Text(["A", "B", "C", "D"][idx])
+                                .font(.system(size: 10, weight: .black))
+                                .foregroundStyle(.purple)
+                                .frame(width: 22, height: 22)
+                                .background(Color.purple.opacity(0.15))
+                                .clipShape(Circle())
+
+                            Text(option)
+                                .font(.system(size: 11, weight: .medium))
+                                .foregroundStyle(.white)
+
+                            Spacer()
+                        }
+                        .padding(10)
+                        .background(Color.white.opacity(0.04))
+                        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                .stroke(Color.white.opacity(0.06), lineWidth: 0.5)
+                        )
+                    }
+                }
+                .padding(.horizontal, 14)
+
+                Spacer(minLength: 12)
+            }
+            .background(Color.black)
+        }
+    }
+}
+
+// MARK: - Screenshot 4: Story Reading Experience
 
 struct Screenshot_Story: View {
     var body: some View {
         ScreenshotFrame(
-            headline: "Deep dives that\ndon't put you to sleep.",
-            subtitle: "Business bro energy meets real journalism.",
+            headline: "Written like your\ngroup chat.",
+            subtitle: "Sourced like the NYT. Zero filler.",
             gradient: [brandDark, Color(red: 0.02, green: 0.08, blue: 0.15)]
         ) {
             VStack(alignment: .leading, spacing: 0) {
-                // Hero image placeholder
-                ZStack(alignment: .bottomLeading) {
-                    LinearGradient(
-                        colors: [Color(red: 0.2, green: 0.15, blue: 0.1), Color(red: 0.1, green: 0.08, blue: 0.05)],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                    .frame(height: 140)
-
-                    LinearGradient(
-                        stops: [.init(color: .clear, location: 0.3), .init(color: .black, location: 1.0)],
-                        startPoint: .top, endPoint: .bottom
-                    )
-                }
-                .frame(height: 140)
-
-                VStack(alignment: .leading, spacing: 12) {
-                    // Category
+                // Category + meta
+                HStack {
                     HStack(spacing: 4) {
                         Text("\u{1F4B0}")
                             .font(.system(size: 8))
@@ -324,52 +359,141 @@ struct Screenshot_Story: View {
                             .font(.system(size: 7, weight: .bold))
                             .tracking(0.5)
                     }
-                    .foregroundStyle(Color(red: 1.0, green: 0.76, blue: 0.28))
+                    .foregroundStyle(brandGold)
                     .padding(.horizontal, 7)
                     .padding(.vertical, 3)
-                    .background(Color(red: 1.0, green: 0.76, blue: 0.28).opacity(0.12))
+                    .background(brandGold.opacity(0.12))
                     .clipShape(Capsule())
 
-                    Text("Markets Got Jump-Scared by a Hawkish Fed Pick (Yeah, That Matters)")
-                        .font(.system(size: 16, weight: .black))
-                        .foregroundStyle(.white)
-                        .lineSpacing(2)
+                    Spacer()
 
-                    Text("S&P just cleared 7,000 and markets were acting like inflation was a Netflix show that got canceled after Season 1.\n\nThen the White House nominates Kevin Warsh to run the Fed and everything goes full horror-movie violin screech.")
+                    HStack(spacing: 3) {
+                        Image(systemName: "clock")
+                            .font(.system(size: 6))
+                        Text("1 min read")
+                            .font(.system(size: 7, weight: .medium))
+                    }
+                    .foregroundStyle(.white.opacity(0.35))
+                }
+                .padding(.horizontal, 14)
+                .padding(.top, 14)
+
+                // Headline
+                Text("Wall Street Discovered Feelings and the Fed Is Not Amused")
+                    .font(.system(size: 16, weight: .black))
+                    .foregroundStyle(.white)
+                    .lineSpacing(2)
+                    .padding(.horizontal, 14)
+                    .padding(.top, 10)
+
+                // Source
+                HStack(spacing: 3) {
+                    Image(systemName: "link")
+                        .font(.system(size: 6))
+                    Text("Bloomberg")
+                        .font(.system(size: 7, weight: .medium))
+                }
+                .foregroundStyle(.white.opacity(0.3))
+                .padding(.horizontal, 14)
+                .padding(.top, 4)
+                .padding(.bottom, 12)
+
+                // Body text
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("S&P just cleared 7,000 and markets were acting like inflation was a Netflix show that got canceled after Season 1. Then the White House nominates Kevin Warsh to run the Fed and everything goes full horror-movie violin screech.")
                         .font(.system(size: 10))
                         .foregroundStyle(.white.opacity(0.88))
                         .lineSpacing(4)
 
-                    // TLDR
-                    VStack(alignment: .leading, spacing: 5) {
-                        Text("TLDR")
-                            .font(.system(size: 7, weight: .heavy))
-                            .foregroundStyle(Color(red: 1.0, green: 0.76, blue: 0.28))
+                    // Translation callout
+                    HStack(alignment: .top, spacing: 8) {
+                        Rectangle()
+                            .fill(brandGold)
+                            .frame(width: 2)
+                            .clipShape(Capsule())
+
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text("TRANSLATION")
+                                .font(.system(size: 6, weight: .black))
+                                .foregroundStyle(brandGold)
+                                .tracking(1.5)
+                            Text("\"The market is healthy\" means \"we're praying it doesn't crash before earnings.\"")
+                                .font(.system(size: 9, weight: .medium))
+                                .foregroundStyle(.white.opacity(0.9))
+                                .lineSpacing(3)
+                        }
+                    }
+                    .padding(8)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(brandGold.opacity(0.05))
+                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+
+                    // The Number callout
+                    VStack(alignment: .leading, spacing: 3) {
+                        Text("THE NUMBER")
+                            .font(.system(size: 6, weight: .black))
+                            .foregroundStyle(Color(red: 0.2, green: 0.78, blue: 0.35))
                             .tracking(1.5)
-                        Text("The Fed pick matters more than the S&P number. Hawkish chair = rates stay high = your mortgage stays expensive.")
-                            .font(.system(size: 9))
-                            .foregroundStyle(.white.opacity(0.75))
-                            .italic()
+                        Text("$4.2 trillion — that's how much vanished from global markets in a single afternoon.")
+                            .font(.system(size: 10, weight: .bold))
+                            .foregroundStyle(.white)
                             .lineSpacing(3)
                     }
                     .padding(10)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Color(red: 1.0, green: 0.76, blue: 0.28).opacity(0.06))
+                    .background(
+                        LinearGradient(
+                            colors: [Color(red: 0.2, green: 0.78, blue: 0.35).opacity(0.08), Color(red: 0.2, green: 0.78, blue: 0.35).opacity(0.02)],
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                    )
                     .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                    .overlay(alignment: .leading) {
+                        Color(red: 0.2, green: 0.78, blue: 0.35)
+                            .frame(width: 2)
+                            .clipShape(Capsule())
+                    }
 
-                    // Reactions
-                    HStack(spacing: 16) {
-                        ForEach([("\u{1F525}", "24"), ("\u{1F480}", "18"), ("\u{1F602}", "7"), ("\u{1F92F}", "31")], id: \.0) { emoji, count in
-                            VStack(spacing: 3) {
-                                Text(emoji).font(.system(size: 16))
-                                Text(count).font(.system(size: 8, weight: .bold).monospacedDigit()).foregroundStyle(.white.opacity(0.5))
-                            }
+                    // Bottom Line
+                    VStack(alignment: .leading, spacing: 4) {
+                        HStack(spacing: 4) {
+                            Rectangle()
+                                .fill(Color(red: 0.2, green: 0.78, blue: 0.35))
+                                .frame(width: 2, height: 10)
+                                .clipShape(Capsule())
+                            Text("THE BOTTOM LINE")
+                                .font(.system(size: 6, weight: .black))
+                                .foregroundStyle(Color(red: 0.2, green: 0.78, blue: 0.35))
+                                .tracking(1.5)
+                        }
+                        Text("The Fed pick matters more than the S&P number. Hawkish chair = rates stay high = your mortgage stays expensive.")
+                            .font(.system(size: 10, weight: .semibold))
+                            .foregroundStyle(.white)
+                            .lineSpacing(3)
+                    }
+                    .padding(10)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(Color(red: 0.2, green: 0.78, blue: 0.35).opacity(0.06))
+                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 10, style: .continuous)
+                            .stroke(Color(red: 0.2, green: 0.78, blue: 0.35).opacity(0.2), lineWidth: 0.5)
+                    )
+                }
+                .padding(.horizontal, 14)
+
+                // Reactions
+                HStack(spacing: 16) {
+                    ForEach([("\u{1F525}", "24"), ("\u{1F480}", "18"), ("\u{1F602}", "7"), ("\u{1F92F}", "31")], id: \.0) { emoji, count in
+                        VStack(spacing: 3) {
+                            Text(emoji).font(.system(size: 16))
+                            Text(count).font(.system(size: 8, weight: .bold).monospacedDigit()).foregroundStyle(.white.opacity(0.5))
                         }
                     }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 8)
                 }
-                .padding(14)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 10)
 
                 Spacer()
             }
@@ -378,50 +502,58 @@ struct Screenshot_Story: View {
     }
 }
 
-// MARK: - Screenshot 5: Leaderboard & Social
+// MARK: - Screenshot 5: Game Results & Share
 
-struct Screenshot_Social: View {
+struct Screenshot_GameResults: View {
     var body: some View {
         ScreenshotFrame(
-            headline: "Compete.\nShare. Flex.",
-            subtitle: "Daily leaderboard. Premium bragging rights.",
+            headline: "Flex your\nnews IQ.",
+            subtitle: "Share scores. Challenge friends. Talk trash.",
             gradient: [brandDark, Color(red: 0.1, green: 0.04, blue: 0.15)]
         ) {
             VStack(spacing: 0) {
-                // Leaderboard header
-                HStack {
-                    Text("Leaderboard")
-                        .font(.system(size: 14, weight: .bold))
+                Spacer(minLength: 16)
+
+                // Score
+                VStack(spacing: 8) {
+                    Text("8/10")
+                        .font(.system(size: 40, weight: .black).monospacedDigit())
                         .foregroundStyle(.white)
-                    Spacer()
-                    Text("Today")
-                        .font(.system(size: 9, weight: .medium))
-                        .foregroundStyle(.white.opacity(0.4))
-                }
-                .padding(.horizontal, 14)
-                .padding(.top, 14)
-                .padding(.bottom, 10)
 
-                // Leaderboard rows
-                VStack(spacing: 0) {
-                    LeaderboardMockRow(rank: 1, name: "@tradebro99", score: 142, words: 18, medal: "\u{1F947}", found: true)
-                    LeaderboardMockRow(rank: 2, name: "@newsqueen", score: 98, words: 14, medal: "\u{1F948}", found: true)
-                    LeaderboardMockRow(rank: 3, name: "@wallstchad", score: 87, words: 12, medal: "\u{1F949}", found: false)
-                    LeaderboardMockRow(rank: 4, name: "@cryptokid", score: 61, words: 9, medal: "", found: false)
-                    LeaderboardMockRow(rank: 5, name: "@techgirlsf", score: 54, words: 8, medal: "", found: true)
+                    Text("Insanity Expert!")
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundStyle(.green)
                 }
 
-                Spacer(minLength: 12)
+                Spacer(minLength: 16)
 
-                // Share card mock
-                VStack(spacing: 10) {
-                    Text("SHARE YOUR SCORE")
-                        .font(.system(size: 8, weight: .heavy))
-                        .foregroundStyle(.white.opacity(0.35))
+                // Emoji pattern
+                Text("\u{2705}\u{2705}\u{274C}\u{2705}\u{2705}\u{2705}\u{274C}\u{2705}\u{2705}\u{2705}")
+                    .font(.system(size: 16))
+                    .padding(.bottom, 12)
+
+                // Share button
+                HStack(spacing: 5) {
+                    Image(systemName: "square.and.arrow.up")
+                        .font(.system(size: 10, weight: .bold))
+                    Text("Share Score")
+                        .font(.system(size: 11, weight: .bold))
+                }
+                .foregroundStyle(.black)
+                .padding(.horizontal, 20)
+                .padding(.vertical, 9)
+                .background(Color.pink)
+                .clipShape(Capsule())
+                .padding(.bottom, 20)
+
+                // Share card preview
+                VStack(alignment: .leading, spacing: 10) {
+                    Text("WHAT YOUR FRIENDS SEE")
+                        .font(.system(size: 7, weight: .heavy))
+                        .foregroundStyle(.white.opacity(0.3))
                         .tracking(2)
 
-                    // Mini share card
-                    VStack(spacing: 8) {
+                    VStack(alignment: .leading, spacing: 8) {
                         HStack {
                             Image("AppLogo")
                                 .resizable()
@@ -432,42 +564,33 @@ struct Screenshot_Social: View {
                                 .font(.system(size: 10, weight: .black))
                                 .foregroundStyle(.white)
                             Spacer()
-                            Text("Feb 19")
-                                .font(.system(size: 8, weight: .medium))
-                                .foregroundStyle(.white.opacity(0.4))
                         }
 
-                        HStack(alignment: .bottom) {
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text("142")
-                                    .font(.system(size: 28, weight: .black, design: .rounded))
-                                    .foregroundStyle(brandGold)
-                                Text("18 words \u{00B7} Key word found \u{2B50}")
-                                    .font(.system(size: 8, weight: .medium))
-                                    .foregroundStyle(.white.opacity(0.6))
-                            }
-                            Spacer()
-                            Text("#1")
-                                .font(.system(size: 24, weight: .black))
-                                .foregroundStyle(brandGold)
-                        }
-
-                        // Word grid
-                        HStack(spacing: 3) {
-                            ForEach(0..<12, id: \.self) { i in
-                                RoundedRectangle(cornerRadius: 2)
-                                    .fill(i < 8 ? brandGold : Color.white.opacity(0.08))
-                                    .frame(width: 14, height: 14)
-                            }
-                        }
+                        Text("\u{1F4A9} Poop or Scoop 8/10\n\u{2705}\u{2705}\u{274C}\u{2705}\u{2705}\u{2705}\u{274C}\u{2705}\u{2705}\u{2705}\n\nCan you spot the fake headline?\nTheDailyPoop \u{2014} news that hits different\nthedailypoop.app")
+                            .font(.system(size: 9, weight: .medium))
+                            .foregroundStyle(.white.opacity(0.8))
+                            .lineSpacing(3)
                     }
                     .padding(12)
                     .background(Color.white.opacity(0.04))
                     .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
                     .overlay(
                         RoundedRectangle(cornerRadius: 12, style: .continuous)
-                            .stroke(brandGold.opacity(0.2), lineWidth: 0.5)
+                            .stroke(Color.pink.opacity(0.2), lineWidth: 0.5)
                     )
+
+                    // Other game scores
+                    Text("TODAY'S GAMES")
+                        .font(.system(size: 7, weight: .heavy))
+                        .foregroundStyle(.white.opacity(0.3))
+                        .tracking(2)
+                        .padding(.top, 4)
+
+                    HStack(spacing: 6) {
+                        MiniGameScore(emoji: "\u{1F4A9}", name: "Poop or Scoop", score: "8/10", color: .pink)
+                        MiniGameScore(emoji: "\u{1F3A4}", name: "Who Said It", score: "4/5", color: .purple)
+                        MiniGameScore(emoji: "\u{1F92F}", name: "Headline Roulette", score: "18/25", color: .cyan)
+                    }
                 }
                 .padding(.horizontal, 14)
 
@@ -488,7 +611,6 @@ private struct ScreenshotFrame<Content: View>: View {
 
     var body: some View {
         ZStack {
-            // Background gradient
             LinearGradient(
                 colors: gradient,
                 startPoint: .top,
@@ -499,7 +621,6 @@ private struct ScreenshotFrame<Content: View>: View {
             VStack(spacing: 0) {
                 Spacer(minLength: 40)
 
-                // Marketing text
                 VStack(spacing: 10) {
                     Text(headline)
                         .font(.system(size: 34, weight: .black))
@@ -509,14 +630,13 @@ private struct ScreenshotFrame<Content: View>: View {
 
                     Text(subtitle)
                         .font(.system(size: 15, weight: .medium))
-                        .foregroundStyle(.white.opacity(0.55))
+                        .foregroundStyle(brandGold.opacity(0.85))
                         .multilineTextAlignment(.center)
                 }
                 .padding(.horizontal, 32)
 
                 Spacer(minLength: 28)
 
-                // Device mockup
                 content
                     .frame(maxWidth: .infinity)
                     .frame(height: 520)
@@ -537,76 +657,35 @@ private struct ScreenshotFrame<Content: View>: View {
 
 // MARK: - Mock Components
 
-private struct MockGameCard: View {
-    let emoji: String
-    let title: String
-    let subtitle: String
-    let accent: Color
-    let buttonText: String
-    var useAppLogo: Bool = false
-
-    var body: some View {
-        HStack(spacing: 10) {
-            ZStack {
-                RoundedRectangle(cornerRadius: 8, style: .continuous)
-                    .fill(accent.opacity(0.15))
-                    .frame(width: 36, height: 36)
-                if useAppLogo {
-                    Image("AppLogo")
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 20, height: 20)
-                        .clipShape(RoundedRectangle(cornerRadius: 4, style: .continuous))
-                } else {
-                    Text(emoji)
-                        .font(.system(size: emoji.count > 2 ? 14 : 16, weight: .black, design: .rounded))
-                        .foregroundStyle(accent)
-                }
-            }
-
-            VStack(alignment: .leading, spacing: 2) {
-                Text(title)
-                    .font(.system(size: 7, weight: .heavy))
-                    .foregroundStyle(accent)
-                    .tracking(1)
-                Text(subtitle)
-                    .font(.system(size: 9, weight: .medium))
-                    .foregroundStyle(.white)
-            }
-
-            Spacer()
-
-            Text(buttonText)
-                .font(.system(size: 8, weight: .heavy))
-                .foregroundStyle(.black)
-                .padding(.horizontal, 10)
-                .padding(.vertical, 5)
-                .background(accent)
-                .clipShape(Capsule())
-        }
-        .padding(10)
-        .background(Color.white.opacity(0.04))
-        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 10, style: .continuous)
-                .stroke(accent.opacity(0.15), lineWidth: 0.5)
-        )
-    }
-}
-
 private struct MockStoryCard: View {
     let category: String
     let emoji: String
     let headline: String
     let readTime: String
     let catColor: Color
+    var isRead: Bool = false
 
     var body: some View {
-        HStack(spacing: 10) {
+        HStack(spacing: 0) {
+            // Left accent bar
+            catColor
+                .frame(width: 3)
+                .clipShape(RoundedRectangle(cornerRadius: 2))
+
             VStack(alignment: .leading, spacing: 5) {
                 HStack(spacing: 4) {
                     Text(emoji).font(.system(size: 7))
                     Text(category).font(.system(size: 6, weight: .bold)).tracking(0.5)
+                    Spacer()
+                    if isRead {
+                        HStack(spacing: 2) {
+                            Image(systemName: "checkmark")
+                                .font(.system(size: 5, weight: .bold))
+                            Text("Read")
+                                .font(.system(size: 6, weight: .medium))
+                        }
+                        .foregroundStyle(.green.opacity(0.7))
+                    }
                 }
                 .foregroundStyle(catColor)
 
@@ -615,17 +694,30 @@ private struct MockStoryCard: View {
                     .foregroundStyle(.white)
                     .lineLimit(2)
 
-                Text(readTime)
-                    .font(.system(size: 7, weight: .medium))
+                HStack(spacing: 6) {
+                    HStack(spacing: 2) {
+                        Image(systemName: "clock")
+                            .font(.system(size: 5))
+                        Text(readTime)
+                            .font(.system(size: 7, weight: .medium))
+                    }
                     .foregroundStyle(.white.opacity(0.35))
+
+                    Spacer()
+
+                    HStack(spacing: 2) {
+                        Text("\u{1F525}")
+                            .font(.system(size: 6))
+                        Text("\(Int.random(in: 8...42))")
+                            .font(.system(size: 7, weight: .bold).monospacedDigit())
+                            .foregroundStyle(.orange.opacity(0.7))
+                    }
+                }
             }
-            Spacer()
-            RoundedRectangle(cornerRadius: 8)
-                .fill(catColor.opacity(0.1))
-                .frame(width: 56, height: 56)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 8)
         }
-        .padding(10)
-        .background(Color.white.opacity(0.04))
+        .background(isRead ? Color.white.opacity(0.02) : Color.white.opacity(0.04))
         .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
         .overlay(
             RoundedRectangle(cornerRadius: 10, style: .continuous)
@@ -634,67 +726,32 @@ private struct MockStoryCard: View {
     }
 }
 
-private struct LeaderboardMockRow: View {
-    let rank: Int
+private struct MiniGameScore: View {
+    let emoji: String
     let name: String
-    let score: Int
-    let words: Int
-    let medal: String
-    let found: Bool
-
-    private var rankColor: Color {
-        switch rank {
-        case 1: return Color(red: 1.0, green: 0.84, blue: 0.0)
-        case 2: return Color(red: 0.75, green: 0.75, blue: 0.78)
-        case 3: return Color(red: 0.80, green: 0.50, blue: 0.20)
-        default: return .white.opacity(0.35)
-        }
-    }
+    let score: String
+    let color: Color
 
     var body: some View {
-        HStack(spacing: 10) {
-            Text(medal.isEmpty ? "\(rank)" : medal)
-                .font(.system(size: medal.isEmpty ? 10 : 14))
-                .frame(width: 20)
-
-            Circle()
-                .fill(Color.white.opacity(0.06))
-                .frame(width: 24, height: 24)
-                .overlay(
-                    Text(String(name.dropFirst().prefix(1)).uppercased())
-                        .font(.system(size: 9, weight: .bold))
-                        .foregroundStyle(.white.opacity(0.5))
-                )
-
-            VStack(alignment: .leading, spacing: 1) {
-                HStack(spacing: 3) {
-                    Text(name)
-                        .font(.system(size: 10, weight: .bold))
-                        .foregroundStyle(.white)
-                    Image(systemName: "crown.fill")
-                        .font(.system(size: 6))
-                        .foregroundStyle(brandGold)
-                }
-                HStack(spacing: 3) {
-                    Text("\(words) words")
-                        .font(.system(size: 7))
-                        .foregroundStyle(.white.opacity(0.35))
-                    if found {
-                        Text("\u{2B50}")
-                            .font(.system(size: 7))
-                    }
-                }
-            }
-
-            Spacer()
-
-            Text("\(score)")
-                .font(.system(size: 13, weight: .black).monospacedDigit())
+        VStack(spacing: 4) {
+            Text(emoji)
+                .font(.system(size: 16))
+            Text(score)
+                .font(.system(size: 11, weight: .black).monospacedDigit())
                 .foregroundStyle(.white)
+            Text(name)
+                .font(.system(size: 6, weight: .medium))
+                .foregroundStyle(.white.opacity(0.4))
+                .lineLimit(1)
         }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 7)
-        .background(rank <= 3 ? rankColor.opacity(0.05) : Color.clear)
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 8)
+        .background(color.opacity(0.08))
+        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                .stroke(color.opacity(0.15), lineWidth: 0.5)
+        )
     }
 }
 
@@ -705,13 +762,13 @@ private struct LeaderboardMockRow: View {
         .preferredColorScheme(.dark)
 }
 
-#Preview("2 — Word Drop") {
-    Screenshot_WordDrop()
+#Preview("2 — Poop or Scoop") {
+    Screenshot_PoopOrScoop()
         .preferredColorScheme(.dark)
 }
 
-#Preview("3 — Poop or Scoop") {
-    Screenshot_PoopOrScoop()
+#Preview("3 — Who Said It") {
+    Screenshot_WhoSaidIt()
         .preferredColorScheme(.dark)
 }
 
@@ -720,7 +777,7 @@ private struct LeaderboardMockRow: View {
         .preferredColorScheme(.dark)
 }
 
-#Preview("5 — Social") {
-    Screenshot_Social()
+#Preview("5 — Game Results") {
+    Screenshot_GameResults()
         .preferredColorScheme(.dark)
 }
