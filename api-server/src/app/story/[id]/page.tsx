@@ -93,7 +93,7 @@ export default async function StoryPage({ params }: PageProps) {
     image: `https://thedailypoop.com/api/og?title=${encodeURIComponent(story.headline)}&emoji=${encodeURIComponent(story.emoji || "💩")}&category=${encodeURIComponent(story.category)}`,
     mainEntityOfPage: `https://thedailypoop.com/story/${story.id}`,
     articleSection: story.category,
-    isAccessibleForFree: story.is_free,
+    isAccessibleForFree: true,
   };
 
   return (
@@ -131,11 +131,6 @@ export default async function StoryPage({ params }: PageProps) {
           <span className="rounded-full bg-white/[0.06] px-3 py-1 font-semibold capitalize text-[var(--text-secondary)]">
             {story.category}
           </span>
-          {!story.is_free && (
-            <span className="rounded-full bg-[var(--accent)] px-2.5 py-0.5 font-black text-black">
-              PRO
-            </span>
-          )}
           {publishDate && <span>{publishDate}</span>}
           {story.source_name && (
             <>

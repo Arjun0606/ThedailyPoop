@@ -34,12 +34,7 @@ export default function StoryCard({ story }: { story: Story }) {
             {story.category}
           </span>
 
-          {/* Pro badge */}
-          {!story.is_free && (
-            <span className="absolute top-3 right-3 rounded-full bg-[var(--accent)] px-2.5 py-0.5 text-[10px] font-black text-black">
-              PRO
-            </span>
-          )}
+          {/* All stories free on web */}
         </div>
 
         {/* Content */}

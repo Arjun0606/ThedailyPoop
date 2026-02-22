@@ -50,8 +50,6 @@ async function getTodayDrop() {
 
 export default async function TodayPage() {
   const { stories } = await getTodayDrop();
-  const freeStories = stories.filter((s) => s.is_free);
-  const proStories = stories.filter((s) => !s.is_free);
 
   const today = new Date().toLocaleDateString("en-US", {
     weekday: "long",
@@ -85,13 +83,13 @@ export default async function TodayPage() {
           </div>
         ) : (
           <>
-            {/* Free stories */}
+            {/* All stories — free on web */}
             <div className="grid gap-4 sm:grid-cols-2">
-              {freeStories.map((story, i) => (
+              {stories.map((story, i) => (
                 <div key={story.id}>
                   <StoryCard story={story} />
-                  {/* Ad after every 4th story */}
-                  {(i + 1) % 4 === 0 && i < freeStories.length - 1 && (
+                  {/* Ad after every 5th story */}
+                  {(i + 1) % 5 === 0 && i < stories.length - 1 && (
                     <div className="sm:col-span-2">
                       <AdSlot format="horizontal" />
                     </div>
@@ -100,33 +98,10 @@ export default async function TodayPage() {
               ))}
             </div>
 
-            {/* Pro stories teaser */}
-            {proStories.length > 0 && (
-              <section className="mt-10">
-                <div className="mb-4 flex items-center gap-3">
-                  <h2 className="text-lg font-black text-[var(--accent)]">
-                    Pro Stories
-                  </h2>
-                  <span className="rounded-full bg-[var(--accent)]/10 px-2.5 py-0.5 text-xs font-bold text-[var(--accent)]">
-                    {proStories.length} more
-                  </span>
-                </div>
-
-                <div className="grid gap-4 sm:grid-cols-2">
-                  {proStories.slice(0, 4).map((story) => (
-                    <div key={story.id} className="relative">
-                      <div className="pointer-events-none opacity-60 blur-[2px]">
-                        <StoryCard story={story} />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="mt-6">
-                  <StoryCTA />
-                </div>
-              </section>
-            )}
+            {/* App CTA — games + better experience */}
+            <section className="mt-10">
+              <StoryCTA />
+            </section>
           </>
         )}
       </main>

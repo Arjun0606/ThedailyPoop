@@ -39,9 +39,8 @@ async function getTodayStories() {
       "briefing_id",
       briefings.map((b) => b.id)
     )
-    .eq("is_free", true)
     .order("sort_order", { ascending: true })
-    .limit(10);
+    .limit(12);
 
   return stories ?? [];
 }
