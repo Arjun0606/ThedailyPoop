@@ -38,13 +38,16 @@ export default function PoopOrScoopPage() {
   const [userId, setUserId] = useState<string | null>(null);
   const [noAuth, setNoAuth] = useState(false);
 
-  const supabase = createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
+  function getSupabase() {
+    return createBrowserClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
+  }
 
   useEffect(() => {
     async function init() {
+      const supabase = getSupabase();
       const {
         data: { session },
       } = await supabase.auth.getSession();
@@ -91,7 +94,7 @@ export default function PoopOrScoopPage() {
         // Submit
         const {
           data: { session },
-        } = await supabase.auth.getSession();
+        } = await getSupabase().auth.getSession();
 
         const res = await fetch("/api/games/scoop/submit", {
           method: "POST",
@@ -113,7 +116,7 @@ export default function PoopOrScoopPage() {
         }
       }
     },
-    [game, currentIndex, answers, userId, supabase]
+    [game, currentIndex, answers, userId]
   );
 
   if (loading) {
