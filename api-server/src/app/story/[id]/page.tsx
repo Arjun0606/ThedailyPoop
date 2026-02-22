@@ -19,7 +19,7 @@ async function getStory(id: string) {
 
   const { data: story } = await db
     .from("stories")
-    .select("*, briefings(publish_date, drop_type, vibe)")
+    .select("*, briefings(publish_date, vibe_label, vibe_emoji)")
     .eq("id", id)
     .single();
 

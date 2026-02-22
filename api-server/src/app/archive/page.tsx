@@ -16,7 +16,7 @@ async function getArchive() {
 
   const { data: briefings } = await db
     .from("briefings")
-    .select("id, publish_date, drop_type, vibe, status")
+    .select("id, publish_date, vibe_label, vibe_emoji, status")
     .eq("status", "published")
     .order("publish_date", { ascending: false })
     .limit(60);
@@ -72,7 +72,7 @@ export default async function ArchivePage() {
                   </p>
                   <p className="mt-0.5 text-xs text-[var(--text-tertiary)]">
                     {drops.length} drop{drops.length > 1 ? "s" : ""}
-                    {drops[0]?.vibe && ` · ${drops[0].vibe}`}
+                    {drops[0]?.vibe_label && ` · ${drops[0].vibe_emoji || ""} ${drops[0].vibe_label}`}
                   </p>
                 </div>
                 <span className="text-[var(--text-tertiary)] group-hover:text-white transition">
