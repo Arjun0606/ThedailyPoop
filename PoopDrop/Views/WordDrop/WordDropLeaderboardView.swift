@@ -6,7 +6,8 @@ struct WordDropLeaderboardView: View {
 
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var authManager: AuthenticationManager
-    @State private var entries: [LeaderboardEntry] = []
+    @State private var entries: [DailyLeaderboardEntry] = []
+    @State private var gamesAvailable = 0
     @State private var isLoading = true
 
     private var isPremium: Bool {
@@ -29,7 +30,7 @@ struct WordDropLeaderboardView: View {
                         Text("No scores yet")
                             .font(.headline)
                             .foregroundStyle(Theme.textSecondary)
-                        Text("Be the first to play today's Word Drop!")
+                        Text("Play today's games to get on the board!")
                             .font(.subheadline)
                             .foregroundStyle(Theme.textTertiary)
                     }
@@ -63,14 +64,14 @@ struct WordDropLeaderboardView: View {
                             }
 
                             ForEach(entries) { entry in
-                                LeaderboardRow(entry: entry)
+                                DailyLeaderboardRow(entry: entry, gamesAvailable: gamesAvailable)
                             }
                         }
                         .padding(.bottom, 40)
                     }
                 }
             }
-            .navigationTitle("Leaderboard")
+            .navigationTitle("Today's Leaderboard")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -82,7 +83,9 @@ struct WordDropLeaderboardView: View {
         .preferredColorScheme(.dark)
         .task {
             do {
-                entries = try await SupabaseManager.shared.fetchLeaderboard(date: date, dropType: dropType)
+                let result = try await SupabaseManager.shared.fetchDailyLeaderboard(date: date)
+                entries = result.entries
+                gamesAvailable = result.gamesAvailable
             } catch {
                 print("Leaderboard error: \(error)")
             }
@@ -91,8 +94,9 @@ struct WordDropLeaderboardView: View {
     }
 }
 
-struct LeaderboardRow: View {
-    let entry: LeaderboardEntry
+struct DailyLeaderboardRow: View {
+    let entry: DailyLeaderboardEntry
+    let gamesAvailable: Int
 
     private var rankColor: Color {
         switch entry.rank {
@@ -131,7 +135,7 @@ struct LeaderboardRow: View {
                     )
             }
 
-            // Name + words
+            // Name + games played
             VStack(alignment: .leading, spacing: 2) {
                 HStack(spacing: 4) {
                     Text("@\(entry.username)")
@@ -143,15 +147,9 @@ struct LeaderboardRow: View {
                             .foregroundStyle(Theme.accent)
                     }
                 }
-                HStack(spacing: 4) {
-                    Text("\(entry.wordCount) words")
-                        .font(.caption2)
-                        .foregroundStyle(Theme.textTertiary)
-                    if entry.foundKeyWord {
-                        Text("\u{2B50}")
-                            .font(.system(size: 10))
-                    }
-                }
+                Text("\(entry.gamesPlayed)/\(gamesAvailable) games")
+                    .font(.caption2)
+                    .foregroundStyle(Theme.textTertiary)
             }
 
             Spacer()

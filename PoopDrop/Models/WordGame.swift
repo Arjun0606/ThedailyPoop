@@ -47,3 +47,14 @@ struct LeaderboardEntry: Identifiable, Codable {
     let foundKeyWord: Bool
     let isPremium: Bool
 }
+
+struct DailyLeaderboardEntry: Identifiable, Codable {
+    var id: String { "\(rank)-\(username)" }
+    let rank: Int
+    let username: String
+    let displayName: String?
+    let avatarUrl: String?
+    let score: Int
+    let gamesPlayed: Int
+    let isPremium: Bool
+}

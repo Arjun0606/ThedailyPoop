@@ -80,6 +80,15 @@ class AudioBriefingManager: ObservableObject {
         speakStory(at: currentStoryIndex)
     }
 
+    func jumpToStory(at index: Int) {
+        guard index < stories.count, !stories.isEmpty else { return }
+        synthesizer.stopSpeaking(at: .immediate)
+        currentStoryIndex = index
+        completedUtterances = index * 2
+        speakStory(at: index)
+        isPlaying = true
+    }
+
     func stop() {
         synthesizer.stopSpeaking(at: .immediate)
         isPlaying = false

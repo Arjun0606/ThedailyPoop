@@ -6,7 +6,8 @@ struct LeaderboardPreviewCard: View {
     let onShowFull: () -> Void
     let onUpgrade: () -> Void
 
-    @State private var topEntries: [LeaderboardEntry] = []
+    @State private var topEntries: [DailyLeaderboardEntry] = []
+    @State private var gamesAvailable = 0
     @State private var isLoading = true
 
     var body: some View {
@@ -52,7 +53,7 @@ struct LeaderboardPreviewCard: View {
                     Text("No scores yet today")
                         .font(.subheadline.weight(.medium))
                         .foregroundStyle(Theme.textSecondary)
-                    Text("Play Word Drop to get on the board!")
+                    Text("Play today's games to get on the board!")
                         .font(.caption2)
                         .foregroundStyle(Theme.textTertiary)
                 }
@@ -87,10 +88,15 @@ struct LeaderboardPreviewCard: View {
                                     )
                             }
 
-                            Text("@\(entry.username)")
-                                .font(.caption.weight(.semibold))
-                                .foregroundStyle(.white)
-                                .lineLimit(1)
+                            VStack(alignment: .leading, spacing: 1) {
+                                Text("@\(entry.username)")
+                                    .font(.caption.weight(.semibold))
+                                    .foregroundStyle(.white)
+                                    .lineLimit(1)
+                                Text("\(entry.gamesPlayed)/\(gamesAvailable) games")
+                                    .font(.system(size: 9, weight: .medium))
+                                    .foregroundStyle(Theme.textTertiary)
+                            }
 
                             Spacer()
 
@@ -128,7 +134,9 @@ struct LeaderboardPreviewCard: View {
         )
         .task {
             do {
-                topEntries = try await SupabaseManager.shared.fetchLeaderboard(date: date, dropType: "morning")
+                let result = try await SupabaseManager.shared.fetchDailyLeaderboard(date: date)
+                topEntries = result.entries
+                gamesAvailable = result.gamesAvailable
             } catch {
                 print("Leaderboard preview error: \(error)")
             }

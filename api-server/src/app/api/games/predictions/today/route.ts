@@ -10,7 +10,7 @@ export async function GET(request: Request) {
 
   const { data: predictions, error } = await db
     .from("predictions")
-    .select("id, publish_date, question, context, resolve_by, resolved_answer")
+    .select("id, publish_date, question, context, resolve_by, outcome")
     .eq("publish_date", today)
     .order("created_at", { ascending: true });
 
@@ -38,7 +38,7 @@ export async function GET(request: Request) {
     question: p.question,
     context: p.context,
     resolveBy: p.resolve_by,
-    resolvedAnswer: p.resolved_answer,
+    resolvedAnswer: p.outcome,
     userBet: betMap.has(p.id) ? betMap.get(p.id) : null,
   }));
 

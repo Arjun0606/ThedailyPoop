@@ -6,13 +6,10 @@ struct PlayTabView: View {
     @State private var scoopGame: ScoopGame?
     @State private var whoSaidItGame: WhoSaidItGame?
     @State private var excuseGame: ExcuseGame?
-    @State private var rouletteGame: HeadlineRouletteGame?
     @State private var selectedWordGame: WordGame?
     @State private var showingScoopGame = false
     @State private var showingWhoSaidIt = false
     @State private var showingExcuse = false
-    @State private var showingRoulette = false
-    @State private var showingPredictions = false
     @State private var showingRoast = false
     @State private var showingLeaderboard = false
     @State private var showingPaywall = false
@@ -108,18 +105,17 @@ struct PlayTabView: View {
                                     onUpgrade: { showingPaywall = true }
                                 )
 
-                                // Word Drop games (show all when premium, just 1 when free)
-                                let visibleWordGames = isPremium ? wordGames : Array(wordGames.prefix(1))
-                                ForEach(visibleWordGames, id: \.id) { game in
+                                // Word Drop — Pro only
+                                ForEach(Array(wordGames.prefix(1)), id: \.id) { game in
                                     WordDropCardView(
                                         game: game,
-                                        isPremium: true, // First game always free; premium sees all
+                                        isPremium: isPremium,
                                         onPlay: { selectedWordGame = game },
                                         onUpgrade: { showingPaywall = true }
                                     )
                                 }
 
-                                // Who Said It
+                                // Who Said It — Pro only
                                 WhoSaidItCardView(
                                     game: whoSaidItGame,
                                     isPremium: isPremium,
@@ -127,7 +123,7 @@ struct PlayTabView: View {
                                     onUpgrade: { showingPaywall = true }
                                 )
 
-                                // Spin the Excuse
+                                // Spin the Excuse — Pro only
                                 SpinTheExcuseCardView(
                                     game: excuseGame,
                                     isPremium: isPremium,
@@ -135,22 +131,7 @@ struct PlayTabView: View {
                                     onUpgrade: { showingPaywall = true }
                                 )
 
-                                // Headline Roulette
-                                HeadlineRouletteCardView(
-                                    game: rouletteGame,
-                                    isPremium: isPremium,
-                                    onPlay: { showingRoulette = true },
-                                    onUpgrade: { showingPaywall = true }
-                                )
-
-                                // Predict the Poop
-                                PredictThePoopCardView(
-                                    isPremium: isPremium,
-                                    onPlay: { showingPredictions = true },
-                                    onUpgrade: { showingPaywall = true }
-                                )
-
-                                // The Roast
+                                // The Roast — Pro only
                                 TheRoastCardView(
                                     isPremium: isPremium,
                                     onPlay: { showingRoast = true },
@@ -181,7 +162,7 @@ struct PlayTabView: View {
                                 Text("Unlock All Games")
                                     .font(.subheadline.weight(.bold))
                                     .foregroundStyle(.white)
-                                Text("Word Drop · Who Said It · Spin the Excuse · Headline Roulette · Predict the Poop · The Roast")
+                                Text("Word Drop · Who Said It · Spin the Excuse · The Roast")
                                     .font(.caption2)
                                     .foregroundStyle(Theme.textSecondary)
                                     .multilineTextAlignment(.center)
@@ -213,7 +194,7 @@ struct PlayTabView: View {
             PaywallView()
         }
         .sheet(isPresented: $showingLeaderboard) {
-            if let date = wordGames.first?.publishDate {
+            if let date = wordGames.first?.publishDate ?? todayDateString {
                 WordDropLeaderboardView(date: date, dropType: "morning")
                     .environmentObject(authManager)
             }
@@ -268,23 +249,6 @@ struct PlayTabView: View {
                     }
             }
         }
-        .fullScreenCover(isPresented: $showingRoulette) {
-            if let game = rouletteGame {
-                HeadlineRouletteGameView(game: game)
-                    .environmentObject(authManager)
-                    .onDisappear {
-                        Task {
-                            if let user = authManager.currentUser {
-                                rouletteGame = try? await SupabaseManager.shared.fetchTodayHeadlineRoulette(userId: user.id)
-                            }
-                        }
-                    }
-            }
-        }
-        .fullScreenCover(isPresented: $showingPredictions) {
-            PredictThePoopView()
-                .environmentObject(authManager)
-        }
         .fullScreenCover(isPresented: $showingRoast) {
             TheRoastGameView()
                 .environmentObject(authManager)
@@ -335,7 +299,6 @@ struct PlayTabView: View {
         count += wordGames.filter { $0.played }.count
         if whoSaidItGame?.played == true { count += 1 }
         if excuseGame?.played == true { count += 1 }
-        if rouletteGame?.played == true { count += 1 }
         return count
     }
 
@@ -396,13 +359,11 @@ struct PlayTabView: View {
         async let scoop = SupabaseManager.shared.fetchTodayScoopGame(userId: user.id)
         async let whoSaid = SupabaseManager.shared.fetchTodayWhoSaidIt(userId: user.id)
         async let excuse = SupabaseManager.shared.fetchTodayExcuseGame(userId: user.id)
-        async let roulette = SupabaseManager.shared.fetchTodayHeadlineRoulette(userId: user.id)
 
         wordGames = (try? await games) ?? []
         scoopGame = try? await scoop
         whoSaidItGame = try? await whoSaid
         excuseGame = try? await excuse
-        rouletteGame = try? await roulette
 
         isLoading = false
     }

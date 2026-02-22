@@ -665,6 +665,22 @@ class SupabaseManager: ObservableObject {
         return try JSONDecoder().decode(Response.self, from: data).leaderboard
     }
 
+    func fetchDailyLeaderboard(date: String) async throws -> (entries: [DailyLeaderboardEntry], gamesAvailable: Int) {
+        guard let url = URL(string: "\(Config.apiServerURL)/api/games/leaderboard/daily?date=\(date)") else {
+            return ([], 0)
+        }
+
+        let (data, _) = try await URLSession.shared.data(for: URLRequest(url: url))
+
+        struct Response: Decodable {
+            let leaderboard: [DailyLeaderboardEntry]
+            let gamesAvailable: Int
+        }
+
+        let response = try JSONDecoder().decode(Response.self, from: data)
+        return (response.leaderboard, response.gamesAvailable)
+    }
+
     // MARK: - Poop or Scoop
 
     func fetchTodayScoopGame(userId: String? = nil) async throws -> ScoopGame? {

@@ -2,6 +2,7 @@ import SwiftUI
 
 struct HeadlineRouletteGameView: View {
     let game: HeadlineRouletteGame
+    var onComplete: ((Int, Int) -> Void)? = nil  // (score, maxScore)
     @EnvironmentObject var authManager: AuthenticationManager
     @Environment(\.dismiss) private var dismiss
 
@@ -162,6 +163,7 @@ struct HeadlineRouletteGameView: View {
                 result = try await SupabaseManager.shared.submitHeadlineRoulette(
                     userId: userId, gameId: game.id, ranking: ranking
                 )
+                onComplete?(result!.score, result!.maxScore)
                 withAnimation { showResult = true }
             } catch {
                 // Fallback: calculate score locally

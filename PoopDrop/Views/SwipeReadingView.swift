@@ -4,6 +4,7 @@ struct SwipeReadingView: View {
     let stories: [Story]
     @Binding var readStoryIDs: Set<String>
     @EnvironmentObject var authManager: AuthenticationManager
+    @StateObject private var audioManager = AudioBriefingManager.shared
     @Environment(\.dismiss) private var dismiss
     @State private var currentIndex = 0
     @State private var dragOffset: CGFloat = 0
@@ -32,6 +33,9 @@ struct SwipeReadingView: View {
             .tabViewStyle(.page(indexDisplayMode: .never))
             .onChange(of: currentIndex) { _, newIndex in
                 markAsRead(index: newIndex)
+                if audioManager.isPlaying {
+                    audioManager.jumpToStory(at: newIndex)
+                }
             }
 
             // Top bar
