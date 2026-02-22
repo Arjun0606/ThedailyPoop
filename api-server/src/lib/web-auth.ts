@@ -9,12 +9,14 @@ export type WebSession = {
 } | null;
 
 export async function getWebSession(): Promise<WebSession> {
-  const cookieStore = await cookies();
+  try {
+    const url = process.env.SUPABASE_URL;
+    const key = process.env.SUPABASE_ANON_KEY;
+    if (!url || !key) return null;
 
-  const supabase = createServerClient(
-    process.env.SUPABASE_URL!,
-    process.env.SUPABASE_ANON_KEY!,
-    {
+    const cookieStore = await cookies();
+
+    const supabase = createServerClient(url, key, {
       cookies: {
         getAll() {
           return cookieStore.getAll();
@@ -29,33 +31,36 @@ export async function getWebSession(): Promise<WebSession> {
           }
         },
       },
-    }
-  );
+    });
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
-  if (!user) return null;
+    if (!user) return null;
 
-  // Check premium status from our users table
-  const db = createServiceClient();
-  const { data: profile } = await db
-    .from("users")
-    .select("is_premium, premium_expires_at")
-    .eq("id", user.id)
-    .single();
+    // Check premium status from our users table
+    const db = createServiceClient();
+    const { data: profile } = await db
+      .from("users")
+      .select("is_premium, premium_expires_at")
+      .eq("id", user.id)
+      .single();
 
-  const isPremium =
-    profile?.is_premium &&
-    (!profile.premium_expires_at ||
-      new Date(profile.premium_expires_at) > new Date());
+    const isPremium =
+      profile?.is_premium &&
+      (!profile.premium_expires_at ||
+        new Date(profile.premium_expires_at) > new Date());
 
-  return {
-    userId: user.id,
-    email: user.email || "",
-    isPremium: !!isPremium,
-  };
+    return {
+      userId: user.id,
+      email: user.email || "",
+      isPremium: !!isPremium,
+    };
+  } catch (e) {
+    console.error("getWebSession error:", e);
+    return null;
+  }
 }
 
 // Create a Supabase client for use in Route Handlers (can set cookies)
