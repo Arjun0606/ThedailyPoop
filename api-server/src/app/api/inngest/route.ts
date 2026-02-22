@@ -15,6 +15,7 @@ import {
   streakCheck,
   cleanupSessions,
   weeklyDigest,
+  sendDailyNewsletter,
 } from "@/inngest/functions";
 
 export const { GET, POST, PUT } = serve({
@@ -34,5 +35,6 @@ export const { GET, POST, PUT } = serve({
     streakCheck,              // midnight — update/reset streaks
     cleanupSessions,          // hourly — delete old reader sessions
     weeklyDigest,             // Sunday 10am — weekly recap push
+    sendDailyNewsletter,      // 7:30am ET — daily email newsletter
   ],
 });

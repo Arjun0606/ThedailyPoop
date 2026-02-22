@@ -31,6 +31,9 @@ export const metadata: Metadata = {
     creator: "@thedailypoop",
   },
   icons: { icon: "/favicon.ico" },
+  alternates: {
+    types: { "application/rss+xml": "/feed.xml" },
+  },
 };
 
 export default function RootLayout({

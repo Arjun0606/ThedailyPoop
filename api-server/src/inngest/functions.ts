@@ -12,3 +12,4 @@ export { eveningPush } from "./evening-push";
 export { streakCheck } from "./streak-check";
 export { cleanupSessions } from "./cleanup-sessions";
 export { weeklyDigest } from "./weekly-digest";
+export { sendDailyNewsletter } from "./send-newsletter";
