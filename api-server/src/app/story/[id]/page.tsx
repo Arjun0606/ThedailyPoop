@@ -8,7 +8,7 @@ import StoryCTA from "@/components/StoryCTA";
 import NewsletterForm from "@/components/NewsletterForm";
 import Link from "next/link";
 
-export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 
 interface PageProps {
   params: Promise<{ id: string }>;

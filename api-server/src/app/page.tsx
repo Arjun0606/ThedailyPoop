@@ -46,7 +46,7 @@ async function getTodayStories() {
   return stories ?? [];
 }
 
-export const revalidate = 300; // refresh every 5 min
+export const dynamic = "force-dynamic";
 
 export default async function Home() {
   const stories = await getTodayStories();

@@ -1,6 +1,6 @@
 import { createServiceClient } from "@/lib/supabase";
 
-export const revalidate = 1800; // 30 min
+export const dynamic = "force-dynamic";
 
 export async function GET() {
   const db = createServiceClient();

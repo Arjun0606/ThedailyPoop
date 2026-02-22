@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     "Today's 25 satirical news stories from TheDailyPoop. Dark humor, zero boredom.",
 };
 
-export const revalidate = 300;
+export const dynamic = "force-dynamic";
 
 async function getTodayDrop() {
   const db = createServiceClient();
