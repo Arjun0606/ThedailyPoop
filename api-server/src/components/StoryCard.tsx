@@ -18,7 +18,7 @@ export default function StoryCard({ story }: { story: Story }) {
   return (
     <Link href={`/story/${story.id}`} className="group block">
       <article className="overflow-hidden rounded-2xl border border-white/[0.06] bg-[var(--card-bg)] transition hover:border-white/[0.12]">
-        {/* Visual header — gradient card with emoji like Google Discover image */}
+        {/* Visual header — gradient card with emoji */}
         <div
           className="relative flex h-48 items-center justify-center sm:h-56"
           style={{
@@ -34,7 +34,12 @@ export default function StoryCard({ story }: { story: Story }) {
             {story.category}
           </span>
 
-          {/* All stories free on web */}
+          {/* PRO badge */}
+          {!story.is_free && (
+            <span className="absolute top-3 right-3 rounded-full bg-[var(--accent)] px-2.5 py-0.5 text-[10px] font-black text-black">
+              PRO
+            </span>
+          )}
         </div>
 
         {/* Content */}
@@ -49,7 +54,7 @@ export default function StoryCard({ story }: { story: Story }) {
             </p>
           )}
 
-          {/* Source row — mimics Google Discover */}
+          {/* Source row */}
           <div className="mt-3 flex items-center gap-2 text-xs text-[var(--text-tertiary)]">
             <span className="text-sm">💩</span>
             <span className="font-medium text-[var(--text-secondary)]">

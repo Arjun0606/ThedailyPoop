@@ -83,7 +83,7 @@ export default async function TodayPage() {
           </div>
         ) : (
           <>
-            {/* All stories — free on web */}
+            {/* All stories shown — PRO stories gated on click */}
             <div className="grid gap-4 sm:grid-cols-2">
               {stories.map((story, i) => (
                 <div key={story.id}>
