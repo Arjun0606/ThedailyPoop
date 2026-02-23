@@ -2,6 +2,8 @@ import { Metadata } from "next";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Privacy Policy",
   description: "TheDailyPoop privacy policy — how we collect, use, and protect your data.",

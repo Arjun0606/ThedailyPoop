@@ -2,6 +2,8 @@ import { Metadata } from "next";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Terms of Service",
   description: "TheDailyPoop terms of service — the rules of engagement.",
