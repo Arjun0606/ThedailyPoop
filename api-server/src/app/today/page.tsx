@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import StoryCard from "@/components/StoryCard";
 import StoryCTA from "@/components/StoryCTA";
 import AdSlot from "@/components/AdSlot";
+import NextDropTimer from "@/components/NextDropTimer";
 
 export const metadata: Metadata = {
   title: "Today's Drop",
@@ -33,7 +34,7 @@ async function getTodayDrop() {
       .select("*")
       .eq("status", "published")
       .order("publish_date", { ascending: false })
-      .limit(3);
+      .limit(1);
     briefings = latest;
   }
 
@@ -74,9 +75,12 @@ export default async function TodayPage() {
             className="drop-shadow-md"
           />
           <div>
-            <h1 className="text-2xl font-black text-white sm:text-3xl">
-              Today&apos;s Drop
-            </h1>
+            <div className="flex items-center gap-3">
+              <h1 className="text-2xl font-black text-white sm:text-3xl">
+                Today&apos;s Drop
+              </h1>
+              <NextDropTimer hasBriefing={stories.length > 0} />
+            </div>
             <p className="mt-0.5 text-sm text-[var(--text-secondary)]">
               {today}
             </p>
@@ -93,11 +97,14 @@ export default async function TodayPage() {
               className="mx-auto drop-shadow-lg"
             />
             <p className="mt-4 text-lg font-bold text-white">
-              No drop yet today
+              Today&apos;s Briefing Is Brewing
             </p>
             <p className="mt-1 text-sm text-[var(--text-secondary)]">
-              Check back soon — drops hit at 7am, 12pm, and 5pm ET.
+              Daily drop hits at 7 AM ET.
             </p>
+            <div className="mt-4">
+              <NextDropTimer hasBriefing={false} />
+            </div>
           </div>
         ) : (
           <>

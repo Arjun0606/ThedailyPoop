@@ -21,7 +21,7 @@ export async function GET() {
       .select("*")
       .eq("status", "published")
       .order("publish_date", { ascending: false })
-      .limit(3);
+      .limit(1);
 
     briefings = latest;
   }
