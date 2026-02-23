@@ -128,18 +128,33 @@ export default async function Home() {
         </section>
 
         {/* Newsletter */}
-        <section className="glass-card mb-16 p-6 sm:p-8">
-          <div className="sm:flex sm:items-center sm:gap-6">
-            <div className="flex-1">
-              <h2 className="text-lg font-black text-white">
-                Get the Daily Briefing in Your Inbox
-              </h2>
-              <p className="mt-1 text-sm text-[var(--text-secondary)]">
-                Every morning. Free forever. Unsubscribe anytime.
-              </p>
-            </div>
-            <div className="mt-4 sm:mt-0 sm:w-80">
-              <NewsletterForm />
+        <section className="glass-card mb-16 overflow-hidden">
+          <div className="bg-gradient-to-r from-[var(--accent)]/10 to-transparent p-6 sm:p-8">
+            <div className="sm:flex sm:items-start sm:gap-8">
+              <div className="flex-1">
+                <div className="inline-block rounded-full bg-[var(--accent)]/15 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-[var(--accent)]">
+                  Free Daily Email
+                </div>
+                <h2 className="mt-3 text-xl font-black text-white sm:text-2xl">
+                  Your Morning Briefing, Delivered
+                </h2>
+                <p className="mt-2 text-sm text-[var(--text-secondary)] leading-relaxed">
+                  All 25 stories + newsletter-exclusive sections you won&apos;t find
+                  anywhere else. 7:30 AM ET, every morning.
+                </p>
+                <div className="mt-3 flex flex-wrap gap-3 text-xs text-[var(--text-tertiary)]">
+                  <span>📊 The Number</span>
+                  <span>💬 The Bottom Line</span>
+                  <span>⚡ Quick Hits</span>
+                  <span>🔥 Top 5 Deep Dives</span>
+                </div>
+              </div>
+              <div className="mt-5 sm:mt-0 sm:w-80">
+                <NewsletterForm />
+                <p className="mt-2 text-center text-[11px] text-[var(--text-tertiary)]">
+                  Free forever. Unsubscribe anytime. No spam, ever.
+                </p>
+              </div>
             </div>
           </div>
         </section>
