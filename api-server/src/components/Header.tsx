@@ -41,6 +41,14 @@ export default async function Header() {
           >
             Games
           </Link>
+          {!session?.isPremium && (
+            <Link
+              href="/pro"
+              className="rounded-lg px-3 py-1.5 text-sm font-bold text-[var(--accent)] transition hover:bg-[var(--accent)]/10"
+            >
+              Pro
+            </Link>
+          )}
           <div className="ml-3 border-l border-white/[0.08] pl-3">
             <AuthButtons
               user={

@@ -176,14 +176,12 @@ export default async function ArchivePage() {
                         {lockedDates.length} more day
                         {lockedDates.length > 1 ? "s" : ""} of drops waiting
                       </p>
-                      <a
-                        href="https://apps.apple.com/app/thedailypoop/id6738030377"
-                        target="_blank"
-                        rel="noopener noreferrer"
+                      <Link
+                        href="/pro"
                         className="pressable mt-3 inline-block rounded-full bg-[var(--accent)] px-5 py-2 text-sm font-bold text-black transition hover:bg-[var(--accent-hover)]"
                       >
                         Get Pro — $7.99/mo
-                      </a>
+                      </Link>
                     </>
                   ) : (
                     <p className="mt-3 text-sm text-[var(--text-secondary)]">

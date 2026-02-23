@@ -178,11 +178,39 @@ function generatePoll(stories: Story[]): { question: string; options: string[] }
   return { question: template.question, options: options.slice(0, 4) };
 }
 
+interface SponsorSlot {
+  name: string;
+  tagline: string;
+  url: string;
+  position: "header" | "midroll" | "quickhits";
+}
+
+function buildSponsorHTML(sponsor: SponsorSlot): string {
+  return `
+        <tr>
+          <td style="padding: 16px 0;">
+            <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background: #0a0a0a; border: 1px solid #222; border-radius: 12px;">
+              <tr>
+                <td style="padding: 16px 20px;">
+                  <div style="font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #52525b; margin-bottom: 8px;">Sponsored</div>
+                  <a href="${sponsor.url}" style="text-decoration: none;">
+                    <div style="font-size: 14px; font-weight: 800; color: #FFF;">${sponsor.name}</div>
+                    <div style="font-size: 13px; color: #a1a1aa; margin-top: 4px; line-height: 1.5;">${sponsor.tagline}</div>
+                    <div style="margin-top: 8px; font-size: 12px; color: #F59E0B; font-weight: 700;">Learn more &rarr;</div>
+                  </a>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>`;
+}
+
 function buildNewsletterHTML(
   stories: Story[],
   briefing: { vibe_label?: string; vibe_emoji?: string },
   date: string,
-  subscriberCount: number
+  subscriberCount: number,
+  sponsors?: SponsorSlot[]
 ) {
   const formattedDate = new Date(date + "T12:00:00").toLocaleDateString(
     "en-US",
@@ -192,6 +220,11 @@ function buildNewsletterHTML(
   const openingLine = getOpeningLine(date);
   const oneThingStory = pickOneThingStory(stories);
   const featured = stories.slice(0, 5);
+
+  // Sponsor slots (render only if provided)
+  const headerSponsor = sponsors?.find((s) => s.position === "header");
+  const midrollSponsor = sponsors?.find((s) => s.position === "midroll");
+  const quickhitsSponsor = sponsors?.find((s) => s.position === "quickhits");
   const quickHits = stories.slice(5);
   const theNumber = extractTheNumber(stories);
   const bottomLine = pickBottomLine(stories.slice(5));
@@ -331,6 +364,8 @@ function buildNewsletterHTML(
           </td>
         </tr>
 
+        ${headerSponsor ? buildSponsorHTML(headerSponsor) : ""}
+
         <!-- TODAY'S VIBE -->
         ${briefing.vibe_label ? `
         <tr>
@@ -397,6 +432,8 @@ function buildNewsletterHTML(
         <tr><td style="padding: 0 0 8px;"><div style="font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; color: #F59E0B;">🔥 Today's Top Stories</div></td></tr>
         ${featuredBlocks}
 
+        ${midrollSponsor ? buildSponsorHTML(midrollSponsor) : ""}
+
         <!-- THE NUMBER -->
         ${theNumber ? `
         <tr>
@@ -418,6 +455,8 @@ function buildNewsletterHTML(
         ${quickHits.length > 0 ? `
         <tr><td style="padding: 20px 0 8px;"><div style="font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; color: #F59E0B;">⚡ Quick Hits</div></td></tr>
         ${quickHitRows}` : ""}
+
+        ${quickhitsSponsor ? buildSponsorHTML(quickhitsSponsor) : ""}
 
         <!-- DAILY POLL -->
         ${pollHTML}

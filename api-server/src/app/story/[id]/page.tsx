@@ -230,14 +230,12 @@ export default async function StoryPage({ params }: PageProps) {
                 access 15 days of history.
               </p>
               <div className="mt-4 flex flex-col items-center gap-2">
-                <a
-                  href="https://apps.apple.com/app/thedailypoop/id6738030377"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <Link
+                  href="/pro"
                   className="pressable inline-block rounded-full bg-[var(--accent)] px-6 py-2.5 text-sm font-bold text-black transition hover:bg-[var(--accent-hover)]"
                 >
                   Get Pro — $7.99/mo
-                </a>
+                </Link>
                 {!session && (
                   <Link
                     href="/signup"

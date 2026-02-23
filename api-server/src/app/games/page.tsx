@@ -53,7 +53,7 @@ const GAMES = [
     id: "headline-roulette",
     name: "Headline Roulette",
     emoji: "🎲",
-    description: "Spin the wheel, get a topic, write the funniest headline.",
+    description: "Rank 5 headlines from most to least insane. Can you spot the chaos?",
     tier: "pro" as const,
   },
 ];
@@ -116,14 +116,12 @@ export default async function GamesPage() {
                           Sign up free to play &rarr;
                         </Link>
                       ) : (
-                        <a
-                          href="https://apps.apple.com/app/thedailypoop/id6738030377"
-                          target="_blank"
-                          rel="noopener noreferrer"
+                        <Link
+                          href="/pro"
                           className="text-xs font-bold text-[var(--accent)] hover:underline"
                         >
                           Get Pro to play &rarr;
-                        </a>
+                        </Link>
                       )}
                     </div>
                   </div>
@@ -173,14 +171,12 @@ export default async function GamesPage() {
               Pro gets you every game, every day — plus all 25 stories and 15
               days of history.
             </p>
-            <a
-              href="https://apps.apple.com/app/thedailypoop/id6738030377"
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              href="/pro"
               className="pressable mt-4 inline-block rounded-full bg-[var(--accent)] px-6 py-2.5 text-sm font-bold text-black transition hover:bg-[var(--accent-hover)]"
             >
               Get Pro — $7.99/mo
-            </a>
+            </Link>
           </div>
         )}
       </main>

@@ -62,18 +62,24 @@ export default function Footer() {
               >
                 iPhone
               </a>
-              <a
-                href="https://thedailypoop.com/legal/privacy"
+              <Link
+                href="/legal/privacy"
                 className="text-sm text-[var(--text-secondary)] hover:text-white transition"
               >
                 Privacy
-              </a>
-              <a
-                href="https://thedailypoop.com/legal/terms"
+              </Link>
+              <Link
+                href="/legal/terms"
                 className="text-sm text-[var(--text-secondary)] hover:text-white transition"
               >
                 Terms
-              </a>
+              </Link>
+              <Link
+                href="/advertise"
+                className="text-sm text-[var(--text-secondary)] hover:text-white transition"
+              >
+                Advertise
+              </Link>
             </div>
           </div>
         </div>
