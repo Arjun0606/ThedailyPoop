@@ -52,7 +52,6 @@ export const sendDailyNewsletter = inngest.createFunction(
     const result = await step.run("publish-to-beehiiv", async () => {
       const html = buildNewsletterHTML(stories, briefing, today, subscriberCount);
 
-      // Dynamic subject line — lead with the spiciest headline
       const leadStory = stories[0];
       const subjectEmoji = leadStory?.emoji || "📰";
       const subjectLine = `${subjectEmoji} ${leadStory?.headline || "Today's Drop"}`;
@@ -88,7 +87,32 @@ interface Story {
   is_free: boolean;
 }
 
-// Extract "The Number" — a notable stat from any story body
+// --- NEWSLETTER-EXCLUSIVE CONTENT GENERATORS ---
+
+const OPENING_LINES = [
+  "Another day, another disaster. Let's get into it.",
+  "The news is dumb. We made it dumber. You're welcome.",
+  "Coffee first. Then chaos.",
+  "We read the news so you don't have to cry alone.",
+  "Today's forecast: 100% chance of audacity.",
+  "Welcome back to the worst timeline. Here's your recap.",
+  "Somewhere, a PR team is already panicking. Let's see why.",
+  "Some days the news writes itself. Today was not subtle.",
+  "You could skip the news today. But you'd miss the best parts.",
+  "Buckle up. Today's news had zero chill.",
+  "Hot takes, served fresh. No filter, no apologies.",
+  "The world didn't slow down overnight. Neither did we.",
+  "If today's news were a movie, it'd be rated R.",
+  "Your boss can wait. This can't.",
+  "We found the chaos so you don't have to doom-scroll.",
+];
+
+function getOpeningLine(date: string): string {
+  // Deterministic based on date so it's consistent if regenerated
+  const hash = date.split("-").reduce((acc, n) => acc + parseInt(n), 0);
+  return OPENING_LINES[hash % OPENING_LINES.length];
+}
+
 function extractTheNumber(stories: Story[]): { number: string; context: string; storyId: string } | null {
   const patterns = [
     /(\$[\d,.]+\s*(million|billion|trillion)?)/i,
@@ -116,13 +140,42 @@ function extractTheNumber(stories: Story[]): { number: string; context: string; 
   return null;
 }
 
-// Pick the most absurd/funny TLDR for "Bottom Line"
 function pickBottomLine(stories: Story[]): Story | null {
   const funnyCategories = ["politics", "culture", "world"];
   const withTldr = stories.filter((s) => s.tldr);
   const funny = withTldr.filter((s) => funnyCategories.includes(s.category.toLowerCase()));
   const pool = funny.length > 0 ? funny : withTldr;
   return pool.length > 2 ? pool[Math.floor(pool.length / 2)] : pool[0] || null;
+}
+
+// Pick "If You Only Read One Thing" — the most impactful story
+function pickOneThingStory(stories: Story[]): Story {
+  // Prefer pro stories (they're the premium content), or first story as fallback
+  const pro = stories.filter((s) => !s.is_free && s.tldr);
+  return pro[0] || stories[0];
+}
+
+// Generate daily poll question from today's stories
+function generatePoll(stories: Story[]): { question: string; options: string[] } {
+  const POLL_TEMPLATES = [
+    {
+      question: "Who had the worst day?",
+      pickFrom: (s: Story[]) => s.slice(0, 4).map((x) => x.headline.split(/[:\-–—]/).pop()?.trim().slice(0, 40) || x.category),
+    },
+    {
+      question: "Which headline sounds fake but isn't?",
+      pickFrom: (s: Story[]) => s.filter((x) => x.is_free).slice(0, 4).map((x) => x.headline.slice(0, 45)),
+    },
+    {
+      question: "What's the biggest story today?",
+      pickFrom: (s: Story[]) => s.slice(0, 4).map((x) => `${x.emoji || "📰"} ${x.headline.slice(0, 40)}`),
+    },
+  ];
+
+  const today = new Date();
+  const template = POLL_TEMPLATES[today.getDate() % POLL_TEMPLATES.length];
+  const options = template.pickFrom(stories);
+  return { question: template.question, options: options.slice(0, 4) };
 }
 
 function buildNewsletterHTML(
@@ -136,10 +189,13 @@ function buildNewsletterHTML(
     { weekday: "long", month: "long", day: "numeric", year: "numeric" }
   );
 
+  const openingLine = getOpeningLine(date);
+  const oneThingStory = pickOneThingStory(stories);
   const featured = stories.slice(0, 5);
   const quickHits = stories.slice(5);
   const theNumber = extractTheNumber(stories);
   const bottomLine = pickBottomLine(stories.slice(5));
+  const poll = generatePoll(stories);
 
   // Category breakdown for scoreboard
   const categoryCounts: Record<string, number> = {};
@@ -226,6 +282,30 @@ function buildNewsletterHTML(
       ? `<div style="font-size: 11px; color: #52525b; margin-top: 4px;">Join ${subscriberCount.toLocaleString()}+ readers</div>`
       : "";
 
+  // Poll options as visual buttons (link to website since email can't have real interactivity)
+  const pollHTML = `
+        <tr>
+          <td style="padding: 24px 0;">
+            <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background: #0a0a0a; border: 1px solid #1a1a1a; border-radius: 12px;">
+              <tr>
+                <td style="padding: 20px;">
+                  <div style="font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; color: #F59E0B; margin-bottom: 10px;">🗳️ Daily Poll</div>
+                  <div style="font-size: 16px; font-weight: 800; color: #FFF; margin-bottom: 14px;">${poll.question}</div>
+                  ${poll.options
+                    .map(
+                      (opt) => `
+                  <div style="margin-bottom: 8px;">
+                    <a href="https://thedailypoop.com/today" style="display: block; text-decoration: none; padding: 10px 14px; background: #111; border: 1px solid #222; border-radius: 8px; font-size: 13px; color: #d4d4d8; transition: background 0.2s;">${opt}</a>
+                  </div>`
+                    )
+                    .join("")}
+                  <div style="font-size: 11px; color: #3f3f46; margin-top: 6px;">Reply with your answer — we'll share results tomorrow</div>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>`;
+
   return `
 <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color: #000; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
   <tr>
@@ -244,6 +324,13 @@ function buildNewsletterHTML(
           </td>
         </tr>
 
+        <!-- OPENING LINE -->
+        <tr>
+          <td style="padding: 0 0 20px; text-align: center;">
+            <div style="font-size: 15px; color: #a1a1aa; font-style: italic; line-height: 1.5;">${openingLine}</div>
+          </td>
+        </tr>
+
         <!-- TODAY'S VIBE -->
         ${briefing.vibe_label ? `
         <tr>
@@ -258,6 +345,24 @@ function buildNewsletterHTML(
             </table>
           </td>
         </tr>` : ""}
+
+        <!-- IF YOU ONLY READ ONE THING -->
+        <tr>
+          <td style="padding: 0 0 24px;">
+            <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border: 2px solid #F59E0B; border-radius: 12px; overflow: hidden;">
+              <tr>
+                <td style="background: linear-gradient(135deg, #1a1200, #0a0a00); padding: 20px;">
+                  <div style="font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; color: #F59E0B; margin-bottom: 10px;">👆 If You Only Read One Thing</div>
+                  <a href="https://thedailypoop.com/story/${oneThingStory.id}" style="text-decoration: none;">
+                    <div style="font-size: 17px; font-weight: 800; color: #FFF; line-height: 1.3;">${oneThingStory.emoji || "📰"} ${oneThingStory.headline}</div>
+                  </a>
+                  ${oneThingStory.tldr ? `<div style="font-size: 13px; color: #a1a1aa; margin-top: 8px; line-height: 1.5;">${oneThingStory.tldr}</div>` : ""}
+                  <a href="https://thedailypoop.com/story/${oneThingStory.id}" style="display: inline-block; margin-top: 10px; font-size: 13px; color: #F59E0B; text-decoration: none; font-weight: 700;">Read this one &rarr;</a>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
 
         <!-- TODAY'S SCOREBOARD -->
         <tr>
@@ -314,10 +419,13 @@ function buildNewsletterHTML(
         <tr><td style="padding: 20px 0 8px;"><div style="font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; color: #F59E0B;">⚡ Quick Hits</div></td></tr>
         ${quickHitRows}` : ""}
 
+        <!-- DAILY POLL -->
+        ${pollHTML}
+
         <!-- THE BOTTOM LINE (Newsletter-Exclusive) -->
         ${bottomLine ? `
         <tr>
-          <td style="padding: 28px 0;">
+          <td style="padding: 4px 0 24px;">
             <table cellpadding="0" cellspacing="0" border="0" width="100%" style="border: 1px solid #333; border-radius: 12px; overflow: hidden;">
               <tr>
                 <td style="background: #0a0a0a; padding: 24px;">
@@ -331,15 +439,41 @@ function buildNewsletterHTML(
           </td>
         </tr>` : ""}
 
-        <!-- SHARE THE LOVE -->
+        <!-- REFERRAL PROGRAM -->
         <tr>
-          <td style="padding: 20px 0;">
-            <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background: #111; border: 1px solid #222; border-radius: 12px;">
+          <td style="padding: 4px 0 20px;">
+            <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background: linear-gradient(135deg, #111, #0a0a0a); border: 1px solid #F59E0B33; border-radius: 12px;">
               <tr>
-                <td style="padding: 20px; text-align: center;">
-                  <div style="font-size: 20px;">🫵</div>
-                  <div style="font-size: 14px; font-weight: 800; color: #FFF; margin-top: 6px;">Forward this to someone who'd laugh</div>
-                  <div style="font-size: 12px; color: #71717a; margin-top: 4px;">They can subscribe at <a href="https://thedailypoop.com" style="color: #F59E0B; text-decoration: none; font-weight: 600;">thedailypoop.com</a></div>
+                <td style="padding: 24px; text-align: center;">
+                  <div style="font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; color: #F59E0B; margin-bottom: 8px;">🏆 Refer &amp; Earn</div>
+                  <div style="font-size: 16px; font-weight: 800; color: #FFF;">Share TheDailyPoop, Get Rewarded</div>
+                  <div style="font-size: 13px; color: #71717a; margin-top: 6px; line-height: 1.5;">Forward this email or share your link. Here's what you unlock:</div>
+                  <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-top: 16px;">
+                    <tr>
+                      <td style="padding: 8px; text-align: center; width: 33%;">
+                        <div style="background: #1a1a1a; border-radius: 10px; padding: 14px 8px;">
+                          <div style="font-size: 20px;">🎯</div>
+                          <div style="font-size: 12px; font-weight: 800; color: #FFF; margin-top: 4px;">5 referrals</div>
+                          <div style="font-size: 11px; color: #F59E0B; margin-top: 2px;">1 month Pro free</div>
+                        </div>
+                      </td>
+                      <td style="padding: 8px; text-align: center; width: 33%;">
+                        <div style="background: #1a1a1a; border-radius: 10px; padding: 14px 8px;">
+                          <div style="font-size: 20px;">📣</div>
+                          <div style="font-size: 12px; font-weight: 800; color: #FFF; margin-top: 4px;">25 referrals</div>
+                          <div style="font-size: 11px; color: #F59E0B; margin-top: 2px;">Shoutout in newsletter</div>
+                        </div>
+                      </td>
+                      <td style="padding: 8px; text-align: center; width: 33%;">
+                        <div style="background: #1a1a1a; border-radius: 10px; padding: 14px 8px;">
+                          <div style="font-size: 20px;">👑</div>
+                          <div style="font-size: 12px; font-weight: 800; color: #FFF; margin-top: 4px;">100 referrals</div>
+                          <div style="font-size: 11px; color: #F59E0B; margin-top: 2px;">Lifetime Pro</div>
+                        </div>
+                      </td>
+                    </tr>
+                  </table>
+                  <a href="https://thedailypoop.com" style="display: inline-block; margin-top: 16px; background: #F59E0B; color: #000; font-size: 13px; font-weight: 700; padding: 10px 24px; border-radius: 99px; text-decoration: none;">Share Your Link</a>
                 </td>
               </tr>
             </table>
@@ -348,7 +482,7 @@ function buildNewsletterHTML(
 
         <!-- GAMES CTA -->
         <tr>
-          <td style="padding: 8px 0 24px;">
+          <td style="padding: 4px 0 24px;">
             <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background: #111; border: 1px solid #222; border-radius: 12px;">
               <tr>
                 <td style="padding: 24px; text-align: center;">
@@ -363,8 +497,19 @@ function buildNewsletterHTML(
           </td>
         </tr>
 
+        <!-- REPLY CTA (Deliverability Booster) -->
+        <tr>
+          <td style="padding: 0 0 24px; text-align: center;">
+            <div style="font-size: 20px; margin-bottom: 6px;">💩 or 🍦?</div>
+            <div style="font-size: 13px; color: #71717a; line-height: 1.5;">
+              Hit reply with a <strong style="color: #d4d4d8;">💩</strong> if today's news was trash or <strong style="color: #d4d4d8;">🍦</strong> if it was a treat.<br>
+              <span style="font-size: 11px; color: #3f3f46;">(Replies help us land in your inbox, not spam. For real.)</span>
+            </div>
+          </td>
+        </tr>
+
         <!-- FOOTER -->
-        <tr><td style="padding: 20px 0 8px;"><div style="height: 1px; background: linear-gradient(to right, transparent, #222, transparent);"></div></td></tr>
+        <tr><td style="padding: 0 0 8px;"><div style="height: 1px; background: linear-gradient(to right, transparent, #222, transparent);"></div></td></tr>
         <tr>
           <td style="padding: 16px 0; text-align: center;">
             <a href="https://thedailypoop.com" style="text-decoration: none;">
