@@ -264,7 +264,7 @@ function buildNewsletterHTML(
               <tr>
                 <td style="padding: 12px 20px 0;">
                   <span style="font-size: 24px;">${s.emoji || "📰"}</span>
-                  <a href="https://thedailypoop.com/story/${s.id}" style="text-decoration: none;">
+                  <a href="https://thedailypoop.lol/story/${s.id}" style="text-decoration: none;">
                     <div style="font-size: 18px; font-weight: 800; color: #FFFFFF; line-height: 1.3; margin-top: 8px;">${s.headline}</div>
                   </a>
                 </td>
@@ -277,7 +277,7 @@ function buildNewsletterHTML(
               </tr>
               <tr>
                 <td style="padding: 12px 20px 16px;">
-                  <a href="https://thedailypoop.com/story/${s.id}" style="font-size: 13px; color: #F59E0B; text-decoration: none; font-weight: 700;">Keep reading &rarr;</a>
+                  <a href="https://thedailypoop.lol/story/${s.id}" style="font-size: 13px; color: #F59E0B; text-decoration: none; font-weight: 700;">Keep reading &rarr;</a>
                 </td>
               </tr>
             </table>
@@ -295,7 +295,7 @@ function buildNewsletterHTML(
               <tr>
                 <td width="32" style="vertical-align: top; font-size: 20px; padding-right: 10px;">${s.emoji || "📰"}</td>
                 <td style="vertical-align: top;">
-                  <a href="https://thedailypoop.com/story/${s.id}" style="text-decoration: none;">
+                  <a href="https://thedailypoop.lol/story/${s.id}" style="text-decoration: none;">
                     <div style="font-size: 15px; font-weight: 700; color: #FFF; line-height: 1.35;">${s.headline}</div>
                   </a>
                   ${s.tldr ? `<div style="font-size: 13px; color: #71717a; margin-top: 4px; line-height: 1.4;">${s.tldr}</div>` : ""}
@@ -328,7 +328,7 @@ function buildNewsletterHTML(
                     .map(
                       (opt) => `
                   <div style="margin-bottom: 8px;">
-                    <a href="https://thedailypoop.com/today" style="display: block; text-decoration: none; padding: 10px 14px; background: #111; border: 1px solid #222; border-radius: 8px; font-size: 13px; color: #d4d4d8; transition: background 0.2s;">${opt}</a>
+                    <a href="https://thedailypoop.lol/today" style="display: block; text-decoration: none; padding: 10px 14px; background: #111; border: 1px solid #222; border-radius: 8px; font-size: 13px; color: #d4d4d8; transition: background 0.2s;">${opt}</a>
                   </div>`
                     )
                     .join("")}
@@ -348,8 +348,8 @@ function buildNewsletterHTML(
         <!-- HEADER -->
         <tr>
           <td style="padding: 32px 0 20px; text-align: center;">
-            <a href="https://thedailypoop.com" style="text-decoration: none;">
-              <img src="https://thedailypoop.com/logo.png" width="56" height="56" alt="TheDailyPoop" style="border: 0; display: inline-block;" />
+            <a href="https://thedailypoop.lol" style="text-decoration: none;">
+              <img src="https://thedailypoop.lol/logo.png" width="56" height="56" alt="TheDailyPoop" style="border: 0; display: inline-block;" />
             </a>
             <div style="font-size: 24px; font-weight: 900; color: #FFF; letter-spacing: -0.03em; margin-top: 12px;">TheDailyPoop</div>
             <div style="font-size: 11px; color: #52525b; margin-top: 6px; letter-spacing: 1px; text-transform: uppercase;">${formattedDate}</div>
@@ -388,11 +388,11 @@ function buildNewsletterHTML(
               <tr>
                 <td style="background: linear-gradient(135deg, #1a1200, #0a0a00); padding: 20px;">
                   <div style="font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; color: #F59E0B; margin-bottom: 10px;">👆 If You Only Read One Thing</div>
-                  <a href="https://thedailypoop.com/story/${oneThingStory.id}" style="text-decoration: none;">
+                  <a href="https://thedailypoop.lol/story/${oneThingStory.id}" style="text-decoration: none;">
                     <div style="font-size: 17px; font-weight: 800; color: #FFF; line-height: 1.3;">${oneThingStory.emoji || "📰"} ${oneThingStory.headline}</div>
                   </a>
                   ${oneThingStory.tldr ? `<div style="font-size: 13px; color: #a1a1aa; margin-top: 8px; line-height: 1.5;">${oneThingStory.tldr}</div>` : ""}
-                  <a href="https://thedailypoop.com/story/${oneThingStory.id}" style="display: inline-block; margin-top: 10px; font-size: 13px; color: #F59E0B; text-decoration: none; font-weight: 700;">Read this one &rarr;</a>
+                  <a href="https://thedailypoop.lol/story/${oneThingStory.id}" style="display: inline-block; margin-top: 10px; font-size: 13px; color: #F59E0B; text-decoration: none; font-weight: 700;">Read this one &rarr;</a>
                 </td>
               </tr>
             </table>
@@ -444,7 +444,7 @@ function buildNewsletterHTML(
                   <div style="font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; color: #F59E0B;">📊 The Number</div>
                   <div style="font-size: 32px; font-weight: 900; color: #F59E0B; margin-top: 12px;">${theNumber.number}</div>
                   <div style="font-size: 14px; color: #d4d4d8; margin-top: 8px; line-height: 1.5;">${theNumber.context}</div>
-                  <a href="https://thedailypoop.com/story/${theNumber.storyId}" style="display: inline-block; margin-top: 12px; font-size: 12px; color: #F59E0B; text-decoration: none; font-weight: 600;">Full story &rarr;</a>
+                  <a href="https://thedailypoop.lol/story/${theNumber.storyId}" style="display: inline-block; margin-top: 12px; font-size: 12px; color: #F59E0B; text-decoration: none; font-weight: 600;">Full story &rarr;</a>
                 </td>
               </tr>
             </table>
@@ -470,7 +470,7 @@ function buildNewsletterHTML(
                 <td style="background: #0a0a0a; padding: 24px;">
                   <div style="font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px; color: #F59E0B; margin-bottom: 12px;">💬 The Bottom Line</div>
                   <div style="font-size: 15px; color: #e4e4e7; line-height: 1.6; font-style: italic;">"${bottomLine.body.split("\n\n").slice(-1)[0]?.slice(0, 200) || bottomLine.tldr || bottomLine.headline}"</div>
-                  <div style="font-size: 12px; color: #52525b; margin-top: 10px;">— on <a href="https://thedailypoop.com/story/${bottomLine.id}" style="color: #F59E0B; text-decoration: none;">${bottomLine.headline.slice(0, 60)}${bottomLine.headline.length > 60 ? "..." : ""}</a></div>
+                  <div style="font-size: 12px; color: #52525b; margin-top: 10px;">— on <a href="https://thedailypoop.lol/story/${bottomLine.id}" style="color: #F59E0B; text-decoration: none;">${bottomLine.headline.slice(0, 60)}${bottomLine.headline.length > 60 ? "..." : ""}</a></div>
                   <div style="font-size: 11px; color: #3f3f46; margin-top: 8px;">📧 Newsletter exclusive — you won't find this in the app</div>
                 </td>
               </tr>
@@ -505,7 +505,7 @@ function buildNewsletterHTML(
                       </td>
                     </tr>
                   </table>
-                  <a href="https://thedailypoop.com" style="display: inline-block; margin-top: 16px; background: #F59E0B; color: #000; font-size: 13px; font-weight: 700; padding: 10px 24px; border-radius: 99px; text-decoration: none;">Share Your Link</a>
+                  <a href="https://thedailypoop.lol" style="display: inline-block; margin-top: 16px; background: #F59E0B; color: #000; font-size: 13px; font-weight: 700; padding: 10px 24px; border-radius: 99px; text-decoration: none;">Share Your Link</a>
                 </td>
               </tr>
             </table>
@@ -521,8 +521,8 @@ function buildNewsletterHTML(
                   <div style="font-size: 24px;">🎮</div>
                   <div style="font-size: 16px; font-weight: 800; color: #FFF; margin-top: 8px;">Play Today's Games</div>
                   <div style="font-size: 13px; color: #71717a; margin-top: 4px; line-height: 1.4;">6 AI-powered games refreshed daily. Can you spot the fake headlines?</div>
-                  <a href="https://thedailypoop.com/games" style="display: inline-block; margin-top: 14px; background: #F59E0B; color: #000; font-size: 13px; font-weight: 700; padding: 10px 24px; border-radius: 99px; text-decoration: none;">Play Free on Web</a>
-                  <div style="margin-top: 10px;"><a href="https://apps.apple.com/app/thedailypoop/id6738030377" style="font-size: 12px; color: #F59E0B; text-decoration: none; font-weight: 600;">or get the app for the full experience &rarr;</a></div>
+                  <a href="https://thedailypoop.lol/games" style="display: inline-block; margin-top: 14px; background: #F59E0B; color: #000; font-size: 13px; font-weight: 700; padding: 10px 24px; border-radius: 99px; text-decoration: none;">Play Free on Web</a>
+                  <div style="margin-top: 10px;"><span style="font-size: 12px; color: #71717a; font-weight: 600;">iOS app coming soon</span></div>
                 </td>
               </tr>
             </table>
@@ -544,12 +544,12 @@ function buildNewsletterHTML(
         <tr><td style="padding: 0 0 8px;"><div style="height: 1px; background: linear-gradient(to right, transparent, #222, transparent);"></div></td></tr>
         <tr>
           <td style="padding: 16px 0; text-align: center;">
-            <a href="https://thedailypoop.com" style="text-decoration: none;">
-              <img src="https://thedailypoop.com/logo.png" width="28" height="28" alt="" style="border: 0; display: inline-block; opacity: 0.5;" />
+            <a href="https://thedailypoop.lol" style="text-decoration: none;">
+              <img src="https://thedailypoop.lol/logo.png" width="28" height="28" alt="" style="border: 0; display: inline-block; opacity: 0.5;" />
             </a>
             <div style="font-size: 11px; color: #3f3f46; margin-top: 10px; line-height: 1.8;">
               You're getting this because you're one of us.<br>
-              <a href="https://thedailypoop.com" style="color: #52525b; text-decoration: none;">thedailypoop.com</a><br>
+              <a href="https://thedailypoop.lol" style="color: #52525b; text-decoration: none;">thedailypoop.lol</a><br>
               Not your vibe anymore? Unsubscribe below — no hard feelings.
             </div>
           </td>

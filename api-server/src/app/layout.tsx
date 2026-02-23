@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   },
   description:
     "25 stories a day, zero boring ones. Dark satirical news briefings, AI-powered games, and a daily ritual that actually makes you laugh. Free on iPhone.",
-  metadataBase: new URL("https://thedailypoop.com"),
+  metadataBase: new URL("https://thedailypoop.lol"),
   openGraph: {
     type: "website",
     siteName: "TheDailyPoop",
@@ -61,10 +61,9 @@ export const metadata: Metadata = {
   },
   alternates: {
     types: { "application/rss+xml": "/feed.xml" },
-    canonical: "https://thedailypoop.com",
+    canonical: "https://thedailypoop.lol",
   },
   other: {
-    "apple-itunes-app": "app-id=6738030377",
     "google-site-verification": process.env.GOOGLE_SITE_VERIFICATION || "",
   },
 };

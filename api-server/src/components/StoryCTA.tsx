@@ -13,20 +13,15 @@ export default function StoryCTA() {
         />
         <div className="mt-4 text-center sm:mt-0 sm:text-left">
           <h3 className="text-lg font-black text-white">
-            Play the Games. Get the App.
+            The app is coming.
           </h3>
           <p className="mt-1 text-sm text-[var(--text-secondary)]">
             6 AI-powered games daily, audio narration, push alerts, and the
-            smoothest news experience on your phone.
+            smoothest news experience on your phone. Launching soon on iOS.
           </p>
-          <a
-            href="https://apps.apple.com/app/thedailypoop/id6738030377"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="pressable mt-4 inline-block rounded-full bg-[var(--accent)] px-6 py-2.5 text-sm font-bold text-black transition hover:bg-[var(--accent-hover)]"
-          >
-            Download Free on iPhone
-          </a>
+          <span className="mt-4 inline-block rounded-full bg-zinc-800 px-5 py-2 text-sm font-bold text-zinc-400">
+            iOS App Coming Soon
+          </span>
         </div>
       </div>
     </div>

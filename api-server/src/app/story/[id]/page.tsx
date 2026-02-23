@@ -86,18 +86,18 @@ export default async function StoryPage({ params }: PageProps) {
     author: {
       "@type": "Organization",
       name: "TheDailyPoop",
-      url: "https://thedailypoop.com",
+      url: "https://thedailypoop.lol",
     },
     publisher: {
       "@type": "Organization",
       name: "TheDailyPoop",
       logo: {
         "@type": "ImageObject",
-        url: "https://thedailypoop.com/icon-192.png",
+        url: "https://thedailypoop.lol/icon-192.png",
       },
     },
-    image: `https://thedailypoop.com/api/og?title=${encodeURIComponent(story.headline)}&emoji=${encodeURIComponent(story.emoji || "📰")}&category=${encodeURIComponent(story.category)}`,
-    mainEntityOfPage: `https://thedailypoop.com/story/${story.id}`,
+    image: `https://thedailypoop.lol/api/og?title=${encodeURIComponent(story.headline)}&emoji=${encodeURIComponent(story.emoji || "📰")}&category=${encodeURIComponent(story.category)}`,
+    mainEntityOfPage: `https://thedailypoop.lol/story/${story.id}`,
     articleSection: story.category,
     isAccessibleForFree: story.is_free,
   };
@@ -187,7 +187,7 @@ export default async function StoryPage({ params }: PageProps) {
             {/* Share */}
             <div className="mt-8 flex gap-3">
               <a
-                href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(story.headline)}&url=${encodeURIComponent("https://thedailypoop.com/story/" + story.id)}`}
+                href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(story.headline)}&url=${encodeURIComponent("https://thedailypoop.lol/story/" + story.id)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="pressable rounded-full border border-white/[0.12] px-4 py-2 text-xs font-medium text-white transition hover:bg-white/[0.06]"
@@ -195,7 +195,7 @@ export default async function StoryPage({ params }: PageProps) {
                 Share on X
               </a>
               <a
-                href={`https://www.reddit.com/submit?url=${encodeURIComponent("https://thedailypoop.com/story/" + story.id)}&title=${encodeURIComponent(story.headline)}`}
+                href={`https://www.reddit.com/submit?url=${encodeURIComponent("https://thedailypoop.lol/story/" + story.id)}&title=${encodeURIComponent(story.headline)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="pressable rounded-full border border-white/[0.12] px-4 py-2 text-xs font-medium text-white transition hover:bg-white/[0.06]"

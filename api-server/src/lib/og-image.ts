@@ -11,7 +11,7 @@ export async function fetchOgImage(url: string): Promise<string | null> {
       signal: controller.signal,
       headers: {
         "User-Agent":
-          "Mozilla/5.0 (compatible; TheDailyPoop/1.0; +https://thedailypoop.com)",
+          "Mozilla/5.0 (compatible; TheDailyPoop/1.0; +https://thedailypoop.lol)",
       },
       redirect: "follow",
     });

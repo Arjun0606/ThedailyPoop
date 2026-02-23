@@ -25,7 +25,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .limit(30);
 
   const storyUrls: MetadataRoute.Sitemap = (stories ?? []).map((s) => ({
-    url: `https://thedailypoop.com/story/${s.id}`,
+    url: `https://thedailypoop.lol/story/${s.id}`,
     lastModified: new Date(s.created_at),
     changeFrequency: "never" as const,
     priority: s.is_free ? 0.8 : 0.6,
@@ -33,31 +33,31 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const staticPages: MetadataRoute.Sitemap = [
     {
-      url: "https://thedailypoop.com",
+      url: "https://thedailypoop.lol",
       lastModified: new Date(),
       changeFrequency: "daily",
       priority: 1.0,
     },
     {
-      url: "https://thedailypoop.com/today",
+      url: "https://thedailypoop.lol/today",
       lastModified: new Date(),
       changeFrequency: "daily",
       priority: 0.9,
     },
     {
-      url: "https://thedailypoop.com/archive",
+      url: "https://thedailypoop.lol/archive",
       lastModified: new Date(),
       changeFrequency: "daily",
       priority: 0.7,
     },
     {
-      url: "https://thedailypoop.com/games",
+      url: "https://thedailypoop.lol/games",
       lastModified: new Date(),
       changeFrequency: "daily",
       priority: 0.7,
     },
     {
-      url: "https://thedailypoop.com/games/poop-or-scoop",
+      url: "https://thedailypoop.lol/games/poop-or-scoop",
       lastModified: new Date(),
       changeFrequency: "daily",
       priority: 0.6,

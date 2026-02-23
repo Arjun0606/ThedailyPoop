@@ -54,14 +54,9 @@ export default function Footer() {
               <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-600">
                 More
               </span>
-              <a
-                href="https://apps.apple.com/app/thedailypoop/id6738030377"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-[13px] text-zinc-500 hover:text-white transition"
-              >
-                iPhone App
-              </a>
+              <span className="text-[13px] text-zinc-600">
+                iOS App (Coming Soon)
+              </span>
               <Link
                 href="/advertise"
                 className="text-[13px] text-zinc-500 hover:text-white transition"

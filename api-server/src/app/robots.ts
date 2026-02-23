@@ -17,6 +17,6 @@ export default function robots(): MetadataRoute.Robots {
         allow: "/",
       },
     ],
-    sitemap: "https://thedailypoop.com/sitemap.xml",
+    sitemap: "https://thedailypoop.lol/sitemap.xml",
   };
 }

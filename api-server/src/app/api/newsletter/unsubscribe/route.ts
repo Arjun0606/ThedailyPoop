@@ -18,7 +18,7 @@ export async function GET(req: NextRequest) {
     <p style="font-size:14px;color:#a1a1aa;margin-top:8px;">
       ${email ? `(${email})` : ""}
     </p>
-    <a href="https://thedailypoop.com" style="display:inline-block;margin-top:16px;color:#F59E0B;font-size:14px;">
+    <a href="https://thedailypoop.lol" style="display:inline-block;margin-top:16px;color:#F59E0B;font-size:14px;">
       Back to TheDailyPoop
     </a>
   </div>
