@@ -7,49 +7,49 @@ export default async function Header() {
   const session = await getWebSession();
 
   return (
-    <header className="sticky top-0 z-50 border-b border-white/[0.06] bg-black/80 backdrop-blur-xl">
-      <div className="flex items-center justify-between px-5 py-3 sm:px-8 lg:px-12">
-        <Link href="/" className="pressable flex items-center gap-2">
+    <header className="sticky top-0 z-50 bg-black/90 backdrop-blur-xl">
+      <div className="flex items-center justify-between px-5 py-4 sm:px-8 lg:px-12">
+        <Link href="/" className="pressable flex items-center gap-2.5">
           <Image
             src="/logo.png"
             alt="TheDailyPoop"
-            width={30}
-            height={30}
+            width={34}
+            height={34}
             className="drop-shadow-md"
           />
-          <span className="text-[15px] font-black tracking-tight text-white">
+          <span className="text-lg font-black tracking-tight text-white">
             TheDailyPoop
           </span>
         </Link>
 
-        <nav className="flex items-center gap-0.5">
+        <nav className="flex items-center">
           <Link
             href="/today"
-            className="rounded-lg px-3 py-1.5 text-[13px] font-medium text-zinc-400 transition hover:bg-white/[0.05] hover:text-white"
+            className="px-4 py-2 text-sm font-medium text-zinc-400 transition hover:text-white"
           >
             Today
           </Link>
           <Link
             href="/archive"
-            className="rounded-lg px-3 py-1.5 text-[13px] font-medium text-zinc-400 transition hover:bg-white/[0.05] hover:text-white"
+            className="px-4 py-2 text-sm font-medium text-zinc-400 transition hover:text-white"
           >
             Archive
           </Link>
           <Link
             href="/games"
-            className="rounded-lg px-3 py-1.5 text-[13px] font-medium text-zinc-400 transition hover:bg-white/[0.05] hover:text-white"
+            className="px-4 py-2 text-sm font-medium text-zinc-400 transition hover:text-white"
           >
             Games
           </Link>
           {!session?.isPremium && (
             <Link
               href="/pro"
-              className="rounded-lg px-3 py-1.5 text-[13px] font-bold text-[var(--accent)] transition hover:bg-[var(--accent)]/10"
+              className="px-4 py-2 text-sm font-bold text-[var(--accent)] transition hover:text-[var(--accent-hover)]"
             >
               Pro
             </Link>
           )}
-          <div className="ml-2 border-l border-white/[0.08] pl-3">
+          <div className="ml-4 pl-4 border-l border-zinc-800">
             <AuthButtons
               user={
                 session
@@ -60,6 +60,7 @@ export default async function Header() {
           </div>
         </nav>
       </div>
+      <div className="h-px bg-gradient-to-r from-transparent via-zinc-800 to-transparent" />
     </header>
   );
 }
