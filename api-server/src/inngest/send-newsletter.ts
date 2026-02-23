@@ -450,25 +450,18 @@ function buildNewsletterHTML(
                   <div style="font-size: 13px; color: #71717a; margin-top: 6px; line-height: 1.5;">Forward this email or share your link. Here's what you unlock:</div>
                   <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-top: 16px;">
                     <tr>
-                      <td style="padding: 8px; text-align: center; width: 33%;">
+                      <td style="padding: 8px; text-align: center; width: 50%;">
                         <div style="background: #1a1a1a; border-radius: 10px; padding: 14px 8px;">
                           <div style="font-size: 20px;">🎯</div>
                           <div style="font-size: 12px; font-weight: 800; color: #FFF; margin-top: 4px;">5 referrals</div>
                           <div style="font-size: 11px; color: #F59E0B; margin-top: 2px;">1 month Pro free</div>
                         </div>
                       </td>
-                      <td style="padding: 8px; text-align: center; width: 33%;">
+                      <td style="padding: 8px; text-align: center; width: 50%;">
                         <div style="background: #1a1a1a; border-radius: 10px; padding: 14px 8px;">
                           <div style="font-size: 20px;">📣</div>
                           <div style="font-size: 12px; font-weight: 800; color: #FFF; margin-top: 4px;">25 referrals</div>
-                          <div style="font-size: 11px; color: #F59E0B; margin-top: 2px;">Shoutout in newsletter</div>
-                        </div>
-                      </td>
-                      <td style="padding: 8px; text-align: center; width: 33%;">
-                        <div style="background: #1a1a1a; border-radius: 10px; padding: 14px 8px;">
-                          <div style="font-size: 20px;">👑</div>
-                          <div style="font-size: 12px; font-weight: 800; color: #FFF; margin-top: 4px;">100 referrals</div>
-                          <div style="font-size: 11px; color: #F59E0B; margin-top: 2px;">Lifetime Pro</div>
+                          <div style="font-size: 11px; color: #F59E0B; margin-top: 2px;">Shoutout + 1 month Pro</div>
                         </div>
                       </td>
                     </tr>
