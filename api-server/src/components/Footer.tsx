@@ -3,89 +3,89 @@ import Image from "next/image";
 
 export default function Footer() {
   return (
-    <footer className="border-t border-[var(--glass-border)] bg-black">
-      <div className="mx-auto max-w-6xl px-6 py-12">
-        <div className="flex flex-col items-center gap-6 sm:flex-row sm:items-start sm:justify-between">
+    <footer className="border-t border-white/[0.06] bg-black">
+      <div className="px-5 py-12 sm:px-8 lg:px-12">
+        <div className="mx-auto flex max-w-6xl flex-col items-center gap-6 sm:flex-row sm:items-start sm:justify-between">
           {/* Brand */}
           <div className="flex flex-col items-center sm:items-start">
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-2">
               <Image
                 src="/logo.png"
                 alt="TheDailyPoop"
-                width={32}
-                height={32}
+                width={28}
+                height={28}
               />
-              <span className="text-lg font-black text-white">
+              <span className="text-[15px] font-black text-white">
                 TheDailyPoop
               </span>
             </div>
-            <p className="mt-2 max-w-xs text-sm text-[var(--text-secondary)] sm:text-left text-center">
+            <p className="mt-2 max-w-xs text-[13px] text-zinc-500 sm:text-left text-center leading-relaxed">
               25 stories a day. Zero boring ones. News that actually makes you
               laugh.
             </p>
           </div>
 
           {/* Links */}
-          <div className="flex gap-8">
+          <div className="flex gap-10">
             <div className="flex flex-col gap-2">
-              <span className="text-[10px] font-bold uppercase tracking-[0.5px] text-[var(--text-tertiary)]">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-600">
                 Read
               </span>
               <Link
                 href="/today"
-                className="text-sm text-[var(--text-secondary)] hover:text-white transition"
+                className="text-[13px] text-zinc-500 hover:text-white transition"
               >
                 Today
               </Link>
               <Link
                 href="/archive"
-                className="text-sm text-[var(--text-secondary)] hover:text-white transition"
+                className="text-[13px] text-zinc-500 hover:text-white transition"
               >
                 Archive
               </Link>
               <Link
                 href="/games"
-                className="text-sm text-[var(--text-secondary)] hover:text-white transition"
+                className="text-[13px] text-zinc-500 hover:text-white transition"
               >
                 Games
               </Link>
             </div>
             <div className="flex flex-col gap-2">
-              <span className="text-[10px] font-bold uppercase tracking-[0.5px] text-[var(--text-tertiary)]">
-                App
+              <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-600">
+                More
               </span>
               <a
                 href="https://apps.apple.com/app/thedailypoop/id6738030377"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sm text-[var(--text-secondary)] hover:text-white transition"
+                className="text-[13px] text-zinc-500 hover:text-white transition"
               >
-                iPhone
+                iPhone App
               </a>
               <Link
+                href="/advertise"
+                className="text-[13px] text-zinc-500 hover:text-white transition"
+              >
+                Advertise
+              </Link>
+              <Link
                 href="/legal/privacy"
-                className="text-sm text-[var(--text-secondary)] hover:text-white transition"
+                className="text-[13px] text-zinc-500 hover:text-white transition"
               >
                 Privacy
               </Link>
               <Link
                 href="/legal/terms"
-                className="text-sm text-[var(--text-secondary)] hover:text-white transition"
+                className="text-[13px] text-zinc-500 hover:text-white transition"
               >
                 Terms
-              </Link>
-              <Link
-                href="/advertise"
-                className="text-sm text-[var(--text-secondary)] hover:text-white transition"
-              >
-                Advertise
               </Link>
             </div>
           </div>
         </div>
 
-        <div className="mt-8 border-t border-white/[0.06] pt-6 text-center">
-          <p className="text-xs text-[var(--text-tertiary)]">
+        <div className="mx-auto mt-8 max-w-6xl border-t border-white/[0.04] pt-6 text-center">
+          <p className="text-[11px] text-zinc-600">
             &copy; {new Date().getFullYear()} TheDailyPoop. All rights reserved.
           </p>
         </div>
