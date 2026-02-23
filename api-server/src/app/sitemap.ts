@@ -62,6 +62,36 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "daily",
       priority: 0.6,
     },
+    {
+      url: "https://thedailypoop.lol/games/who-said-it",
+      lastModified: new Date(),
+      changeFrequency: "daily",
+      priority: 0.6,
+    },
+    {
+      url: "https://thedailypoop.lol/games/spin-the-excuse",
+      lastModified: new Date(),
+      changeFrequency: "daily",
+      priority: 0.6,
+    },
+    {
+      url: "https://thedailypoop.lol/games/the-roast",
+      lastModified: new Date(),
+      changeFrequency: "daily",
+      priority: 0.6,
+    },
+    {
+      url: "https://thedailypoop.lol/games/predict-the-poop",
+      lastModified: new Date(),
+      changeFrequency: "daily",
+      priority: 0.6,
+    },
+    {
+      url: "https://thedailypoop.lol/games/headline-roulette",
+      lastModified: new Date(),
+      changeFrequency: "daily",
+      priority: 0.6,
+    },
   ];
 
   return [...staticPages, ...storyUrls];
