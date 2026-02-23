@@ -5,6 +5,7 @@ import { getWebSession } from "@/lib/web-auth";
 import { getCategoryColor } from "@/lib/category-colors";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import StoryBody from "@/components/StoryBody";
 import StoryCTA from "@/components/StoryCTA";
 import NewsletterForm from "@/components/NewsletterForm";
 import Image from "next/image";
@@ -111,42 +112,37 @@ export default async function StoryPage({ params }: PageProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <main className="mx-auto max-w-3xl px-4 py-8 sm:px-6">
+      <main className="mx-auto max-w-2xl px-4 py-8 sm:px-6">
         {/* Back link */}
         <Link
           href="/today"
-          className="mb-6 inline-flex items-center gap-1 text-sm text-[var(--text-secondary)] hover:text-white transition"
+          className="mb-6 inline-flex items-center gap-1 text-sm text-zinc-500 hover:text-white transition"
         >
           &larr; Back to today
         </Link>
 
-        {/* Hero gradient */}
-        <div
-          className="relative mb-6 flex h-40 items-center justify-center rounded-2xl sm:h-52"
-          style={{
-            background: `linear-gradient(135deg, ${colors.from}, ${colors.to})`,
-          }}
-        >
-          <span className="text-7xl drop-shadow-lg sm:text-8xl">
-            {story.emoji || "📰"}
+        {/* Category + meta row */}
+        <div className="mb-4 flex flex-wrap items-center gap-2.5 text-xs">
+          <span className="text-xl">{story.emoji || "📰"}</span>
+          <span
+            className="category-pill"
+            style={{
+              background: `linear-gradient(135deg, ${colors.from}CC, ${colors.to}CC)`,
+              color: "#fff",
+            }}
+          >
+            {story.category}
           </span>
           {!story.is_free && (
-            <span className="absolute top-3 right-3 rounded-full bg-[var(--accent)] px-3 py-1 text-xs font-black text-black">
+            <span className="rounded-full bg-[var(--accent)]/20 px-2.5 py-0.5 text-[10px] font-black text-[var(--accent)]">
               PRO
             </span>
           )}
-        </div>
-
-        {/* Meta */}
-        <div className="mb-4 flex flex-wrap items-center gap-2 text-xs text-[var(--text-tertiary)]">
-          <span className="category-pill" style={{ background: `${colors.from}20`, color: colors.from }}>
-            {story.category}
-          </span>
-          {publishDate && <span>{publishDate}</span>}
+          {publishDate && <span className="text-zinc-600">{publishDate}</span>}
           {story.source_name && (
             <>
-              <span>·</span>
-              <span>via {story.source_name}</span>
+              <span className="text-zinc-700">&middot;</span>
+              <span className="text-zinc-600">via {story.source_name}</span>
             </>
           )}
         </div>
@@ -156,21 +152,10 @@ export default async function StoryPage({ params }: PageProps) {
           {story.headline}
         </h1>
 
-        {/* TLDR — always visible */}
-        {story.tldr && (
-          <p className="mt-3 glass-card p-4 text-sm italic text-[var(--text-secondary)]">
-            TL;DR: {story.tldr}
-          </p>
-        )}
-
         {canRead ? (
           <>
-            {/* Full Body */}
-            <div className="story-body mt-6 text-base leading-relaxed text-zinc-300">
-              {story.body.split("\n\n").map((para: string, i: number) => (
-                <p key={i}>{para}</p>
-              ))}
-            </div>
+            {/* Full Body with signature devices */}
+            <StoryBody body={story.body} tldr={story.tldr} />
 
             {/* Source link */}
             {story.source_url && (
@@ -208,7 +193,7 @@ export default async function StoryPage({ params }: PageProps) {
           /* Paywall — blurred body + CTA */
           <div className="relative mt-6">
             {/* Blurred teaser — first paragraph */}
-            <div className="story-body text-base leading-relaxed text-zinc-300">
+            <div className="text-base leading-relaxed text-zinc-300">
               <p>{story.body.split("\n\n")[0]}</p>
             </div>
             <div className="mt-2 h-32 bg-gradient-to-b from-transparent to-black" />
