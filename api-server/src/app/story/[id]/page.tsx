@@ -7,6 +7,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import StoryCTA from "@/components/StoryCTA";
 import NewsletterForm from "@/components/NewsletterForm";
+import Image from "next/image";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
@@ -43,7 +44,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       section: story.category,
       images: [
         {
-          url: `/api/og?title=${encodeURIComponent(story.headline)}&emoji=${encodeURIComponent(story.emoji || "💩")}&category=${encodeURIComponent(story.category)}`,
+          url: `/api/og?title=${encodeURIComponent(story.headline)}&emoji=${encodeURIComponent(story.emoji || "📰")}&category=${encodeURIComponent(story.category)}`,
           width: 1200,
           height: 630,
         },
@@ -95,7 +96,7 @@ export default async function StoryPage({ params }: PageProps) {
         url: "https://thedailypoop.com/icon-192.png",
       },
     },
-    image: `https://thedailypoop.com/api/og?title=${encodeURIComponent(story.headline)}&emoji=${encodeURIComponent(story.emoji || "💩")}&category=${encodeURIComponent(story.category)}`,
+    image: `https://thedailypoop.com/api/og?title=${encodeURIComponent(story.headline)}&emoji=${encodeURIComponent(story.emoji || "📰")}&category=${encodeURIComponent(story.category)}`,
     mainEntityOfPage: `https://thedailypoop.com/story/${story.id}`,
     articleSection: story.category,
     isAccessibleForFree: story.is_free,
@@ -110,7 +111,7 @@ export default async function StoryPage({ params }: PageProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <main className="mx-auto max-w-2xl px-4 py-8 sm:px-5">
+      <main className="mx-auto max-w-3xl px-4 py-8 sm:px-6">
         {/* Back link */}
         <Link
           href="/today"
@@ -127,7 +128,7 @@ export default async function StoryPage({ params }: PageProps) {
           }}
         >
           <span className="text-7xl drop-shadow-lg sm:text-8xl">
-            {story.emoji || "💩"}
+            {story.emoji || "📰"}
           </span>
           {!story.is_free && (
             <span className="absolute top-3 right-3 rounded-full bg-[var(--accent)] px-3 py-1 text-xs font-black text-black">
@@ -138,7 +139,7 @@ export default async function StoryPage({ params }: PageProps) {
 
         {/* Meta */}
         <div className="mb-4 flex flex-wrap items-center gap-2 text-xs text-[var(--text-tertiary)]">
-          <span className="rounded-full bg-white/[0.06] px-3 py-1 font-semibold capitalize text-[var(--text-secondary)]">
+          <span className="category-pill" style={{ background: `${colors.from}20`, color: colors.from }}>
             {story.category}
           </span>
           {publishDate && <span>{publishDate}</span>}
@@ -157,7 +158,7 @@ export default async function StoryPage({ params }: PageProps) {
 
         {/* TLDR — always visible */}
         {story.tldr && (
-          <p className="mt-3 rounded-xl bg-[var(--card-bg)] border border-white/[0.06] p-4 text-sm italic text-[var(--text-secondary)]">
+          <p className="mt-3 glass-card p-4 text-sm italic text-[var(--text-secondary)]">
             TL;DR: {story.tldr}
           </p>
         )}
@@ -186,10 +187,10 @@ export default async function StoryPage({ params }: PageProps) {
             {/* Share */}
             <div className="mt-8 flex gap-3">
               <a
-                href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(story.headline + " 💩")}&url=${encodeURIComponent("https://thedailypoop.com/story/" + story.id)}`}
+                href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(story.headline)}&url=${encodeURIComponent("https://thedailypoop.com/story/" + story.id)}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="rounded-full border border-white/[0.12] px-4 py-2 text-xs font-medium text-white transition hover:bg-white/[0.06]"
+                className="pressable rounded-full border border-white/[0.12] px-4 py-2 text-xs font-medium text-white transition hover:bg-white/[0.06]"
               >
                 Share on X
               </a>
@@ -197,7 +198,7 @@ export default async function StoryPage({ params }: PageProps) {
                 href={`https://www.reddit.com/submit?url=${encodeURIComponent("https://thedailypoop.com/story/" + story.id)}&title=${encodeURIComponent(story.headline)}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="rounded-full border border-white/[0.12] px-4 py-2 text-xs font-medium text-white transition hover:bg-white/[0.06]"
+                className="pressable rounded-full border border-white/[0.12] px-4 py-2 text-xs font-medium text-white transition hover:bg-white/[0.06]"
               >
                 Share on Reddit
               </a>
@@ -213,9 +214,15 @@ export default async function StoryPage({ params }: PageProps) {
             <div className="mt-2 h-32 bg-gradient-to-b from-transparent to-black" />
 
             {/* Paywall CTA */}
-            <div className="rounded-2xl border border-[var(--accent)]/20 bg-[var(--accent-dim)] p-6 text-center">
-              <span className="text-3xl">🔒</span>
-              <h3 className="mt-2 text-lg font-black text-white">
+            <div className="glass-card border-[var(--accent)]/20 p-6 text-center">
+              <Image
+                src="/logo.png"
+                alt=""
+                width={48}
+                height={48}
+                className="mx-auto drop-shadow-lg"
+              />
+              <h3 className="mt-3 text-lg font-black text-white">
                 This is a Pro story
               </h3>
               <p className="mt-1 text-sm text-[var(--text-secondary)]">
@@ -227,7 +234,7 @@ export default async function StoryPage({ params }: PageProps) {
                   href="https://apps.apple.com/app/thedailypoop/id6738030377"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-block rounded-full bg-[var(--accent)] px-6 py-2.5 text-sm font-bold text-black transition hover:brightness-110"
+                  className="pressable inline-block rounded-full bg-[var(--accent)] px-6 py-2.5 text-sm font-bold text-black transition hover:bg-[var(--accent-hover)]"
                 >
                   Get Pro — $7.99/mo
                 </a>
@@ -250,7 +257,7 @@ export default async function StoryPage({ params }: PageProps) {
         </div>
 
         {/* Newsletter */}
-        <section className="mt-10 rounded-2xl border border-white/[0.06] bg-[var(--card-bg)] p-6">
+        <section className="mt-10 glass-card p-6">
           <h2 className="text-lg font-black text-white">
             Want this in your inbox?
           </h2>

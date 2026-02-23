@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { createBrowserClient } from "@supabase/ssr";
 
@@ -69,7 +70,13 @@ export default function SignupPage() {
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
           <Link href="/" className="inline-block">
-            <span className="text-4xl">💩</span>
+            <Image
+              src="/logo.png"
+              alt="TheDailyPoop"
+              width={64}
+              height={64}
+              className="mx-auto drop-shadow-lg"
+            />
           </Link>
           <h1 className="mt-4 text-2xl font-black text-white">Create an account</h1>
           <p className="mt-1 text-sm text-[var(--text-secondary)]">
@@ -87,7 +94,7 @@ export default function SignupPage() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-xl border border-white/[0.12] bg-[var(--card-bg)] px-4 py-3 text-sm text-white placeholder-[var(--text-tertiary)] outline-none focus:border-[var(--accent)]"
+              className="w-full rounded-xl border border-[var(--glass-border)] bg-[var(--glass-bg)] px-4 py-3 text-sm text-white placeholder-[var(--text-tertiary)] outline-none focus:border-[var(--accent)] backdrop-blur-md transition"
               placeholder="you@email.com"
             />
           </div>
@@ -102,7 +109,7 @@ export default function SignupPage() {
               minLength={6}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-xl border border-white/[0.12] bg-[var(--card-bg)] px-4 py-3 text-sm text-white placeholder-[var(--text-tertiary)] outline-none focus:border-[var(--accent)]"
+              className="w-full rounded-xl border border-[var(--glass-border)] bg-[var(--glass-bg)] px-4 py-3 text-sm text-white placeholder-[var(--text-tertiary)] outline-none focus:border-[var(--accent)] backdrop-blur-md transition"
               placeholder="Min 6 characters"
             />
           </div>
@@ -114,7 +121,7 @@ export default function SignupPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-xl bg-[var(--accent)] py-3 text-sm font-bold text-black transition hover:brightness-110 disabled:opacity-50"
+            className="pressable w-full rounded-xl bg-[var(--accent)] py-3 text-sm font-bold text-black transition hover:bg-[var(--accent-hover)] disabled:opacity-50"
           >
             {loading ? "Creating account..." : "Sign Up Free"}
           </button>

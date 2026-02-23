@@ -1,4 +1,5 @@
 import { createServiceClient } from "@/lib/supabase";
+import Image from "next/image";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import StoryCard from "@/components/StoryCard";
@@ -12,14 +13,12 @@ async function getTodayStories() {
     timeZone: "America/New_York",
   });
 
-  // Today's published briefings
   let { data: briefings } = await db
     .from("briefings")
     .select("id")
     .eq("publish_date", today)
     .eq("status", "published");
 
-  // Fallback: latest published
   if (!briefings?.length) {
     const { data: latest } = await db
       .from("briefings")
@@ -54,29 +53,35 @@ export default async function Home() {
     <div className="min-h-screen bg-black">
       <Header />
 
-      <main className="mx-auto max-w-3xl px-4 sm:px-5">
+      <main className="mx-auto max-w-6xl px-6">
         {/* Hero */}
-        <section className="py-12 text-center sm:py-16">
-          <p className="text-4xl">💩</p>
-          <h1 className="mt-4 text-3xl font-black tracking-tight text-white sm:text-4xl">
+        <section className="py-16 text-center sm:py-24">
+          <Image
+            src="/logo.png"
+            alt="TheDailyPoop"
+            width={80}
+            height={80}
+            className="mx-auto drop-shadow-xl"
+          />
+          <h1 className="mt-6 text-4xl font-black tracking-tight text-white sm:text-5xl">
             News That Doesn&apos;t Suck
           </h1>
-          <p className="mt-3 text-lg text-[var(--text-secondary)]">
+          <p className="mx-auto mt-4 max-w-lg text-lg text-[var(--text-secondary)]">
             25 stories a day. Zero boring ones. Dark satirical briefings that
             actually make you laugh.
           </p>
-          <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+          <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
             <a
               href="https://apps.apple.com/app/thedailypoop/id6738030377"
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-full bg-[var(--accent)] px-6 py-2.5 text-sm font-bold text-black transition hover:brightness-110"
+              className="pressable rounded-full bg-[var(--accent)] px-7 py-3 text-sm font-bold text-black transition hover:bg-[var(--accent-hover)]"
             >
               Download Free on iPhone
             </a>
             <Link
               href="/today"
-              className="rounded-full border border-white/[0.12] px-6 py-2.5 text-sm font-medium text-white transition hover:bg-white/[0.06]"
+              className="pressable rounded-full border border-[var(--glass-border)] px-7 py-3 text-sm font-medium text-white transition hover:bg-white/[0.06]"
             >
               Read Today&apos;s Drop
             </Link>
@@ -98,7 +103,7 @@ export default async function Home() {
               </Link>
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {stories.slice(0, 6).map((story) => (
                 <StoryCard key={story.id} story={story} />
               ))}
@@ -123,14 +128,20 @@ export default async function Home() {
         </section>
 
         {/* Newsletter */}
-        <section className="mb-16 rounded-2xl border border-white/[0.06] bg-[var(--card-bg)] p-6">
-          <h2 className="text-lg font-black text-white">
-            Get the Daily Briefing in Your Inbox
-          </h2>
-          <p className="mt-1 mb-4 text-sm text-[var(--text-secondary)]">
-            Every morning. Free forever. Unsubscribe anytime.
-          </p>
-          <NewsletterForm />
+        <section className="glass-card mb-16 p-6 sm:p-8">
+          <div className="sm:flex sm:items-center sm:gap-6">
+            <div className="flex-1">
+              <h2 className="text-lg font-black text-white">
+                Get the Daily Briefing in Your Inbox
+              </h2>
+              <p className="mt-1 text-sm text-[var(--text-secondary)]">
+                Every morning. Free forever. Unsubscribe anytime.
+              </p>
+            </div>
+            <div className="mt-4 sm:mt-0 sm:w-80">
+              <NewsletterForm />
+            </div>
+          </div>
         </section>
       </main>
 

@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import Image from "next/image";
 import { createServiceClient } from "@/lib/supabase";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -63,18 +64,35 @@ export default async function TodayPage() {
     <div className="min-h-screen bg-black">
       <Header />
 
-      <main className="mx-auto max-w-3xl px-4 py-8 sm:px-5">
-        <div className="mb-8">
-          <h1 className="text-2xl font-black text-white sm:text-3xl">
-            Today&apos;s Drop
-          </h1>
-          <p className="mt-1 text-sm text-[var(--text-secondary)]">{today}</p>
+      <main className="mx-auto max-w-6xl px-6 py-8">
+        <div className="mb-8 flex items-center gap-3">
+          <Image
+            src="/logo.png"
+            alt=""
+            width={40}
+            height={40}
+            className="drop-shadow-md"
+          />
+          <div>
+            <h1 className="text-2xl font-black text-white sm:text-3xl">
+              Today&apos;s Drop
+            </h1>
+            <p className="mt-0.5 text-sm text-[var(--text-secondary)]">
+              {today}
+            </p>
+          </div>
         </div>
 
         {stories.length === 0 ? (
-          <div className="rounded-2xl border border-white/[0.06] bg-[var(--card-bg)] p-12 text-center">
-            <p className="text-4xl">💩</p>
-            <p className="mt-3 text-lg font-bold text-white">
+          <div className="glass-card p-12 text-center">
+            <Image
+              src="/logo.png"
+              alt=""
+              width={56}
+              height={56}
+              className="mx-auto drop-shadow-lg"
+            />
+            <p className="mt-4 text-lg font-bold text-white">
               No drop yet today
             </p>
             <p className="mt-1 text-sm text-[var(--text-secondary)]">
@@ -83,14 +101,13 @@ export default async function TodayPage() {
           </div>
         ) : (
           <>
-            {/* All stories shown — PRO stories gated on click */}
-            <div className="grid gap-4 sm:grid-cols-2">
+            {/* Story grid — 3 cols on desktop */}
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {stories.map((story, i) => (
                 <div key={story.id}>
                   <StoryCard story={story} />
-                  {/* Ad after every 5th story */}
-                  {(i + 1) % 5 === 0 && i < stories.length - 1 && (
-                    <div className="sm:col-span-2">
+                  {(i + 1) % 6 === 0 && i < stories.length - 1 && (
+                    <div className="sm:col-span-2 lg:col-span-3">
                       <AdSlot format="horizontal" />
                     </div>
                   )}
@@ -98,7 +115,6 @@ export default async function TodayPage() {
               ))}
             </div>
 
-            {/* App CTA — games + better experience */}
             <section className="mt-10">
               <StoryCTA />
             </section>

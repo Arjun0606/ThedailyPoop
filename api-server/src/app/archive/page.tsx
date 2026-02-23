@@ -3,6 +3,7 @@ import { createServiceClient } from "@/lib/supabase";
 import { getWebSession } from "@/lib/web-auth";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import Image from "next/image";
 import Link from "next/link";
 
 export const metadata: Metadata = {
@@ -65,27 +66,47 @@ export default async function ArchivePage() {
     <div className="min-h-screen bg-black">
       <Header />
 
-      <main className="mx-auto max-w-3xl px-4 py-8 sm:px-5">
-        <h1 className="mb-8 text-2xl font-black text-white sm:text-3xl">
-          Archive
-        </h1>
+      <main className="mx-auto max-w-6xl px-6 py-8">
+        <div className="mb-8 flex items-center gap-3">
+          <Image
+            src="/logo.png"
+            alt=""
+            width={40}
+            height={40}
+            className="drop-shadow-md"
+          />
+          <div>
+            <h1 className="text-2xl font-black text-white sm:text-3xl">
+              Archive
+            </h1>
+            <p className="mt-0.5 text-sm text-[var(--text-secondary)]">
+              Browse past daily drops
+            </p>
+          </div>
+        </div>
 
         {dates.length === 0 ? (
-          <div className="rounded-2xl border border-white/[0.06] bg-[var(--card-bg)] p-12 text-center">
-            <p className="text-4xl">💩</p>
-            <p className="mt-3 text-lg font-bold text-white">
+          <div className="glass-card p-12 text-center">
+            <Image
+              src="/logo.png"
+              alt=""
+              width={56}
+              height={56}
+              className="mx-auto drop-shadow-lg"
+            />
+            <p className="mt-4 text-lg font-bold text-white">
               No archives yet
             </p>
           </div>
         ) : (
           <>
             {/* Accessible dates */}
-            <div className="space-y-2">
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {accessibleDates.map(({ date, formatted, drops }) => (
                 <Link
                   key={date}
                   href={`/today?date=${date}`}
-                  className="group flex items-center justify-between rounded-xl border border-white/[0.06] bg-[var(--card-bg)] px-5 py-4 transition hover:border-white/[0.12]"
+                  className="glass-card pressable group flex items-center justify-between px-5 py-4"
                 >
                   <div>
                     <p className="font-bold text-white group-hover:text-[var(--accent)] transition">
@@ -107,11 +128,11 @@ export default async function ArchivePage() {
             {/* Locked dates + upgrade CTA */}
             {lockedDates.length > 0 && (
               <div className="mt-6">
-                <div className="space-y-2 opacity-40">
-                  {lockedDates.slice(0, 3).map(({ date, formatted, drops }) => (
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 opacity-40">
+                  {lockedDates.slice(0, 6).map(({ date, formatted, drops }) => (
                     <div
                       key={date}
-                      className="flex items-center justify-between rounded-xl border border-white/[0.06] bg-[var(--card-bg)] px-5 py-4"
+                      className="glass-card flex items-center justify-between px-5 py-4"
                     >
                       <div>
                         <p className="font-bold text-white">{formatted}</p>
@@ -126,23 +147,29 @@ export default async function ArchivePage() {
                   ))}
                 </div>
 
-                <div className="mt-4 rounded-2xl border border-[var(--accent)]/20 bg-[var(--accent-dim)] p-5 text-center">
-                  <span className="text-2xl">🔒</span>
+                <div className="mt-6 glass-card border-[var(--accent)]/20 p-6 text-center">
+                  <Image
+                    src="/logo.png"
+                    alt=""
+                    width={48}
+                    height={48}
+                    className="mx-auto drop-shadow-lg"
+                  />
                   {!session ? (
                     <>
-                      <p className="mt-2 text-sm font-bold text-white">
+                      <p className="mt-3 text-sm font-bold text-white">
                         Sign up free to access 3 days of history
                       </p>
                       <Link
                         href="/signup"
-                        className="mt-3 inline-block rounded-full bg-[var(--accent)] px-5 py-2 text-sm font-bold text-black transition hover:brightness-110"
+                        className="pressable mt-3 inline-block rounded-full bg-[var(--accent)] px-5 py-2 text-sm font-bold text-black transition hover:bg-[var(--accent-hover)]"
                       >
                         Sign Up Free
                       </Link>
                     </>
                   ) : !session.isPremium ? (
                     <>
-                      <p className="mt-2 text-sm font-bold text-white">
+                      <p className="mt-3 text-sm font-bold text-white">
                         Go Pro to access 15 days of history
                       </p>
                       <p className="mt-1 text-xs text-[var(--text-secondary)]">
@@ -153,13 +180,13 @@ export default async function ArchivePage() {
                         href="https://apps.apple.com/app/thedailypoop/id6738030377"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="mt-3 inline-block rounded-full bg-[var(--accent)] px-5 py-2 text-sm font-bold text-black transition hover:brightness-110"
+                        className="pressable mt-3 inline-block rounded-full bg-[var(--accent)] px-5 py-2 text-sm font-bold text-black transition hover:bg-[var(--accent-hover)]"
                       >
                         Get Pro — $7.99/mo
                       </a>
                     </>
                   ) : (
-                    <p className="mt-2 text-sm text-[var(--text-secondary)]">
+                    <p className="mt-3 text-sm text-[var(--text-secondary)]">
                       Pro includes 15 days of history. Older drops are archived.
                     </p>
                   )}

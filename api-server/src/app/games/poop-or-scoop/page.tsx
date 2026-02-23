@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { createBrowserClient } from "@supabase/ssr";
 
 interface Headline {
@@ -123,8 +124,14 @@ export default function PoopOrScoopPage() {
     return (
       <div className="flex min-h-screen items-center justify-center bg-black">
         <div className="text-center">
-          <span className="text-4xl">💩</span>
-          <p className="mt-2 text-sm text-[var(--text-secondary)]">
+          <Image
+            src="/logo.png"
+            alt=""
+            width={48}
+            height={48}
+            className="mx-auto drop-shadow-lg animate-pulse"
+          />
+          <p className="mt-3 text-sm text-[var(--text-secondary)]">
             Loading game...
           </p>
         </div>
@@ -136,7 +143,13 @@ export default function PoopOrScoopPage() {
     return (
       <div className="flex min-h-screen items-center justify-center bg-black px-4">
         <div className="w-full max-w-sm text-center">
-          <span className="text-5xl">💩</span>
+          <Image
+            src="/logo.png"
+            alt=""
+            width={64}
+            height={64}
+            className="mx-auto drop-shadow-lg"
+          />
           <h1 className="mt-4 text-2xl font-black text-white">
             Poop or Scoop
           </h1>
@@ -147,7 +160,7 @@ export default function PoopOrScoopPage() {
           <div className="mt-6 flex flex-col items-center gap-3">
             <Link
               href="/signup"
-              className="rounded-full bg-[var(--accent)] px-6 py-2.5 text-sm font-bold text-black transition hover:brightness-110"
+              className="pressable rounded-full bg-[var(--accent)] px-6 py-2.5 text-sm font-bold text-black transition hover:bg-[var(--accent-hover)]"
             >
               Sign Up Free to Play
             </Link>
@@ -167,8 +180,14 @@ export default function PoopOrScoopPage() {
     return (
       <div className="flex min-h-screen items-center justify-center bg-black">
         <div className="text-center">
-          <span className="text-4xl">💩</span>
-          <p className="mt-2 text-lg font-bold text-white">
+          <Image
+            src="/logo.png"
+            alt=""
+            width={48}
+            height={48}
+            className="mx-auto drop-shadow-lg"
+          />
+          <p className="mt-3 text-lg font-bold text-white">
             No game available today
           </p>
           <p className="mt-1 text-sm text-[var(--text-secondary)]">
@@ -199,7 +218,7 @@ export default function PoopOrScoopPage() {
           </Link>
 
           <div className="text-center">
-            <span className="text-5xl">{pct >= 80 ? "🏆" : pct >= 50 ? "👍" : "💩"}</span>
+            <span className="text-5xl">{pct >= 80 ? "🏆" : pct >= 50 ? "👍" : "😬"}</span>
             <h1 className="mt-3 text-2xl font-black text-white">
               {score.score}/{score.total}
             </h1>
@@ -216,7 +235,7 @@ export default function PoopOrScoopPage() {
             {results.map((r, i) => (
               <div
                 key={i}
-                className={`rounded-xl border p-4 ${
+                className={`glass-card p-4 ${
                   r.correct
                     ? "border-green-500/30 bg-green-500/5"
                     : "border-red-500/30 bg-red-500/5"
@@ -255,7 +274,13 @@ export default function PoopOrScoopPage() {
         </Link>
 
         <div className="text-center">
-          <span className="text-4xl">💩</span>
+          <Image
+            src="/logo.png"
+            alt=""
+            width={48}
+            height={48}
+            className="mx-auto drop-shadow-lg"
+          />
           <h1 className="mt-2 text-xl font-black text-white">
             Poop or Scoop?
           </h1>
@@ -275,7 +300,7 @@ export default function PoopOrScoopPage() {
         </div>
 
         {/* Headline card */}
-        <div className="mt-8 rounded-2xl border border-white/[0.06] bg-[var(--card-bg)] p-6">
+        <div className="mt-8 glass-card p-6">
           <p className="text-lg font-bold leading-snug text-white">
             &ldquo;{headline.headline}&rdquo;
           </p>
@@ -285,15 +310,15 @@ export default function PoopOrScoopPage() {
         <div className="mt-6 grid grid-cols-2 gap-4">
           <button
             onClick={() => handleGuess(false)}
-            className="rounded-xl border border-red-500/30 bg-red-500/10 py-4 text-sm font-bold text-red-400 transition hover:bg-red-500/20"
+            className="pressable rounded-xl border border-red-500/30 bg-red-500/10 py-4 text-sm font-bold text-red-400 transition hover:bg-red-500/20"
           >
-            💩 Poop (Fake)
+            Poop (Fake)
           </button>
           <button
             onClick={() => handleGuess(true)}
-            className="rounded-xl border border-green-500/30 bg-green-500/10 py-4 text-sm font-bold text-green-400 transition hover:bg-green-500/20"
+            className="pressable rounded-xl border border-green-500/30 bg-green-500/10 py-4 text-sm font-bold text-green-400 transition hover:bg-green-500/20"
           >
-            🍦 Scoop (Real)
+            Scoop (Real)
           </button>
         </div>
       </div>

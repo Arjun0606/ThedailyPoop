@@ -16,27 +16,33 @@ export default function StoryCard({ story }: { story: Story }) {
   const colors = getCategoryColor(story.category);
 
   return (
-    <Link href={`/story/${story.id}`} className="group block">
-      <article className="overflow-hidden rounded-2xl border border-white/[0.06] bg-[var(--card-bg)] transition hover:border-white/[0.12]">
-        {/* Visual header — gradient card with emoji */}
+    <Link href={`/story/${story.id}`} className="group block pressable">
+      <article className="glass-card overflow-hidden">
+        {/* Gradient header with emoji */}
         <div
-          className="relative flex h-48 items-center justify-center sm:h-56"
+          className="relative flex h-36 items-center justify-center sm:h-44"
           style={{
             background: `linear-gradient(135deg, ${colors.from}, ${colors.to})`,
           }}
         >
-          <span className="text-6xl drop-shadow-lg sm:text-7xl">
-            {story.emoji || "💩"}
+          <span className="text-5xl drop-shadow-lg sm:text-6xl">
+            {story.emoji || "📰"}
           </span>
 
-          {/* Category badge */}
-          <span className="absolute top-3 left-3 rounded-full bg-black/30 px-3 py-1 text-xs font-semibold capitalize text-white backdrop-blur-sm">
+          {/* Category pill */}
+          <span
+            className="category-pill absolute top-3 left-3 text-white"
+            style={{
+              background: "rgba(0,0,0,0.3)",
+              backdropFilter: "blur(8px)",
+            }}
+          >
             {story.category}
           </span>
 
           {/* PRO badge */}
           {!story.is_free && (
-            <span className="absolute top-3 right-3 rounded-full bg-[var(--accent)] px-2.5 py-0.5 text-[10px] font-black text-black">
+            <span className="absolute top-3 right-3 rounded-full bg-[var(--accent)] px-2.5 py-0.5 text-[10px] font-black tracking-wide text-black">
               PRO
             </span>
           )}
@@ -44,19 +50,18 @@ export default function StoryCard({ story }: { story: Story }) {
 
         {/* Content */}
         <div className="p-4">
-          <h3 className="text-base font-bold leading-snug text-white group-hover:text-[var(--accent)] transition sm:text-lg">
+          <h3 className="text-[15px] font-bold leading-snug text-white transition group-hover:text-[var(--accent)]">
             {story.headline}
           </h3>
 
           {story.tldr && (
-            <p className="mt-1.5 line-clamp-2 text-sm text-[var(--text-secondary)]">
+            <p className="mt-1.5 line-clamp-2 text-[13px] text-[var(--text-secondary)]">
               {story.tldr}
             </p>
           )}
 
           {/* Source row */}
-          <div className="mt-3 flex items-center gap-2 text-xs text-[var(--text-tertiary)]">
-            <span className="text-sm">💩</span>
+          <div className="mt-3 flex items-center gap-2 text-[11px] text-[var(--text-tertiary)]">
             <span className="font-medium text-[var(--text-secondary)]">
               {story.source_name || "TheDailyPoop"}
             </span>
