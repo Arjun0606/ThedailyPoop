@@ -27,18 +27,25 @@ export async function GET() {
       <description><![CDATA[${s.tldr || s.body.slice(0, 200)}]]></description>
       <category>${s.category}</category>
       <pubDate>${new Date(s.created_at).toUTCString()}</pubDate>
+      <media:content url="https://thedailypoop.com/api/og?title=${encodeURIComponent(s.headline)}&amp;emoji=${encodeURIComponent(s.emoji || "📰")}&amp;category=${encodeURIComponent(s.category)}" medium="image" width="1200" height="630" />
+      <media:thumbnail url="https://thedailypoop.com/api/og?title=${encodeURIComponent(s.headline)}&amp;emoji=${encodeURIComponent(s.emoji || "📰")}&amp;category=${encodeURIComponent(s.category)}" width="1200" height="630" />
     </item>`
     )
     .join("");
 
   const feed = `<?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/">
   <channel>
     <title>TheDailyPoop — News That Doesn't Suck</title>
     <link>https://thedailypoop.com</link>
     <description>25 stories a day. Zero boring ones. Dark satirical news briefings.</description>
     <language>en-us</language>
     <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
+    <image>
+      <url>https://thedailypoop.com/icon-192.png</url>
+      <title>TheDailyPoop</title>
+      <link>https://thedailypoop.com</link>
+    </image>
     <atom:link href="https://thedailypoop.com/feed.xml" rel="self" type="application/rss+xml"/>
     ${items}
   </channel>
