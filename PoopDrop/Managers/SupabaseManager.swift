@@ -989,6 +989,31 @@ class SupabaseManager: ObservableObject {
             .execute()
     }
 
+    // MARK: - Newsletter
+
+    func subscribeToNewsletter(email: String) async throws -> Bool {
+        guard let url = URL(string: "\(Config.apiServerURL)/api/newsletter/subscribe") else {
+            return false
+        }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+
+        let body: [String: String] = ["email": email]
+        request.httpBody = try JSONSerialization.data(withJSONObject: body)
+
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+            if let errorData = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+               let errorMsg = errorData["error"] as? String {
+                throw NSError(domain: "Newsletter", code: 1, userInfo: [NSLocalizedDescriptionKey: errorMsg])
+            }
+            return false
+        }
+        return true
+    }
+
     // MARK: - Helpers
 
     private func addAuthHeader(to request: inout URLRequest) async {

@@ -92,6 +92,10 @@ struct ProfileView: View {
                         )
                         .padding(.horizontal, Theme.pagePadding)
 
+                        // Newsletter card
+                        NewsletterCard()
+                            .padding(.horizontal, Theme.pagePadding)
+
                         // Streak visualization
                         StreakCard(user: user)
                             .padding(.horizontal, Theme.pagePadding)
@@ -416,6 +420,156 @@ struct InfoLegalRow: View {
             .padding(.horizontal, 16)
             .padding(.vertical, 12)
         }
+    }
+}
+
+// MARK: - Newsletter Card
+struct NewsletterCard: View {
+    @State private var email = ""
+    @State private var isSubscribed = false
+    @State private var isLoading = false
+    @State private var errorMessage: String?
+    @AppStorage("newsletter_subscribed") private var hasSubscribed = false
+
+    var body: some View {
+        if hasSubscribed || isSubscribed {
+            // Subscribed state
+            HStack(spacing: 14) {
+                ZStack {
+                    Circle()
+                        .fill(Color.green.opacity(0.15))
+                        .frame(width: 44, height: 44)
+                    Image(systemName: "envelope.open.fill")
+                        .font(.system(size: 18))
+                        .foregroundStyle(.green)
+                }
+
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Newsletter Active")
+                        .font(.subheadline.weight(.bold))
+                        .foregroundStyle(.white)
+                    Text("Daily briefing hits your inbox at 7:30 AM ET")
+                        .font(.caption)
+                        .foregroundStyle(.green)
+                }
+
+                Spacer()
+
+                Image(systemName: "checkmark.circle.fill")
+                    .font(.title3)
+                    .foregroundStyle(.green)
+            }
+            .padding(16)
+            .background(
+                LinearGradient(
+                    colors: [Color.green.opacity(0.08), Color.green.opacity(0.02)],
+                    startPoint: .leading,
+                    endPoint: .trailing
+                )
+            )
+            .clipShape(RoundedRectangle(cornerRadius: Theme.cardRadius, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: Theme.cardRadius, style: .continuous)
+                    .stroke(Color.green.opacity(0.2), lineWidth: 0.5)
+            )
+        } else {
+            // Subscribe state
+            VStack(spacing: 14) {
+                HStack(spacing: 14) {
+                    ZStack {
+                        Circle()
+                            .fill(Theme.accent.opacity(0.15))
+                            .frame(width: 44, height: 44)
+                        Image(systemName: "envelope.fill")
+                            .font(.system(size: 18))
+                            .foregroundStyle(Theme.accent)
+                    }
+
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Daily Newsletter")
+                            .font(.subheadline.weight(.bold))
+                            .foregroundStyle(.white)
+                        Text("All stories + exclusive content in your inbox")
+                            .font(.caption)
+                            .foregroundStyle(Theme.textSecondary)
+                    }
+
+                    Spacer()
+                }
+
+                HStack(spacing: 10) {
+                    TextField("your@email.com", text: $email)
+                        .font(.subheadline)
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 10)
+                        .background(Color.white.opacity(0.06))
+                        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                                .stroke(Theme.cardBorder, lineWidth: 0.5)
+                        )
+                        .keyboardType(.emailAddress)
+                        .textContentType(.emailAddress)
+                        .autocapitalization(.none)
+                        .disableAutocorrection(true)
+
+                    Button {
+                        Task { await subscribe() }
+                    } label: {
+                        if isLoading {
+                            ProgressView()
+                                .tint(.black)
+                                .frame(width: 70, height: 38)
+                        } else {
+                            Text("Join")
+                                .font(.subheadline.weight(.bold))
+                                .foregroundStyle(.black)
+                                .frame(width: 70, height: 38)
+                        }
+                    }
+                    .background(Theme.accent)
+                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                    .disabled(isLoading || email.isEmpty)
+                    .opacity(email.isEmpty ? 0.5 : 1)
+                }
+
+                if let error = errorMessage {
+                    Text(error)
+                        .font(.caption)
+                        .foregroundStyle(.red)
+                }
+            }
+            .padding(16)
+            .background(Theme.cardBg)
+            .clipShape(RoundedRectangle(cornerRadius: Theme.cardRadius, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: Theme.cardRadius, style: .continuous)
+                    .stroke(Theme.cardBorder, lineWidth: 0.5)
+            )
+        }
+    }
+
+    private func subscribe() async {
+        guard !email.isEmpty else { return }
+        isLoading = true
+        errorMessage = nil
+
+        do {
+            let success = try await SupabaseManager.shared.subscribeToNewsletter(email: email)
+            if success {
+                withAnimation(.spring(response: 0.4)) {
+                    isSubscribed = true
+                    hasSubscribed = true
+                }
+            } else {
+                errorMessage = "Something went wrong. Try again."
+            }
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+
+        isLoading = false
     }
 }
 
