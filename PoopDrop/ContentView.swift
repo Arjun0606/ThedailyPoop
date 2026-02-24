@@ -26,16 +26,11 @@ struct ContentView: View {
                 }
             } else if !authManager.isAuthenticated {
                 AuthenticationView()
-            } else if authManager.needsProfileSetup {
-                ProfileSetupView {
-                    authManager.needsProfileSetup = false
-                }
             } else {
                 MainTabView()
             }
         }
         .animation(.easeInOut(duration: 0.3), value: showOnboarding)
-        .animation(.easeInOut(duration: 0.3), value: authManager.needsProfileSetup)
         .animation(.easeInOut(duration: 0.3), value: authManager.isAuthenticated)
         .animation(.easeInOut(duration: 0.3), value: authManager.isCheckingAuth)
     }

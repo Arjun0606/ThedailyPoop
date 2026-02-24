@@ -110,7 +110,7 @@ extension AuthenticationManager: ASAuthorizationControllerDelegate {
                 )
                 self.currentUser = user
                 self.isAuthenticated = true
-                self.needsProfileSetup = isNewUser
+                self.needsProfileSetup = false
                 UserDefaults.standard.set(user.id, forKey: "currentUserID")
                 NotificationCenter.default.post(name: Notification.Name("USER_SIGNED_IN"), object: nil)
             } catch {

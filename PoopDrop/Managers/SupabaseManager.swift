@@ -29,6 +29,14 @@ class SupabaseManager: ObservableObject {
         )
         let uid = session.user.id.uuidString.lowercased()
 
+        // Extract the actual Apple sub from auth metadata
+        let appleSub: String
+        if let sub = session.user.userMetadata["sub"]?.stringValue, !sub.isEmpty {
+            appleSub = sub
+        } else {
+            appleSub = uid
+        }
+
         // Check if user profile already exists
         if let existing = try await fetchUser(id: uid) {
             return (existing, false)
@@ -42,7 +50,7 @@ class SupabaseManager: ObservableObject {
 
         let username = generateUsername(from: givenName)
 
-        let newUser = User(id: uid, username: username, displayName: displayName, appleUserID: uid)
+        let newUser = User(id: uid, username: username, displayName: displayName, appleUserID: appleSub)
         try await saveUser(newUser)
 
         // Return saved user from server (has correct data)
